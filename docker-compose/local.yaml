@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: medai-backend
     build:
       context: ../backend
       dockerfile: ../backend/docker/Dockerfile.local
@@ -20,6 +21,7 @@ services:
       - medai-network
 
   db:
+    container_name: medai-db
     image: postgres:16.10
     environment:
       POSTGRES_USER: ${DJANGO_DB_USER:-medai}
@@ -30,7 +32,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DJANGO_DB_USER:-medai}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DJANGO_DB_USER:-medai} -d ${DJANGO_DB_NAME:-medai_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
