@@ -1,6 +1,7 @@
 *.iml
 .kotlin
 .gradle
+google-services.json
 **/build/
 xcuserdata
 !src/**/build/
