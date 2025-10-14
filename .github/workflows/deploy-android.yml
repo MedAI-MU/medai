@@ -9,6 +9,12 @@ on:
       - staging
     paths:
       - 'mobile/**'
+  pull_request:
+    branches:
+      - dev
+      - staging
+    paths:
+      - 'mobile/**'
 
 jobs:
   build-and-deploy:
@@ -40,7 +46,7 @@ jobs:
       # Deploy to DEV testers
       - name: Distribute to DEV Testers
         if: github.ref == 'refs/heads/dev'
-        uses: wzieba/firebase-app-distribution-action@v1
+        uses: firebase/firebase-app-distribution-action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_CLI_TOKEN }}
@@ -50,7 +56,7 @@ jobs:
       # Deploy to STAGING testers
       - name: Distribute to QA Team
         if: github.ref == 'refs/heads/staging'
-        uses: wzieba/firebase-app-distribution-action@v1
+        uses: firebase/firebase-app-distribution-action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_CLI_TOKEN }}
