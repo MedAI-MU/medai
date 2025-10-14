@@ -9,11 +9,7 @@ on:
       - staging
     paths:
       - 'mobile/**'
-  pull_request:
-    branches:
-      - dev
-      - staging
-
+        
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
