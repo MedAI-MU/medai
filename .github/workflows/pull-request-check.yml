@@ -10,7 +10,7 @@ on:
       - staging
 
 jobs:
-  build-and-test:
+  android-test:
     # Use a standard Linux runner
     runs-on: ubuntu-latest
     steps:
@@ -50,3 +50,21 @@ jobs:
       - name: Run Unit Tests
         working-directory: ./mobile/MedAI
         run: ./gradlew testDebugUnitTest
+
+  # Job 2: Run iOS tests on a macOS machine 
+  ios-test:
+    runs-on: macos-latest # iOS tests must run on macOS
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        working-directory: ./mobile/MedAI
+        run: chmod +x gradlew
+
+      - name: Run iOS Unit Tests
+        working-directory: ./mobile/MedAI
+        run: ./gradlew iosX64Test # This is the command to run tests for iOS
