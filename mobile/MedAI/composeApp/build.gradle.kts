@@ -19,6 +19,7 @@ kotlin {
     }
     
     listOf(
+        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -45,6 +46,20 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+            // Link all specific iOS targets to this common iosMain
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+        }
+        val iosTest by creating {
+            dependsOn(commonTest)
+            iosX64Test.dependsOn(this)
+            iosArm64Test.dependsOn(this) // Not strictly needed for CI but good practice
+            iosSimulatorArm64Test.dependsOn(this) // Not strictly needed for CI but good practice
         }
     }
 }
