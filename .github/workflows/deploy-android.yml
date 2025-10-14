@@ -33,9 +33,9 @@ jobs:
         working-directory: ./mobile/MedAI
         run: chmod +x gradlew
 
-      - name: Build Release APK
+      - name: Build Debug APK
         working-directory: ./mobile/MedAI
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug
 
       # Deploy to DEV testers
       - name: Distribute to DEV Testers
@@ -45,7 +45,7 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_CLI_TOKEN }}
           groups: dev-testers
-          file: mobile/MedAI/composeApp/build/outputs/apk/release/composeApp-release.apk
+          file: mobile/MedAI/composeApp/build/outputs/apk/debug/composeApp-debug.apk
 
       # Deploy to STAGING testers
       - name: Distribute to QA Team
@@ -55,4 +55,4 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_CLI_TOKEN }}
           groups: qa-team
-          file: mobile/MedAI/composeApp/build/outputs/apk/release/composeApp-release.apk
+          file: mobile/MedAI/composeApp/build/outputs/apk/debug/composeApp-debug.apk
