@@ -13,8 +13,6 @@ on:
     branches:
       - dev
       - staging
-    paths:
-      - 'mobile/**'
 
 jobs:
   build-and-deploy:
