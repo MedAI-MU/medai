@@ -19,6 +19,7 @@ kotlin {
     }
     
     listOf(
+        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -46,6 +47,7 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+
     }
 }
 
