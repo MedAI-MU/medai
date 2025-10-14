@@ -8,6 +8,8 @@ on:
     branches:
       - dev
       - staging
+    paths:
+      - 'mobile/**'
 
 jobs:
   android-test:
