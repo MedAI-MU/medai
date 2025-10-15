@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.12"
 django-ninja = "^1.4.3"
 psycopg2-binary = "^2.9.11"
-python-decouple = "^3.8"
+django-configurations = "^2.5.1"
 
 
 [tool.poetry.group.dev.dependencies]
