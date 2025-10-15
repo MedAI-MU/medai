@@ -53,15 +53,20 @@ class Base(Configuration):
 
     # Database
     # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+    DB_NAME = values.Value(environ_name='DB_NAME')
+    DB_USER = values.Value(environ_name='DB_USER')
+    DB_PASSWORD = values.Value(environ_name='DB_PASSWORD')
+    DB_HOST = values.Value(environ_name='DB_HOST')
+    DB_PORT = values.Value(environ_name='DB_PORT')
 
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': values.Value(environ_name='DB_NAME'),
-            'USER': values.Value(environ_name='DB_USER'),
-            'PASSWORD': values.Value(environ_name='DB_PASSWORD'),
-            'HOST': values.Value(environ_name='DB_HOST'),
-            'PORT': values.Value(environ_name='DB_PORT'),
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
         }
     }
 
