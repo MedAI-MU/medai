@@ -6,8 +6,6 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'MedAI.settings')
-    os.environ.setdefault('DJANGO_CONFIGURATION', 'Development')
     try:
         from configurations.management import execute_from_command_line
     except ImportError as exc:

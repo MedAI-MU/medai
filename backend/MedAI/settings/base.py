@@ -1,18 +1,14 @@
-import os
 from pathlib import Path
-
-from configurations import Configuration
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+from configurations import Configuration, values
 
 class Base(Configuration):
     """
     Base settings for all environments.
     """
     
-    SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
+    SECRET_KEY = values.SecretValue()
     DEBUG = False
     ALLOWED_HOSTS = []
 
@@ -61,11 +57,11 @@ class Base(Configuration):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DJANGO_DB_NAME'),
-            'USER': os.getenv('DJANGO_DB_USER'),
-            'PASSWORD': os.getenv('DJANGO_DB_PASSWORD'),
-            'HOST': os.getenv('DJANGO_DB_HOST'),
-            'PORT': os.getenv('DJANGO_DB_PORT'),
+            'NAME': values.Value(environ_name='DB_NAME'),
+            'USER': values.Value(environ_name='DB_USER'),
+            'PASSWORD': values.Value(environ_name='DB_PASSWORD'),
+            'HOST': values.Value(environ_name='DB_HOST'),
+            'PORT': values.Value(environ_name='DB_PORT'),
         }
     }
 
@@ -111,17 +107,3 @@ class Base(Configuration):
 
     DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-class Development(Base):
-    """
-    Development settings.
-    """
-    
-    DEBUG = True
-
-class Production(Base):
-    """
-    Production settings.
-    """
-    
-    DEBUG = False
