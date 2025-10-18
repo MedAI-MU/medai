@@ -31,7 +31,7 @@ class Base(Configuration):
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ]
 
-    ROOT_URLCONF = 'MedAI.urls'
+    ROOT_URLCONF = 'settings.urls'
 
     TEMPLATES = [
         {
@@ -48,17 +48,16 @@ class Base(Configuration):
         },
     ]
 
-    WSGI_APPLICATION = 'MedAI.wsgi.application'
+    WSGI_APPLICATION = 'settings.wsgi.application'
 
 
+    DB_NAME = values.Value(environ_name="DB_NAME")
+    DB_USER = values.Value(environ_name="DB_USER")
+    DB_PASSWORD = values.SecretValue(environ_name="DB_PASSWORD")
+    DB_HOST = values.Value(environ_name="DB_HOST", default="localhost")
+    DB_PORT = values.Value(environ_name="DB_PORT", default="5432")
     # Database
     # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-    DB_NAME = values.Value(environ_name='DB_NAME')
-    DB_USER = values.Value(environ_name='DB_USER')
-    DB_PASSWORD = values.Value(environ_name='DB_PASSWORD')
-    DB_HOST = values.Value(environ_name='DB_HOST')
-    DB_PORT = values.Value(environ_name='DB_PORT')
-
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
