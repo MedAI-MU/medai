@@ -7,7 +7,6 @@ For more information on this file, see
 https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
-
 from configurations.asgi import get_asgi_application
 
 application = get_asgi_application()

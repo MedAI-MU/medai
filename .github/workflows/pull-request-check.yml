@@ -53,9 +53,9 @@ jobs:
         working-directory: ./mobile/MedAI
         run: ./gradlew testDebugUnitTest
 
-  # Job 2: Run iOS tests on a macOS machine 
+  # Job 2: Run iOS tests on a macOS machine
   ios-test:
-    runs-on: macos-latest # iOS tests must run on macOS
+    runs-on: macos-latest  # iOS tests must run on macOS
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -79,4 +79,4 @@ jobs:
 
       - name: Run iOS Unit Tests
         working-directory: ./mobile/MedAI
-        run: ./gradlew iosX64Test # This is the command to run tests for iOS
+        run: ./gradlew iosX64Test  # This is the command to run tests for iOS
