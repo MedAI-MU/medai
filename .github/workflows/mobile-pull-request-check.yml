@@ -5,6 +5,10 @@ name: Mobile PR Check & Test
 on:
   # This workflow runs on any pull request targeting dev or staging
   push:
+    branches:
+      - dev
+      - staging
+      - main
   merge_group:
   pull_request:
     branches:

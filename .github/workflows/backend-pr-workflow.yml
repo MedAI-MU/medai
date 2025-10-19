@@ -2,6 +2,10 @@ name: Backend PR Check & Test
 on:
   # This workflow runs on any pull request targeting dev or staging
   push:
+    branches:
+      - dev
+      - staging
+      - main
   merge_group:
   pull_request:
     branches:
@@ -44,7 +48,6 @@ jobs:
         with:
           context: .
           file: ./backend/Dockerfile.test
-          builder: buildx-stable
           load: true
           tags: backend-test:latest
 
