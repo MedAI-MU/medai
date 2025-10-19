@@ -4,3 +4,8 @@ run:
 
 check-backend:
 	@pre-commit run --all-files
+
+test-backend:
+	@DOCKER_BUILDKIT=1 \
+	docker build -f backend/docker/Dockerfile.test -t medai-backend-test backend
+	@docker run --env-file backend/.env.example --rm medai-backend-test pytest

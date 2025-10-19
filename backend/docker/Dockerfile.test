@@ -54,9 +54,6 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && adduser -S -h /medai -u 1000 -G medai medai \
     && chown -R medai:medai /medai
 
-
-EXPOSE 8000
-
 WORKDIR /medai/
 USER medai
 
