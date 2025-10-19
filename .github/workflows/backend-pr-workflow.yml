@@ -46,8 +46,10 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./backend/Dockerfile.test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: backend
+          file: backend/docker/Dockerfile.test
           load: true
           tags: backend-test:latest
 
