@@ -6,7 +6,6 @@ on:
   # This workflow runs on any pull request targeting dev or staging
   push:
     branches:
-      - dev
       - staging
       - main
   merge_group:
