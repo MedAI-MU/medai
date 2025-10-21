@@ -9,7 +9,7 @@ on:
       - staging
     paths:
       - 'mobile/**'
-        
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

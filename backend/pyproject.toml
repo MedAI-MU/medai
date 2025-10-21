@@ -14,6 +14,41 @@ django-configurations = "^2.5.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-django = "^4.11.1"
+ruff = "^0.14.1"
+pre-commit = "^4.3.0"
+pytest-xdist = "^3.8.0"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=.",
+    "--cov-config=./pyproject.toml",
+    "--cov-fail-under=75",
+    "--cov-precision=2",
+    "--cov-report=term-missing",
+    "--dist=loadscope",
+    "--durations-min=1",
+    "--durations=3",
+    "--numprocesses=auto",
+]
+
+filterwarnings = [
+  "ignore::DeprecationWarning:pytest_cov",
+  "ignore::DeprecationWarning:xdist",
+  "ignore::django.conf.RemovedInDjango60Warning:django",
+]
+
+log_level = "INFO"
+[tool.coverage.run]
+branch = true
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "settings/*",
+    "manage.py",
+    "*/__init__.py",
+]
 
 [build-system]
 requires = ["poetry-core"]
