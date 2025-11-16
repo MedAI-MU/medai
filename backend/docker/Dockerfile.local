@@ -1,44 +1,38 @@
-FROM python:3.12-alpine AS builder
+FROM node:24-alpine AS builder
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend-builder" \
     APK_SYMLINK_DIR="/etc/apk/cache" \
-    GID=1000 \
-    UID=1000 \
-    PIP_CACHE_DIR="/medai/.cache/pip" \
-    POETRY_CACHE_DIR="/medai/.cache/pypoetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    PYTHONUNBUFFERED=1
+    NPM_CACHE_DIR="/medai/.cache/npm" \
+    PNPM_HOME="/pnpm"
 
-RUN mkdir -p ${APK_CACHE_DIR} ${POETRY_CACHE_DIR} \
+RUN mkdir -p ${APK_CACHE_DIR} \
     && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
-
 
 RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     apk update && apk upgrade \
-    && addgroup -S -g ${GID} medai \
-    && adduser -S -h /medai -u ${UID} -G medai medai \
+    && addgroup -S medai \
+    && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
 
-RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
-    python -m pip install poetry --cache-dir ${PIP_CACHE_DIR}
-
+RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
 WORKDIR /medai/
 USER medai
 
-COPY --chmod=444 --chown=medai:medai pyproject.toml poetry.lock .
-RUN --mount=type=cache,target=${POETRY_CACHE_DIR},uid=${UID},gid=${GID} \
-    python -m poetry install --no-root --without dev
+COPY --chmod=444 --chown=medai:medai package.json pnpm-lock.yaml ./
 
-FROM python:3.12-alpine
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
+
+FROM node:24-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
     APK_SYMLINK_DIR="/etc/apk/cache" \
-    PYTHONUNBUFFERED=1 \
     FORCE_COLOR=1 \
-    PATH="/medai/.venv/bin:$PATH"
+    NPM_CACHE_DIR="/medai/.cache/npm"
 
 RUN mkdir -p ${APK_CACHE_DIR} \
     && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
@@ -46,10 +40,12 @@ RUN mkdir -p ${APK_CACHE_DIR} \
 RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     apk update && apk upgrade \
     && apk add postgresql-client \
-    && addgroup -S -g 1000 medai \
-    && adduser -S -h /medai -u 1000 -G medai medai \
+    && addgroup -S medai \
+    && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
 
+RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
 
 EXPOSE 8000
 
