@@ -18,15 +18,17 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.compose_multiplatform
+import org.example.project.design_system.theme.MedAITheme
+import org.example.project.design_system.theme.Theme
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    MedAITheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(Theme.color.background)
                 .safeContentPadding()
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -41,7 +43,10 @@ fun App() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+                    Text(
+                        "Compose: $greeting",
+                        color = Theme.color.text.primary
+                    )
                 }
             }
         }
