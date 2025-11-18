@@ -25,14 +25,14 @@ RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
     npm install -g pnpm --cache ${NPM_CACHE_DIR}
 
 WORKDIR /medai/
-USER medai
 
-COPY --chmod=444 --chown=medai:medai package.json pnpm-lock.yaml ./
+COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/pnpm/store,id=pnpm \
     pnpm install --frozen-lockfile
 
 COPY src src
 COPY tests tests
+
 FROM node:24-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
@@ -52,9 +52,8 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
 
 RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
     npm install -g pnpm --cache ${NPM_CACHE_DIR}
-
+    
+COPY --from=builder --chown=root:root /medai/ /medai/
+    
 WORKDIR /medai/
 USER medai
-
-
-COPY --from=builder --chown=medai:medai /medai/ /medai/
