@@ -52,8 +52,8 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
 
 RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
     npm install -g pnpm --cache ${NPM_CACHE_DIR}
-    
+
 COPY --from=builder --chown=root:root /medai/ /medai/
-    
+
 WORKDIR /medai/
 USER medai

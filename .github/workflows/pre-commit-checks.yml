@@ -31,4 +31,4 @@ jobs:
           pip install pre-commit
 
       - name: Run pre-commit hooks
-        run: make check-backend
+        run: make pre-commit
