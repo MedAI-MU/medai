@@ -1,15 +1,21 @@
 frontend:
-  - 'frontend/**'
+  - "frontend/**"
+
 backend:
-  - 'backend/**'
+  - "backend/**"
+
 mobile:
-  - 'mobile/**'
+  - "mobile/**"
+
 docs:
-  - '**/*.md'
+  - "**/*.md"
+
 docker:
-  - 'docker-compose/**'
-  - '**/docker/**'
+  - "docker-compose/**"
+  - "**/docker/**"
+
 makefile:
-  - 'Makefile'
+  - "Makefile"
+
 github-actions:
-  - '.github/**'
+  - ".github/**"
