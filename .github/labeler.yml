@@ -1,21 +1,34 @@
 frontend:
-  - "frontend/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "frontend/**"
 
 backend:
-  - "backend/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "backend/**"
 
 mobile:
-  - "mobile/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "mobile/**"
 
 docs:
-  - "**/*.md"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.md"
 
 docker:
-  - "docker-compose/**"
-  - "**/docker/**"
-
+  - changed-files:
+    - any-glob-to-any-file:
+      - "docker-compose/**"
+      - "**/docker/**"
 makefile:
-  - "Makefile"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Makefile"
 
 github-actions:
-  - ".github/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/**"
