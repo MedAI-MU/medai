@@ -2,7 +2,9 @@ package org.example.project.design_system.component.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -18,6 +20,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.theme.MedAITheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class ButtonVariant {
     Primary,
@@ -73,5 +76,24 @@ fun MedAIButton(
             ),
             color = textColor
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MedAIButtonPreview() {
+    MedAITheme {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            MedAIButton(
+                text = "Log In",
+                onClick = { },
+                variant = ButtonVariant.Secondary
+            )
+            MedAIButton(
+                text = "Log In",
+                onClick = { },
+                variant = ButtonVariant.Primary
+            )
+        }
     }
 }
