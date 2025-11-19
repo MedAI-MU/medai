@@ -7,8 +7,8 @@ import org.example.project.design_system.color.MedAiColors
 import org.example.project.design_system.text_style.LocalMedAiTextStyle
 import org.example.project.design_system.text_style.MedAiTextStyle
 
-object Theme{
-    val color: MedAiColors
+object MedAITheme{
+    val colors: MedAiColors
         @Composable
         @ReadOnlyComposable
         get() = LocalMedAiColors.current
