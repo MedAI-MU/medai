@@ -5,17 +5,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.example.project.core.presentation.util.DateVisualTransformation
 import org.example.project.design_system.theme.MedAITheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // -----------------------------------------------------------------
 // Base Component: MedAiTextField (Built on BasicTextField)
@@ -228,5 +233,48 @@ private fun MedAiIconButton(
             colorFilter = ColorFilter.tint(tint),
             modifier = Modifier.size(size)
         )
+    }
+}
+
+@Preview
+@Composable
+private fun MedAiTextFieldPreview(){
+    MedAITheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MedAITheme.colors.background)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            // 1. Standard Input
+            var email by remember { mutableStateOf("") }
+            MedAiTextField(
+                value = email,
+                onValueChange = { email = it },
+                placeholder = "example@example.com"
+            )
+            // 2. Password Input
+            var password by remember { mutableStateOf("") }
+            MedAiPasswordTextField(
+                value = password,
+                onValueChange = { password = it }
+            )
+            // 3. Date Input (Visual only for now)
+            var date by remember { mutableStateOf("") }
+            MedAiDateTextField(
+                value = date,
+                onValueChange = { date = it },
+                placeholder = "DD / MM / YYYY"
+            )
+            // 4. Text Area
+            var reason by remember { mutableStateOf("") }
+            MedAiTextArea(
+                value = reason,
+                onValueChange = { reason = it },
+                placeholder = "Enter Your Reason Here..."
+            )
+        }
     }
 }

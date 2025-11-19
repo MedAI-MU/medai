@@ -4,12 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.theme.MedAITheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun MedAICardButton(
@@ -33,7 +37,6 @@ fun MedAICardButton(
     modifier: Modifier = Modifier,
     variant: ButtonVariant = ButtonVariant.Primary
 ) {
-    // Same gradient as the main button
     val primaryGradient = Brush.linearGradient(
         colors = listOf(
             Color(0xFF00E5FF),
@@ -73,7 +76,6 @@ fun MedAICardButton(
             tint = contentColor,
             modifier = Modifier.size(32.dp)
         )
-        // Spacing
         Spacer(modifier = Modifier.size(12.dp))
 
         Text(
@@ -84,5 +86,26 @@ fun MedAICardButton(
             color = contentColor,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Preview
+@Composable
+private fun MedAICardButtonPreview() {
+    MedAITheme {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            MedAICardButton(
+                text = "Ophthalmology",
+                icon = Icons.Default.Favorite,
+                variant = ButtonVariant.Primary,
+                onClick = {}
+            )
+            MedAICardButton(
+                text = "Ophthalmology",
+                icon = Icons.Default.Favorite,
+                variant = ButtonVariant.Secondary,
+                onClick = {}
+            )
+        }
     }
 }
