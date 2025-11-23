@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">MedIA</string>
+
+    <!-- General -->
+    <string name="skip">تخطي</string>
+    <string name="next">التالي</string>
+    <string name="get_started">ابدأ الآن</string>
+
+    <!-- Onboarding Page 1 -->
+    <string name="onboarding_title_1">اختر طبيبك</string>
+    <string name="onboarding_desc_1">ابحث عن أفضل المتخصصين بالقرب منك للعناية بصحتك.</string>
+
+    <!-- Onboarding Page 2 -->
+    <string name="onboarding_title_2">حدد المواعيد</string>
+    <string name="onboarding_desc_2">احجز المواعيد ببضع نقرات فقط، في أي وقت وفي أي مكان.</string>
+
+    <!-- Onboarding Page 3 -->
+    <string name="onboarding_title_3">تاريخك الطبي</string>
+    <string name="onboarding_desc_3">يمكنك الوصول إلى تاريخك الطبي الكامل بأمان في أي مكان.</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_description">اعثر على أفضل المتخصصين بالقرب منك، وأدر مواعيدك، وتتبع تاريخك الطبي بأمان في مكان واحد.</string>
+    <string name="log_in">تسجيل الدخول</string>
+    <string name="sign_up">إنشاء حساب</string>
+
+
+</resources>
