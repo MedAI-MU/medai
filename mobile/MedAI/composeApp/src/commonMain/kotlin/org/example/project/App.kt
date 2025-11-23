@@ -1,6 +1,8 @@
 package org.example.project
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,218 +43,47 @@ import org.example.project.design_system.component.textFields.MedAiPasswordTextF
 import org.example.project.design_system.component.textFields.MedAiTextArea
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.home.HomeScreen
+import org.example.project.presentation.splash.SplashScreen
+import org.example.project.presentation.welcome.WelcomeScreen
+
+// Simple Navigation State
+enum class AppScreen {
+    Splash,
+    Welcome,
+    Home
+}
 
 @Composable
 @Preview
 fun App() {
     MedAITheme {
-        var currentRoute by remember { mutableStateOf("home") }
+        var currentScreen by remember { mutableStateOf(AppScreen.Splash) }
 
-        MedAIScaffold(
-            bottomBar = {
-                MedAIBottomNavigation(
-                    currentRoute = currentRoute,
-                    onNavigate = { newRoute -> currentRoute = newRoute }
-                )
-            }
-        ) {
-            var showContent by remember { mutableStateOf(false) }
-            Column(
-                modifier = Modifier
-                    .background(MedAITheme.colors.background)
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Button(onClick = { showContent = !showContent }) {
-                    Text("Click me!")
+        Crossfade(
+            targetState = currentScreen,
+            animationSpec = tween(durationMillis = 600)
+        ) { screen ->
+            when (screen) {
+                AppScreen.Splash -> {
+                    SplashScreen(
+                        onSplashFinished = {
+                            currentScreen = AppScreen.Welcome
+                        }
+                    )
                 }
-                AnimatedVisibility(showContent) {
-                    val greeting = remember { Greeting().greet() }
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Image(painterResource(Res.drawable.compose_multiplatform), null)
-                        Text(
-                            "Compose: $greeting",
-                            color = MedAITheme.colors.text.primary
-                        )
-                    }
+                AppScreen.Welcome -> {
+                    WelcomeScreen(
+                        onLoginClick = {
+                            currentScreen = AppScreen.Home
+                        },
+                        onSignUpClick = {
+                            // Handle Sign Up navigation
+                        }
+                    )
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MedAITheme.colors.background)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                ) {
-                    // 1. Standard Input
-                    var email by remember { mutableStateOf("") }
-                    MedAiTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = "example@example.com"
-                    )
-
-                    // 2. Password Input
-                    var password by remember { mutableStateOf("") }
-                    MedAiPasswordTextField(
-                        value = password,
-                        onValueChange = { password = it }
-                    )
-
-                    // 3. Date Input (Visual only for now)
-                    var date by remember { mutableStateOf("") }
-                    MedAiDateTextField(
-                        value = date,
-                        onValueChange = { date = it },
-                        placeholder = "DD / MM / YYYY"
-                    )
-
-                    // 4. Text Area
-                    var reason by remember { mutableStateOf("") }
-                    MedAiTextArea(
-                        value = reason,
-                        onValueChange = { reason = it },
-                        placeholder = "Enter Your Reason Here..."
-                    )
-
-                    // 1. Main Buttons
-                    MedAIButton(
-                        text = "Log In",
-                        onClick = { },
-                        variant = ButtonVariant.Secondary
-                    )
-                    MedAIButton(
-                        text = "Log In",
-                        onClick = { },
-                        variant = ButtonVariant.Primary
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        MedAICircularButton(icon = Icons.Default.Favorite, onClick = {})
-                        MedAICircularButton(icon = Icons.Default.DateRange, onClick = {})
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        MedAICardButton(
-                            text = "Ophthalmology",
-                            icon = Icons.Default.Favorite, // Replace with Eye icon if available
-                            variant = ButtonVariant.Primary,
-                            onClick = {}
-                        )
-                        MedAICardButton(
-                            text = "Ophthalmology",
-                            icon = Icons.Default.Favorite,
-                            variant = ButtonVariant.Secondary,
-                            onClick = {}
-                        )
-                    }
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        item {
-                            // Unselected state
-                            MedAIDateCard(
-                                day = "9",
-                                weekday = "Mon",
-                                isSelected = false,
-                                onClick = {}
-                            )
-                        }
-                        item {
-                            // Selected state
-                            MedAIDateCard(
-                                day = "10",
-                                weekday = "Tue",
-                                isSelected = true,
-                                onClick = {}
-                            )
-                        }
-                        item {
-                            // Unselected state
-                            MedAIDateCard(
-                                day = "11",
-                                weekday = "Wed",
-                                isSelected = false,
-                                onClick = {}
-                            )
-                        }
-                    }
-
-                    var selectedOption by remember { mutableStateOf("Option 1") }
-
-                    Text(
-                        "Select Gender",
-                        style = MedAITheme.textStyle.title.medium,
-                        color = MedAITheme.colors.text.primary
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        MedAIRadioButton(
-                            selected = selectedOption == "Male",
-                            onClick = { selectedOption = "Male" },
-                            label = "Male"
-                        )
-
-                        MedAIRadioButton(
-                            selected = selectedOption == "Female",
-                            onClick = { selectedOption = "Female" },
-                            label = "Female"
-                        )
-                    }
-                    var notificationsEnabled by remember { mutableStateOf(true) }
-                    var darkModeEnabled by remember { mutableStateOf(false) }
-
-                    Text(
-                        "Settings",
-                        style = MedAITheme.textStyle.title.medium,
-                        color = MedAITheme.colors.text.primary
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Enable Notifications",
-                            style = MedAITheme.textStyle.body.medium,
-                            color = MedAITheme.colors.text.secondary
-                        )
-                        MedAISwitch(
-                            checked = notificationsEnabled,
-                            onCheckedChange = { notificationsEnabled = it }
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Dark Mode",
-                            style = MedAITheme.textStyle.body.medium,
-                            color = MedAITheme.colors.text.secondary
-                        )
-                        MedAISwitch(
-                            checked = darkModeEnabled,
-                            onCheckedChange = { darkModeEnabled = it }
-                        )
-                    }
-                    MedAIDropdown(
-                        title = "What is MedAI?",
-                        content = "MedAI is an advanced medical assistant powered by artificial intelligence to help you manage appointments and analyze medical scans."
-                    )
-
-                    MedAIDropdown(
-                        title = "How do I book?",
-                        content = "Simply navigate to the appointments tab, select a doctor, choose a date, and confirm your slot."
-                    )
+                AppScreen.Home -> {
+                    HomeScreen()
                 }
             }
         }
