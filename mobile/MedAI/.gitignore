@@ -1,6 +1,7 @@
 *.iml
 .kotlin
 .gradle
+composeApp/google-services.json
 google-services.json
 **/build/
 xcuserdata

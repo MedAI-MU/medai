@@ -17,4 +17,11 @@
     <!-- Onboarding Page 3 -->
     <string name="onboarding_title_3">تاريخك الطبي</string>
     <string name="onboarding_desc_3">يمكنك الوصول إلى تاريخك الطبي الكامل بأمان في أي مكان.</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_description">اعثر على أفضل المتخصصين بالقرب منك، وأدر مواعيدك، وتتبع تاريخك الطبي بأمان في مكان واحد.</string>
+    <string name="log_in">تسجيل الدخول</string>
+    <string name="sign_up">إنشاء حساب</string>
+
+
 </resources>

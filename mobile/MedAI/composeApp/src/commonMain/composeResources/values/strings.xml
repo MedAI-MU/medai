@@ -17,4 +17,11 @@
     <!-- Onboarding Page 3 -->
     <string name="onboarding_title_3">Check Medical History</string>
     <string name="onboarding_desc_3">Access your complete medical history safely and securely on the go.</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_description">Find the best specialists nearby, manage your appointments, and track your medical history safely in one place.</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+
+
 </resources>
