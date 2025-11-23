@@ -74,7 +74,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('mobile/MedAI/gradle/wrapper/gradle-wrapper.properties', 'mobile/MedAI/**/*.gradle*', 'mobile/MedAI/build.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
