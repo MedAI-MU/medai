@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">MedAI</string>
+
+    <!-- General -->
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Onboarding Page 1 -->
+    <string name="onboarding_title_1">Choose Your Doctor</string>
+    <string name="onboarding_desc_1">Find the best specialist nearby to take care of your health needs.</string>
+
+    <!-- Onboarding Page 2 -->
+    <string name="onboarding_title_2">Schedule Appointments</string>
+    <string name="onboarding_desc_2">Book appointments with just a few clicks, anytime and anywhere.</string>
+
+    <!-- Onboarding Page 3 -->
+    <string name="onboarding_title_3">Check Medical History</string>
+    <string name="onboarding_desc_3">Access your complete medical history safely and securely on the go.</string>
+</resources>
