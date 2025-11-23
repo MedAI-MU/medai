@@ -18,10 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,6 +47,7 @@ import medai.composeapp.generated.resources.skip
 import org.example.project.core.data.OnboardingStorage
 import org.example.project.core.presentation.util.UiText
 import org.example.project.core.presentation.util.asString
+import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
@@ -67,7 +64,7 @@ class OnboardingScreen : Screen {
 
         // 2. Define Navigation Logic
         fun onComplete() {
-            storage.setOnboardingCompleted(true)
+            //storage.setOnboardingCompleted(true)
             navigator.replace(WelcomeScreen())
         }
 
@@ -161,7 +158,8 @@ class OnboardingScreen : Screen {
                     val isLastPage = pagerState.currentPage == pages.size - 1
                     val buttonTextRes = if (isLastPage) Res.string.get_started else Res.string.next
 
-                    Button(
+                    MedAIButton(
+                        text = UiText.StringRes(buttonTextRes).asString(),
                         onClick = {
                             if (isLastPage) {
                                 onComplete()
@@ -171,20 +169,8 @@ class OnboardingScreen : Screen {
                                 }
                             }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(32.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MedAITheme.colors.primary,
-                            contentColor = MedAITheme.colors.onPrimary
-                        )
-                    ) {
-                        MedAIText(
-                            text =  UiText.StringRes(buttonTextRes).asString(),
-                            style = MedAITheme.textStyle.title.medium
-                        )
-                    }
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
