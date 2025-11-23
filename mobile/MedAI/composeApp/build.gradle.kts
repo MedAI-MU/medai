@@ -44,6 +44,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(compose.materialIconsExtended)
+
+            implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta02")
+            implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta02")
+            implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta02")
+            implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta02")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
