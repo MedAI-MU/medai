@@ -200,7 +200,6 @@ class OnboardingScreen : Screen {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
