@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.googleFirebaseAppdistribution)
     alias(libs.plugins.googleGmsGoogleServices)
     alias(libs.plugins.googleFirebaseCrashlytics)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
@@ -33,6 +34,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -45,13 +48,29 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(compose.materialIconsExtended)
 
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            // Ktor Core + JSON
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.logging)
+
             implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta02")
             implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta02")
             implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta02")
             implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta02")
+            implementation(libs.voyager.koin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
     }
