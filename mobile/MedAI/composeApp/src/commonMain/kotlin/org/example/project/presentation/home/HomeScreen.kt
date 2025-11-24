@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -27,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.compose_multiplatform
+import medai.composeapp.generated.resources.ic_favorite_filled
+import medai.composeapp.generated.resources.ic_settings
 import org.example.project.Greeting
 import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
 import org.example.project.design_system.component.button.ButtonVariant
@@ -42,6 +43,7 @@ import org.example.project.design_system.component.textFields.MedAiDateTextField
 import org.example.project.design_system.component.textFields.MedAiPasswordTextField
 import org.example.project.design_system.component.textFields.MedAiTextArea
 import org.example.project.design_system.component.textFields.MedAiTextField
+import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.design_system.theme.MedAITheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -137,8 +139,8 @@ fun HomeScreen() {
                     )
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        MedAICircularButton(icon = Icons.Default.Favorite, onClick = {})
-                        MedAICircularButton(icon = Icons.Default.DateRange, onClick = {})
+                        MedAICircularButton(icon = MedAIIcons.Fingerprint, onClick = {})
+                        MedAICircularButton(icon = MedAIIcons.Fingerprint, onClick = {})
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

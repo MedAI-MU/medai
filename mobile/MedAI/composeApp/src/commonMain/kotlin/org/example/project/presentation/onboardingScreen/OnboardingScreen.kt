@@ -24,6 +24,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -91,9 +93,17 @@ class OnboardingScreen : Screen {
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val scope = rememberCoroutineScope()
 
+        val brandGradient = Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFF00E5FF),
+                MedAITheme.colors.background
+            )
+        )
+
         MedAIScaffold{
             Column(
                 modifier = Modifier
+                    .background(brandGradient)
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
                     .padding(vertical = 24.dp)
