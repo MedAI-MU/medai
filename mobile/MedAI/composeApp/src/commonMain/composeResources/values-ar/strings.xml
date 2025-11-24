@@ -23,5 +23,18 @@
     <string name="log_in">تسجيل الدخول</string>
     <string name="sign_up">إنشاء حساب</string>
 
+    <!-- Login Screen -->
+    <string name="welcome_back">مرحباً بك</string>
+    <string name="login_subtitle">الرجاء إدخال تفاصيل حسابك لتسجيل الدخول.</string>
+    <string name="email_label">البريد الإلكتروني أو رقم الهاتف</string>
+    <string name="email_placeholder">example@example.com</string>
+    <string name="password_label">كلمة المرور</string>
+    <string name="password_placeholder">**************</string>
+    <string name="forgot_password">نسيت كلمة المرور؟</string>
+    <string name="or_sign_up_with">أو سجل الدخول باستخدام</string>
+    <string name="dont_have_account">ليس لديك حساب؟ </string>
+    <string name="error_empty_fields">البريد الإلكتروني وكلمة المرور لا يمكن أن تكون فارغة</string>
+    <string name="error_invalid_credentials">بيانات الاعتماد غير صالحة</string>
+
 
 </resources>

@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +16,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import medai.composeapp.generated.resources.Res
+import medai.composeapp.generated.resources.ic_favorite_filled
+import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.design_system.theme.MedAITheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -59,8 +60,8 @@ private fun MedAICircularButtonPreview() {
     MedAITheme {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                MedAICircularButton(icon = Icons.Default.Favorite, onClick = {})
-                MedAICircularButton(icon = Icons.Default.DateRange, onClick = {})
+                MedAICircularButton(icon = MedAIIcons.Fingerprint, onClick = {})
+                MedAICircularButton(icon = MedAIIcons.Fingerprint, onClick = {})
             }
         }
     }
