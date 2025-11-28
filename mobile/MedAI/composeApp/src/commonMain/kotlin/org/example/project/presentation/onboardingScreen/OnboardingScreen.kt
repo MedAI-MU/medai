@@ -93,17 +93,16 @@ class OnboardingScreen : Screen {
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val scope = rememberCoroutineScope()
 
-        val brandGradient = Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFF00E5FF),
-                MedAITheme.colors.background
-            )
-        )
+//        val brandGradient = Brush.verticalGradient(
+//            colors = listOf(
+//                Color(0xFF00E5FF),
+//                MedAITheme.colors.background
+//            )
+//        )
 
         MedAIScaffold{
             Column(
                 modifier = Modifier
-                    .background(brandGradient)
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
                     .padding(vertical = 24.dp)

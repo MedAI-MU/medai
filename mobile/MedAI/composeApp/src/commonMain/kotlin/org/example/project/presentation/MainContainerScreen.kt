@@ -27,29 +27,58 @@ import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import org.example.project.design_system.component.bottomNavigation.BottomNavItem
+import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
+import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
 
 class MainContainerScreen : Screen {
     @Composable
     override fun Content() {
         TabNavigator(HomeTab) {
-            Scaffold(
+
+            val tabNavigator = LocalTabNavigator.current
+
+            // Map the Voyager Tabs to our Navigation Item data class
+            val navItems = listOf(
+                BottomNavItem("Home", "home", Icons.Default.Home),
+                BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline),
+                BottomNavItem("Schedule", "schedule", Icons.Default.CalendarMonth),
+                BottomNavItem("Profile", "profile", Icons.Default.Person)
+            )
+
+            MedAIScaffold (
+                containerColor = MedAITheme.colors.background,
                 content = { padding ->
                     Box(modifier = Modifier.padding(padding)) {
                         CurrentTab()
                     }
                 },
                 bottomBar = {
-                    NavigationBar(
-                        containerColor = MedAITheme.colors.surface
-                    ) {
-                        TabNavigationItem(HomeTab)
-                        TabNavigationItem(MessagesTab)
-                        TabNavigationItem(ScheduleTab)
-                        TabNavigationItem(ProfileTab)
-                    }
+                    MedAIBottomNavigation(
+                        currentRoute = getRouteFromTab(tabNavigator.current),
+                        onNavigate = { route ->
+                            when(route) {
+                                "home" -> tabNavigator.current = HomeTab
+                                "messages" -> tabNavigator.current = MessagesTab
+                                "schedule" -> tabNavigator.current = ScheduleTab
+                                "profile" -> tabNavigator.current = ProfileTab
+                            }
+                        },
+                        items = navItems
+                    )
                 }
             )
+        }
+    }
+
+    private fun getRouteFromTab(tab: Tab): String {
+        return when (tab) {
+            HomeTab -> "home"
+            MessagesTab -> "messages"
+            ScheduleTab -> "schedule"
+            ProfileTab -> "profile"
+            else -> ""
         }
     }
 }

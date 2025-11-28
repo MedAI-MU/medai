@@ -2,6 +2,7 @@ package org.example.project.design_system.component.bottomNavigation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -43,20 +44,19 @@ data class BottomNavItem(
 fun MedAIBottomNavigation(
     currentRoute: String,
     onNavigate: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    items: List<BottomNavItem>
 ) {
     // Define your navigation items
-    val items = listOf(
-        BottomNavItem("Home", "home", Icons.Default.Home),
-        BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline),
-        BottomNavItem("Profile", "profile", Icons.Default.Person),
-        BottomNavItem("calendar", "calendar", Icons.Default.CalendarMonth)
-    )
+    val isDark = isSystemInDarkTheme()
+    val barColor = if (isDark) MedAITheme.colors.background else MedAITheme.colors.surface
+
+    val elevation = if (isDark) 0.dp else 8.dp
     val barHeight = 64.dp
     Surface(
         modifier = modifier,
-        color = MedAITheme.colors.surface,
-        shadowElevation = 8.dp
+        color = barColor,
+        shadowElevation = elevation
     ) {
         Row(
             modifier = Modifier
@@ -105,7 +105,13 @@ fun MedAIBottomNavigationPreview(){
             bottomBar = {
                 MedAIBottomNavigation(
                     currentRoute = currentRoute,
-                    onNavigate = { newRoute -> currentRoute = newRoute }
+                    onNavigate = { newRoute -> currentRoute = newRoute },
+                    items = listOf(
+                        BottomNavItem("Home", "home", Icons.Default.Home),
+                        BottomNavItem("Calendar", "calendar", Icons.Default.CalendarMonth),
+                        BottomNavItem("Chat", "chat", Icons.Default.ChatBubbleOutline)
+                    ),
+                    modifier = Modifier
                 )
             },
             containerColor = MedAITheme.colors.background
