@@ -37,6 +37,7 @@ import medai.composeapp.generated.resources.password_placeholder
 import medai.composeapp.generated.resources.welcome_back
 import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
+import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiPasswordTextField
 import org.example.project.design_system.component.textFields.MedAiTextField
@@ -71,17 +72,14 @@ class LoginScreen : Screen {
             }
         }
 
-        Scaffold(
-            containerColor = MedAITheme.colors.background,
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {
-                LoginTopBar(onBackClick = { navigator.pop() })
-            }
+        MedAIScaffold(
+            title = stringResource(Res.string.log_in),
+            onBackClick = { navigator.pop() },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.Start
             ) {

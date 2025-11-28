@@ -109,7 +109,7 @@ fun MedAILogo(
     ) {
         Icon(
             imageVector = Icons.Default.Favorite,
-            contentDescription = "HealthTrack Logo",
+            contentDescription = "MedAI Logo",
             modifier = Modifier.size(iconSize),
             tint = tint
         )
@@ -117,7 +117,7 @@ fun MedAILogo(
         Spacer(modifier = Modifier.height(16.dp))
 
         MedAIText(
-            text = "HealthTrack",
+            text = "MedAI",
             style = MedAITheme.textStyle.headline.large.copy(
                 fontWeight = FontWeight.Bold
             ),

@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import medai.composeapp.generated.resources.compose_multiplatform
 import medai.composeapp.generated.resources.ic_favorite_filled
 import medai.composeapp.generated.resources.ic_settings
 import org.example.project.Greeting
+import org.example.project.design_system.component.bottomNavigation.BottomNavItem
 import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
 import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
@@ -59,7 +61,15 @@ fun HomeScreen() {
             bottomBar = {
                 MedAIBottomNavigation(
                     currentRoute = currentRoute,
-                    onNavigate = { newRoute -> currentRoute = newRoute }
+                    onNavigate = { newRoute -> currentRoute = newRoute },
+                    items = listOf(
+                        BottomNavItem("Home", "home", Icons.Default.Home),
+                        BottomNavItem("Messages", "messages", MedAIIcons.Home),
+                        BottomNavItem("Schedule", "schedule", MedAIIcons.Calendar),
+                        BottomNavItem("Profile", "profile", MedAIIcons.Settings)
+                    ),
+                    modifier = Modifier
+
                 )
             }
         ) {
