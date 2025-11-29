@@ -36,4 +36,4 @@ jobs:
 
       - name: Run backend tests
         run: |
-          docker run --rm backend-test:latest pytest
+          docker run --rm backend-test:latest pnpm test:cov
