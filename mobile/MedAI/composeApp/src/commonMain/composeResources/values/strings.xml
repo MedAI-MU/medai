@@ -37,4 +37,16 @@
     <string name="error_empty_fields">Email and Password cannot be empty</string>
     <string name="error_invalid_credentials">Invalid credentials</string>
 
+
+    <!-- SignUp Screen -->
+    <string name="new_account">New Account</string>
+    <string name="full_name_label">Full name</string>
+    <string name="full_name_placeholder">Your full name</string>
+    <string name="mobile_number_label">Mobile Number</string>
+    <string name="mobile_number_placeholder">000 000 0000</string>
+    <string name="dob_label">Date Of Birth</string>
+    <string name="dob_placeholder">DD / MM / YYYY</string>
+    <string name="terms_agreement">By continuing, you agree to \nTerms of Use and Privacy Policy.</string>
+    <string name="already_have_account">already have an account? </string>
+
 </resources>
