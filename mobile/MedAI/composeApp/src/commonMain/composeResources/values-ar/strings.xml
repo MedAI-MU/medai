@@ -26,7 +26,7 @@
     <!-- Login Screen -->
     <string name="welcome_back">مرحباً بك</string>
     <string name="login_subtitle">الرجاء إدخال تفاصيل حسابك لتسجيل الدخول.</string>
-    <string name="email_label">البريد الإلكتروني أو رقم الهاتف</string>
+    <string name="email_or_mobile_label">البريد الإلكتروني أو رقم الهاتف</string>
     <string name="email_placeholder">example@example.com</string>
     <string name="password_label">كلمة المرور</string>
     <string name="password_placeholder">**************</string>
@@ -35,6 +35,19 @@
     <string name="dont_have_account">ليس لديك حساب؟ </string>
     <string name="error_empty_fields">البريد الإلكتروني وكلمة المرور لا يمكن أن تكون فارغة</string>
     <string name="error_invalid_credentials">بيانات الاعتماد غير صالحة</string>
+
+    <!-- Sign Up Screen -->
+
+    <string name="new_account">حساب جديد</string>
+    <string name="full_name_label">الاسم الكامل</string>
+    <string name="full_name_placeholder">اسمك بالكامل</string>
+    <string name="mobile_number_label">رقم الهاتف</string>
+    <string name="mobile_number_placeholder">000 000 0000</string>
+    <string name="dob_label">تاريخ الميلاد</string>
+    <string name="dob_placeholder">يوم / شهر / سنة</string>
+    <string name="terms_agreement">بالمتابعة، أنت توافق على \nشروط الاستخدام وسياسة الخصوصية.</string>
+    <string name="already_have_account">لديك حساب بالفعل؟ </string>
+    <string name="email_label">البريد الإلكتروني</string>
 
     <!-- Home Screen -->
     <string name="home_greeting">مرحباً بك مجدداً</string>

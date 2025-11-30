@@ -59,7 +59,9 @@ fun MedAiTextField(
     minLines: Int = 1,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
+    enabled: Boolean = true
 ) {
     // Design Specs
     val shape = RoundedCornerShape(16.dp)
@@ -81,6 +83,8 @@ fun MedAiTextField(
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
         cursorBrush = SolidColor(cursorColor),
+        readOnly = readOnly,
+        enabled = enabled,
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -130,7 +134,7 @@ fun MedAiPasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Password"
+    placeholder: String = "Password",
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -165,7 +169,9 @@ fun MedAiDateTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "DD / MM / YYYY"
+    placeholder: String = "DD / MM / YYYY",
+    readOnly: Boolean = false,
+    enabled: Boolean = true
 ) {
     MedAiTextField(
         value = value,
@@ -179,7 +185,9 @@ fun MedAiDateTextField(
         placeholder = placeholder,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        visualTransformation = DateVisualTransformation()
+        visualTransformation = DateVisualTransformation(),
+        readOnly = readOnly,
+        enabled = enabled
     )
 }
 

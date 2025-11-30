@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -43,17 +44,14 @@ fun MedAIScaffold(
 
     val isDark = isSystemInDarkTheme()
 
-    // Define the subtle dark mode gradient
-    // From Deep Blue (#002639) to Base Black (Theme Background)
-    val backgroundModifier = if (isDark) {
-        Modifier.background(
-            Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFF003049), // Secondary1000 0xFF00E5FF 0xFF002639
-                    Color(0xFF003049)
-                )
-            )
-        )
+    val gradientBrush = remember(isDark) {
+        if (isDark) {
+            Brush.verticalGradient(listOf(Color(0xFF003049), Color(0xFF002639)))
+        } else null
+    }
+
+    val backgroundModifier = if (gradientBrush != null) {
+        Modifier.background(gradientBrush)
     } else {
         Modifier.background(containerColor)
     }
