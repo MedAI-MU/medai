@@ -36,5 +36,27 @@
     <string name="error_empty_fields">البريد الإلكتروني وكلمة المرور لا يمكن أن تكون فارغة</string>
     <string name="error_invalid_credentials">بيانات الاعتماد غير صالحة</string>
 
+    <!-- Home Screen -->
+    <string name="home_greeting">مرحباً بك مجدداً</string>
+    <string name="categories">الفئات</string>
+    <string name="see_all">عرض الكل</string>
+    <string name="upcoming_schedule">المواعيد القادمة</string>
+    <string name="month">الشهر</string>
+    <string name="specialties">التخصصات</string>
+
+    <!-- Categories -->
+    <string name="cat_favorite">المفضلة</string>
+    <string name="cat_doctors">الأطباء</string>
+    <string name="cat_pharmacy">الصيدلية</string>
+    <string name="cat_specialties">التخصصات</string>
+    <string name="cat_record">السجلات</string>
+
+    <!-- Specialties -->
+    <string name="spec_cardiology">القلب</string>
+    <string name="spec_dermatology">الجلدية</string>
+    <string name="spec_general">طب عام</string>
+    <string name="spec_gynecology">النساء والتوليد</string>
+    <string name="spec_odontology">الأسنان</string>
+    <string name="spec_oncology">الأورام</string>
 
 </resources>
