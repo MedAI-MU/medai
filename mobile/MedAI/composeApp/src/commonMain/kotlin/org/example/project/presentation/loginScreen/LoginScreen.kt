@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -27,7 +26,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import medai.composeapp.generated.resources.Res
-import medai.composeapp.generated.resources.email_label
+import medai.composeapp.generated.resources.email_or_mobile_label
 import medai.composeapp.generated.resources.email_placeholder
 import medai.composeapp.generated.resources.forgot_password
 import medai.composeapp.generated.resources.log_in
@@ -44,7 +43,6 @@ import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.MainContainerScreen
 import org.example.project.presentation.loginScreen.component.InputLabel
-import org.example.project.presentation.loginScreen.component.LoginTopBar
 import org.example.project.presentation.loginScreen.component.SignUpLink
 import org.example.project.presentation.loginScreen.component.SocialLoginSection
 import org.example.project.presentation.signUpScreen.SignUpScreen
@@ -103,7 +101,7 @@ class LoginScreen : Screen {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Email Input
-                InputLabel(text = stringResource(Res.string.email_label))
+                InputLabel(text = stringResource(Res.string.email_or_mobile_label))
                 MedAiTextField(
                     value = state.email,
                     onValueChange = { viewModel.onEvent(LoginEvent.EmailChanged(it)) },
