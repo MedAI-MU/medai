@@ -27,7 +27,7 @@
     <!-- Login Screen -->
     <string name="welcome_back">Welcome</string>
     <string name="login_subtitle">Please enter your account details to login.</string>
-    <string name="email_label">Email or Mobile Number</string>
+    <string name="email_or_mobile_label">Email or Mobile Number</string>
     <string name="email_placeholder">example@example.com</string>
     <string name="password_label">Password</string>
     <string name="password_placeholder">**************</string>
@@ -48,5 +48,6 @@
     <string name="dob_placeholder">DD / MM / YYYY</string>
     <string name="terms_agreement">By continuing, you agree to \nTerms of Use and Privacy Policy.</string>
     <string name="already_have_account">already have an account? </string>
+    <string name="email_label">Email</string>
 
 </resources>

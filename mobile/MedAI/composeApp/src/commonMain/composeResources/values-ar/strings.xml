@@ -26,7 +26,7 @@
     <!-- Login Screen -->
     <string name="welcome_back">مرحباً بك</string>
     <string name="login_subtitle">الرجاء إدخال تفاصيل حسابك لتسجيل الدخول.</string>
-    <string name="email_label">البريد الإلكتروني أو رقم الهاتف</string>
+    <string name="email_or_mobile_label">البريد الإلكتروني أو رقم الهاتف</string>
     <string name="email_placeholder">example@example.com</string>
     <string name="password_label">كلمة المرور</string>
     <string name="password_placeholder">**************</string>
@@ -47,6 +47,7 @@
     <string name="dob_placeholder">يوم / شهر / سنة</string>
     <string name="terms_agreement">بالمتابعة، أنت توافق على \nشروط الاستخدام وسياسة الخصوصية.</string>
     <string name="already_have_account">لديك حساب بالفعل؟ </string>
+    <string name="email_label">البريد الإلكتروني</string>
 
 
 </resources>
