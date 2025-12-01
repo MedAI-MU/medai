@@ -16,6 +16,7 @@ import org.example.project.domain.model.Category
 import org.example.project.domain.model.Doctor
 import org.example.project.domain.model.Specialty
 import org.example.project.domain.repository.HomeRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 class NetworkHomeRepository(
     private val client: HttpClient
@@ -26,6 +27,8 @@ class NetworkHomeRepository(
         return try {
             val response: UserResponseDto = client.get("/user/me").body()
             Result.success(response.name)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -46,6 +49,8 @@ class NetworkHomeRepository(
                 )
             }
             Result.success(domainList)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -74,6 +79,8 @@ class NetworkHomeRepository(
                 )
             }
             Result.success(domainList)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -94,6 +101,8 @@ class NetworkHomeRepository(
                 )
             }
             Result.success(domainList)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
