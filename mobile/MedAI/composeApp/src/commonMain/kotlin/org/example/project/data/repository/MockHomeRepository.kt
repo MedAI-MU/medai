@@ -55,7 +55,35 @@ class MockHomeRepository : HomeRepository {
                 Appointment(
                     id = "2",
                     doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
-                    date =  LocalDate(2025, 11, 11) ,
+                    date =  LocalDate(2025, 11, 30) ,
+                    time = "08:00 am",
+                    status = AppointmentStatus.Finished
+                ),
+                Appointment(
+                    id = "1",
+                    doctor = Doctor("d1", "Dr. Olivia Turner", "Dermatologist"),
+                    date =  LocalDate(2025, 12, 3) ,
+                    time = "10:00 am",
+                    status = AppointmentStatus.Pending
+                ),
+                Appointment(
+                    id = "2",
+                    doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
+                    date =  LocalDate(2025, 12, 3) ,
+                    time = "08:00 am",
+                    status = AppointmentStatus.Finished
+                ),
+                Appointment(
+                    id = "1",
+                    doctor = Doctor("d1", "Dr. Olivia Turner", "Dermatologist"),
+                    date =  LocalDate(2025, 12, 5) ,
+                    time = "10:00 am",
+                    status = AppointmentStatus.Pending
+                ),
+                Appointment(
+                    id = "2",
+                    doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
+                    date =  LocalDate(2025, 12, 11) ,
                     time = "08:00 am",
                     status = AppointmentStatus.Finished
                 )

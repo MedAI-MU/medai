@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import org.example.project.core.presentation.util.UiText
 import org.example.project.core.presentation.util.asString
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.icons.IconMapper
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.Category
 
@@ -32,7 +33,7 @@ fun CategoryItem(
 ) {
     // Mapping string names to Icons for Mocking purposes.
     // In real app, these would be DrawableResources.
-    val icon = getIconByName(category.iconName)
+    val icon = IconMapper.getCategoryIcon(category.iconName)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,17 +51,5 @@ fun CategoryItem(
             style = MedAITheme.textStyle.label.medium,
             color = MedAITheme.colors.primary
         )
-    }
-}
-
-// Helper for mock icons
-fun getIconByName(name: String): ImageVector {
-    return when(name) {
-        "favorite" -> Icons.Default.FavoriteBorder
-        "stethoscope" -> Icons.Default.MedicalServices // Close approximation
-        "medication" -> Icons.Default.Medication
-        "local_hospital" -> Icons.Default.LocalHospital
-        "assignment" -> Icons.Default.Assignment
-        else -> Icons.Default.Circle
     }
 }

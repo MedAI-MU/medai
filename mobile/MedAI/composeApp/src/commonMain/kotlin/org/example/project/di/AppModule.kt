@@ -1,5 +1,6 @@
 package org.example.project.di
 
+import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.data.remote.KtorClient
 import org.example.project.data.repository.MockHomeRepository
 import org.example.project.data.repository.MockLoginRepository
@@ -17,6 +18,10 @@ import org.example.project.presentation.signUpScreen.SignUpViewModel
 import org.koin.dsl.module
 
 val appModule = module {
+
+    // Utils
+    single { CalendarManager() }
+
     // --- Network ---
     single { KtorClient.client }
 
@@ -35,5 +40,5 @@ val appModule = module {
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
     factory { SignUpViewModel(signUpUseCase = get()) }
-    factory { HomeViewModel(get()) }
+    factory { HomeViewModel(get(),get()) }
 }

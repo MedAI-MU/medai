@@ -105,6 +105,7 @@ private fun parseDate(dateString: String): LocalDate {
         // Expecting ISO format "2023-11-22"
         LocalDate.parse(dateString)
     } catch (e: Exception) {
+        e.printStackTrace()
         // Returning a dummy date (e.g. today or epoch) to prevent crash
         LocalDate(2025, 11, 11)
     }

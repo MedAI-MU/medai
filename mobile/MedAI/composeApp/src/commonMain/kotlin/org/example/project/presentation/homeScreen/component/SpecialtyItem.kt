@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import org.example.project.core.presentation.util.UiText
 import org.example.project.core.presentation.util.asString
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.icons.IconMapper
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.Specialty
 
@@ -37,6 +38,7 @@ fun SpecialtyItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val icon = IconMapper.getSpecialtyIcon(specialty.iconName)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -47,7 +49,7 @@ fun SpecialtyItem(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = getSpecialtyIcon(specialty.iconName),
+            imageVector = icon,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier.size(32.dp)
@@ -59,17 +61,5 @@ fun SpecialtyItem(
             color = Color.White,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-fun getSpecialtyIcon(name: String): ImageVector {
-    return when (name) {
-        "cardiology" -> Icons.Default.Favorite
-        "dermatology" -> Icons.Default.Face
-        "general" -> Icons.Default.Person
-        "gynecology" -> Icons.Default.PregnantWoman
-        "odontology" -> Icons.Default.Face // Placeholder
-        "oncology" -> Icons.Default.Science
-        else -> Icons.Default.Circle
     }
 }

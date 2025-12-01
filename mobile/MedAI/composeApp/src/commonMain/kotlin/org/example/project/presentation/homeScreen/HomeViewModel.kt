@@ -15,10 +15,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.GetHomeDataUseCase
 
 class HomeViewModel(
-    private val getHomeDataUseCase: GetHomeDataUseCase
+    private val getHomeDataUseCase: GetHomeDataUseCase,
+    private val calendarManager: CalendarManager
 ) : ScreenModel {
 
     // 1. UI State (Persistent data)
@@ -37,7 +39,6 @@ class HomeViewModel(
                 displayedMonth = today // Start viewing current month
             )
         }
-        generateCalendarDates(today)
         loadData()
     }
 
@@ -112,26 +113,24 @@ class HomeViewModel(
 
     private fun generateCalendarDates(baseDate: LocalDate) {
         val selectedDate = _state.value.selectedDate
-        val firstDayOfMonth = LocalDate(baseDate.year, baseDate.monthNumber, 1)
+        val appointments = _state.value.allAppointments
 
+        val days = calendarManager.getDaysForMonth(baseDate)
 
-        val daysInMonth = 31
-
-        val generatedDays = (0 until daysInMonth).map { i ->
-            val date = firstDayOfMonth.plus(DatePeriod(days = i))
-
-            // Skip if we rolled over to next month (simple check)
-            if (date.month != firstDayOfMonth.month) return@map null
+        // Map to UI Model
+        val calendarUiList = days.map { date ->
+            val hasAppt = appointments.any { it.date == date }
 
             CalendarUiModel(
                 day = date.dayOfMonth.toString(),
-                weekDay = date.dayOfWeek.name.take(3), // MON, TUE
+                weekDay = date.dayOfWeek.name.take(3),
                 fullDate = date,
-                isSelected = date == selectedDate
+                isSelected = date == selectedDate,
+                hasAppointment = hasAppt
             )
-        }.filterNotNull()
+        }
 
-        _state.update { it.copy(calendarDays = generatedDays) }
+        _state.update { it.copy(calendarDays = calendarUiList) }
     }
     private fun loadData() {
         screenModelScope.launch {
@@ -154,6 +153,8 @@ class HomeViewModel(
                             specialties = data.specialties
                         )
                     }
+                    val currentSelection = _state.value.selectedDate ?: calendarManager.getToday()
+                    generateCalendarDates(_state.value.displayedMonth ?: currentSelection)
                     filterAppointments(_state.value.selectedDate ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
                 },
                 onFailure = { error ->

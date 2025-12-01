@@ -221,6 +221,7 @@ class HomeScreen : Screen {
                                         day = dateModel.day,
                                         weekday = dateModel.weekDay,
                                         isSelected = dateModel.isSelected,
+                                        hasAppointment = dateModel.hasAppointment,
                                         onClick = {
                                             viewModel.onEvent(HomeEvent.DateSelected(dateModel.fullDate))
                                         }
