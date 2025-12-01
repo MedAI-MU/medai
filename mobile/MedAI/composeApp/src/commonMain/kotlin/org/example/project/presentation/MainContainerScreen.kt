@@ -31,6 +31,7 @@ import org.example.project.design_system.component.bottomNavigation.BottomNavIte
 import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.homeScreen.HomeScreen
 
 class MainContainerScreen : Screen {
     @Composable
@@ -107,14 +108,9 @@ object HomeTab : Tab {
             val icon = rememberVectorPainter(Icons.Default.Home)
             return remember { TabOptions(index = 0u, title = "Home", icon = icon) }
         }
-
     @Composable
     override fun Content() {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Home Screen (Image 5)")
-            // You can add buttons here to test navigation to inner screens
-            // val navigator = LocalNavigator.currentOrThrow.parent // Get parent navigator to leave tabs
-        }
+        HomeScreen().Content()
     }
 }
 

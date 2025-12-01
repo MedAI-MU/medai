@@ -50,4 +50,27 @@
     <string name="already_have_account">already have an account? </string>
     <string name="email_label">Email</string>
 
+    <!-- Home Screen -->
+    <string name="home_greeting">Hi, Welcome Back</string>
+    <string name="categories">Categories</string>
+    <string name="see_all">See all</string>
+    <string name="upcoming_schedule">Upcoming Schedule</string>
+    <string name="month">Month</string>
+    <string name="specialties">Specialties</string>
+
+    <!-- Categories -->
+    <string name="cat_favorite">Favorite</string>
+    <string name="cat_doctors">Doctors</string>
+    <string name="cat_pharmacy">Pharmacy</string>
+    <string name="cat_specialties">Specialties</string>
+    <string name="cat_record">Record</string>
+
+    <!-- Specialties -->
+    <string name="spec_cardiology">Cardiology</string>
+    <string name="spec_dermatology">Dermatology</string>
+    <string name="spec_general">General\nMedicine</string>
+    <string name="spec_gynecology">Gynecology</string>
+    <string name="spec_odontology">Odontology</string>
+    <string name="spec_oncology">Oncology</string>
+
 </resources>

@@ -1,13 +1,18 @@
 package org.example.project.design_system.component.dayPicker
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -25,6 +30,7 @@ fun MedAIDateCard(
     day: String,
     weekday: String,
     isSelected: Boolean,
+    hasAppointment: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -78,6 +84,20 @@ fun MedAIDateCard(
                     fontWeight = FontWeight.SemiBold
                 )
             )
+
+            if (hasAppointment) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(
+                            // If card is selected (white bg), dot is primary color.
+                            // If card is unselected (blue/transparent bg), dot is white.
+                            color = if (isSelected) MedAITheme.colors.primary else Color.White,
+                            shape = CircleShape
+                        )
+                )
+            }
         }
     }
 }
@@ -96,6 +116,7 @@ private fun MedAIDateCardPreview(){
                     day = "9",
                     weekday = "Mon",
                     isSelected = false,
+                    hasAppointment = true,
                     onClick = {}
                 )
             }
@@ -105,6 +126,7 @@ private fun MedAIDateCardPreview(){
                     day = "10",
                     weekday = "Tue",
                     isSelected = true,
+                    hasAppointment = true,
                     onClick = {}
                 )
             }

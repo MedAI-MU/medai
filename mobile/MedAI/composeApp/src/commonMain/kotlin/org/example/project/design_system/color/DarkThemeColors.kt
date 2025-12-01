@@ -4,37 +4,32 @@ package org.example.project.design_system.color
  * Defines the set of semantic colors for the Dark theme.
  */
 val darkTextColors = MedAiTextColors(
-    primary = baseWhite,
-    secondary = neutral100,
-    tertiary = neutral400,
+    primary = neutral100,
+    secondary = neutral400,
+    tertiary = neutral600,
     onPrimary = baseBlack,
-    onBackground = baseWhite
+    onBackground = neutral100
 )
 
 val darkStatusColors = MedAiStatusColors(
-    success = success100,
-    warning = warning100,
-    error = error100,
-    successContainer = success300,
-    warningContainer = warning300,
-    errorContainer = error300
+    success = success300,
+    warning = warning300,
+    error = error300,
+    successContainer = success100.copy(alpha = 0.1f),
+    warningContainer = warning100.copy(alpha = 0.1f),
+    errorContainer = error100.copy(alpha = 0.1f)
 )
 
 val darkColors = MedAiColors(
-    // Core
-    primary = primary300,
+    primary = primary400, // Lighter blue for dark mode visibility
     secondary = secondary400,
-    background = baseBlack,
-    surface = neutral900,
-    onPrimary = primary900,
-    onSecondary = secondary900,
-    onBackground = baseWhite,
-    onSurface = baseWhite,
-
-    // Neutrals
-    neutral = neutral500,
-
-    // Status & Text
+    background = baseBlack, // Slate 950
+    surface = secondary900, // Slate 900
+    onPrimary = baseBlack,
+    onSecondary = baseBlack,
+    onBackground = neutral100,
+    onSurface = neutral100,
+    neutral = neutral600,
     status = darkStatusColors,
     text = darkTextColors
 )

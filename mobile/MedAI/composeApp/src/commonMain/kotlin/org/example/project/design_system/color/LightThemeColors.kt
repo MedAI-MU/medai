@@ -5,36 +5,31 @@ package org.example.project.design_system.color
  */
 val lightTextColors = MedAiTextColors(
     primary = baseBlack,
-    secondary = neutral700,
-    tertiary = neutral500,
+    secondary = secondary600,
+    tertiary = secondary400,
     onPrimary = baseWhite,
     onBackground = baseBlack
 )
 
 val lightStatusColors = MedAiStatusColors(
-    success = success200,
-    warning = warning200,
-    error = error200,
+    success = success,
+    warning = warning,
+    error = error,
     successContainer = success100,
     warningContainer = warning100,
     errorContainer = error100
 )
 
 val lightColors = MedAiColors(
-    // Core
-    primary = primary,
+    primary = primary600, // Slightly darker blue for better contrast on white
     secondary = secondary,
-    background = baseWhite,
+    background = neutral100, // Very light grey, easier on eyes than pure white
     surface = baseWhite,
     onPrimary = baseWhite,
     onSecondary = baseWhite,
     onBackground = baseBlack,
     onSurface = baseBlack,
-
-    // Neutrals
     neutral = neutral500,
-
-    // Status & Text
     status = lightStatusColors,
     text = lightTextColors
 )
