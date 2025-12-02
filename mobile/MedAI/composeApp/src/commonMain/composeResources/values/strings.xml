@@ -73,4 +73,11 @@
     <string name="spec_odontology">Odontology</string>
     <string name="spec_oncology">Oncology</string>
 
+    <!-- Set Password Screen -->
+    <string name="set_password_title">Set Password</string>
+    <string name="set_password_desc">Create a new secure password for your account to access your profile.</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="create_password_btn">Create New Password</string>
+    <string name="error_passwords_do_not_match">Passwords do not match</string>
+
 </resources>

@@ -72,4 +72,11 @@
     <string name="spec_odontology">الأسنان</string>
     <string name="spec_oncology">الأورام</string>
 
+    <!-- Set Password Screen -->
+    <string name="set_password_title">تعيين كلمة المرور</string>
+    <string name="set_password_desc">أنشئ كلمة مرور آمنة جديدة لحسابك للوصول إلى ملفك الشخصي.</string>
+    <string name="confirm_password_label">تأكيد كلمة المرور</string>
+    <string name="create_password_btn">إنشاء كلمة مرور جديدة</string>
+    <string name="error_passwords_do_not_match">كلمات المرور غير متطابقة</string>
+
 </resources>
