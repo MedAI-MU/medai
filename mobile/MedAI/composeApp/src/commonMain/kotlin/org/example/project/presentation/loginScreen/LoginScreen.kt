@@ -45,6 +45,7 @@ import org.example.project.presentation.MainContainerScreen
 import org.example.project.presentation.loginScreen.component.InputLabel
 import org.example.project.presentation.loginScreen.component.SignUpLink
 import org.example.project.presentation.loginScreen.component.SocialLoginSection
+import org.example.project.presentation.setPasswordScreen.SetPasswordScreen
 import org.example.project.presentation.signUpScreen.SignUpScreen
 import org.jetbrains.compose.resources.stringResource
 
@@ -55,6 +56,28 @@ class LoginScreen : Screen {
         val viewModel = getScreenModel<LoginViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(Unit) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is LoginEffect.NavigateToHome -> {
+                        navigator.replaceAll(MainContainerScreen())
+                    }
+                    is LoginEffect.NavigateToForgotPassword -> {
+                        // Push the SetPasswordScreen onto the stack
+                        navigator.push(SetPasswordScreen())
+                    }
+                    is LoginEffect.ShowError -> {
+                        snackbarHostState.showSnackbar(effect.message)
+                    }
+
+                    LoginEffect.NavigateToSignUp -> {
+                        navigator.push(SignUpScreen())
+                    }
+                }
+            }
+        }
+
 
         // Handle Side Effects (Navigation & Errors)
         LaunchedEffect(state.isSuccess) {
@@ -128,7 +151,7 @@ class LoginScreen : Screen {
                         text = stringResource(Res.string.forgot_password),
                         style = MedAITheme.textStyle.label.medium,
                         color = MedAITheme.colors.primary,
-                        modifier = Modifier.clickable { /* TODO */ }
+                        modifier = Modifier.clickable { viewModel.onEvent(LoginEvent.ForgotPasswordClicked) }
                     )
                 }
 
@@ -159,7 +182,7 @@ class LoginScreen : Screen {
 
                 // Sign Up Link
                 SignUpLink(
-                    onSignUpClick = { navigator.push(SignUpScreen()) }
+                    onSignUpClick = { viewModel.onEvent(LoginEvent.SignUpClicked) }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
