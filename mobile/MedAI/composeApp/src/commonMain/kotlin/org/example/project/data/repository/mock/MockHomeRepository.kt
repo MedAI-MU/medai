@@ -1,4 +1,4 @@
-package org.example.project.data.repository
+package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
@@ -32,7 +32,7 @@ class MockHomeRepository : HomeRepository {
         // No delay, static data
         return Result.success(
             listOf(
-                Category("1", Res.string.cat_favorite, "favorite"),
+                Category("1", Res.string.cat_favorite, "favorite",),
                 Category("2", Res.string.cat_doctors, "stethoscope"),
                 Category("3", Res.string.cat_pharmacy, "medication"),
                 Category("4", Res.string.cat_specialties, "local_hospital"),
@@ -48,42 +48,42 @@ class MockHomeRepository : HomeRepository {
                 Appointment(
                     id = "1",
                     doctor = Doctor("d1", "Dr. Olivia Turner", "Dermatologist"),
-                    date =  LocalDate(2025, 11, 11) ,
+                    date = LocalDate(2025, 11, 11),
                     time = "10:00 am",
                     status = AppointmentStatus.Pending
                 ),
                 Appointment(
                     id = "2",
                     doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
-                    date =  LocalDate(2025, 11, 30) ,
+                    date = LocalDate(2025, 11, 30),
                     time = "08:00 am",
                     status = AppointmentStatus.Finished
                 ),
                 Appointment(
                     id = "1",
                     doctor = Doctor("d1", "Dr. Olivia Turner", "Dermatologist"),
-                    date =  LocalDate(2025, 12, 3) ,
+                    date = LocalDate(2025, 12, 3),
                     time = "10:00 am",
                     status = AppointmentStatus.Pending
                 ),
                 Appointment(
                     id = "2",
                     doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
-                    date =  LocalDate(2025, 12, 3) ,
+                    date = LocalDate(2025, 12, 3),
                     time = "08:00 am",
                     status = AppointmentStatus.Finished
                 ),
                 Appointment(
                     id = "1",
                     doctor = Doctor("d1", "Dr. Olivia Turner", "Dermatologist"),
-                    date =  LocalDate(2025, 12, 5) ,
+                    date = LocalDate(2025, 12, 5),
                     time = "10:00 am",
                     status = AppointmentStatus.Pending
                 ),
                 Appointment(
                     id = "2",
                     doctor = Doctor("d2", "Dr. Alexander Bennett", "Dermatologist"),
-                    date =  LocalDate(2025, 12, 11) ,
+                    date = LocalDate(2025, 12, 11),
                     time = "08:00 am",
                     status = AppointmentStatus.Finished
                 )

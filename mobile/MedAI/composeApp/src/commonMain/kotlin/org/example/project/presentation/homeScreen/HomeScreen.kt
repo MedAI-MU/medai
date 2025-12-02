@@ -65,6 +65,7 @@ import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
+import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
 
 class HomeScreen : Screen {
@@ -84,6 +85,11 @@ class HomeScreen : Screen {
                     }
                     is HomeEffect.NavigateToCategory -> {
                         // navigator.push(CategoryDetailScreen(effect.categoryId))
+                        //val targetScreen = when (effect.categoryId) {
+                        //    "4" -> SpecialtiesScreen()
+                        //    else -> HomeScreen()
+                        //}
+                        //navigator.parent?.push(targetScreen) ?: navigator.push(targetScreen)
                         println("Navigating to Category: ${effect.categoryId}")
                     }
                     is HomeEffect.NavigateToDoctorDetails -> {
@@ -103,7 +109,8 @@ class HomeScreen : Screen {
                         println("Navigating to Full Schedule")
                     }
                     HomeEffect.NavigateToAllSpecialties -> {
-                        // navigator.push(AllSpecialtiesScreen())
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(SpecialtiesScreen())
                         println("Navigating to All Specialties")
                     }
                     HomeEffect.NavigateToNotifications -> {
