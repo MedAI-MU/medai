@@ -1,59 +1,61 @@
+###############################
+# Stage 1 — Builder
+###############################
 FROM node:24-alpine AS builder
-
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
-ENV APK_CACHE_DIR="/medai/.cache/apk-backend-builder" \
-    APK_SYMLINK_DIR="/etc/apk/cache" \
-    NPM_CACHE_DIR="/medai/.cache/npm" \
-    PNPM_HOME="/pnpm"
+ENV PNPM_HOME="/pnpm" \
+    PATH="/pnpm:${PATH}"
 
-ENV NPM_CONFIG_RETRY=5 \
-    NPM_CONFIG_TIMEOUT=30000 \
-    PATH="$PNPM_HOME:$PATH"
+# Install pnpm globally
+RUN npm install -g pnpm
 
-RUN mkdir -p ${APK_CACHE_DIR} \
-    && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
-
-RUN --mount=type=cache,target=${APK_CACHE_DIR} \
-    apk update && apk upgrade \
-    && addgroup -S medai \
+# Create app directory and medai user
+RUN addgroup -S medai \
     && adduser -S -h /medai -G medai medai \
+    && mkdir -p /medai \
     && chown -R medai:medai /medai
 
-RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm --cache ${NPM_CACHE_DIR}
+WORKDIR /medai
 
-WORKDIR /medai/
+# Copy package files
+COPY --chown=medai:medai package.json pnpm-lock.yaml ./
 
-COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
+# Install deps AS medai user (important!)
+USER medai
+RUN pnpm install --frozen-lockfile
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+# Copy project files
+COPY --chown=medai:medai . .
 
+# Build the project — dist/ will now be owned by medai
+RUN pnpm build
+
+
+###############################
+# Stage 2 — Runtime
+###############################
 FROM node:24-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
-ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
-    APK_SYMLINK_DIR="/etc/apk/cache" \
-    FORCE_COLOR=1 \
-    NPM_CACHE_DIR="/medai/.cache/npm"
-
-RUN mkdir -p ${APK_CACHE_DIR} \
-    && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
-
-RUN --mount=type=cache,target=${APK_CACHE_DIR} \
-    apk update && apk upgrade \
-    && apk add postgresql-client \
-    && addgroup -S medai \
+# Create medai user
+RUN addgroup -S medai \
     && adduser -S -h /medai -G medai medai \
+    && mkdir -p /medai \
     && chown -R medai:medai /medai
 
-RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm --cache ${NPM_CACHE_DIR}
+WORKDIR /medai
+
+# OPTIONAL: install pg client if migrations or scripts need it
+RUN apk add --no-cache postgresql-client
+
+# Copy built files and node_modules from builder
+COPY --from=builder --chown=medai:medai /medai/node_modules ./node_modules
+COPY --from=builder --chown=medai:medai /medai/dist ./dist
+COPY --from=builder --chown=medai:medai /medai/package.json ./package.json
+
+USER medai
 
 EXPOSE 8000
 
-COPY --from=builder --chown=root:root /medai/ /medai/
-
-WORKDIR /medai/
-USER medai
+CMD ["node", "dist/src/main.js"]
