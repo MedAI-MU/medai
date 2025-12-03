@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,7 +25,9 @@ async function bootstrap() {
       },
     }),
   );
-  await app.listen(process.env.PORT ?? 3000);
+  app.use(cookieParser());
+  console.log(process.env.APP_PORT);
+  await app.listen(process.env.APP_PORT || 8000);
 }
 bootstrap().catch((err) => {
   console.error('Error during application bootstrap:', err);

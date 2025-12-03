@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/users.entity';
+import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterDto } from './dtos/register.dto';
 import * as argon2 from 'argon2';

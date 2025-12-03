@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import databaseConfig from './database.config';
-import { User } from 'src/users/entities/users.entity';
+import { User } from 'src/users/entities/user.entity';
+import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { User } from 'src/users/entities/users.entity';
         password: dbConfig.password,
         database: dbConfig.name,
         migrations: ['./src/database/migrations/**/*{.js,.ts}'],
-        entities: [User],
+        entities: [User, RefreshToken],
         synchronize: false,
       }),
       inject: [databaseConfig.KEY],

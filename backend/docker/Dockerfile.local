@@ -4,33 +4,30 @@
 FROM node:24-alpine AS builder
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
+# Set pnpm path
 ENV PNPM_HOME="/pnpm" \
     PATH="/pnpm:${PATH}"
 
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Create app directory and medai user
-RUN addgroup -S medai \
-    && adduser -S -h /medai -G medai medai \
-    && mkdir -p /medai \
-    && chown -R medai:medai /medai
-
+# Create working directory
 WORKDIR /medai
 
 # Copy package files
-COPY --chown=medai:medai package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml ./
 
-# Install deps AS medai user (important!)
-USER medai
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy project files
-COPY --chown=medai:medai . .
+# Copy source code
+COPY . .
 
-# Build the project — dist/ will now be owned by medai
+# Remove old dist if exists
+RUN rm -rf dist
+
+# Build the project
 RUN pnpm build
-
 
 ###############################
 # Stage 2 — Runtime
@@ -38,24 +35,22 @@ RUN pnpm build
 FROM node:24-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
-# Create medai user
-RUN addgroup -S medai \
-    && adduser -S -h /medai -G medai medai \
-    && mkdir -p /medai \
-    && chown -R medai:medai /medai
-
 WORKDIR /medai
 
-# OPTIONAL: install pg client if migrations or scripts need it
+# Install runtime utilities (optional)
 RUN apk add --no-cache postgresql-client
 
 # Copy built files and node_modules from builder
-COPY --from=builder --chown=medai:medai /medai/node_modules ./node_modules
-COPY --from=builder --chown=medai:medai /medai/dist ./dist
-COPY --from=builder --chown=medai:medai /medai/package.json ./package.json
+COPY --from=builder /medai/node_modules ./node_modules
+COPY --from=builder /medai/dist ./dist
+COPY --from=builder /medai/package.json ./package.json
 
-USER medai
-
+# Expose port 8000
 EXPOSE 8000
 
+# Run as non-root user
+RUN addgroup -S medai && adduser -S -G medai medai
+USER medai
+
+# Start the NestJS app
 CMD ["node", "dist/src/main.js"]

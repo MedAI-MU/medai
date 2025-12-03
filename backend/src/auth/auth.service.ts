@@ -1,17 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/users.entity';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './jwt.config';
 import { type ConfigType } from '@nestjs/config';
 import { AccessTokenDto } from './dto/access-token.dto';
+import { RefreshToken } from 'src/users/entities/refresh-token.entity';
+import { Request } from 'express';
+import { TokenPayload } from './interfaces/token-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokensRepository: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtOptions: ConfigType<typeof jwtConfig>,
@@ -26,16 +31,86 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User): Promise<AccessTokenDto> {
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload);
+  async login(user: User, req: Request): Promise<AccessTokenDto> {
+    // logged in user trying to login again or refresh token request
+    // remove existing refresh token and issue new tokens
+    const refreshTokenCookie = req.cookies?.Refresh;
+    if (refreshTokenCookie) {
+      const existingTokens = await this.refreshTokensRepository.find({
+        where: { user: { id: user.id } },
+      });
+
+      for (const token of existingTokens) {
+        const isMatch = await argon2.verify(
+          token.hashedRefreshToken,
+          refreshTokenCookie,
+        );
+        if (isMatch) {
+          await this.refreshTokensRepository.remove(token);
+        }
+      }
+    }
+
+    const payload: TokenPayload = { sub: user.id, email: user.email };
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.jwtOptions.tokenSecret,
+      expiresIn: `${this.jwtOptions.tokenExpiresInMs}ms`,
+    });
+
     const accessTokenExpiresAt = new Date();
     accessTokenExpiresAt.setMilliseconds(
       accessTokenExpiresAt.getMilliseconds() + this.jwtOptions.tokenExpiresInMs,
     );
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.jwtOptions.refreshTokenSecret,
+      expiresIn: `${this.jwtOptions.refreshTokenExpiresInMs}ms`,
+    });
+
+    const refreshTokenExpiresAt = new Date();
+    refreshTokenExpiresAt.setMilliseconds(
+      refreshTokenExpiresAt.getMilliseconds() +
+        this.jwtOptions.refreshTokenExpiresInMs,
+    );
+
+    const hashedRefreshToken = await argon2.hash(refreshToken);
+    const refreshTokenEntity = new RefreshToken({
+      hashedRefreshToken,
+      user,
+      expiresAt: refreshTokenExpiresAt,
+    });
+
+    await this.refreshTokensRepository.save(refreshTokenEntity);
+
     return {
       accessToken,
       accessTokenExpiresAt,
+      refreshToken,
+      refreshTokenExpiresAt,
     };
+  }
+
+  async validateRefreshToken(userId: number, refreshToken: string) {
+    const existingUserRT = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['refreshTokens'],
+    });
+
+    if (!existingUserRT) {
+      return null;
+    }
+
+    for (const token of existingUserRT.refreshTokens) {
+      const isMatch = await argon2.verify(
+        token.hashedRefreshToken,
+        refreshToken,
+      );
+      if (isMatch && token.expiresAt > new Date()) {
+        const { password, refreshTokens, ...result } = existingUserRT;
+        return result as User;
+      }
+    }
+    return null;
   }
 }
