@@ -22,14 +22,14 @@ enum class SortOption(val label: String) {
 
 sealed class SpecialtiesEvent {
     data class SearchQueryChanged(val query: String) : SpecialtiesEvent()
-    data class SpecialtyClicked(val specialtyId: String) : SpecialtiesEvent()
+    data class SpecialtyClicked(val specialtyId: UiSpecialty) : SpecialtiesEvent()
     object SortClicked : SpecialtiesEvent() // A-Z Sort
     object BackClicked : SpecialtiesEvent()
 }
 
 sealed class SpecialtiesEffect {
     object NavigateBack : SpecialtiesEffect()
-    data class NavigateToDoctorsBySpecialty(val specialtyId: String) : SpecialtiesEffect()
+    data class NavigateToDoctorsBySpecialty(val specialtyId: UiSpecialty) : SpecialtiesEffect()
     data class ShowError(val message: String) : SpecialtiesEffect()
     data class ShowMessage(val message: String) : SpecialtiesEffect()
 }

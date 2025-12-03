@@ -57,6 +57,7 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAISearchBar
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
 import org.jetbrains.compose.resources.stringResource
 
@@ -75,7 +76,8 @@ class SpecialtiesScreen : Screen {
                 when(effect) {
                     SpecialtiesEffect.NavigateBack -> navigator.pop()
                     is SpecialtiesEffect.NavigateToDoctorsBySpecialty -> {
-                        // navigator.push(DoctorsListScreen(effect.specialtyId))
+                        val screen = DoctorsScreen(specialtyId = effect.specialtyId.origin.id,effect.specialtyId.name)
+                        navigator.parent?.push(screen) ?: navigator.push(screen)
                         println("Navigating to Doctors for: ${effect.specialtyId}")
                     }
                     is SpecialtiesEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
@@ -176,7 +178,7 @@ class SpecialtiesScreen : Screen {
                                 items(state.filteredSpecialties) { specialty ->
                                     SpecialtyItem(
                                         specialty = specialty.origin,
-                                        onClick = { viewModel.onEvent(SpecialtiesEvent.SpecialtyClicked(specialty.origin.id)) }
+                                        onClick = { viewModel.onEvent(SpecialtiesEvent.SpecialtyClicked(specialty)) }
                                     )
                                 }
                             }

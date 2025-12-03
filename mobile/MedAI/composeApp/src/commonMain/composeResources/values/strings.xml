@@ -81,4 +81,9 @@
     <string name="filter">Filter</string>
     <string name="doctors_label">Doctors</string>
 
+    <!-- Doctors Screen -->
+    <string name="find_your_doctor_subtitle">Find Your Doctor</string>
+    <string name="info_button">Info</string>
+    <string name="cardiology_label">Cardiology</string>
+
 </resources>

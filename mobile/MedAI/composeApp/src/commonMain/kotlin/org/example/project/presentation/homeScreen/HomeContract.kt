@@ -43,7 +43,7 @@ sealed class HomeEvent {
     object SeeAllSpecialtiesClicked : HomeEvent()
 
     // Item Clicks
-    data class CategoryClicked(val categoryId: String) : HomeEvent()
+    data class CategoryClicked(val category: Category) : HomeEvent()
     data class DoctorClicked(val doctorId: String) : HomeEvent()
     data class AppointmentClicked(val appointmentId: String) : HomeEvent()
     data class SpecialtyClicked(val specialtyId: String) : HomeEvent()
@@ -57,10 +57,10 @@ sealed class HomeEvent {
 
 sealed class HomeEffect {
     // Navigation Effects
-    data class NavigateToCategory(val categoryId: String) : HomeEffect()
+    data class NavigateToCategory(val category: Category) : HomeEffect()
     data class NavigateToDoctorDetails(val doctorId: String) : HomeEffect()
     data class NavigateToAppointmentDetails(val appointmentId: String) : HomeEffect()
-    data class NavigateToSpecialty(val specialtyId: String) : HomeEffect()
+    data class NavigateToSpecialty(val specialtyId: String,val title: String) : HomeEffect()
 
     // See All Navigation
     object NavigateToAllCategories : HomeEffect()

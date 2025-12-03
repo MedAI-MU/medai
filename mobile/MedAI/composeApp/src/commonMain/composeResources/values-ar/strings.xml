@@ -80,4 +80,9 @@
     <string name="filter">تصفية</string>
     <string name="doctors_label">الأطباء</string>
 
+    <!-- Doctors Screen -->
+    <string name="find_your_doctor_subtitle">ابحث عن طبيبك</string>
+    <string name="info_button">معلومات</string>
+    <string name="cardiology_label">القلب</string>
+
 </resources>

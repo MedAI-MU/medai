@@ -14,9 +14,11 @@ import medai.composeapp.generated.resources.spec_general
 import medai.composeapp.generated.resources.spec_gynecology
 import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
+import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.Appointment
 import org.example.project.domain.model.AppointmentStatus
 import org.example.project.domain.model.Category
+import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
 import org.example.project.domain.model.Specialty
 import org.example.project.domain.repository.HomeRepository
@@ -32,11 +34,10 @@ class MockHomeRepository : HomeRepository {
         // No delay, static data
         return Result.success(
             listOf(
-                Category("1", Res.string.cat_favorite, "favorite",),
-                Category("2", Res.string.cat_doctors, "stethoscope"),
-                Category("3", Res.string.cat_pharmacy, "medication"),
-                Category("4", Res.string.cat_specialties, "local_hospital"),
-                Category("5", Res.string.cat_record, "assignment"),
+                Category("1", Res.string.cat_favorite, CategoryType.FAVORITE, MedAIIcons.Favorites),
+                Category("2", Res.string.cat_doctors,CategoryType.DOCTORS,  MedAIIcons.Doctor),
+                Category("4", Res.string.cat_specialties,CategoryType.SPECIALTIES,  MedAIIcons.Specialties),
+                Category("5", Res.string.cat_record,CategoryType.RECORDS,  MedAIIcons.Record),
             )
         )
     }
