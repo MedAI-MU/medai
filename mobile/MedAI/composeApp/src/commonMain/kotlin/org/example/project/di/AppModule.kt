@@ -15,11 +15,15 @@ import org.example.project.domain.repository.HomeRepository
 import org.example.project.domain.repository.LoginRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
+import org.example.project.domain.usecase.GetAvailableSlotsUseCase
+import org.example.project.domain.usecase.GetDoctorDetailsUseCase
 import org.example.project.domain.usecase.GetDoctorsUseCase
 import org.example.project.domain.usecase.GetHomeDataUseCase
 import org.example.project.domain.usecase.GetSpecialtiesUseCase
 import org.example.project.domain.usecase.LoginUseCase
 import org.example.project.domain.usecase.SignUpUseCase
+import org.example.project.presentation.bookingScreen.BookingViewModel
+import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewModel
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
@@ -53,6 +57,8 @@ val appModule = module {
     factory { GetHomeDataUseCase(get()) }
     factory { GetSpecialtiesUseCase(get()) }
     factory { GetDoctorsUseCase(get()) }
+    factory { GetDoctorDetailsUseCase(get()) }
+    factory { GetAvailableSlotsUseCase(get()) }
 
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
@@ -61,5 +67,11 @@ val appModule = module {
     factory { SpecialtiesViewModel(get(),get()) }
     factory { (specialtyId: String?) ->
         DoctorsListViewModel(get(), specialtyId)
+    }
+    factory { (doctorId: String) ->
+        DoctorDetailsViewModel(doctorId, get())
+    }
+    factory { (doctorId: String) ->
+        BookingViewModel(doctorId, get(), get(), get())
     }
 }
