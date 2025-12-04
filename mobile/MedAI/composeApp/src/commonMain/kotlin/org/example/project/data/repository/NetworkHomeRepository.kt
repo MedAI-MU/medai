@@ -8,6 +8,7 @@ import org.example.project.data.remote.dto.AppointmentDto
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.SpecialtyDto
 import org.example.project.data.remote.dto.UserResponseDto
+import org.example.project.data.remote.mapper.mapCategoryDtoToDomain
 import org.example.project.data.remote.mapper.mapCategoryKeyToRes
 import org.example.project.data.remote.mapper.mapSpecialtyKeyToRes
 import org.example.project.data.remote.mapper.mapStatus
@@ -42,11 +43,7 @@ class NetworkHomeRepository(
 
             // Map DTO -> Domain
             val domainList = response.map { dto ->
-                Category(
-                    id = dto.id,
-                    title = mapCategoryKeyToRes(dto.iconKey), // Maps "doctors" -> Res.string.cat_doctors
-                    iconName = dto.iconKey // Used for local resource lookup
-                )
+                mapCategoryDtoToDomain(dto)
             }
             Result.success(domainList)
         } catch (e: CancellationException) {

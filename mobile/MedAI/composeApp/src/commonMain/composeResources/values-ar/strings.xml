@@ -72,4 +72,17 @@
     <string name="spec_odontology">الأسنان</string>
     <string name="spec_oncology">الأورام</string>
 
+    <!-- Specialties Screen -->
+    <string name="find_your_doctor">ابحث عن طبيبك</string>
+    <string name="search_placeholder">بحث...</string>
+    <string name="sort_by">ترتيب حسب </string>
+    <string name="sort_az">أ → ي</string>
+    <string name="filter">تصفية</string>
+    <string name="doctors_label">الأطباء</string>
+
+    <!-- Doctors Screen -->
+    <string name="find_your_doctor_subtitle">ابحث عن طبيبك</string>
+    <string name="info_button">معلومات</string>
+    <string name="cardiology_label">القلب</string>
+
 </resources>

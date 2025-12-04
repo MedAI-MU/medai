@@ -15,12 +15,14 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.GetHomeDataUseCase
 
 class HomeViewModel(
     private val getHomeDataUseCase: GetHomeDataUseCase,
-    private val calendarManager: CalendarManager
+    private val calendarManager: CalendarManager,
+    private val resourceProvider: ResourceProvider
 ) : ScreenModel {
 
     // 1. UI State (Persistent data)
@@ -63,7 +65,7 @@ class HomeViewModel(
 
             // --- Item Clicks ---
             is HomeEvent.CategoryClicked -> {
-                sendEffect(HomeEffect.NavigateToCategory(event.categoryId))
+                sendEffect(HomeEffect.NavigateToCategory(event.category))
             }
             is HomeEvent.DoctorClicked -> {
                 sendEffect(HomeEffect.NavigateToDoctorDetails(event.doctorId))
@@ -72,7 +74,15 @@ class HomeViewModel(
                 sendEffect(HomeEffect.NavigateToAppointmentDetails(event.appointmentId))
             }
             is HomeEvent.SpecialtyClicked -> {
-                sendEffect(HomeEffect.NavigateToSpecialty(event.specialtyId))
+                val specialty = _state.value.specialties.find { it.id == event.specialtyId }
+
+                if (specialty != null) {
+                    screenModelScope.launch {
+                        // Resolve string resource to actual string
+                        val title = resourceProvider.getString(specialty.title)
+                        sendEffect(HomeEffect.NavigateToSpecialty(event.specialtyId, title))
+                    }
+                }
             }
 
             // --- "See All" Clicks ---

@@ -1,4 +1,4 @@
-package org.example.project.data.repository
+package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
 import org.example.project.domain.repository.LoginRepository

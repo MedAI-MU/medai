@@ -73,4 +73,17 @@
     <string name="spec_odontology">Odontology</string>
     <string name="spec_oncology">Oncology</string>
 
+    <!-- Specialties Screen -->
+    <string name="find_your_doctor">Find Your Doctor</string>
+    <string name="search_placeholder">Search...</string>
+    <string name="sort_by">Sort By </string>
+    <string name="sort_az">A → Z</string>
+    <string name="filter">Filter</string>
+    <string name="doctors_label">Doctors</string>
+
+    <!-- Doctors Screen -->
+    <string name="find_your_doctor_subtitle">Find Your Doctor</string>
+    <string name="info_button">Info</string>
+    <string name="cardiology_label">Cardiology</string>
+
 </resources>
