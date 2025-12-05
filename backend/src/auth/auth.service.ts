@@ -31,26 +31,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User, req: Request): Promise<AccessTokenDto> {
-    // logged in user trying to login again or refresh token request
-    // remove existing refresh token and issue new tokens
-    const refreshTokenCookie = req.cookies?.Refresh;
-    if (refreshTokenCookie) {
-      const existingTokens = await this.refreshTokensRepository.find({
-        where: { user: { id: user.id } },
-      });
-
-      for (const token of existingTokens) {
-        const isMatch = await argon2.verify(
-          token.hashedRefreshToken,
-          refreshTokenCookie,
-        );
-        if (isMatch) {
-          await this.refreshTokensRepository.remove(token);
-        }
-      }
-    }
-
+  async login(user: User): Promise<AccessTokenDto> {
     const payload: TokenPayload = { sub: user.id, email: user.email };
 
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -89,6 +70,25 @@ export class AuthService {
       refreshToken,
       refreshTokenExpiresAt,
     };
+  }
+
+  async removeOldRefreshToken(req: Request, user: User) {
+    const refreshTokenCookie = req.cookies?.Refresh;
+    if (refreshTokenCookie) {
+      const existingTokens = await this.refreshTokensRepository.find({
+        where: { user: { id: user.id } },
+      });
+
+      for (const token of existingTokens) {
+        const isMatch = await argon2.verify(
+          token.hashedRefreshToken,
+          refreshTokenCookie,
+        );
+        if (isMatch) {
+          await this.refreshTokensRepository.remove(token);
+        }
+      }
+    }
   }
 
   async validateRefreshToken(userId: number, refreshToken: string) {
