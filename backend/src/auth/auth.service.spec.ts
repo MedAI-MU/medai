@@ -177,7 +177,7 @@ describe('AuthService', () => {
         refreshTokens: [
           {
             id: 10,
-            hashedRefreshToken: 'hashedRT',
+            token: 'hashedRT',
             expiresAt: new Date(now.getTime() + 60 * 60 * 1000), // +1 hour
           },
         ],
@@ -208,7 +208,7 @@ describe('AuthService', () => {
         refreshTokens: [
           {
             id: 10,
-            hashedRefreshToken: 'hashedRT',
+            token: 'hashedRT',
             expiresAt: new Date(now.getTime() - 60 * 60 * 1000), // -1 hour (expired)
           },
         ],
@@ -235,7 +235,7 @@ describe('AuthService', () => {
         refreshTokens: [
           {
             id: 10,
-            hashedRefreshToken: 'hashedRT',
+            token: 'hashedRT',
             expiresAt: new Date(now.getTime() + 60 * 60 * 1000), // +1 hour
           },
         ],
@@ -318,7 +318,7 @@ describe('AuthService', () => {
 
       // 2. New refresh token is hashed and saved
       expect(argon2.hash).toHaveBeenCalledWith('refreshToken');
-      expect(savedTokenEntity.hashedRefreshToken).toBe('hashedNewRT');
+      expect(savedTokenEntity.token).toBe('hashedNewRT');
 
       // 3. Return object contains both tokens and expiration dates
       expect(result).toEqual({
@@ -378,11 +378,11 @@ describe('AuthService', () => {
       const existingTokens = [
         {
           id: 10,
-          hashedRefreshToken: 'hashedRT1',
+          token: 'hashedRT1',
         },
         {
           id: 11,
-          hashedRefreshToken: 'hashedRT2',
+          token: 'hashedRT2',
         },
       ];
 
@@ -403,11 +403,11 @@ describe('AuthService', () => {
       const existingTokens = [
         {
           id: 10,
-          hashedRefreshToken: 'hashedRT1',
+          token: 'hashedRT1',
         },
         {
           id: 11,
-          hashedRefreshToken: 'hashedRT2',
+          token: 'hashedRT2',
         },
       ];
 

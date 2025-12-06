@@ -46,7 +46,7 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/api/auth/login (POST)', () => {
-    const REGISTER_USER_URL = '/api/users/register';
+    const REGISTER_USER_URL = '/api/users';
     const LOGIN_USER_URL = '/api/auth/login';
 
     const invalidLoginDtotestCases = [

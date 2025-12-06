@@ -26,6 +26,7 @@ describe('UsersController (e2e)', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -36,8 +37,8 @@ describe('UsersController (e2e)', () => {
     await app.init();
   });
 
-  describe('/users/register (POST)', () => {
-    const REGISTER_USER_URL = '/users/register';
+  describe('/api/users (POST)', () => {
+    const REGISTER_USER_URL = '/api/users';
     const invalidRegisterDtotestCases = [
       {
         name: 'a',

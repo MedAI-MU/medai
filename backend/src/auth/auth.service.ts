@@ -57,7 +57,7 @@ export class AuthService {
 
     const hashedRefreshToken = await argon2.hash(refreshToken);
     const refreshTokenEntity = new RefreshToken({
-      hashedRefreshToken,
+      token: hashedRefreshToken,
       user,
       expiresAt: refreshTokenExpiresAt,
     });
@@ -79,13 +79,10 @@ export class AuthService {
         where: { user: { id: user.id } },
       });
 
-      for (const token of existingTokens) {
-        const isMatch = await argon2.verify(
-          token.hashedRefreshToken,
-          refreshTokenCookie,
-        );
+      for (const rt of existingTokens) {
+        const isMatch = await argon2.verify(rt.token, refreshTokenCookie);
         if (isMatch) {
-          await this.refreshTokensRepository.remove(token);
+          await this.refreshTokensRepository.remove(rt);
         }
       }
     }
@@ -101,12 +98,9 @@ export class AuthService {
       return null;
     }
 
-    for (const token of existingUserRT.refreshTokens) {
-      const isMatch = await argon2.verify(
-        token.hashedRefreshToken,
-        refreshToken,
-      );
-      if (isMatch && token.expiresAt > new Date()) {
+    for (const rt of existingUserRT.refreshTokens) {
+      const isMatch = await argon2.verify(rt.token, refreshToken);
+      if (isMatch && rt.expiresAt > new Date()) {
         const { password, refreshTokens, ...result } = existingUserRT;
         return result as User;
       }

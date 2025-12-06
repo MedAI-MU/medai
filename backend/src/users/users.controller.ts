@@ -7,7 +7,7 @@ import { AllowAnon } from 'src/auth/decorators/allow-anon.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('register')
+  @Post()
   @AllowAnon()
   @HttpCode(HttpStatus.CREATED)
   async registerUser(@Body() registerDto: RegisterDto) {
