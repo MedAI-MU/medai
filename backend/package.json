@@ -88,7 +88,7 @@
       "^src/(.*)$": "<rootDir>/src/$1"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.service.ts"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node"
