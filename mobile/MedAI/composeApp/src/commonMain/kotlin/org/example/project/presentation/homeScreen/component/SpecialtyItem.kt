@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,6 +42,7 @@ fun SpecialtyItem(
     val icon = IconMapper.getSpecialtyIcon(specialty.iconName)
     Column(
         modifier = modifier
+            .aspectRatio(1f)
             .clip(RoundedCornerShape(16.dp))
             .background(MedAITheme.colors.primary.copy(alpha = 0.85f)) // Use Primary Blue
             .clickable { onClick() }

@@ -62,9 +62,12 @@ import org.example.project.design_system.component.dayPicker.MedAIDateCard
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.domain.model.CategoryType
+import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
+import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
 
 class HomeScreen : Screen {
@@ -83,15 +86,26 @@ class HomeScreen : Screen {
                         println("Navigating to Appointment: ${effect.appointmentId}")
                     }
                     is HomeEffect.NavigateToCategory -> {
-                        // navigator.push(CategoryDetailScreen(effect.categoryId))
-                        println("Navigating to Category: ${effect.categoryId}")
+                        println("Navigating to Category: ${effect.category.id}")
+                        when (effect.category.type) {
+                            CategoryType.FAVORITE -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.DOCTORS -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.PHARMACY -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.SPECIALTIES -> {
+                                val rootNavigator = navigator.parent ?: navigator
+                                rootNavigator.push(SpecialtiesScreen())
+                            }
+                            CategoryType.RECORDS -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.UNKNOWN -> snackbarHostState.showSnackbar(effect.category.id)
+                        }
                     }
                     is HomeEffect.NavigateToDoctorDetails -> {
                         // navigator.push(DoctorDetailScreen(effect.doctorId))
                         println("Navigating to Doctor: ${effect.doctorId}")
                     }
                     is HomeEffect.NavigateToSpecialty -> {
-                        // navigator.push(SpecialtyScreen(effect.specialtyId))
+                        val screen = DoctorsScreen(specialtyId = effect.specialtyId, effect.title)
+                        navigator.parent?.push(screen) ?: navigator.push(screen)
                         println("Navigating to Specialty: ${effect.specialtyId}")
                     }
                     HomeEffect.NavigateToAllCategories -> {
@@ -103,7 +117,8 @@ class HomeScreen : Screen {
                         println("Navigating to Full Schedule")
                     }
                     HomeEffect.NavigateToAllSpecialties -> {
-                        // navigator.push(AllSpecialtiesScreen())
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(SpecialtiesScreen())
                         println("Navigating to All Specialties")
                     }
                     HomeEffect.NavigateToNotifications -> {
@@ -161,7 +176,7 @@ class HomeScreen : Screen {
                         items(state.categories) { category ->
                             CategoryItem(
                                 category = category,
-                                onClick = { viewModel.onEvent(HomeEvent.CategoryClicked(category.id)) }
+                                onClick = { viewModel.onEvent(HomeEvent.CategoryClicked(category)) }
                             )
                         }
                     }

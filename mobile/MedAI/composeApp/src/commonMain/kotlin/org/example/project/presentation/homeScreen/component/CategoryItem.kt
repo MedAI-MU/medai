@@ -33,14 +33,13 @@ fun CategoryItem(
 ) {
     // Mapping string names to Icons for Mocking purposes.
     // In real app, these would be DrawableResources.
-    val icon = IconMapper.getCategoryIcon(category.iconName)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable { onClick() }
     ) {
         Icon(
-            imageVector = icon,
+            imageVector = category.iconName,
             contentDescription = null,
             tint = MedAITheme.colors.primary, // Teal color
             modifier = Modifier.size(32.dp)
