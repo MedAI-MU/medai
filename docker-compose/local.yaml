@@ -4,12 +4,13 @@ services:
     build:
       context: ../backend
       dockerfile: ../backend/docker/Dockerfile.local
-    # command: >
-    #   sh -c "node "
+    command: >
+      sh -c "pnpm start:dev"
     volumes:
+      - ../backend:/medai
       - backend-node_modules:/medai/node_modules
     ports:
-      - 8080:8000
+      - 8000:8000
     env_file:
       - ../backend/.env
     depends_on:
@@ -22,19 +23,15 @@ services:
     container_name: medai-db
     image: postgres:16.10
     environment:
-      POSTGRES_USER: ${DB_USERNAME:-medai}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-medai_db}
+      POSTGRES_USER: ${DJANGO_DB_USER:-medai}
+      POSTGRES_PASSWORD: ${DJANGO_DB_PASSWORD:-password}
+      POSTGRES_DB: ${DJANGO_DB_NAME:-medai_db}
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${DB_USERNAME:-medai} -d ${DB_NAME:-medai_db}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${DJANGO_DB_USER:-medai} -d ${DJANGO_DB_NAME:-medai_db}"]
       interval: 10s
       timeout: 5s
       retries: 5

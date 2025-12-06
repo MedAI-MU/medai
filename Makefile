@@ -1,8 +1,14 @@
 run:
 	@COMPOSE_BAKE=true DOCKER_BUILDKIT=1 \
-	docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env up --build --remove-orphans -d
+	docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env up --build --remove-orphans
+	
+migrate:
 	@echo "Running migrations..."
 	@pnpm --prefix ./backend run migration:run
+
+generate-migration:
+	@echo "Generating new migration..."
+	@pnpm --prefix ./backend run migration:generate
 
 pre-commit:
 	@pre-commit run --all-files

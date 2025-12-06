@@ -1,56 +1,59 @@
-###############################
-# Stage 1 — Builder
-###############################
 FROM node:24-alpine AS builder
+
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
-# Set pnpm path
-ENV PNPM_HOME="/pnpm" \
-    PATH="/pnpm:${PATH}"
+ENV APK_CACHE_DIR="/medai/.cache/apk-backend-builder" \
+    APK_SYMLINK_DIR="/etc/apk/cache" \
+    NPM_CACHE_DIR="/medai/.cache/npm" \
+    PNPM_HOME="/pnpm"
 
-# Install pnpm globally
-RUN npm install -g pnpm
+ENV NPM_CONFIG_RETRY=5 \
+    NPM_CONFIG_TIMEOUT=30000 \
+    PATH="$PNPM_HOME:$PATH"
 
-# Create working directory
-WORKDIR /medai
+RUN mkdir -p ${APK_CACHE_DIR} \
+    && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=${APK_CACHE_DIR} \
+    apk update && apk upgrade \
+    && addgroup -S medai \
+    && adduser -S -h /medai -G medai medai \
+    && chown -R medai:medai /medai
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
 
-# Copy source code
-COPY . .
+WORKDIR /medai/
 
-# Remove old dist if exists
-RUN rm -rf dist
+COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
 
-# Build the project
-RUN pnpm build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
 
-###############################
-# Stage 2 — Runtime
-###############################
 FROM node:24-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
-WORKDIR /medai
+ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
+    APK_SYMLINK_DIR="/etc/apk/cache" \
+    FORCE_COLOR=1 \
+    NPM_CACHE_DIR="/medai/.cache/npm"
 
-# Install runtime utilities (optional)
-RUN apk add --no-cache postgresql-client
+RUN mkdir -p ${APK_CACHE_DIR} \
+    && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
 
-# Copy built files and node_modules from builder
-COPY --from=builder /medai/node_modules ./node_modules
-COPY --from=builder /medai/dist ./dist
-COPY --from=builder /medai/package.json ./package.json
+RUN --mount=type=cache,target=${APK_CACHE_DIR} \
+    apk update && apk upgrade \
+    && apk add postgresql-client \
+    && addgroup -S medai \
+    && adduser -S -h /medai -G medai medai \
+    && chown -R medai:medai /medai
 
-# Expose port 8000
+RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
+
 EXPOSE 8000
 
-# Run as non-root user
-RUN addgroup -S medai && adduser -S -G medai medai
-USER medai
+COPY --from=builder --chown=root:root /medai/ /medai/
 
-# Start the NestJS app
-CMD ["node", "dist/src/main.js"]
+WORKDIR /medai/
+USER medai
