@@ -85,4 +85,29 @@
     <string name="info_button">معلومات</string>
     <string name="cardiology_label">القلب</string>
 
+    <!-- Doctor Details Screen -->
+    <string name="doctor_details_title">تفاصيل الطبيب</string>
+    <string name="reviews_count">%d مراجعة</string>
+    <string name="about_doctor">عن الطبيب</string>
+    <string name="book_appointment_action">حجز موعد</string>
+
+    <!-- Booking Screen -->
+    <string name="booking_screen_title">الحجز</string>
+    <string name="upcoming_schedule_title">المواعيد القادمة</string>
+    <string name="available_time_title">الأوقات المتاحة</string>
+    <string name="patient_details_title">تفاصيل المريض</string>
+    <string name="yourself_label">لنفسي</string>
+    <string name="another_person_label">شخص آخر</string>
+    <string name="age_label">العمر</string>
+    <string name="gender_label">النوع</string>
+    <string name="describe_problem_label">صف مشكلتك</string>
+    <string name="describe_problem_placeholder">اكتب مشكلتك هنا...</string>
+    <string name="book_appointment_button">حجز موعد</string>
+    <string name="no_slots_available">لا توجد مواعيد متاحة لهذا التاريخ</string>
+    <string name="select_time_slot_error">الرجاء اختيار وقت الموعد</string>
+    <string name="enter_problem_error">الرجاء وصف المشكلة</string>
+    <string name="appointment_booked_success">تم حجز الموعد بنجاح!</string>
+    <string name="failed_load_doctor">فشل تحميل بيانات الطبيب: %s</string>
+    <string name="failed_load_slots">فشل تحميل المواعيد</string>
+
 </resources>

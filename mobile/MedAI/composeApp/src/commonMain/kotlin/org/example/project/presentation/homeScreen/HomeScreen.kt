@@ -89,7 +89,13 @@ class HomeScreen : Screen {
                         println("Navigating to Category: ${effect.category.id}")
                         when (effect.category.type) {
                             CategoryType.FAVORITE -> snackbarHostState.showSnackbar(effect.category.id)
-                            CategoryType.DOCTORS -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.DOCTORS -> {
+                                val rootNavigator = navigator.parent ?: navigator
+                                rootNavigator.push(DoctorsScreen(
+                                    specialtyId = null,
+                                    specialtyName = "Doctors"
+                                ))
+                            }
                             CategoryType.PHARMACY -> snackbarHostState.showSnackbar(effect.category.id)
                             CategoryType.SPECIALTIES -> {
                                 val rootNavigator = navigator.parent ?: navigator

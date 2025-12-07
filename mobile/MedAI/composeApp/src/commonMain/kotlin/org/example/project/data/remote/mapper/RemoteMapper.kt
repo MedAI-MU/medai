@@ -14,10 +14,12 @@ import medai.composeapp.generated.resources.spec_gynecology
 import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.CategoryDto
+import org.example.project.data.remote.dto.DoctorDto
 import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.AppointmentStatus
 import org.example.project.domain.model.Category
 import org.example.project.domain.model.CategoryType
+import org.example.project.domain.model.Doctor
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -70,3 +72,13 @@ fun mapCategoryDtoToDomain(dto: CategoryDto): Category {
         iconName = iconRes
     )
 }
+
+ fun DoctorDto.toDomain() = Doctor(
+     id = id,
+     name = name,
+     specialty = specialty,
+     rating = rating,
+     imageUrl = imageUrl,
+     bio = bio ?: "Lorem ipsum dolor sit amet...", // Default text
+     reviewCount = reviewCount ?: 0
+ )

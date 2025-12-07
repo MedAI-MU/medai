@@ -48,6 +48,7 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsScreen
 import org.example.project.presentation.doctorsScreen.component.DoctorCard
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
@@ -68,7 +69,7 @@ class DoctorsScreen(
                 when(effect) {
                     DoctorsListEffect.NavigateBack -> navigator.pop()
                     is DoctorsListEffect.NavigateToDoctorDetails -> {
-                        // navigator.push(DoctorDetailsScreen(effect.doctorId))
+                         navigator.push(DoctorDetailsScreen(effect.doctorId))
                     }
                     is DoctorsListEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                 }

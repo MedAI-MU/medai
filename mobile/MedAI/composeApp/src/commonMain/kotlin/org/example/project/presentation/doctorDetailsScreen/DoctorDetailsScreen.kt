@@ -1,0 +1,225 @@
+package org.example.project.presentation.doctorDetailsScreen
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.flow.collectLatest
+import medai.composeapp.generated.resources.Res
+import medai.composeapp.generated.resources.about_doctor
+import medai.composeapp.generated.resources.book_appointment_button
+import medai.composeapp.generated.resources.doctor_details_title
+import org.example.project.design_system.component.button.ButtonVariant
+import org.example.project.design_system.component.button.MedAIButton
+import org.example.project.design_system.component.scaffold.MedAIScaffold
+import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.bookingScreen.BookingScreen
+import org.jetbrains.compose.resources.stringResource
+import org.koin.core.parameter.parametersOf
+
+class DoctorDetailsScreen(val doctorId: String) : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val viewModel = getScreenModel<DoctorDetailsViewModel> { parametersOf(doctorId) }
+        val state by viewModel.state.collectAsState()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(Unit) {
+            viewModel.effect.collectLatest { effect ->
+                when(effect) {
+                    DoctorDetailsEffect.NavigateBack -> navigator.pop()
+                    DoctorDetailsEffect.NavigateToBooking -> navigator.push(BookingScreen(doctorId))
+                    is DoctorDetailsEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+
+        MedAIScaffold(
+            title = stringResource(Res.string.doctor_details_title),
+            onBackClick = { viewModel.onEvent(DoctorDetailsEvent.BackClicked) },
+            actions = {
+                IconButton(onClick = {}) { Icon(Icons.Default.HelpOutline, null, tint = Color.White) }
+                IconButton(onClick = {}) { Icon(Icons.Default.FavoriteBorder, null, tint = Color.White) }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = MedAITheme.colors.primary
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                // --- Header Profile Section ---
+                if (state.isLoading) {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                } else {
+                    state.doctor?.let { doctor ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Image
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.LightGray)
+                            ) {
+                                // AsyncImage(doctor.imageUrl)
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            MedAIText(
+                                text = doctor.name,
+                                style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold),
+                                color = Color.White
+                            )
+                            MedAIText(
+                                text = doctor.specialty,
+                                style = MedAITheme.textStyle.body.medium,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Stats Row (Rating, Reviews)
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(Color.White.copy(alpha = 0.2f))
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    MedAIText(text = doctor.rating.toString(), color = Color.White, style = MedAITheme.textStyle.label.medium)
+                                }
+                                MedAIText(text = "|", color = Color.White.copy(alpha = 0.5f), style = MedAITheme.textStyle.label.medium)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.ChatBubble, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    MedAIText(text = "${doctor.reviewCount} Reviews", color = Color.White, style = MedAITheme.textStyle.label.medium)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // --- White Body Content ---
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .background(MedAITheme.colors.background)
+                        .padding(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        // Action Buttons (Schedule, Call, Video, Chat)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            ActionButton(Icons.Default.Call, isSelected = false)
+                            ActionButton(Icons.Default.Videocam, isSelected = false)
+                            ActionButton(Icons.Default.ChatBubble, isSelected = false)
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // About / Bio
+                        MedAIText(text = stringResource(Res.string.about_doctor), style = MedAITheme.textStyle.title.large.copy(fontWeight = FontWeight.Bold))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        state.doctor?.let {
+                            MedAIText(
+                                text = it.bio,
+                                style = MedAITheme.textStyle.body.medium,
+                                color = MedAITheme.colors.text.secondary,
+                                textAlign = TextAlign.Justify
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Book Button
+                        MedAIButton(
+                            text = stringResource(Res.string.book_appointment_button),
+                            onClick = { viewModel.onEvent(DoctorDetailsEvent.BookClicked) },
+                            variant = ButtonVariant.Primary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+                .background(if (isSelected) MedAITheme.colors.primary else MedAITheme.colors.primary.copy(alpha = 0.1f))
+                .clickable { },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) Color.White else MedAITheme.colors.primary
+            )
+        }
+    }
+}
