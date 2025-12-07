@@ -15,11 +15,13 @@ import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.DoctorDto
+import org.example.project.data.remote.dto.UserDto
 import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.AppointmentStatus
 import org.example.project.domain.model.Category
 import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.User
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -79,6 +81,15 @@ fun mapCategoryDtoToDomain(dto: CategoryDto): Category {
      specialty = specialty,
      rating = rating,
      imageUrl = imageUrl,
-     bio = bio ?: "Lorem ipsum dolor sit amet...", // Default text
+     bio = bio ?: "No bio available...",
      reviewCount = reviewCount ?: 0
  )
+
+fun UserDto.toDomain(): User {
+    return User(
+        id = this.id,
+        name = this.name,
+        email = this.email,
+        role = this.role ?: "patient",
+    )
+}

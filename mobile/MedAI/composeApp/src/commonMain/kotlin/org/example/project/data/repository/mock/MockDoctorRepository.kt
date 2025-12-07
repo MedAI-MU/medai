@@ -82,4 +82,16 @@ class MockDoctorRepository : DoctorRepository {
         )
         return Result.success(slots)
     }
+
+    override suspend fun bookAppointment(
+        doctorId: String,
+        slotId: String,
+        date: LocalDate,
+        patientName: String,
+        patientAge: String,
+        patientGender: String,
+        problemDescription: String
+    ): Result<String> {
+        return  Result.success("Booking Successful")
+    }
 }
