@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -173,25 +174,20 @@ class BookingScreen(val doctorId: String) : Screen {
                         }else if (state.slots.isEmpty()) {
                             MedAIText(stringResource(Res.string.no_slots_available), color = Color.Gray, style = MedAITheme.textStyle.body.medium)
                         } else {
-                            // Using FlowRow-like behavior with Grid for simplicity (or FlowRow if available in your Compose version)
-                            // A simple grid of chips:
-                            // Note: LazyVerticalGrid inside ScrollableColumn needs fixed height.
-                            // Better to use FlowLayout or just a column of rows if slot count is small.
-
-                            // Simple Grid implementation
-                            val chunkedSlots = state.slots.chunked(3)
-                            chunkedSlots.forEach { rowSlots ->
-                                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    rowSlots.forEach { slot ->
-                                        TimeSlotChip(
-                                            time = slot.time,
-                                            isSelected = slot.id == state.selectedSlotId,
-                                            isAvailable = slot.isAvailable,
-                                            onClick = { viewModel.onEvent(BookingEvent.SlotSelected(slot.id)) }
-                                        )
-                                    }
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                maxItemsInEachRow = 4
+                            ) {
+                                state.slots.forEach { slot ->
+                                    TimeSlotChip(
+                                        time = slot.time,
+                                        isSelected = slot.id == state.selectedSlotId,
+                                        isAvailable = slot.isAvailable,
+                                        onClick = { viewModel.onEvent(BookingEvent.SlotSelected(slot.id)) }
+                                    )
                                 }
-                                Spacer(modifier = Modifier.height(12.dp))
                             }
                         }
 
