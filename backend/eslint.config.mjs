@@ -26,18 +26,31 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
+      // --- TypeScript safety ---
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unsafe-assignment': 'warn',
       '@typescript-eslint/no-unsafe-call': 'warn',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+
+      // Avoid unhandled promise rejections in async code (Nest has a lot of them)
+      '@typescript-eslint/no-floating-promises': 'error',
+
+      // --- Code correctness ---
       '@typescript-eslint/require-await': 'warn',
-      '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'warn',
+      '@typescript-eslint/ban-ts-comment': [
+        'warn',
+        { 'ts-ignore': 'allow-with-description' },
+      ],
+
+      // Allow `require()` when needed (typeorm migrations sometimes need this)
+      '@typescript-eslint/no-require-imports': 'off',
+
+      // --- Prettier ---
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },

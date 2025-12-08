@@ -6,6 +6,7 @@ import { type ConfigType } from '@nestjs/config';
 import { Request } from 'express';
 import { TokenPayload } from '../interfaces/token-payload.interface';
 import { AuthService } from '../auth.service';
+import { AuthCookies } from '../interfaces/auth-cookies.interface';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -19,7 +20,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req.cookies?.Refresh,
+        (req: Request) => (req.cookies as AuthCookies).Refresh || null,
       ]),
       ignoreExpiration: false,
       secretOrKey: jwtOptions.refreshTokenSecret,
@@ -30,7 +31,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(req: Request, payload: TokenPayload) {
     return await this.authService.validateRefreshToken(
       payload.sub,
-      req.cookies?.Refresh,
+      (req.cookies as AuthCookies).Refresh as string,
     );
   }
 }

@@ -10,6 +10,7 @@ import { CredentialsDto } from './dto/credentials.dto';
 import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { Request } from 'express';
 import { TokenPayload } from './interfaces/token-payload.interface';
+import { AuthCookies } from './interfaces/auth-cookies.interface';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { email } });
     if (user && (await argon2.verify(user.password, password))) {
-      const { password, ...result } = user;
+      const { password: _, ...result } = user;
       return result as User;
     }
     return null;
@@ -73,7 +74,7 @@ export class AuthService {
   }
 
   async removeOldRefreshToken(req: Request, user: User) {
-    const refreshTokenCookie = req.cookies?.Refresh;
+    const refreshTokenCookie = (req.cookies as AuthCookies).Refresh;
     if (refreshTokenCookie) {
       const existingTokens = await this.refreshTokensRepository.find({
         where: { user: { id: user.id } },
@@ -101,7 +102,7 @@ export class AuthService {
     for (const rt of existingUserRT.refreshTokens) {
       const isMatch = await argon2.verify(rt.token, refreshToken);
       if (isMatch && rt.expiresAt > new Date()) {
-        const { password, refreshTokens, ...result } = existingUserRT;
+        const { password: _p, refreshTokens: _rts, ...result } = existingUserRT;
         return result as User;
       }
     }

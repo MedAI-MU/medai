@@ -6,6 +6,7 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersModule } from 'src/users/users.module';
 import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { RegisterDto } from 'src/users/dtos/register.dto';
+import { App } from 'supertest/types';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -77,7 +78,7 @@ describe('UsersController (e2e)', () => {
     it.each(invalidRegisterDtotestCases)(
       'should return 400 for invalid register dto: %o',
       async (invalidDto) => {
-        await request(app.getHttpServer())
+        await request(app.getHttpServer() as App)
           .post(REGISTER_USER_URL)
           .send(invalidDto)
           .expect(400);
@@ -91,7 +92,7 @@ describe('UsersController (e2e)', () => {
         password: '123456',
         phone: '01012345678',
       };
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
         .send(dto)
         .expect(201);
@@ -104,11 +105,11 @@ describe('UsersController (e2e)', () => {
         password: '123456',
         phone: '01012345678',
       };
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
         .send(duplicateDto);
 
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
         .send(duplicateDto)
         .expect(409);

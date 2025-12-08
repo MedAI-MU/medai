@@ -10,6 +10,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import cookieParser from 'cookie-parser';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from 'src/auth/jwt.config';
+import { App } from 'supertest/types';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -59,7 +60,7 @@ describe('AuthController (e2e)', () => {
     it.each(invalidLoginDtotestCases)(
       'should return 400 for invalid login dto: %o',
       async (invalidDto) => {
-        await request(app.getHttpServer())
+        await request(app.getHttpServer() as App)
           .post(LOGIN_USER_URL)
           .send(invalidDto)
           .expect(400);
@@ -71,7 +72,7 @@ describe('AuthController (e2e)', () => {
         email: 'doesnotexist@test.com',
         password: 'somepassword',
       };
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(invalidCredentialsDto)
         .expect(400);
@@ -85,7 +86,7 @@ describe('AuthController (e2e)', () => {
         phone: '01123456789',
       };
       // first register the user
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
         .send(registerDto)
         .expect(201);
@@ -94,12 +95,12 @@ describe('AuthController (e2e)', () => {
         email: registerDto.email,
         password: registerDto.password,
       };
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(loginDto)
         .expect(200);
 
-      const setCookies = response.headers['set-cookie'];
+      const setCookies = response.headers['set-cookie'] as string | string[];
       expect(setCookies).toBeDefined();
       const cookiesArray = Array.isArray(setCookies)
         ? setCookies
@@ -123,12 +124,14 @@ describe('AuthController (e2e)', () => {
       };
 
       // First login to get the initial cookies
-      const firstLoginResponse = await request(app.getHttpServer())
+      const firstLoginResponse = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(loginDto)
         .expect(200);
 
-      const firstSetCookies = firstLoginResponse.headers['set-cookie'];
+      const firstSetCookies = firstLoginResponse.headers['set-cookie'] as
+        | string
+        | string[];
       const firstCookiesArray = Array.isArray(firstSetCookies)
         ? firstSetCookies
         : [firstSetCookies];
@@ -141,13 +144,15 @@ describe('AuthController (e2e)', () => {
 
       await new Promise((res) => setTimeout(res, 1000)); // ensure some time difference to get different tokens
 
-      const secondLoginResponse = await request(app.getHttpServer())
+      const secondLoginResponse = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .set('Cookie', [firstAuthCookie, firstRefreshCookie].join('; '))
         .send(loginDto)
         .expect(200);
 
-      const secondSetCookies = secondLoginResponse.headers['set-cookie'];
+      const secondSetCookies = secondLoginResponse.headers['set-cookie'] as
+        | string
+        | string[];
       const secondCookiesArray = Array.isArray(secondSetCookies)
         ? secondSetCookies
         : [secondSetCookies];
@@ -173,11 +178,13 @@ describe('AuthController (e2e)', () => {
     const LOGIN_USER_URL = '/api/auth/login';
 
     it('should return 401 if no refresh token cookie is provided', async () => {
-      await request(app.getHttpServer()).post(REFRESH_TOKEN_URL).expect(401);
+      await request(app.getHttpServer() as App)
+        .post(REFRESH_TOKEN_URL)
+        .expect(401);
     });
 
     it('should return 401 if invalid refresh token cookie is provided', async () => {
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as App)
         .post(REFRESH_TOKEN_URL)
         .set('Cookie', 'Refresh=invalidtoken; Path=/api/auth; HttpOnly')
         .send()
@@ -191,12 +198,14 @@ describe('AuthController (e2e)', () => {
       };
 
       // First login to get the cookies
-      const loginResponse = await request(app.getHttpServer())
+      const loginResponse = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(loginDto)
         .expect(200);
 
-      const setCookies = loginResponse.headers['set-cookie'];
+      const setCookies = loginResponse.headers['set-cookie'] as
+        | string
+        | string[];
       const cookiesArray = Array.isArray(setCookies)
         ? setCookies
         : [setCookies];
@@ -207,13 +216,15 @@ describe('AuthController (e2e)', () => {
       await new Promise((res) => setTimeout(res, 1000)); // ensure some time difference to get different tokens
 
       // Use the refresh token to get new tokens
-      const refreshResponse = await request(app.getHttpServer())
+      const refreshResponse = await request(app.getHttpServer() as App)
         .post(REFRESH_TOKEN_URL)
-        .set('Cookie', refreshCookie)
+        .set('Cookie', refreshCookie as string)
         .send()
         .expect(200);
 
-      const refreshSetCookies = refreshResponse.headers['set-cookie'];
+      const refreshSetCookies = refreshResponse.headers['set-cookie'] as
+        | string
+        | string[];
       expect(refreshSetCookies).toBeDefined();
       const refreshCookiesArray = Array.isArray(refreshSetCookies)
         ? refreshSetCookies

@@ -288,12 +288,14 @@ describe('AuthService', () => {
       // Mock hashing
       (argon2.hash as jest.Mock).mockResolvedValue('hashedNewRT');
 
-      let savedTokenEntity: any;
-      refreshTokensRepositoryMock.save.mockImplementation((entity) => {
-        // Capture the saved entity for later assertions
-        savedTokenEntity = entity;
-        return Promise.resolve(entity);
-      });
+      let savedTokenEntity: Partial<RefreshToken> = new RefreshToken({});
+      refreshTokensRepositoryMock.save.mockImplementation(
+        (entity: Partial<RefreshToken>) => {
+          // Capture the saved entity for later assertions
+          savedTokenEntity = entity;
+          return Promise.resolve(entity);
+        },
+      );
 
       const result = await authService.login(fakeUser as User);
 
@@ -321,12 +323,10 @@ describe('AuthService', () => {
       expect(savedTokenEntity.token).toBe('hashedNewRT');
 
       // 3. Return object contains both tokens and expiration dates
-      expect(result).toEqual({
-        accessToken: 'accessToken',
-        refreshToken: 'refreshToken',
-        accessTokenExpiresAt: expect.any(Date),
-        refreshTokenExpiresAt: expect.any(Date),
-      });
+      expect(result.accessToken).toBe('accessToken');
+      expect(result.refreshToken).toBe('refreshToken');
+      expect(result.accessTokenExpiresAt).toBeInstanceOf(Date);
+      expect(result.refreshTokenExpiresAt).toBeInstanceOf(Date);
 
       // Access token expiration is correct
       const expectedAccessExp = new Date(

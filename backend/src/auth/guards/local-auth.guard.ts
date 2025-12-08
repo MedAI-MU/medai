@@ -7,6 +7,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { LoginDto } from '../dto/login.dto';
 import { Request } from 'express';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
@@ -44,12 +45,13 @@ export class LocalAuthGuard extends AuthGuard('local') {
     }
     return super.canActivate(context) as boolean | Promise<boolean>;
   }
-  handleRequest<TUser = any>(
-    err: any,
-    user: any,
-    info: any,
-    context: ExecutionContext,
-    status?: any,
+
+  handleRequest<TUser = Partial<User> | false | null>(
+    err: Error | null,
+    user: TUser,
+    _info: string | Error | undefined,
+    _context: ExecutionContext,
+    _status?: number,
   ): TUser {
     if (err || !user) {
       throw new BadRequestException('Invalid email or password');
