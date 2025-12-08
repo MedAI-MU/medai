@@ -4,11 +4,8 @@ import { User } from 'src/users/entities/user.entity';
 import { TokenUser } from '../interfaces/token-user.interface';
 
 export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx): Partial<User> | TokenUser | null => {
+  (data: unknown, ctx): Partial<User> | TokenUser | undefined => {
     const request: Request = ctx.switchToHttp().getRequest();
-    if (!request.user) {
-      return null;
-    }
     return request.user;
   },
 );

@@ -1,4 +1,4 @@
-export class AccessTokenDto {
+export class CredentialsDto {
   accessToken: string;
   accessTokenExpiresAt: Date;
   refreshToken: string;

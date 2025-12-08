@@ -6,7 +6,7 @@ import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './jwt.config';
 import { type ConfigType } from '@nestjs/config';
-import { AccessTokenDto } from './dto/access-token.dto';
+import { CredentialsDto } from './dto/credentials.dto';
 import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { Request } from 'express';
 import { TokenPayload } from './interfaces/token-payload.interface';
@@ -31,7 +31,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User): Promise<AccessTokenDto> {
+  async login(user: User): Promise<CredentialsDto> {
     const payload: TokenPayload = { sub: user.id, email: user.email };
 
     const accessToken = await this.jwtService.signAsync(payload, {

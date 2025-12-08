@@ -13,13 +13,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const allowAnonymous = this.reflector.getAllAndOverride<boolean>(
-      ALLOW_ANON_KEY,
-      [context.getHandler(), context.getClass()],
+    return (
+      this.reflector.getAllAndOverride<boolean>(ALLOW_ANON_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]) || super.canActivate(context)
     );
-    if (allowAnonymous) {
-      return true;
-    }
-    return super.canActivate(context);
   }
 }
