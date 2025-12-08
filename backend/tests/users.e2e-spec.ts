@@ -7,9 +7,11 @@ import { UsersModule } from 'src/users/users.module';
 import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { RegisterDto } from 'src/users/dtos/register.dto';
 import { App } from 'supertest/types';
+import { DataSource } from 'typeorm';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,6 +38,12 @@ describe('UsersController (e2e)', () => {
       }),
     );
     await app.init();
+
+    dataSource = moduleRef.get(DataSource);
+  });
+
+  beforeEach(async () => {
+    await dataSource.synchronize(true);
   });
 
   describe('/api/users (POST)', () => {
@@ -87,7 +95,7 @@ describe('UsersController (e2e)', () => {
 
     it('should register a user and return 201 status', async () => {
       const dto: RegisterDto = {
-        name: 'Valid Name',
+        name: 'Test Name',
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
@@ -101,13 +109,15 @@ describe('UsersController (e2e)', () => {
     it('should return 409 if email is already in use', async () => {
       const duplicateDto: RegisterDto = {
         name: 'Test Name',
-        email: 'test2@test.com',
+        email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
       };
+
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
-        .send(duplicateDto);
+        .send(duplicateDto)
+        .expect(201);
 
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)

@@ -11,9 +11,15 @@ import cookieParser from 'cookie-parser';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from 'src/auth/jwt.config';
 import { App } from 'supertest/types';
+import { DataSource } from 'typeorm';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
+  let dataSource: DataSource;
+
+  const REGISTER_USER_URL = '/api/users';
+  const LOGIN_USER_URL = '/api/auth/login';
+  const REFRESH_TOKEN_URL = '/api/auth/refresh-token';
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,12 +50,15 @@ describe('AuthController (e2e)', () => {
     app.use(cookieParser());
 
     await app.init();
+
+    dataSource = moduleRef.get(DataSource);
+  });
+
+  beforeEach(async () => {
+    await dataSource.synchronize(true);
   });
 
   describe('/api/auth/login (POST)', () => {
-    const REGISTER_USER_URL = '/api/users';
-    const LOGIN_USER_URL = '/api/auth/login';
-
     const invalidLoginDtotestCases = [
       { email: 'invalid-email', password: 'validPass123' },
       { email: '', password: 'validPass123' },
@@ -118,12 +127,24 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should replace existing refresh token and access token on re-login', async () => {
-      const loginDto = {
+      const registerDto: RegisterDto = {
         email: 'test@test.com',
         password: 'strongPassword',
+        name: 'Test User',
+        phone: '01123456789',
       };
 
-      // First login to get the initial cookies
+      // first register the user
+      await request(app.getHttpServer() as App)
+        .post(REGISTER_USER_URL)
+        .send(registerDto)
+        .expect(201);
+
+      const loginDto = {
+        email: registerDto.email,
+        password: registerDto.password,
+      };
+
       const firstLoginResponse = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(loginDto)
@@ -174,9 +195,6 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('/api/auth/refresh-token (POST)', () => {
-    const REFRESH_TOKEN_URL = '/api/auth/refresh-token';
-    const LOGIN_USER_URL = '/api/auth/login';
-
     it('should return 401 if no refresh token cookie is provided', async () => {
       await request(app.getHttpServer() as App)
         .post(REFRESH_TOKEN_URL)
@@ -192,12 +210,24 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should return 200 and set new cookies when valid refresh token is provided', async () => {
-      const loginDto = {
+      const registerDto: RegisterDto = {
         email: 'test@test.com',
         password: 'strongPassword',
+        name: 'Test User',
+        phone: '01123456789',
       };
 
-      // First login to get the cookies
+      // first register the user
+      await request(app.getHttpServer() as App)
+        .post(REGISTER_USER_URL)
+        .send(registerDto)
+        .expect(201);
+
+      const loginDto = {
+        email: registerDto.email,
+        password: registerDto.password,
+      };
+
       const loginResponse = await request(app.getHttpServer() as App)
         .post(LOGIN_USER_URL)
         .send(loginDto)
