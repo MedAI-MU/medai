@@ -12,13 +12,17 @@ export class UsersService {
   ) {}
 
   async registerUser(registerDto: RegisterDto) {
-    const userExists = await this.usersRepository.findOne({
-      where: [{ email: registerDto.email }, { name: registerDto.name }],
+    let user = await this.usersRepository.findOne({
+      where: [{ email: registerDto.email }, { phone: registerDto.phone }],
     });
-    if (userExists) {
-      throw new ConflictException('User already exists');
+    if (user) {
+      if (user.email === registerDto.email) {
+        throw new ConflictException('Email already in use');
+      } else {
+        throw new ConflictException('Phone number already in use');
+      }
     }
-    const user = new User(registerDto);
+    user = new User(registerDto);
     user.password = await argon2.hash(registerDto.password);
     return this.usersRepository.save(user);
   }

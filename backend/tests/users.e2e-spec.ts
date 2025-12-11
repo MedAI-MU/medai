@@ -107,21 +107,49 @@ describe('UsersController (e2e)', () => {
     });
 
     it('should return 409 if email is already in use', async () => {
-      const duplicateDto: RegisterDto = {
+      const firstDto: RegisterDto = {
         name: 'Test Name',
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
       };
-
+      const duplicateEmailDto: RegisterDto = {
+        name: 'Another Name',
+        email: 'test@test.com',
+        password: '654321',
+        phone: '01087654321',
+      };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
-        .send(duplicateDto)
+        .send(firstDto)
         .expect(201);
 
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
-        .send(duplicateDto)
+        .send(duplicateEmailDto)
+        .expect(409);
+    });
+    it('should return 409 if phone is already in use', async () => {
+      const firstDto: RegisterDto = {
+        name: 'Test Name',
+        email: 'test@test.com',
+        password: '123456',
+        phone: '01012345678',
+      };
+      const duplicatePhoneDto: RegisterDto = {
+        name: 'Another Name',
+        email: 'nottest@test.com',
+        password: '654321',
+        phone: '01012345678',
+      };
+      await request(app.getHttpServer() as App)
+        .post(REGISTER_USER_URL)
+        .send(firstDto)
+        .expect(201);
+
+      await request(app.getHttpServer() as App)
+        .post(REGISTER_USER_URL)
+        .send(duplicatePhoneDto)
         .expect(409);
     });
   });

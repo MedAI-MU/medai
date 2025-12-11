@@ -63,7 +63,28 @@ describe('users.service', () => {
     });
 
     it('should throw a conflict error if email is already in use', async () => {
-      usersRepositoryMock.findOne.mockResolvedValue({ id: 1 } as User);
+      usersRepositoryMock.findOne.mockResolvedValue({
+        id: 1,
+        email: 'test@test.com',
+        phone: '11111111111',
+      } as User);
+      const dto: RegisterDto = {
+        name: 'Test User',
+        email: 'test@test.com',
+        password: 'strongpassword',
+        phone: '00000000000',
+      };
+
+      await expect(usersService.registerUser(dto)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+    it('should throw a conflict error if phone is already in use', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue({
+        id: 1,
+        email: 'nottest@test.com',
+        phone: '00000000000',
+      } as User);
       const dto: RegisterDto = {
         name: 'Test User',
         email: 'test@test.com',

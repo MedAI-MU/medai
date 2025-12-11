@@ -13,7 +13,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, length: 100 })
+  @Column({ length: 100 })
   name: string;
 
   @Column({ unique: true, length: 256 })
@@ -22,7 +22,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ length: 20 })
+  @Column({ unique: true, length: 20 })
   phone: string;
 
   @CreateDateColumn()
