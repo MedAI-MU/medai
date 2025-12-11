@@ -30,18 +30,18 @@ export class AuthController {
     // remove existing refresh token
     await this.authService.removeOldRefreshToken(req, user);
     // issue new tokens
-    const accessToken = await this.authService.login(user);
+    const credentials = await this.authService.login(user);
 
-    res.cookie('Authentication', accessToken.accessToken, {
+    res.cookie('Authentication', credentials.accessToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      expires: accessToken.accessTokenExpiresAt,
+      expires: credentials.accessTokenExpiresAt,
     });
 
-    res.cookie('Refresh', accessToken.refreshToken, {
+    res.cookie('Refresh', credentials.refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      expires: accessToken.refreshTokenExpiresAt,
+      expires: credentials.refreshTokenExpiresAt,
       path: '/api/auth',
     });
   }
