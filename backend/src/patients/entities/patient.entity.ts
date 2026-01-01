@@ -5,14 +5,10 @@ import {
   OneToOne,
   OneToMany,
 } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Allergy } from './allergy.entity';
 import { ChronicDisease } from './chronic_disease';
-import {
-  Gender,
-  MaritalStatus,
-  BloodType,
-} from 'src/patients/enums/patients.enum';
+import { Gender, MaritalStatus, BloodType } from '../enums/patients.enum';
 
 // TODO: Add surgery, family history, emergency contact, medications
 
