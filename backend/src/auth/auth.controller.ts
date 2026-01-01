@@ -15,6 +15,8 @@ import { AllowAnon } from './decorators/allow-anon.decorator';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
+import { ApiBody } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -50,6 +52,7 @@ export class AuthController {
   @AllowAnon()
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
   async login(
     @CurrentUser() currentUser: Partial<User>,
     @Res({ passthrough: true }) res: Response,
@@ -64,6 +67,7 @@ export class AuthController {
   @AllowAnon()
   @UseGuards(RefreshJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
   async refreshToken(
     @CurrentUser() currentUser: Partial<User>,
     @Req() req: Request,
