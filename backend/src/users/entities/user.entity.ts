@@ -5,10 +5,12 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
+import { Doctor } from '../../doctors/entities/doctor.entity';
 
-@Entity()
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -33,6 +35,9 @@ export class User {
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
+
+  @OneToOne(() => Doctor, (doctor) => doctor.user)
+  doctor: Doctor;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
