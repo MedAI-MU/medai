@@ -23,7 +23,7 @@ format-backend:
 format-frontend:
 	@pnpm --prefix ./frontend run format
 
-format: 
+format:
 	@$(MAKE) format-backend
 	@$(MAKE) format-frontend
 
@@ -33,7 +33,7 @@ lint-backend:
 lint-frontend:
 	@pnpm --prefix ./frontend run lint
 
-lint: 
+lint:
 	@$(MAKE) lint-backend
 	@$(MAKE) lint-frontend
 
