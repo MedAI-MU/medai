@@ -32,6 +32,7 @@ import org.example.project.design_system.component.bottomNavigation.MedAIBottomN
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.homeScreen.HomeScreen
+import org.example.project.presentation.profileScreen.ProfileScreen
 
 class MainContainerScreen : Screen {
     @Composable
@@ -156,8 +157,6 @@ object ProfileTab : Tab {
 
     @Composable
     override fun Content() {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Profile (Image 8)")
-        }
+        ProfileScreen().Content()
     }
 }

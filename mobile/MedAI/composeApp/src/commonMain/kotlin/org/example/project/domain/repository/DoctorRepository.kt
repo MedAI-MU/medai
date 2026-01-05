@@ -10,4 +10,14 @@ interface DoctorRepository {
     suspend fun getDoctorById(doctorId: String): Result<Doctor>
 
     suspend fun getAvailableSlots(doctorId: String, date: LocalDate): Result<List<TimeSlot>>
+
+    suspend fun bookAppointment(
+        doctorId: String,
+        slotId: String,
+        date: LocalDate,
+        patientName: String,
+        patientAge: String,
+        patientGender: String,
+        problemDescription: String
+    ): Result<String>
 }

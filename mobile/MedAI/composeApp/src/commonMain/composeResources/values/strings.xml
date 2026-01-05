@@ -111,4 +111,19 @@
     <string name="failed_load_doctor">Failed to load doctor: %s</string>
     <string name="failed_load_slots">Failed to load slots</string>
 
+    <!-- Booking Success Screen -->
+    <string name="success_title">Appointment Booked!</string>
+    <string name="success_message">Your appointment has been successfully scheduled. You will receive a notification shortly.</string>
+    <string name="go_home">Go to Home</string>
+
+    <!-- Profile Screen -->
+    <string name="my_profile_title">My Profile</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_favorite">Favorite</string>
+    <string name="menu_payment">Payment Method</string>
+    <string name="menu_privacy">Privacy Policy</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_help">Help</string>
+    <string name="menu_logout">Logout</string>
+
 </resources>

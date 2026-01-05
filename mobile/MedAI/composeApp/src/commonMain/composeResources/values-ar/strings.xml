@@ -110,4 +110,7 @@
     <string name="failed_load_doctor">فشل تحميل بيانات الطبيب: %s</string>
     <string name="failed_load_slots">فشل تحميل المواعيد</string>
 
+    <string name="success_title">تم حجز الموعد!</string>
+    <string name="success_message">تم جدولة موعدك بنجاح. ستتلقى إشعارًا قريباً.</string>
+    <string name="go_home">الذهاب للرئيسية</string>
 </resources>

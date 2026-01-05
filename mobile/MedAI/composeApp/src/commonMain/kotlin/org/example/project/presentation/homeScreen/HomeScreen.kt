@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -257,11 +258,31 @@ class HomeScreen : Screen {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        HomeAppointmentCard(
-                            appointments = state.filteredAppointments,
-                            onItemClick = { id -> viewModel.onEvent(HomeEvent.AppointmentClicked(id)) },
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
+                        if (state.filteredAppointments.isNotEmpty()) {
+                            HomeAppointmentCard(
+                                appointments = state.filteredAppointments,
+                                onItemClick = { id -> viewModel.onEvent(HomeEvent.AppointmentClicked(id)) },
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White.copy(alpha = 0.15f)) // Glass-like effect
+                                    .padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    MedAIText(
+                                        text = "No appointments for this date",
+                                        style = MedAITheme.textStyle.title.medium,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
