@@ -32,7 +32,8 @@ class ProfileViewModel(
                     _state.update { it.copy(isLoading = false, user = user) }
                 },
                 onFailure = { err ->
-                    _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoading = false, error = err.message) }
+                    sendEffect(ProfileEffect.ShowError("Failed to load profile"))
                 }
             )
         }

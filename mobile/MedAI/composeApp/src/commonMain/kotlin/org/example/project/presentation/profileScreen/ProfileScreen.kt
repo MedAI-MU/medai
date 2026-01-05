@@ -226,7 +226,7 @@ class ProfileScreen : Screen {
         onClick: () -> Unit
     ) {
         val contentColor = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.text.primary
-        val iconContainerColor = if (isDestructive) MedAITheme.colors.status.errorContainer else Color(0xFFE0F7FA) // Light Cyan
+        val iconContainerColor = if (isDestructive) MedAITheme.colors.status.errorContainer else MedAITheme.colors.primary.copy(alpha = 0.1f) // Light Cyan
         val iconTint = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.primary // Brand Cyan
 
         Row(
