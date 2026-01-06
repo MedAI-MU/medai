@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
-
+import type { UserRoles } from '../types/role.types';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -33,6 +33,9 @@ export class User {
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
+
+  @Column({ type: 'varchar' })
+  role: UserRoles;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

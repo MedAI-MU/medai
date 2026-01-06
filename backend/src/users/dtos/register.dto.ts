@@ -1,10 +1,12 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsString,
   Length,
   Matches,
 } from 'class-validator';
+import type { UserRoles } from '../types/role.types';
 
 export class RegisterDto {
   @Length(5, 100)
@@ -30,4 +32,11 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   phone: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(['doctor', 'patient'], {
+    message: 'role must be either doctor or patient',
+  })
+  role: UserRoles;
 }
