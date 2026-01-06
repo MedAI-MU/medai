@@ -71,7 +71,22 @@ class NotificationScreen : Screen {
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
 
-                        items(state.notifications) { uiModel ->
+                        items(state.notifications,
+                            key = { uiModel ->
+                                when (uiModel) {
+                                    is NotificationUiModel.Header -> "header_${uiModel.title}"
+                                    is NotificationUiModel.Item -> uiModel.notification.id
+                                }
+                            },
+
+                            contentType = { uiModel ->
+                                when (uiModel) {
+                                    is NotificationUiModel.Header -> 0
+                                    is NotificationUiModel.Item -> 1
+                                }
+                            }
+
+                        ) { uiModel ->
                             when (uiModel) {
                                 is NotificationUiModel.Header -> {
                                     Box(
