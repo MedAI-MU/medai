@@ -9,11 +9,13 @@ import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.NetworkSpecialtiesRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
+import org.example.project.data.repository.mock.MockNotificationRepository
 import org.example.project.data.repository.mock.MockProfileRepository
 import org.example.project.data.repository.mock.MockSpecialtiesRepository
 import org.example.project.domain.repository.DoctorRepository
 import org.example.project.domain.repository.HomeRepository
 import org.example.project.domain.repository.LoginRepository
+import org.example.project.domain.repository.NotificationRepository
 import org.example.project.domain.repository.ProfileRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
@@ -22,6 +24,7 @@ import org.example.project.domain.usecase.GetAvailableSlotsUseCase
 import org.example.project.domain.usecase.GetDoctorDetailsUseCase
 import org.example.project.domain.usecase.GetDoctorsUseCase
 import org.example.project.domain.usecase.GetHomeDataUseCase
+import org.example.project.domain.usecase.GetNotificationsUseCase
 import org.example.project.domain.usecase.GetSpecialtiesUseCase
 import org.example.project.domain.usecase.LoginUseCase
 import org.example.project.domain.usecase.SignUpUseCase
@@ -30,6 +33,7 @@ import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewMod
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
+import org.example.project.presentation.notificationScreen.NotificationViewModel
 import org.example.project.presentation.profileScreen.ProfileViewModel
 import org.example.project.presentation.signUpScreen.SignUpViewModel
 import org.example.project.presentation.specialtiesScreen.SpecialtiesViewModel
@@ -55,6 +59,7 @@ val appModule = module {
     //single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     //single<LoginRepository> { NetworkLoginRepository(get()) }
     //single<HomeRepository> { NetworkHomeRepository(get()) }
+    single<NotificationRepository> { MockNotificationRepository() }
 
     // --- Use Cases ---
     factory { LoginUseCase(get()) }
@@ -65,6 +70,7 @@ val appModule = module {
     factory { GetDoctorDetailsUseCase(get()) }
     factory { GetAvailableSlotsUseCase(get()) }
     factory { BookAppointmentUseCase(get()) }
+    factory { GetNotificationsUseCase(get()) }
 
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
@@ -81,4 +87,5 @@ val appModule = module {
         BookingViewModel(doctorId, get(), get(), get(),get())
     }
     factory { ProfileViewModel(get()) }
+    factory { NotificationViewModel(get()) }
 }

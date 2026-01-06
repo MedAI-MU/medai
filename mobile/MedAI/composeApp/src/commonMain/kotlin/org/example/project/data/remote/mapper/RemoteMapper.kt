@@ -1,5 +1,6 @@
 package org.example.project.data.remote.mapper
 
+import kotlinx.datetime.Instant
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.app_name
 import medai.composeapp.generated.resources.cat_doctors
@@ -15,12 +16,15 @@ import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.DoctorDto
+import org.example.project.data.remote.dto.NotificationDto
 import org.example.project.data.remote.dto.UserDto
 import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.AppointmentStatus
 import org.example.project.domain.model.Category
 import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.Notification
+import org.example.project.domain.model.NotificationType
 import org.example.project.domain.model.User
 
 fun mapStatus(status: String?): AppointmentStatus {
@@ -92,4 +96,36 @@ fun UserDto.toDomain(): User {
         email = this.email,
         role = this.role ?: "patient",
     )
+}
+
+
+fun NotificationDto.toDomain(): Notification {
+    return Notification(
+        id = this.id,
+        title = this.title,
+        message = this.body,
+        timestamp = parseInstant(this.timestamp),
+        type = mapNotificationType(this.type),
+        isRead = this.isRead
+    )
+}
+
+// Helper to map backend strings to Domain Enums
+private fun mapNotificationType(type: String): NotificationType {
+    return when (type.lowercase()) {
+        "appointment_confirmed" -> NotificationType.APPOINTMENT_CONFIRMED
+        "appointment_cancelled" -> NotificationType.APPOINTMENT_CANCELLED
+        "schedule_changed" -> NotificationType.SCHEDULE_CHANGED
+        "general" -> NotificationType.GENERAL_INFO
+        else -> NotificationType.GENERAL_INFO // Fallback
+    }
+}
+
+// Helper to safely parse time
+private fun parseInstant(isoString: String): Instant {
+    return try {
+        Instant.parse(isoString)
+    } catch (e: Exception) {
+        Instant.fromEpochMilliseconds(0) // Fallback to epoch if parsing fails
+    }
 }

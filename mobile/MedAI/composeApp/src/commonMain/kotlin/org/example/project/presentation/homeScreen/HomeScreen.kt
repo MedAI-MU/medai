@@ -68,6 +68,7 @@ import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
+import org.example.project.presentation.notificationScreen.NotificationScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
 
@@ -129,7 +130,8 @@ class HomeScreen : Screen {
                         println("Navigating to All Specialties")
                     }
                     HomeEffect.NavigateToNotifications -> {
-                        println("Navigating to Notifications")
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(NotificationScreen())
                     }
                     HomeEffect.NavigateToSearch -> {
                         println("Navigating to Search")
