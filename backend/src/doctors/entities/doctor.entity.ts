@@ -1,19 +1,13 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
-@Entity('doctor')
+@Entity()
 export class Doctor {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  userId: number;
 
   @OneToOne(() => User, (user) => user.doctor)
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column()

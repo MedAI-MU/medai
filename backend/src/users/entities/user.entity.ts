@@ -10,7 +10,7 @@ import {
 import { RefreshToken } from './refresh-token.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 
-@Entity('user')
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -37,7 +37,7 @@ export class User {
   refreshTokens: RefreshToken[];
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
-  doctor: Doctor;
+  doctor?: Doctor;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
