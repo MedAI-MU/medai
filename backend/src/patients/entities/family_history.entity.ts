@@ -1,20 +1,24 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Patient } from './patient.entity';
+import { FamilyRelation } from '../enums/patients.enum';
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
 
 @Entity()
-export class Allergy extends TimestampEntity {
+export class FamilyHistory extends TimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.allergies, {
+  @ManyToOne(() => Patient, (patient) => patient.familyHistories, {
     onDelete: 'CASCADE',
   })
   patient: Patient;
 
+  @Column({ type: 'enum', enum: FamilyRelation })
+  relation: FamilyRelation;
+
   @Column({ length: 100 })
-  name: string;
+  condition: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  notes: string;
 }

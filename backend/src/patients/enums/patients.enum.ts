@@ -20,3 +20,12 @@ export enum MaritalStatus {
   DIVORCED = 'divorced',
   WIDOWED = 'widowed',
 }
+
+export enum FamilyRelation {
+  FATHER = 'father',
+  MOTHER = 'mother',
+  SIBLING = 'sibling',
+  CHILD = 'child',
+  SPOUSE = 'spouse',
+  OTHER = 'other',
+}

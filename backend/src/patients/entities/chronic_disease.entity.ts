@@ -3,11 +3,11 @@ import { Patient } from './patient.entity';
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
 
 @Entity()
-export class Allergy extends TimestampEntity {
+export class ChronicDisease extends TimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.allergies, {
+  @ManyToOne(() => Patient, (patient) => patient.chronicDiseases, {
     onDelete: 'CASCADE',
   })
   patient: Patient;
@@ -17,4 +17,7 @@ export class Allergy extends TimestampEntity {
 
   @Column({ type: 'text', nullable: true })
   description: string;
+
+  @Column({ type: 'date', nullable: true })
+  diagnosisDate: Date;
 }
