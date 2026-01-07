@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('refresh_token')
+@Entity()
 export class RefreshToken {
   @PrimaryGeneratedColumn()
   id: number;
