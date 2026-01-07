@@ -42,18 +42,28 @@ export class Patient extends TimestampEntity {
   @Column({ type: 'enum', enum: MaritalStatus, nullable: true })
   maritalStatus: MaritalStatus;
 
-  @OneToMany(() => Allergy, (allergy) => allergy.patient)
+  @OneToMany(() => Allergy, (allergy) => allergy.patient, {
+    cascade: ['insert', 'update'],
+  })
   allergies: Allergy[];
 
-  @OneToMany(() => ChronicDisease, (disease) => disease.patient)
+  @OneToMany(() => ChronicDisease, (disease) => disease.patient, {
+    cascade: ['insert', 'update'],
+  })
   chronicDiseases: ChronicDisease[];
 
-  @OneToMany(() => Surgery, (surgery) => surgery.patient)
+  @OneToMany(() => Surgery, (surgery) => surgery.patient, {
+    cascade: ['insert', 'update'],
+  })
   surgeries: Surgery[];
 
-  @OneToMany(() => FamilyHistory, (history) => history.patient)
+  @OneToMany(() => FamilyHistory, (history) => history.patient, {
+    cascade: ['insert', 'update'],
+  })
   familyHistories: FamilyHistory[];
 
-  @OneToMany(() => EmergencyContact, (contact) => contact.patient)
+  @OneToMany(() => EmergencyContact, (contact) => contact.patient, {
+    cascade: ['insert', 'update'],
+  })
   emergencyContacts: EmergencyContact[];
 }
