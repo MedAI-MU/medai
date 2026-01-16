@@ -113,4 +113,11 @@
     <string name="success_title">تم حجز الموعد!</string>
     <string name="success_message">تم جدولة موعدك بنجاح. ستتلقى إشعارًا قريباً.</string>
     <string name="go_home">الذهاب للرئيسية</string>
+
+    <!-- Record Screen -->
+    <string name="medical_record_title">السجل الطبي</string>
+    <string name="history_label">السجل</string>
+    <string name="view_details">عرض</string>
+    <string name="re_book">حجز مجددًا</string>
+    <string name="no_records_found">لا توجد سجلات طبية</string>
 </resources>
