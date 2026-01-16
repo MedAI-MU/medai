@@ -69,6 +69,7 @@ import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
 import org.example.project.presentation.notificationScreen.NotificationScreen
+import org.example.project.presentation.recordScreen.RecordsDashboardScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
 
@@ -103,7 +104,10 @@ class HomeScreen : Screen {
                                 val rootNavigator = navigator.parent ?: navigator
                                 rootNavigator.push(SpecialtiesScreen())
                             }
-                            CategoryType.RECORDS -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.RECORDS -> {
+                                val rootNavigator = navigator.parent ?: navigator
+                                rootNavigator.push(RecordsDashboardScreen())
+                            }
                             CategoryType.UNKNOWN -> snackbarHostState.showSnackbar(effect.category.id)
                         }
                     }
