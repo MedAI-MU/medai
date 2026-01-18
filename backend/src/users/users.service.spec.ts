@@ -53,6 +53,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
+        role: 'doctor',
       };
 
       const result = await usersService.registerUser(dto);
@@ -73,6 +74,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
+        role: 'doctor',
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(
@@ -90,6 +92,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
+        role: 'doctor',
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(

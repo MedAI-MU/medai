@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
+import type { UserRoles } from '../types/role.types';
 
 @Entity()
 export class User {
@@ -38,6 +39,9 @@ export class User {
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor?: Doctor;
+
+  @Column({ type: 'varchar' })
+  role: UserRoles;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

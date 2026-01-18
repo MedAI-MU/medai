@@ -4,7 +4,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.datetime.LocalDate
+import org.example.project.data.remote.dto.BookingRequestDto
+import org.example.project.data.remote.dto.BookingResponseDto
 import org.example.project.data.remote.dto.DoctorDto
 import org.example.project.data.remote.dto.TimeSlotDto
 import org.example.project.data.remote.mapper.toDomain
@@ -59,6 +65,38 @@ class NetworkDoctorRepository(
             Result.success(response.map { dto ->
                 TimeSlot(dto.id, dto.time, dto.isAvailable)
             })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun bookAppointment(
+        doctorId: String,
+        slotId: String,
+        date: LocalDate,
+        patientName: String,
+        patientAge: String,
+        patientGender: String,
+        problemDescription: String
+    ): Result<String> {
+        return try {
+            val request = BookingRequestDto(
+                doctorId = doctorId,
+                slotId = slotId,
+                date = date.toString(),
+                patientName = patientName,
+                patientAge = patientAge,
+                patientGender = patientGender,
+                problem = problemDescription
+            )
+
+            // POST /bookings
+            val response: BookingResponseDto = client.post("/bookings") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+
+            Result.success(response.bookingId)
         } catch (e: Exception) {
             Result.failure(e)
         }
