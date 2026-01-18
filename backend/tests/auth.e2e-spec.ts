@@ -93,6 +93,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
+        role: 'doctor',
       };
       // first register the user
       await request(app.getHttpServer() as App)
@@ -132,6 +133,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
+        role: 'doctor',
       };
 
       // first register the user
@@ -215,6 +217,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
+        role: 'doctor',
       };
 
       // first register the user
