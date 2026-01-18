@@ -4,29 +4,48 @@ import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.core.presentation.util.ResourceProviderImpl
 import org.example.project.data.remote.KtorClient
+import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkSignUpRepository
-import org.example.project.data.repository.NetworkSpecialtiesRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
+import org.example.project.data.repository.mock.MockMedicalRecordRepository
+import org.example.project.data.repository.mock.MockNotificationRepository
+import org.example.project.data.repository.mock.MockProfileRepository
 import org.example.project.data.repository.mock.MockSpecialtiesRepository
 import org.example.project.domain.repository.DoctorRepository
 import org.example.project.domain.repository.HomeRepository
 import org.example.project.domain.repository.LoginRepository
+import org.example.project.domain.repository.NotificationRepository
+import org.example.project.domain.repository.ProfileRepository
+import org.example.project.domain.repository.MedicalRecordRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
+import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.usecase.BookAppointmentUseCase
+import org.example.project.domain.usecase.GetAllergiesUseCase
+import org.example.project.domain.usecase.GetAnalysesUseCase
+import org.example.project.domain.usecase.GetAnalysisDetailsUseCase
 import org.example.project.domain.usecase.GetAvailableSlotsUseCase
 import org.example.project.domain.usecase.GetDoctorDetailsUseCase
 import org.example.project.domain.usecase.GetDoctorsUseCase
 import org.example.project.domain.usecase.GetHomeDataUseCase
+import org.example.project.domain.usecase.GetMedicalHistoryUseCase
+import org.example.project.domain.usecase.GetNotificationsUseCase
+import org.example.project.domain.usecase.GetPatientProfileUseCase
 import org.example.project.domain.usecase.GetSpecialtiesUseCase
+import org.example.project.domain.usecase.GetVaccinationsUseCase
 import org.example.project.domain.usecase.LoginUseCase
 import org.example.project.domain.usecase.SignUpUseCase
+import org.example.project.domain.usecase.UpdatePatientMetricsUseCase
 import org.example.project.presentation.bookingScreen.BookingViewModel
 import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewModel
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
+import org.example.project.presentation.notificationScreen.NotificationViewModel
+import org.example.project.presentation.profileScreen.ProfileViewModel
+import org.example.project.presentation.recordScreen.MedicalRecordViewModel
 import org.example.project.presentation.signUpScreen.SignUpViewModel
 import org.example.project.presentation.specialtiesScreen.SpecialtiesViewModel
 
@@ -38,6 +57,8 @@ val appModule = module {
     single { CalendarManager() }
     single<ResourceProvider> { ResourceProviderImpl() }
 
+
+
     // --- Network ---
     single { KtorClient.client }
 
@@ -47,18 +68,33 @@ val appModule = module {
     single<HomeRepository> { MockHomeRepository() }
     single<SpecialtiesRepository> { MockSpecialtiesRepository() }
     single<DoctorRepository> { MockDoctorRepository() }
+    single<ProfileRepository> { MockProfileRepository() }
     //single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     //single<LoginRepository> { NetworkLoginRepository(get()) }
     //single<HomeRepository> { NetworkHomeRepository(get()) }
+    single<NotificationRepository> { MockNotificationRepository() }
+    single<MedicalRecordRepository> { MockMedicalRecordRepository() }
 
     // --- Use Cases ---
-    factory { LoginUseCase(get()) }
+    single<UserSessionManager> {
+        InMemoryUserSessionManager(dataStore = get())
+    }
+    factory { LoginUseCase(get(),get()) }
     factory { SignUpUseCase(repository = get()) }
-    factory { GetHomeDataUseCase(get()) }
+    factory { GetHomeDataUseCase(get(), get()) }
     factory { GetSpecialtiesUseCase(get()) }
     factory { GetDoctorsUseCase(get()) }
     factory { GetDoctorDetailsUseCase(get()) }
     factory { GetAvailableSlotsUseCase(get()) }
+    factory { BookAppointmentUseCase(get()) }
+    factory { GetNotificationsUseCase(get()) }
+    factory { GetPatientProfileUseCase(get()) }
+    factory { UpdatePatientMetricsUseCase(get()) }
+    factory { GetAllergiesUseCase(get()) }
+    factory { GetAnalysesUseCase(get()) }
+    factory { GetVaccinationsUseCase(get()) }
+    factory { GetMedicalHistoryUseCase(get()) }
+    factory { GetAnalysisDetailsUseCase(get()) }
 
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
@@ -72,6 +108,9 @@ val appModule = module {
         DoctorDetailsViewModel(doctorId, get())
     }
     factory { (doctorId: String) ->
-        BookingViewModel(doctorId, get(), get(), get())
+        BookingViewModel(doctorId, get(), get(), get(),get())
     }
+    factory { ProfileViewModel(get()) }
+    factory { NotificationViewModel(get()) }
+    factory { MedicalRecordViewModel(get(), get(), get(), get(), get(), get(),get()) }
 }

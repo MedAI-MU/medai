@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -67,6 +68,8 @@ import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
+import org.example.project.presentation.notificationScreen.NotificationScreen
+import org.example.project.presentation.recordScreen.RecordsDashboardScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
 
@@ -101,7 +104,10 @@ class HomeScreen : Screen {
                                 val rootNavigator = navigator.parent ?: navigator
                                 rootNavigator.push(SpecialtiesScreen())
                             }
-                            CategoryType.RECORDS -> snackbarHostState.showSnackbar(effect.category.id)
+                            CategoryType.RECORDS -> {
+                                val rootNavigator = navigator.parent ?: navigator
+                                rootNavigator.push(RecordsDashboardScreen())
+                            }
                             CategoryType.UNKNOWN -> snackbarHostState.showSnackbar(effect.category.id)
                         }
                     }
@@ -128,7 +134,8 @@ class HomeScreen : Screen {
                         println("Navigating to All Specialties")
                     }
                     HomeEffect.NavigateToNotifications -> {
-                        println("Navigating to Notifications")
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(NotificationScreen())
                     }
                     HomeEffect.NavigateToSearch -> {
                         println("Navigating to Search")
@@ -257,11 +264,31 @@ class HomeScreen : Screen {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        HomeAppointmentCard(
-                            appointments = state.filteredAppointments,
-                            onItemClick = { id -> viewModel.onEvent(HomeEvent.AppointmentClicked(id)) },
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
+                        if (state.filteredAppointments.isNotEmpty()) {
+                            HomeAppointmentCard(
+                                appointments = state.filteredAppointments,
+                                onItemClick = { id -> viewModel.onEvent(HomeEvent.AppointmentClicked(id)) },
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White.copy(alpha = 0.15f)) // Glass-like effect
+                                    .padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    MedAIText(
+                                        text = "No appointments for this date",
+                                        style = MedAITheme.textStyle.title.medium,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))

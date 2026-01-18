@@ -1,8 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
-
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
-
+import type { UserRoles } from '../types/role.types';
 @Entity()
 export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()
@@ -22,6 +21,9 @@ export class User extends TimestampEntity {
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
+
+  @Column({ type: 'varchar' })
+  role: UserRoles;
 
   constructor(partial: Partial<User>) {
     super();

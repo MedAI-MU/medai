@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.example.project.core.presentation.util.CalendarManager
+import org.example.project.domain.usecase.BookAppointmentUseCase
 import org.example.project.domain.usecase.GetAvailableSlotsUseCase
 import org.example.project.domain.usecase.GetDoctorDetailsUseCase
 import org.example.project.presentation.homeScreen.CalendarUiModel
@@ -18,6 +19,7 @@ class BookingViewModel(
     private val doctorId: String,
     private val getDoctorDetailsUseCase: GetDoctorDetailsUseCase,
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
+    private val bookAppointmentUseCase: BookAppointmentUseCase,
     private val calendarManager: CalendarManager
 ) : ScreenModel {
 
@@ -106,8 +108,7 @@ class BookingViewModel(
                 _state.update { it.copy(problemDescription = event.text) }
             }
             BookingEvent.BookClicked -> {
-                // TODO: Call BookAppointmentUseCase
-                sendEffect(BookingEffect.NavigateToSuccess)
+                performBooking()
             }
             is BookingEvent.PatientNameChanges -> { _state.update { it.copy(patientName = event.name) } }
             is BookingEvent.PatientAgeChanged -> _state.update { it.copy(patientAge = event.age) }
@@ -133,21 +134,36 @@ class BookingViewModel(
             sendEffect(BookingEffect.ShowError("Please select a time slot"))
             return
         }
-        if (currentState.problemDescription.isBlank()) {
-            sendEffect(BookingEffect.ShowError("Please describe your problem"))
+        if (currentState.patientName.isBlank() || currentState.problemDescription.isBlank()) {
+            sendEffect(BookingEffect.ShowError("Please fill in all details"))
             return
         }
+        // Safety check for date
+        val date = currentState.selectedDate ?: return
 
         screenModelScope.launch {
             _state.update { it.copy(isBooking = true) }
 
-            // TODO: Call a real BookAppointmentUseCase here
-            // For now, simulate network delay
-            kotlinx.coroutines.delay(1500)
+            val result = bookAppointmentUseCase(
+                doctorId = doctorId,
+                slotId = currentState.selectedSlotId,
+                date = date,
+                patientName = currentState.patientName,
+                patientAge = currentState.patientAge,
+                patientGender = currentState.patientGender,
+                problemDescription = currentState.problemDescription
+            )
 
-            _state.update { it.copy(isBooking = false) }
-            sendEffect(BookingEffect.ShowSuccessMessage("Appointment Booked!"))
-            sendEffect(BookingEffect.NavigateToSuccess)
+            result.fold(
+                onSuccess = {
+                    _state.update { it.copy(isBooking = false) }
+                    sendEffect(BookingEffect.NavigateToSuccess)
+                },
+                onFailure = { error ->
+                    _state.update { it.copy(isBooking = false) }
+                    sendEffect(BookingEffect.ShowError(error.message ?: "Booking Failed"))
+                }
+            )
         }
     }
 

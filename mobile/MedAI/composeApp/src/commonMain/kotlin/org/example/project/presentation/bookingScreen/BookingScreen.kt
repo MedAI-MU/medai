@@ -83,7 +83,7 @@ class BookingScreen(val doctorId: String) : Screen {
             viewModel.effect.collectLatest { effect ->
                 when(effect) {
                     BookingEffect.NavigateBack -> navigator.pop()
-                    BookingEffect.NavigateToSuccess -> { /* Navigate to Success Screen */ }
+                    BookingEffect.NavigateToSuccess -> { navigator.push(BookingSuccessScreen()) }
                     is BookingEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                     is BookingEffect.ShowSuccessMessage -> snackbarHostState.showSnackbar(effect.message)
                 }
