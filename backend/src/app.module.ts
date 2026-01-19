@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import databaseConfig from './database/database.config';
 import jwtConfig from './auth/jwt.config';
+import { SchedulesModule } from './schedules/schedules.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import jwtConfig from './auth/jwt.config';
     UsersModule,
     AuthModule,
     DoctorsModule,
+    SchedulesModule,
   ],
 })
 export class AppModule {}

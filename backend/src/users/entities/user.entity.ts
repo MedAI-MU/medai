@@ -10,7 +10,8 @@ import {
 import { RefreshToken } from './refresh-token.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import type { UserRoles } from '../types/role.types';
-
+import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
+import { DocScheduleSlot } from '../../schedules/entities/doc-schedule-slot.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -42,6 +43,12 @@ export class User {
 
   @Column({ type: 'varchar' })
   role: UserRoles;
+
+  @OneToMany(() => DocScheduleTemplate, (template) => template.secretary)
+  DoctorScheduleTemplates?: DocScheduleTemplate[];
+
+  @OneToMany(() => DocScheduleSlot, (slot) => slot.secretary)
+  DoctorScheduleSlots?: DocScheduleSlot[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
