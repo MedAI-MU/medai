@@ -8,6 +8,7 @@ import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkSignUpRepository
+import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
 import org.example.project.data.repository.mock.MockMedicalRecordRepository
@@ -15,6 +16,7 @@ import org.example.project.data.repository.mock.MockNotificationRepository
 import org.example.project.data.repository.mock.MockProfileRepository
 import org.example.project.data.repository.mock.MockSpecialtiesRepository
 import org.example.project.domain.repository.ChatRepository
+import org.example.project.domain.repository.AppointmentRepository
 import org.example.project.domain.repository.DoctorRepository
 import org.example.project.domain.repository.HomeRepository
 import org.example.project.domain.repository.LoginRepository
@@ -25,10 +27,14 @@ import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
 import org.example.project.domain.repository.UserSessionManager
 import org.example.project.domain.usecase.BookAppointmentUseCase
+import org.example.project.domain.usecase.CancelAppointmentUseCase
 import org.example.project.domain.usecase.GetAllergiesUseCase
 import org.example.project.domain.usecase.GetAnalysesUseCase
 import org.example.project.domain.usecase.GetAnalysisDetailsUseCase
+import org.example.project.domain.usecase.GetAppointmentDetailsUseCase
+import org.example.project.domain.usecase.GetAppointmentsUseCase
 import org.example.project.domain.usecase.GetAvailableSlotsUseCase
+import org.example.project.domain.usecase.GetCancelReasonsUseCase
 import org.example.project.domain.usecase.GetChatMessagesUseCase
 import org.example.project.domain.usecase.GetConversationsUseCase
 import org.example.project.domain.usecase.GetDoctorDetailsUseCase
@@ -43,7 +49,9 @@ import org.example.project.domain.usecase.LoginUseCase
 import org.example.project.domain.usecase.ObserveTypingUseCase
 import org.example.project.domain.usecase.SendMessageUseCase
 import org.example.project.domain.usecase.SignUpUseCase
+import org.example.project.domain.usecase.SubmitReviewUseCase
 import org.example.project.domain.usecase.UpdatePatientMetricsUseCase
+import org.example.project.presentation.appointmentScreen.AppointmentViewModel
 import org.example.project.presentation.bookingScreen.BookingViewModel
 import org.example.project.presentation.chatScreen.ChatListViewModel
 import org.example.project.presentation.chatScreen.ChatViewModel
@@ -82,6 +90,7 @@ val appModule = module {
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
+    single<AppointmentRepository> { MockAppointmentRepository() }
 
     // --- Use Cases ---
     single<UserSessionManager> {
@@ -103,6 +112,11 @@ val appModule = module {
     factory { GetVaccinationsUseCase(get()) }
     factory { GetMedicalHistoryUseCase(get()) }
     factory { GetAnalysisDetailsUseCase(get()) }
+    factory { GetAppointmentsUseCase(get()) }
+    factory { GetAppointmentDetailsUseCase(get()) }
+    factory { CancelAppointmentUseCase(get()) }
+    factory { SubmitReviewUseCase(get()) }
+    factory { GetCancelReasonsUseCase(get()) }
 
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
@@ -121,6 +135,7 @@ val appModule = module {
     factory { ProfileViewModel(get()) }
     factory { NotificationViewModel(get()) }
     factory { MedicalRecordViewModel(get(), get(), get(), get(), get(), get(),get()) }
+    factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
 
 
     // Chat Feature
