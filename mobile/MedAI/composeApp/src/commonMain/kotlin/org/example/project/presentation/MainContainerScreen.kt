@@ -31,6 +31,7 @@ import org.example.project.design_system.component.bottomNavigation.BottomNavIte
 import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.chatScreen.ChatListScreen
 import org.example.project.presentation.homeScreen.HomeScreen
 import org.example.project.presentation.profileScreen.ProfileScreen
 
@@ -125,9 +126,7 @@ object MessagesTab : Tab {
 
     @Composable
     override fun Content() {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Messages/Notifications (Image 9)")
-        }
+        ChatListScreen().Content()
     }
 }
 
