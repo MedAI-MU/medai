@@ -21,9 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Show diff
-        run: git diff --stat
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
