@@ -21,6 +21,26 @@ seed:
 pre-commit:
 	@pre-commit run --all-files
 
+format-backend:
+	@pnpm --prefix ./backend run format
+
+format-frontend:
+	@pnpm --prefix ./frontend run format
+
+format:
+	@$(MAKE) format-backend
+	@$(MAKE) format-frontend
+
+lint-backend:
+	@pnpm --prefix ./backend run lint
+
+lint-frontend:
+	@pnpm --prefix ./frontend run lint
+
+lint:
+	@$(MAKE) lint-backend
+	@$(MAKE) lint-frontend
+
 test-backend:
 	@DOCKER_BUILDKIT=1 \
 	docker build -f backend/docker/Dockerfile.test -t medai-backend-test backend

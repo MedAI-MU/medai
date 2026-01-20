@@ -5,9 +5,12 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
+import { Doctor } from '../../doctors/entities/doctor.entity';
 import type { UserRoles } from '../types/role.types';
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -33,6 +36,9 @@ export class User {
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
+
+  @OneToOne(() => Doctor, (doctor) => doctor.user)
+  doctor?: Doctor;
 
   @Column({ type: 'varchar' })
   role: UserRoles;
