@@ -21,7 +21,7 @@ export class DocScheduleSlot {
   doctor: Doctor;
 
   @Column('date')
-  dayDate: Date;
+  dayDate: string;
 
   @Column('time')
   startTime: string;
@@ -36,7 +36,7 @@ export class DocScheduleSlot {
   })
   status: SlotStatus;
 
-  @ManyToOne(() => User, (user) => user.DoctorScheduleSlots, {
+  @ManyToOne(() => User, (user) => user.doctor, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'secretaryId' })

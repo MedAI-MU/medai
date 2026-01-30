@@ -260,60 +260,52 @@ describe('areValidTimeRanges', () => {
     });
   });
 
-  describe('Date type handling', () => {
-    it('should accept Date type and group by specific date', () => {
-      const date1 = new Date('2024-01-15');
+  describe('Date string type handling (yyyy-mm-dd format)', () => {
+    it('should group by date string (yyyy-mm-dd format)', () => {
       const ranges = [
-        { startTime: '09:00', endTime: '10:00', day: date1 },
-        { startTime: '11:00', endTime: '12:00', day: date1 },
+        { startTime: '09:00', endTime: '10:00', day: '2024-01-15' },
+        { startTime: '11:00', endTime: '12:00', day: '2024-01-15' },
       ];
       expect(areValidTimeRanges(ranges)).toBe(true);
     });
 
-    it('should return false when Date ranges overlap on same date', () => {
-      const date1 = new Date('2024-01-15');
+    it('should return false when date string ranges overlap on same date', () => {
       const ranges = [
-        { startTime: '09:00', endTime: '11:00', day: date1 },
-        { startTime: '10:00', endTime: '12:00', day: date1 },
+        { startTime: '09:00', endTime: '11:00', day: '2024-01-15' },
+        { startTime: '10:00', endTime: '12:00', day: '2024-01-15' },
       ];
       expect(areValidTimeRanges(ranges)).toBe(false);
     });
 
-    it('should allow overlapping times on different dates', () => {
-      const date1 = new Date('2024-01-15');
-      const date2 = new Date('2024-01-16');
+    it('should allow overlapping times on different date strings', () => {
       const ranges = [
-        { startTime: '09:00', endTime: '12:00', day: date1 },
-        { startTime: '10:00', endTime: '11:00', day: date2 },
+        { startTime: '09:00', endTime: '12:00', day: '2024-01-15' },
+        { startTime: '10:00', endTime: '11:00', day: '2024-01-16' },
       ];
       expect(areValidTimeRanges(ranges)).toBe(true);
     });
 
-    it('should return false when Date ranges have invalid time', () => {
-      const date1 = new Date('2024-01-15');
-      const ranges = [{ startTime: '10:00', endTime: '09:00', day: date1 }];
+    it('should return false when date string ranges have invalid time', () => {
+      const ranges = [
+        { startTime: '10:00', endTime: '09:00', day: '2024-01-15' },
+      ];
       expect(areValidTimeRanges(ranges)).toBe(false);
     });
 
-    it('should correctly group multiple ranges by different dates', () => {
-      const date1 = new Date('2024-01-15');
-      const date2 = new Date('2024-01-16');
-      const date3 = new Date('2024-01-17');
+    it('should correctly group multiple ranges by different date strings', () => {
       const ranges = [
-        { startTime: '09:00', endTime: '10:00', day: date1 },
-        { startTime: '09:00', endTime: '10:00', day: date2 },
-        { startTime: '09:00', endTime: '10:00', day: date3 },
+        { startTime: '09:00', endTime: '10:00', day: '2024-01-15' },
+        { startTime: '09:00', endTime: '10:00', day: '2024-01-16' },
+        { startTime: '09:00', endTime: '10:00', day: '2024-01-17' },
       ];
       expect(areValidTimeRanges(ranges)).toBe(true);
     });
 
-    it('should detect overlaps within same date but not across dates', () => {
-      const date1 = new Date('2024-01-15');
-      const date2 = new Date('2024-01-16');
+    it('should detect overlaps within same date string but not across date strings', () => {
       const ranges = [
-        { startTime: '09:00', endTime: '12:00', day: date1 },
-        { startTime: '11:00', endTime: '14:00', day: date1 }, // Overlaps on date1
-        { startTime: '11:00', endTime: '12:00', day: date2 }, // OK on date2
+        { startTime: '09:00', endTime: '12:00', day: '2024-01-15' },
+        { startTime: '11:00', endTime: '14:00', day: '2024-01-15' }, // Overlaps on same date
+        { startTime: '11:00', endTime: '12:00', day: '2024-01-16' }, // OK on different date
       ];
       expect(areValidTimeRanges(ranges)).toBe(false);
     });

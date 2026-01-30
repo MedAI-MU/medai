@@ -26,7 +26,7 @@ export class DocScheduleTemplate {
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
 
-  @ManyToOne(() => User, (user) => user.DoctorScheduleTemplates, {
+  @ManyToOne(() => User, (user) => user.doctorScheduleTemplates, {
     onDelete: 'RESTRICT',
   })
   secretary: User;

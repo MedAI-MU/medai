@@ -13,16 +13,20 @@ import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-templat
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 import { UpdateDocScheduleTemplateDto } from './dtos/update-doc-schedule-template.dto';
+import { CreateDocScheduleDto } from './dtos/create-doc-schedule.dto';
+import { DocScheduleSlotsService } from './doc-schedule-slots.service';
+import { UpdateDocScheduleSlotDto } from './dtos/update-doc-schedule-slot.dto';
 
 @Controller('doctors/schedules')
 export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,
+    private readonly scheduleSlotsService: DocScheduleSlotsService,
   ) {}
 
   @Post('templates')
   @HttpCode(HttpStatus.CREATED)
-  async create(
+  async createTemplate(
     @CurrentUser() currentUser: TokenUser,
     @Body() createDocScheduleTemplateDto: CreateDocScheduleTemplateDto,
   ) {
@@ -34,7 +38,7 @@ export class SchedulesController {
 
   @Patch('templates/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(
+  async updateTemplate(
     @Body() updateDocScheduleTemplateDto: UpdateDocScheduleTemplateDto,
     @Param('id') id: number,
   ) {
@@ -46,7 +50,28 @@ export class SchedulesController {
 
   @Delete('templates/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: number) {
+  async deleteTemplate(@Param('id') id: number) {
     await this.scheduleTemplatesService.delete(id);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createSlots(
+    @CurrentUser() currentUser: TokenUser,
+    @Body() createDocScheduleDto: CreateDocScheduleDto,
+  ) {
+    await this.scheduleSlotsService.create(
+      createDocScheduleDto,
+      currentUser.id,
+    );
+  }
+
+  @Patch('slots/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateSlot(
+    @Body() updateDocScheduleSlotDto: UpdateDocScheduleSlotDto,
+    @Param('id') id: number,
+  ) {
+    await this.scheduleSlotsService.update(updateDocScheduleSlotDto, id);
   }
 }

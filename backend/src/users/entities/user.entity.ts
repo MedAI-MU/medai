@@ -45,10 +45,10 @@ export class User {
   role: UserRoles;
 
   @OneToMany(() => DocScheduleTemplate, (template) => template.secretary)
-  DoctorScheduleTemplates?: DocScheduleTemplate[];
+  doctorScheduleTemplates?: DocScheduleTemplate[];
 
   @OneToMany(() => DocScheduleSlot, (slot) => slot.secretary)
-  DoctorScheduleSlots?: DocScheduleSlot[];
+  doctorScheduleSlots?: DocScheduleSlot[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

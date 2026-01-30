@@ -1,5 +1,5 @@
 export function areValidTimeRanges(
-  ranges: { startTime: string; endTime: string; day: number | Date }[],
+  ranges: { startTime: string; endTime: string; day: number | string }[],
 ): boolean {
   // Check if each range has valid start and end times
   for (const range of ranges) {
@@ -8,18 +8,15 @@ export function areValidTimeRanges(
     }
   }
 
-  // Group ranges by weekDay/Date to check for overlaps
+  // Group ranges by day (number for weekday or string for date in yyyy-mm-dd format) to check for overlaps
   const rangesByDay = new Map<
     string | number,
     { startTime: string; endTime: string }[]
   >();
 
   for (const range of ranges) {
-    const groupKey =
-      range.day instanceof Date
-        ? range.day.toISOString().split('T')[0]
-        : range.day;
-
+    // Use day as is (either weekday number or date string in yyyy-mm-dd format)
+    const groupKey = range.day;
     if (!rangesByDay.has(groupKey)) {
       rangesByDay.set(groupKey, []);
     }
