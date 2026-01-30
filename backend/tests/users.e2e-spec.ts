@@ -8,6 +8,10 @@ import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { RegisterDto } from 'src/users/dtos/register.dto';
 import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
+import { Doctor } from '../src/doctors/entities/doctor.entity';
+import { DocScheduleTemplate } from '../src/schedules/entities/doc-schedule-template.entity';
+import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.entity';
+import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -23,7 +27,14 @@ describe('UsersController (e2e)', () => {
           location: ':memory:',
           synchronize: true,
           dropSchema: true,
-          entities: [User, RefreshToken],
+          entities: [
+            User,
+            RefreshToken,
+            Doctor,
+            DocScheduleSlot,
+            DocScheduleTemplate,
+            DocScheduleTemplateSlot,
+          ],
         }),
       ],
     }).compile();
