@@ -24,7 +24,7 @@ class NetworkHomeRepository(
 ) : HomeRepository {
 
     // --- 1. Get User Name ---
-    override suspend fun getUserName(): Result<String> {
+    override suspend fun getUserName(userId: String): Result<String> {
         return try {
             val response: UserResponseDto = client.get("/user/me").body()
             Result.success(response.name)

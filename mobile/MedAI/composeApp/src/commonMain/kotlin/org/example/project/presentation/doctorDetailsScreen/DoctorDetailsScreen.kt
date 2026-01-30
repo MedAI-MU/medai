@@ -57,6 +57,7 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.bookingScreen.BookingScreen
+import org.example.project.presentation.chatScreen.ChatScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
@@ -74,6 +75,12 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                     DoctorDetailsEffect.NavigateBack -> navigator.pop()
                     DoctorDetailsEffect.NavigateToBooking -> navigator.push(BookingScreen(doctorId))
                     is DoctorDetailsEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    is DoctorDetailsEffect.NavigateToChat -> navigator.push(
+                        ChatScreen(
+                            effect.doctorId,
+                            effect.doctorName
+                        )
+                    )
                 }
             }
         }
@@ -170,9 +177,13 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            ActionButton(Icons.Default.Call, isSelected = false)
-                            ActionButton(Icons.Default.Videocam, isSelected = false)
-                            ActionButton(Icons.Default.ChatBubble, isSelected = false)
+                            ActionButton(Icons.Default.Call, isSelected = false, onClick = {})
+                            ActionButton(Icons.Default.Videocam, isSelected = false, onClick = {})
+                            ActionButton(
+                                icon = Icons.Default.ChatBubble,
+                                isSelected = false,
+                                onClick = { viewModel.onEvent(DoctorDetailsEvent.MessageClicked) }
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -206,13 +217,13 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
     }
 
     @Composable
-    fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean) {
+    fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean, onClick: () -> Unit) {
         Box(
             modifier = Modifier
                 .size(56.dp)
                 .clip(CircleShape)
                 .background(if (isSelected) MedAITheme.colors.primary else MedAITheme.colors.primary.copy(alpha = 0.1f))
-                .clickable { },
+                .clickable { onClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(

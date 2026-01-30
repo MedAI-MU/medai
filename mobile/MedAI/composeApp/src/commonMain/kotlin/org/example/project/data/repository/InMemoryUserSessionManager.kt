@@ -1,0 +1,51 @@
+package org.example.project.data.repository
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import org.example.project.domain.repository.UserSessionManager
+
+class InMemoryUserSessionManager(
+    private val dataStore: DataStore<Preferences>
+) : UserSessionManager {
+
+    companion object {
+        private val KEY_USER_ID = stringPreferencesKey("user_id")
+        private val KEY_TOKEN = stringPreferencesKey("user_token")
+        private val KEY_NAME = stringPreferencesKey("user_name")
+        private val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+    }
+
+    override val isUserLoggedIn: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[KEY_IS_LOGGED_IN] ?: false
+    }
+
+    override suspend fun getUserId(): String? {
+        return dataStore.data.first()[KEY_USER_ID]
+    }
+
+    override suspend fun getUserToken(): String? {
+        return dataStore.data.first()[KEY_TOKEN]
+    }
+
+    override suspend fun saveSession(userId: String, token: String, name: String) {
+        dataStore.edit { prefs ->
+            prefs[KEY_USER_ID] = userId
+            prefs[KEY_TOKEN] = token
+            prefs[KEY_NAME] = name
+            prefs[KEY_IS_LOGGED_IN] = true
+        }
+    }
+
+    override suspend fun clearSession() {
+        dataStore.edit { prefs ->
+            prefs.clear()
+            // prefs[KEY_IS_LOGGED_IN] = false
+        }
+    }
+}

@@ -25,7 +25,9 @@ import org.example.project.domain.repository.HomeRepository
 
 class MockHomeRepository : HomeRepository {
 
-    override suspend fun getUserName(): Result<String> {
+    override suspend fun getUserName(
+        userId: String
+    ): Result<String> {
         delay(500)
         return Result.success("Jane Doe")
     }
