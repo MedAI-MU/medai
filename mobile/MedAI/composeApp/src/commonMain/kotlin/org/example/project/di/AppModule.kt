@@ -9,11 +9,13 @@ import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
+import org.example.project.data.repository.mock.MockChatRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
 import org.example.project.data.repository.mock.MockMedicalRecordRepository
 import org.example.project.data.repository.mock.MockNotificationRepository
 import org.example.project.data.repository.mock.MockProfileRepository
 import org.example.project.data.repository.mock.MockSpecialtiesRepository
+import org.example.project.domain.repository.ChatRepository
 import org.example.project.domain.repository.AppointmentRepository
 import org.example.project.domain.repository.DoctorRepository
 import org.example.project.domain.repository.HomeRepository
@@ -33,6 +35,8 @@ import org.example.project.domain.usecase.GetAppointmentDetailsUseCase
 import org.example.project.domain.usecase.GetAppointmentsUseCase
 import org.example.project.domain.usecase.GetAvailableSlotsUseCase
 import org.example.project.domain.usecase.GetCancelReasonsUseCase
+import org.example.project.domain.usecase.GetChatMessagesUseCase
+import org.example.project.domain.usecase.GetConversationsUseCase
 import org.example.project.domain.usecase.GetDoctorDetailsUseCase
 import org.example.project.domain.usecase.GetDoctorsUseCase
 import org.example.project.domain.usecase.GetHomeDataUseCase
@@ -42,11 +46,15 @@ import org.example.project.domain.usecase.GetPatientProfileUseCase
 import org.example.project.domain.usecase.GetSpecialtiesUseCase
 import org.example.project.domain.usecase.GetVaccinationsUseCase
 import org.example.project.domain.usecase.LoginUseCase
+import org.example.project.domain.usecase.ObserveTypingUseCase
+import org.example.project.domain.usecase.SendMessageUseCase
 import org.example.project.domain.usecase.SignUpUseCase
 import org.example.project.domain.usecase.SubmitReviewUseCase
 import org.example.project.domain.usecase.UpdatePatientMetricsUseCase
 import org.example.project.presentation.appointmentScreen.AppointmentViewModel
 import org.example.project.presentation.bookingScreen.BookingViewModel
+import org.example.project.presentation.chatScreen.ChatListViewModel
+import org.example.project.presentation.chatScreen.ChatViewModel
 import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewModel
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
@@ -128,4 +136,23 @@ val appModule = module {
     factory { NotificationViewModel(get()) }
     factory { MedicalRecordViewModel(get(), get(), get(), get(), get(), get(),get()) }
     factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
+
+
+    // Chat Feature
+    single<ChatRepository> { MockChatRepository() }
+//    single<ChatRepository> { NetworkChatRepository(client = get()) }
+    factory { GetConversationsUseCase(get()) }
+    factory { GetChatMessagesUseCase(get()) }
+    factory { SendMessageUseCase(get()) }
+    factory { ObserveTypingUseCase(get()) }
+    factory { ChatListViewModel(get()) }
+    factory { (doctorId: String, doctorName: String) ->
+        ChatViewModel(
+            doctorId,
+            doctorName,
+            get(),
+            get(),
+            get()
+        )
+    }
 }
