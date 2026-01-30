@@ -42,6 +42,11 @@ import org.example.project.domain.model.PatientEntity
 import org.example.project.domain.model.User
 import org.example.project.domain.model.VaccinationEntity
 import org.example.project.domain.model.VaccinationStatus
+import org.example.project.data.remote.dto.ChatConversationDto
+import org.example.project.data.remote.dto.MessageDto
+import org.example.project.domain.model.ChatConversation
+import org.example.project.domain.model.Message
+import org.example.project.domain.model.MessageStatus
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -206,4 +211,38 @@ fun MedicalHistoryDto.toEntity(): MedicalHistoryEntity {
         treatmentPlan = this.plan,
         attendingDoctor = this.provider_name
     )
+}
+
+fun ChatConversationDto.toDomain(): ChatConversation {
+    return ChatConversation(
+        doctorId = this.doctorId,
+        doctorName = this.doctorName,
+        doctorImageUrl = this.doctorImage,
+        lastMessage = this.lastMessage,
+        lastMessageTime = this.lastMessageTime, // Add Date Parsing logic here if needed
+        unreadCount = this.unreadCount,
+        isOnline = this.isOnline
+    )
+}
+
+fun MessageDto.toDomain(currentUserId: String): Message {
+    return Message(
+        id = this.id,
+        text = this.text,
+        senderId = this.senderId,
+        timestamp = try { Instant.parse(this.timestamp) } catch (e: Exception) { Instant.fromEpochMilliseconds(0) },
+        status = mapMessageStatus(this.status),
+        isFromUser = this.senderId == currentUserId
+    )
+}
+
+private fun mapMessageStatus(status: String): MessageStatus {
+    return when (status.lowercase()) {
+        "sending" -> MessageStatus.SENDING
+        "sent" -> MessageStatus.SENT
+        "delivered" -> MessageStatus.DELIVERED
+        "read" -> MessageStatus.READ
+        "failed" -> MessageStatus.FAILED
+        else -> MessageStatus.SENT
+    }
 }

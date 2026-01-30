@@ -42,6 +42,12 @@ class DoctorDetailsViewModel(
         when(event) {
             DoctorDetailsEvent.BackClicked -> sendEffect(DoctorDetailsEffect.NavigateBack)
             DoctorDetailsEvent.BookClicked -> sendEffect(DoctorDetailsEffect.NavigateToBooking)
+            DoctorDetailsEvent.MessageClicked -> {
+                val doc = _state.value.doctor
+                if (doc != null) {
+                    sendEffect(DoctorDetailsEffect.NavigateToChat(doc.id, doc.name))
+                }
+            }
         }
     }
 
