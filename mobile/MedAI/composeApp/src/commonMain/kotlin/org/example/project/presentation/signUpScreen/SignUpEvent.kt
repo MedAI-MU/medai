@@ -6,6 +6,7 @@ sealed class SignUpEvent {
     data class EmailChanged(val value: String) : SignUpEvent()
     data class MobileChanged(val value: String) : SignUpEvent()
     data class DateOfBirthChanged(val value: String) : SignUpEvent()
+    data class RoleChanged(val role: org.example.project.domain.model.UserRole) : SignUpEvent()
     data class ToggleDatePicker(val show: Boolean) : SignUpEvent()  // New Event for showing/hiding date picker
 
     object SignUpClicked : SignUpEvent()

@@ -6,6 +6,7 @@ import org.example.project.domain.model.CancelReason
 
 interface AppointmentRepository {
     suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>>
+    suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> // Date as epoch milliseconds
     suspend fun getAppointmentDetails(id: String): Result<AppointmentDetail>
     suspend fun cancelAppointment(id: String, reasonId: String, otherReason: String?): Result<Unit>
     suspend fun submitReview(appointmentId: String, rating: Int, comment: String): Result<Unit>

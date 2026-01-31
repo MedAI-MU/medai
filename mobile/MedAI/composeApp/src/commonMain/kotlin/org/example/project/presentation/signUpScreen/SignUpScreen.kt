@@ -28,6 +28,7 @@ import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiPasswordTextField
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.domain.model.UserRole
 import org.example.project.presentation.loginScreen.component.InputLabel
 import org.example.project.presentation.loginScreen.component.SocialLoginSection
 import org.example.project.presentation.signUpScreen.component.SignUpTopBar
@@ -151,6 +152,36 @@ class SignUpScreen : Screen {
                                     }
                             )
                         }
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // --- Role Selection ---
+                        InputLabel("I am a:")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            UserRole.entries.forEach { role ->
+                                val isSelected = state.selectedRole == role
+                                val label = when(role) {
+                                    UserRole.PATIENT -> "Patient"
+                                    UserRole.DOCTOR -> "Doctor"
+                                    UserRole.SECRETARY -> "SECRETARY"
+                                }
+
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { viewModel.onEvent(SignUpEvent.RoleChanged(role)) },
+                                    label = { Text(label) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MedAITheme.colors.primary,
+                                        selectedLabelColor = MedAITheme.colors.text.onPrimary,
+                                        containerColor = MedAITheme.colors.surface,
+                                        labelColor = MedAITheme.colors.text.primary
+                                    )
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(24.dp))
 
                         // --- Terms Text ---

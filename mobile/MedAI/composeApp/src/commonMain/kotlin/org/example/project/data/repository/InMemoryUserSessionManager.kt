@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.model.UserRole
 
 class InMemoryUserSessionManager(
     private val dataStore: DataStore<Preferences>
@@ -18,6 +19,7 @@ class InMemoryUserSessionManager(
         private val KEY_USER_ID = stringPreferencesKey("user_id")
         private val KEY_TOKEN = stringPreferencesKey("user_token")
         private val KEY_NAME = stringPreferencesKey("user_name")
+        private val KEY_ROLE = stringPreferencesKey("user_role")
         private val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
     }
 
@@ -33,11 +35,24 @@ class InMemoryUserSessionManager(
         return dataStore.data.first()[KEY_TOKEN]
     }
 
-    override suspend fun saveSession(userId: String, token: String, name: String) {
+    override suspend fun getUserRole(): UserRole? {
+        val roleString = dataStore.data.first()[KEY_ROLE]
+        return roleString?.let {
+             try {
+                 UserRole.valueOf(it)
+             } catch (e: IllegalArgumentException) {
+                 null
+             }
+        }
+    }
+
+
+    override suspend fun saveSession(userId: String, token: String, name: String, role: UserRole) {
         dataStore.edit { prefs ->
             prefs[KEY_USER_ID] = userId
             prefs[KEY_TOKEN] = token
             prefs[KEY_NAME] = name
+            prefs[KEY_ROLE] = role.name
             prefs[KEY_IS_LOGGED_IN] = true
         }
     }
@@ -45,7 +60,6 @@ class InMemoryUserSessionManager(
     override suspend fun clearSession() {
         dataStore.edit { prefs ->
             prefs.clear()
-            // prefs[KEY_IS_LOGGED_IN] = false
         }
     }
 }

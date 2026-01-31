@@ -60,6 +60,7 @@ class MockAppointmentRepository : AppointmentRepository {
     )
 
     override suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>> {
+        println("MockAppointmentRepository: getAppointments called with status $status")
         delay(100)
         return Result.success(mockAppointments.filter { it.status == status })
     }
@@ -91,5 +92,10 @@ class MockAppointmentRepository : AppointmentRepository {
                 CancelReason("r4", "Others")
             )
         )
+    }
+    override suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> {
+        delay(100)
+        // For mock, just return all appointments as if they are for the doctor today
+        return Result.success(mockAppointments)
     }
 }

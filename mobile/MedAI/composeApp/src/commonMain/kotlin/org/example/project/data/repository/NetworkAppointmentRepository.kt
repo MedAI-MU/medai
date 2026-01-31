@@ -15,6 +15,10 @@ class NetworkAppointmentRepository(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getAppointmentDetails(id: String): Result<AppointmentDetail> {
         TODO("Not yet implemented")
     }

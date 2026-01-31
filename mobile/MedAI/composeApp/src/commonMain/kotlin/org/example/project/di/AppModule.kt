@@ -55,8 +55,13 @@ import org.example.project.presentation.appointmentScreen.AppointmentViewModel
 import org.example.project.presentation.bookingScreen.BookingViewModel
 import org.example.project.presentation.chatScreen.ChatListViewModel
 import org.example.project.presentation.chatScreen.ChatViewModel
+import org.example.project.presentation.doctor.prescription.EPrescriptionViewModel
 import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewModel
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
+import org.example.project.presentation.doctor.dashboard.DoctorDashboardViewModel
+import org.example.project.presentation.doctor.chat.DoctorChatListViewModel
+import org.example.project.domain.usecase.GetPatientConversationsUseCase
+import org.example.project.domain.usecase.GetDoctorAppointmentsUseCase
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
 import org.example.project.presentation.notificationScreen.NotificationViewModel
@@ -137,6 +142,22 @@ val appModule = module {
     factory { MedicalRecordViewModel(get(), get(), get(), get(), get(), get(),get()) }
     factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
 
+    // Doctor
+    factory { GetDoctorAppointmentsUseCase(get()) }
+    factory { DoctorDashboardViewModel(get(), get()) }
+    factory { (patientId: String) ->
+        org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel(
+            patientId,
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+
+
+    factory { EPrescriptionViewModel() }
 
     // Chat Feature
     single<ChatRepository> { MockChatRepository() }
@@ -145,6 +166,9 @@ val appModule = module {
     factory { GetChatMessagesUseCase(get()) }
     factory { SendMessageUseCase(get()) }
     factory { ObserveTypingUseCase(get()) }
+    factory { GetPatientConversationsUseCase(get()) }
+    factory { DoctorChatListViewModel(get()) }
+
     factory { ChatListViewModel(get()) }
     factory { (doctorId: String, doctorName: String) ->
         ChatViewModel(

@@ -36,6 +36,10 @@ class NetworkChatRepository(
         }
     }
 
+    override suspend fun getPatientConversations(): Result<List<ChatConversation>> {
+        TODO("Not yet implemented")
+    }
+
     // --- 2. Get Messages (Polling) ---
     override fun getMessages(doctorId: String): Flow<List<Message>> = flow {
         while (true) {

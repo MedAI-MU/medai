@@ -1,5 +1,6 @@
 package org.example.project.domain.usecase
 
+import org.example.project.domain.model.UserRole
 import org.example.project.domain.repository.LoginRepository
 import org.example.project.domain.repository.UserSessionManager
 
@@ -20,7 +21,8 @@ class LoginUseCase(
             sessionManager.saveSession(
                 userId = authData.userId,
                 token = authData.token,
-                name = authData.userName
+                name = authData.userName,
+                role = UserRole.valueOf(authData.role)
             )
         }
     }

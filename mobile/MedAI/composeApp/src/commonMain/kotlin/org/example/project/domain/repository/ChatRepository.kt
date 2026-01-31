@@ -6,10 +6,11 @@ import org.example.project.domain.model.Message
 
 interface ChatRepository {
     // Chat List
-    suspend fun getConversations(): Result<List<ChatConversation>>
+    suspend fun getConversations(): Result<List<ChatConversation>> // For Patient viewing Doctors
+    suspend fun getPatientConversations(): Result<List<ChatConversation>> // For Doctor viewing Patients
 
     // Chat Details
-    fun getMessages(doctorId: String): Flow<List<Message>>
-    suspend fun sendMessage(doctorId: String, text: String): Result<Message>
-    fun observeDoctorTyping(doctorId: String): Flow<Boolean>
+    fun getMessages(recipientId: String): Flow<List<Message>>
+    suspend fun sendMessage(recipientId: String, text: String): Result<Message>
+    fun observeDoctorTyping(recipientId: String): Flow<Boolean>
 }
