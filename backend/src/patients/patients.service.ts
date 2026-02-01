@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from './entities/patient.entity';
+import { PatientDto } from './dtos/patient.dto';
 
 @Injectable()
 export class PatientsService {
@@ -11,14 +12,12 @@ export class PatientsService {
   ) {}
 
   async findAll(): Promise<Patient[]> {
-    // TODO: Later, we will filter patients that are supervised by the requesting doctor.
     return this.patientsRepository.find();
   }
-
+  // TODO: Filter patients by the supervised doctor
   async findOne(id: number): Promise<Patient | null> {
-    // TODO: Later, we will ensure the requesting doctor has access to this patient.
     return this.patientsRepository.findOne({
-      where: { id },
+      where: { userId: id },
       relations: {
         allergies: true,
         chronicDiseases: true,
@@ -29,7 +28,7 @@ export class PatientsService {
     });
   }
 
-  async create(patientData: Partial<Patient>): Promise<Patient> {
+  async create(patientData: Patient): Promise<Patient> {
     return this.patientsRepository.save(
       this.patientsRepository.create(patientData),
     );

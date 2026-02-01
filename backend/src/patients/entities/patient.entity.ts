@@ -4,6 +4,8 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   OneToMany,
+  PrimaryColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Allergy } from './allergy.entity';
@@ -18,10 +20,11 @@ import { TimestampEntity } from '../../common/entities/timestamp.entity';
 
 @Entity()
 export class Patient extends TimestampEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  userId: number;
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column({ type: 'date', nullable: true })
