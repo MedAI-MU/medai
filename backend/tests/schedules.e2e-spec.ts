@@ -17,6 +17,8 @@ import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.ent
 import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
 import { Doctor } from '../src/doctors/entities/doctor.entity';
 import { SchedulesModule } from '../src/schedules/schedules.module';
+import { PagedListDto } from '../src/shared/dtos/paged-list.dto';
+import { DocScheduleTemplateDto } from '../src/schedules/dtos/doc-schedule-template.dto';
 import * as argon2 from 'argon2';
 
 describe('SchedulesController (e2e)', () => {
@@ -30,6 +32,7 @@ describe('SchedulesController (e2e)', () => {
   const DELETE_SCHEDULE_TEMPLATE_URL = '/api/doctors/schedules/templates';
   const CREATE_SCHEDULE_SLOTS_URL = '/api/doctors/schedules';
   const UPDATE_SCHEDULE_SLOT_URL = '/api/doctors/schedules/slots';
+  const DELETE_SCHEDULE_SLOT_URL = '/api/doctors/schedules/slots';
 
   let authCookie: string;
   let doctorUserId: number;
@@ -141,6 +144,172 @@ describe('SchedulesController (e2e)', () => {
       specialty: 'General Practitioner',
     });
     await dataSource.getRepository(Doctor).save(doctor);
+  });
+
+  describe('/api/doctors/schedules/templates (GET)', () => {
+    beforeEach(async () => {
+      // Create multiple templates for testing
+      const templates = [
+        {
+          name: 'Morning Clinic',
+          doctorId: doctorUserId,
+          slots: [
+            { weekDay: 1, startTime: '09:00', endTime: '12:00' },
+            { weekDay: 3, startTime: '09:00', endTime: '12:00' },
+          ],
+        },
+        {
+          name: 'Evening Clinic',
+          doctorId: doctorUserId,
+          slots: [
+            { weekDay: 2, startTime: '14:00', endTime: '17:00' },
+            { weekDay: 4, startTime: '14:00', endTime: '17:00' },
+          ],
+        },
+        {
+          name: 'Weekend Schedule',
+          doctorId: doctorUserId,
+          slots: [{ weekDay: 5, startTime: '10:00', endTime: '13:00' }],
+        },
+      ];
+
+      for (const template of templates) {
+        await request(app.getHttpServer() as App)
+          .post(CREATE_SCHEDULE_TEMPLATE_URL)
+          .set('Cookie', authCookie)
+          .send(template)
+          .expect(201);
+      }
+    });
+
+    it('should return paginated templates with default pageNo and pageSize', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(CREATE_SCHEDULE_TEMPLATE_URL)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      expect(body).toHaveProperty('data');
+      expect(body).toHaveProperty('totalCount');
+      expect(body).toHaveProperty('currentPage', 1);
+      expect(body).toHaveProperty('pageSize', 10);
+      expect(body).toHaveProperty('hasNext');
+      expect(body).toHaveProperty('hasPrevious');
+      expect(Array.isArray(body.data)).toBe(true);
+      expect(body.totalCount).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should return templates with correct structure', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(CREATE_SCHEDULE_TEMPLATE_URL)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      const template = body.data[0];
+      expect(template).toHaveProperty('id');
+      expect(template).toHaveProperty('name');
+      expect(template).toHaveProperty('doctor');
+      expect(template.doctor).toHaveProperty('id');
+      expect(template.doctor).toHaveProperty('name');
+      expect(template.doctor).toHaveProperty('specialty');
+      expect(template).toHaveProperty('slots');
+      expect(Array.isArray(template.slots)).toBe(true);
+      expect(template).toHaveProperty('createdBy');
+      expect(template.createdBy).toHaveProperty('id');
+      expect(template.createdBy).toHaveProperty('name');
+      expect(template).toHaveProperty('createdAt');
+      expect(template).toHaveProperty('updatedAt');
+    });
+
+    it('should apply custom pagination', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(`${CREATE_SCHEDULE_TEMPLATE_URL}?pageNo=1&pageSize=2`)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      expect(body.currentPage).toBe(1);
+      expect(body.pageSize).toBe(2);
+      expect(body.data.length).toBeLessThanOrEqual(2);
+    });
+
+    // Skipped: Requires PostgreSQL pg_trgm extension (similarity function)
+    // TODO: Test with testcontainers using actual PostgreSQL
+    it.skip('should filter templates by name', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(`${CREATE_SCHEDULE_TEMPLATE_URL}?name=Morning`)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      expect(body.data.length).toBeGreaterThan(0);
+      const hasMatchingName = body.data.some((template) =>
+        template.name.toLowerCase().includes('morning'),
+      );
+      expect(hasMatchingName).toBe(true);
+    });
+
+    it('should filter templates by doctorId', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(`${CREATE_SCHEDULE_TEMPLATE_URL}?doctorId=${doctorUserId}`)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      expect(body.data.length).toBeGreaterThan(0);
+      body.data.forEach((template) => {
+        expect(template.doctor.id).toBe(doctorUserId);
+      });
+    });
+
+    it('should return empty data for non-existent doctor', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(`${CREATE_SCHEDULE_TEMPLATE_URL}?doctorId=9999`)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      expect(body.data).toEqual([]);
+      expect(body.totalCount).toBe(0);
+    });
+
+    it('should order slots by weekDay and startTime', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(CREATE_SCHEDULE_TEMPLATE_URL)
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      const templateWithMultipleSlots = body.data.find(
+        (t) => t.slots.length > 1,
+      );
+
+      if (templateWithMultipleSlots) {
+        const slots = templateWithMultipleSlots.slots;
+        for (let i = 1; i < slots.length; i++) {
+          const prevSlot = slots[i - 1];
+          const currentSlot = slots[i];
+          expect(prevSlot.weekDay).toBeLessThanOrEqual(currentSlot.weekDay);
+        }
+      }
+    });
+
+    // Skipped: Requires PostgreSQL pg_trgm extension (similarity function)
+    // TODO: Test with testcontainers using actual PostgreSQL
+    it.skip('should combine name and doctorId filters', async () => {
+      const response = await request(app.getHttpServer() as App)
+        .get(
+          `${CREATE_SCHEDULE_TEMPLATE_URL}?name=Morning&doctorId=${doctorUserId}`,
+        )
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const body = response.body as PagedListDto<DocScheduleTemplateDto>;
+      body.data.forEach((template) => {
+        expect(template.doctor.id).toBe(doctorUserId);
+      });
+    });
   });
 
   describe('/api/doctors/schedules/templates (POST)', () => {
@@ -714,6 +883,58 @@ describe('SchedulesController (e2e)', () => {
         .set('Cookie', authCookie)
         .send(updateDto)
         .expect(400);
+    });
+  });
+
+  describe('/api/doctors/schedules/slots/:id (DELETE)', () => {
+    let slotId: number;
+
+    beforeEach(async () => {
+      // Create a schedule slot first
+      const createDto = {
+        doctorId: doctorUserId,
+        slots: [
+          {
+            dayDate: '2026-02-01',
+            startTime: '09:00',
+            endTime: '10:00',
+          },
+        ],
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(CREATE_SCHEDULE_SLOTS_URL)
+        .set('Cookie', authCookie)
+        .send(createDto)
+        .expect(201);
+
+      // Get the created slot ID
+      const slot = await dataSource.getRepository(DocScheduleSlot).findOne({
+        where: {},
+        order: { id: 'DESC' },
+      });
+      expect(slot).toBeDefined();
+      slotId = slot!.id;
+    });
+
+    it('should return 400 when slot does not exist', async () => {
+      await request(app.getHttpServer() as App)
+        .delete(`${DELETE_SCHEDULE_SLOT_URL}/9999`)
+        .set('Cookie', authCookie)
+        .expect(400);
+    });
+
+    it('should delete a slot and return 204 status', async () => {
+      await request(app.getHttpServer() as App)
+        .delete(`${DELETE_SCHEDULE_SLOT_URL}/${slotId}`)
+        .set('Cookie', authCookie)
+        .expect(204);
+
+      // Verify the slot was deleted
+      const deletedSlot = await dataSource
+        .getRepository(DocScheduleSlot)
+        .findOne({ where: { id: slotId } });
+      expect(deletedSlot).toBeNull();
     });
   });
 

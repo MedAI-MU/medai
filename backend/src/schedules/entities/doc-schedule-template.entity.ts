@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -29,7 +30,8 @@ export class DocScheduleTemplate {
   @ManyToOne(() => User, (user) => user.doctorScheduleTemplates, {
     onDelete: 'RESTRICT',
   })
-  secretary: User;
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
 
   @OneToMany(() => DocScheduleTemplateSlot, (slot) => slot.template, {
     cascade: true,

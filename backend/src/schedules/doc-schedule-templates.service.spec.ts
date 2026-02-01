@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity';
 import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-template.dto';
 import { UpdateDocScheduleTemplateDto } from './dtos/update-doc-schedule-template.dto';
 import { DataSource, EntityManager } from 'typeorm';
+import { TokenUser } from '../auth/interfaces/token-user.interface';
 
 describe('DocScheduleTemplatesService', () => {
   let service: DocScheduleTemplatesService;
@@ -22,6 +23,8 @@ describe('DocScheduleTemplatesService', () => {
     findOne: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
+    createQueryBuilder: jest.fn(),
+    find: jest.fn(),
   };
   const dataSourceMock = {
     transaction: jest.fn(),
@@ -61,16 +64,217 @@ describe('DocScheduleTemplatesService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('getAll', () => {
+    const secretaryUser: TokenUser = {
+      id: 1,
+      email: 'secretary@test.com',
+      role: 'secretary',
+    };
+
+    const doctorUser: TokenUser = {
+      id: 10,
+      email: 'doctor@test.com',
+      role: 'doctor',
+    };
+
+    const mockTemplates = [
+      {
+        id: 1,
+        name: 'Morning Schedule',
+        doctorId: 10,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        name: 'Evening Schedule',
+        doctorId: 10,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    const mockFullTemplates = [
+      {
+        id: 1,
+        name: 'Morning Schedule',
+        doctor: {
+          userId: 10,
+          user: { name: 'Dr. Smith' },
+          specialty: 'Cardiology',
+        },
+        createdBy: { id: 1, name: 'Secretary' },
+        slots: [
+          { weekDay: 1, startTime: '09:00', endTime: '12:00' },
+          { weekDay: 3, startTime: '09:00', endTime: '12:00' },
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        name: 'Evening Schedule',
+        doctor: {
+          userId: 10,
+          user: { name: 'Dr. Smith' },
+          specialty: 'Cardiology',
+        },
+        createdBy: { id: 1, name: 'Secretary' },
+        slots: [{ weekDay: 2, startTime: '14:00', endTime: '17:00' }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    let queryBuilder: {
+      addSelect: jest.Mock;
+      where: jest.Mock;
+      andWhere: jest.Mock;
+      orderBy: jest.Mock;
+      addOrderBy: jest.Mock;
+      skip: jest.Mock;
+      take: jest.Mock;
+      getManyAndCount: jest.Mock;
+    };
+
+    beforeEach(() => {
+      queryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([mockTemplates, 2]),
+      };
+
+      scheduleTemplateRepositoryMock.createQueryBuilder = jest
+        .fn()
+        .mockReturnValue(queryBuilder);
+      scheduleTemplateRepositoryMock.find = jest
+        .fn()
+        .mockResolvedValue(mockFullTemplates);
+    });
+
+    it('should return paginated templates for secretary', async () => {
+      const result = await service.getAll(secretaryUser, 1, 10);
+
+      expect(
+        scheduleTemplateRepositoryMock.createQueryBuilder,
+      ).toHaveBeenCalledWith('t');
+      expect(queryBuilder.skip).toHaveBeenCalledWith(0);
+      expect(queryBuilder.take).toHaveBeenCalledWith(10);
+      expect(result.data).toHaveLength(2);
+      expect(result.total).toBe(2);
+      expect(result.data[0]).toHaveProperty('id');
+      expect(result.data[0]).toHaveProperty('name');
+      expect(result.data[0]).toHaveProperty('doctor');
+      expect(result.data[0]).toHaveProperty('slots');
+    });
+
+    it('should filter by doctorId when provided for secretary', async () => {
+      await service.getAll(secretaryUser, 1, 10, undefined, 10);
+
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        't.doctorId = :doctorId',
+        { doctorId: 10 },
+      );
+    });
+
+    it('should automatically set doctorId for doctor user', async () => {
+      await service.getAll(doctorUser, 1, 10);
+
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        't.doctorId = :doctorId',
+        { doctorId: 10 },
+      );
+    });
+
+    it('should filter by name when provided', async () => {
+      await service.getAll(secretaryUser, 1, 10, 'Morning');
+
+      expect(queryBuilder.addSelect).toHaveBeenCalledWith(
+        'similarity(t.name, :name)',
+        'similarity',
+      );
+      expect(queryBuilder.where).toHaveBeenCalledWith('t.name ILIKE :name', {
+        name: '%Morning%',
+      });
+      expect(queryBuilder.orderBy).toHaveBeenCalledWith('similarity', 'DESC');
+    });
+
+    it('should apply pagination correctly for page 2', async () => {
+      await service.getAll(secretaryUser, 2, 5);
+
+      expect(queryBuilder.skip).toHaveBeenCalledWith(5);
+      expect(queryBuilder.take).toHaveBeenCalledWith(5);
+    });
+
+    it('should format response correctly with nested objects', async () => {
+      const result = await service.getAll(secretaryUser, 1, 10);
+
+      expect(result.data[0].doctor).toEqual({
+        id: 10,
+        name: 'Dr. Smith',
+        specialty: 'Cardiology',
+      });
+      expect(result.data[0].createdBy).toEqual({
+        id: 1,
+        name: 'Secretary',
+      });
+      expect(result.data[0].slots).toEqual([
+        { weekDay: 1, startTime: '09:00', endTime: '12:00' },
+        { weekDay: 3, startTime: '09:00', endTime: '12:00' },
+      ]);
+    });
+
+    it('should load templates with all relations', async () => {
+      await service.getAll(secretaryUser, 1, 10);
+
+      expect(scheduleTemplateRepositoryMock.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          relations: {
+            doctor: true,
+            createdBy: true,
+            slots: true,
+          },
+        }),
+      );
+    });
+
+    it('should order results by createdAt DESC and slots by weekDay and startTime', async () => {
+      await service.getAll(secretaryUser, 1, 10);
+
+      expect(scheduleTemplateRepositoryMock.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: {
+            createdAt: 'DESC',
+            slots: { weekDay: 'ASC', startTime: 'ASC' },
+          },
+        }),
+      );
+    });
+  });
+
   describe('create', () => {
-    const secretaryId = 1;
     const doctorId = 10;
+    const secretaryId = 1;
     const doctorEntity: Doctor = {
       userId: doctorId,
     } as Doctor;
-    const secretaryEntity: User = {
+
+    const secretaryUser: TokenUser = {
       id: secretaryId,
-      name: 'Secretary',
-    } as User;
+      email: 'secretary@test.com',
+      role: 'secretary',
+    };
+
+    const doctorUser: TokenUser = {
+      id: doctorId,
+      email: 'doctor@test.com',
+      role: 'doctor',
+    };
 
     const createDto: CreateDocScheduleTemplateDto = {
       name: 'Morning Schedule',
@@ -89,53 +293,63 @@ describe('DocScheduleTemplatesService', () => {
       ],
     };
 
-    it('should create schedule template successfully', async () => {
+    it('should create schedule template by secretary for a doctor', async () => {
       doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
-      userRepositoryMock.findOneBy.mockResolvedValue(secretaryEntity);
-
-      const templateToSave = new DocScheduleTemplate({
+      scheduleTemplateRepositoryMock.save.mockResolvedValue({
+        id: 1,
         name: createDto.name,
         doctor: doctorEntity,
-        secretary: secretaryEntity,
       });
 
-      scheduleTemplateRepositoryMock.save.mockResolvedValue({
-        ...templateToSave,
-        id: 1,
-      });
-
-      const result = await service.create(createDto, secretaryId);
+      const result = await service.create(createDto, secretaryUser);
 
       expect(doctorRepositoryMock.findOneBy).toHaveBeenCalledWith({
         userId: doctorId,
-      });
-      expect(userRepositoryMock.findOneBy).toHaveBeenCalledWith({
-        id: secretaryId,
       });
       expect(scheduleTemplateRepositoryMock.save).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
 
+    it('should create schedule template by doctor for themselves', async () => {
+      scheduleTemplateRepositoryMock.save.mockResolvedValue({
+        id: 1,
+        name: createDto.name,
+        doctor: new Doctor({ userId: doctorId }),
+      });
+
+      const result = await service.create(
+        { ...createDto, doctorId },
+        doctorUser,
+      );
+
+      expect(doctorRepositoryMock.findOneBy).not.toHaveBeenCalled();
+      expect(scheduleTemplateRepositoryMock.save).toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+
+    it('should throw BadRequestException if doctor tries to create for another doctor', async () => {
+      const otherDoctorUser: TokenUser = {
+        id: 99,
+        email: 'other@test.com',
+        role: 'doctor',
+      };
+
+      await expect(service.create(createDto, otherDoctorUser)).rejects.toThrow(
+        new BadRequestException(
+          'Doctors can only create schedule templates for themselves',
+        ),
+      );
+    });
+
     it('should throw BadRequestException if doctor not found', async () => {
       doctorRepositoryMock.findOneBy.mockResolvedValue(null);
 
-      await expect(service.create(createDto, secretaryId)).rejects.toThrow(
+      await expect(service.create(createDto, secretaryUser)).rejects.toThrow(
         new BadRequestException('Doctor not found'),
       );
     });
 
-    it('should throw BadRequestException if secretary not found', async () => {
-      doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
-      userRepositoryMock.findOneBy.mockResolvedValue(null);
-
-      await expect(service.create(createDto, secretaryId)).rejects.toThrow(
-        new BadRequestException('Secretary not found'),
-      );
-    });
-
     it('should throw BadRequestException if slots have invalid time ranges', async () => {
-      doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
-      userRepositoryMock.findOneBy.mockResolvedValue(secretaryEntity);
       // Create overlapping slots to trigger validation error
       const invalidDto: CreateDocScheduleTemplateDto = {
         name: 'Invalid Schedule',
@@ -146,7 +360,9 @@ describe('DocScheduleTemplatesService', () => {
         ],
       };
 
-      await expect(service.create(invalidDto, secretaryId)).rejects.toThrow(
+      doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
+
+      await expect(service.create(invalidDto, secretaryUser)).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges in slots'),
       );
     });
@@ -154,24 +370,47 @@ describe('DocScheduleTemplatesService', () => {
 
   describe('update', () => {
     const templateId = 1;
+    const doctorId = 10;
+    const doctorId2 = 20;
+    const secretaryId = 1;
+
     const doctorEntity: Doctor = {
-      userId: 10,
+      userId: doctorId,
     } as Doctor;
-    const secretaryEntity: User = {
-      id: 1,
-      name: 'Secretary',
-    } as User;
+
+    const doctorEntity2: Doctor = {
+      userId: doctorId2,
+    } as Doctor;
+
+    const secretaryUser: TokenUser = {
+      id: secretaryId,
+      email: 'secretary@test.com',
+      role: 'secretary',
+    };
+
+    const doctorUser: TokenUser = {
+      id: doctorId,
+      email: 'doctor@test.com',
+      role: 'doctor',
+    };
+
+    const otherDoctorUser: TokenUser = {
+      id: 99,
+      email: 'other@test.com',
+      role: 'doctor',
+    };
+
     const existingTemplate: DocScheduleTemplate = {
       id: templateId,
       name: 'Old Schedule',
       doctor: doctorEntity,
-      secretary: secretaryEntity,
+      createdBy: { id: secretaryId } as User,
       slots: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     } as DocScheduleTemplate;
 
-    it('should update schedule template successfully', async () => {
+    it('should update schedule template name by secretary', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
         name: 'New Schedule Name',
       };
@@ -199,7 +438,7 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      const result = await service.update(updateDto, templateId);
+      const result = await service.update(updateDto, templateId, secretaryUser);
 
       expect(dataSourceMock.transaction).toHaveBeenCalled();
       expect(templateRepoMock.findOne).toHaveBeenCalled();
@@ -207,7 +446,74 @@ describe('DocScheduleTemplatesService', () => {
       expect(result.name).toBe(updateDto.name);
     });
 
-    it('should throw BadRequestException if template not found', async () => {
+    it('should update schedule template by doctor who created it', async () => {
+      const updateDto: UpdateDocScheduleTemplateDto = {
+        name: 'Updated Schedule',
+      };
+
+      const templateRepoMock = {
+        findOne: jest.fn().mockResolvedValue(existingTemplate),
+        save: jest.fn().mockResolvedValue({
+          ...existingTemplate,
+          name: updateDto.name,
+        }),
+      };
+
+      const mockManager: Partial<EntityManager> = {
+        getRepository: jest.fn(),
+      };
+
+      (mockManager.getRepository as jest.Mock).mockImplementation((entity) => {
+        if (entity === DocScheduleTemplate) return templateRepoMock;
+        return {};
+      });
+
+      dataSourceMock.transaction.mockImplementation(
+        async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> => {
+          return cb(mockManager as EntityManager);
+        },
+      );
+
+      const result = await service.update(updateDto, templateId, doctorUser);
+
+      expect(templateRepoMock.save).toHaveBeenCalled();
+      expect(result.name).toBe(updateDto.name);
+    });
+
+    it('should throw error if doctor tries to update another doctor template', async () => {
+      const updateDto: UpdateDocScheduleTemplateDto = {
+        name: 'Hacked Schedule',
+      };
+
+      const templateRepoMock = {
+        findOne: jest.fn().mockResolvedValue(existingTemplate),
+      };
+
+      const mockManager: Partial<EntityManager> = {
+        getRepository: jest.fn(),
+      };
+
+      (mockManager.getRepository as jest.Mock).mockImplementation((entity) => {
+        if (entity === DocScheduleTemplate) return templateRepoMock;
+        return {};
+      });
+
+      dataSourceMock.transaction.mockImplementation(
+        async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> => {
+          return cb(mockManager as EntityManager);
+        },
+      );
+
+      await expect(
+        service.update(updateDto, templateId, otherDoctorUser),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Doctors can only update their own schedule templates',
+        ),
+      );
+    });
+
+    it('should throw error if template not found', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
         name: 'New Schedule Name',
       };
@@ -229,29 +535,25 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await expect(service.update(updateDto, templateId)).rejects.toThrow(
-        new BadRequestException('Schedule template not found'),
-      );
+      await expect(
+        service.update(updateDto, templateId, secretaryUser),
+      ).rejects.toThrow(new BadRequestException('Schedule template not found'));
     });
 
-    it('should update template name only', async () => {
+    it('should throw error if doctor tries to change doctorId', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
-        name: 'Updated Name',
+        doctorId: doctorId2,
       };
 
-      const mockTemplateRepo = {
+      const templateRepoMock = {
         findOne: jest.fn().mockResolvedValue(existingTemplate),
-        save: jest.fn().mockResolvedValue({
-          ...existingTemplate,
-          name: updateDto.name,
-        }),
       };
 
       const mockManager: Partial<EntityManager> = {
         getRepository: jest.fn(),
       };
       (mockManager.getRepository as jest.Mock).mockImplementation((entity) => {
-        if (entity === DocScheduleTemplate) return mockTemplateRepo;
+        if (entity === DocScheduleTemplate) return templateRepoMock;
         return {};
       });
 
@@ -261,34 +563,30 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await service.update(updateDto, templateId);
-
-      expect(mockTemplateRepo.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: updateDto.name,
-        }),
+      await expect(
+        service.update(updateDto, templateId, doctorUser),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Doctors cannot change the doctor of a schedule template',
+        ),
       );
     });
 
-    it('should update doctor and keep existing name if not provided', async () => {
-      const newDoctorEntity: Doctor = {
-        userId: 20,
-      } as Doctor;
-
+    it('should allow secretary to change doctorId', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
-        doctorId: 20,
+        doctorId: doctorId2,
       };
 
       const mockTemplateRepo = {
         findOne: jest.fn().mockResolvedValue(existingTemplate),
         save: jest.fn().mockResolvedValue({
           ...existingTemplate,
-          doctor: newDoctorEntity,
+          doctor: doctorEntity2,
         }),
       };
 
       const mockDoctorRepo = {
-        findOneBy: jest.fn().mockResolvedValue(newDoctorEntity),
+        findOneBy: jest.fn().mockResolvedValue(doctorEntity2),
       };
 
       const mockManager: Partial<EntityManager> = {
@@ -306,17 +604,17 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await service.update(updateDto, templateId);
+      await service.update(updateDto, templateId, secretaryUser);
 
       expect(mockDoctorRepo.findOneBy).toHaveBeenCalledWith({
-        userId: 20,
+        userId: doctorId2,
       });
       expect(mockTemplateRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException if new doctor not found', async () => {
+    it('should throw error if new doctor not found', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
-        doctorId: 20,
+        doctorId: doctorId2,
       };
 
       const mockTemplateRepo = {
@@ -342,9 +640,9 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await expect(service.update(updateDto, templateId)).rejects.toThrow(
-        new BadRequestException('Doctor not found'),
-      );
+      await expect(
+        service.update(updateDto, templateId, secretaryUser),
+      ).rejects.toThrow(new BadRequestException('Doctor not found'));
     });
 
     it('should update slots and remove old slots', async () => {
@@ -383,7 +681,7 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await service.update(updateDto, templateId);
+      await service.update(updateDto, templateId, secretaryUser);
 
       expect(mockSlotRepo.delete).toHaveBeenCalledWith({
         template: { id: templateId },
@@ -391,7 +689,7 @@ describe('DocScheduleTemplatesService', () => {
       expect(mockSlotRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException if updated slots have invalid time ranges', async () => {
+    it('should throw error if updated slots have invalid time ranges', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
         slots: [
           { day: 0, startTime: '13:00', endTime: '10:00' }, // Invalid
@@ -416,7 +714,9 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await expect(service.update(updateDto, templateId)).rejects.toThrow(
+      await expect(
+        service.update(updateDto, templateId, secretaryUser),
+      ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges in slots'),
       );
     });
@@ -459,7 +759,7 @@ describe('DocScheduleTemplatesService', () => {
         },
       );
 
-      await service.update(updateDto, templateId);
+      await service.update(updateDto, templateId, secretaryUser);
 
       expect(mockTemplateRepo.save).toHaveBeenCalled();
       expect(mockSlotRepo.delete).toHaveBeenCalled();
@@ -468,29 +768,96 @@ describe('DocScheduleTemplatesService', () => {
 
   describe('delete', () => {
     const templateId = 1;
+    const doctorId = 10;
+    const secretaryId = 1;
 
-    it('should delete schedule template successfully', async () => {
+    const secretaryUser: TokenUser = {
+      id: secretaryId,
+      email: 'secretary@test.com',
+      role: 'secretary',
+    };
+
+    const doctorUser: TokenUser = {
+      id: doctorId,
+      email: 'doctor@test.com',
+      role: 'doctor',
+    };
+
+    const otherDoctorUser: TokenUser = {
+      id: 99,
+      email: 'other@test.com',
+      role: 'doctor',
+    };
+
+    const existingTemplate: DocScheduleTemplate = {
+      id: templateId,
+      doctor: { userId: doctorId } as Doctor,
+    } as DocScheduleTemplate;
+
+    it('should delete schedule template by secretary', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(
+        existingTemplate,
+      );
       scheduleTemplateRepositoryMock.delete.mockResolvedValue({ affected: 1 });
 
-      await service.delete(templateId);
+      await service.delete(templateId, secretaryUser);
 
       expect(scheduleTemplateRepositoryMock.delete).toHaveBeenCalledWith({
         id: templateId,
       });
     });
 
-    it('should throw BadRequestException if template not found', async () => {
-      scheduleTemplateRepositoryMock.delete.mockResolvedValue({ affected: 0 });
+    it('should delete schedule template by doctor who created it', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(
+        existingTemplate,
+      );
+      scheduleTemplateRepositoryMock.delete.mockResolvedValue({ affected: 1 });
 
-      await expect(service.delete(templateId)).rejects.toThrow(
+      await service.delete(templateId, doctorUser);
+
+      expect(scheduleTemplateRepositoryMock.delete).toHaveBeenCalledWith({
+        id: templateId,
+      });
+    });
+
+    it('should throw error if doctor tries to delete another doctor template', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(
+        existingTemplate,
+      );
+
+      await expect(service.delete(templateId, otherDoctorUser)).rejects.toThrow(
+        new BadRequestException(
+          'Doctors can only delete their own schedule templates',
+        ),
+      );
+    });
+
+    it('should throw BadRequestException if template not found on fetch', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(service.delete(templateId, secretaryUser)).rejects.toThrow(
         new BadRequestException('Schedule template not found'),
       );
     });
 
-    it('should only delete single template even if multiple match', async () => {
+    it('should throw BadRequestException if delete affects zero rows', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(
+        existingTemplate,
+      );
+      scheduleTemplateRepositoryMock.delete.mockResolvedValue({ affected: 0 });
+
+      await expect(service.delete(templateId, secretaryUser)).rejects.toThrow(
+        new BadRequestException('Schedule template not found'),
+      );
+    });
+
+    it('should only delete single template even if query matches multiple', async () => {
+      scheduleTemplateRepositoryMock.findOne.mockResolvedValue(
+        existingTemplate,
+      );
       scheduleTemplateRepositoryMock.delete.mockResolvedValue({ affected: 1 });
 
-      await service.delete(templateId);
+      await service.delete(templateId, secretaryUser);
 
       expect(scheduleTemplateRepositoryMock.delete).toHaveBeenCalledWith({
         id: templateId,

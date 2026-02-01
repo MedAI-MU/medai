@@ -15,7 +15,7 @@ export class Doctor {
   @PrimaryColumn()
   userId: number;
 
-  @OneToOne(() => User, (user) => user.doctor)
+  @OneToOne(() => User, (user) => user.doctor, { eager: true })
   @JoinColumn({ name: 'userId' })
   user: User;
 

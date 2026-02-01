@@ -39,8 +39,8 @@ export class DocScheduleSlot {
   @ManyToOne(() => User, (user) => user.doctor, {
     onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: 'secretaryId' })
-  secretary: User;
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
 
   constructor(partial: Partial<DocScheduleSlot>) {
     Object.assign(this, partial);

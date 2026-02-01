@@ -36,7 +36,7 @@ export class DocScheduleSlotsService {
       if (!slotsDays.has(slotDto.day)) slotsDays.add(slotDto.day);
       return new DocScheduleSlot({
         doctor,
-        secretary,
+        createdBy: secretary,
         dayDate: slotDto.day,
         startTime: slotDto.startTime,
         endTime: slotDto.endTime,

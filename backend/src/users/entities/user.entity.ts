@@ -44,10 +44,10 @@ export class User {
   @Column({ type: 'varchar' })
   role: UserRoles;
 
-  @OneToMany(() => DocScheduleTemplate, (template) => template.secretary)
+  @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];
 
-  @OneToMany(() => DocScheduleSlot, (slot) => slot.secretary)
+  @OneToMany(() => DocScheduleSlot, (slot) => slot.createdBy)
   doctorScheduleSlots?: DocScheduleSlot[];
 
   constructor(partial: Partial<User>) {
