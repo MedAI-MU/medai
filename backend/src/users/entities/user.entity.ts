@@ -1,7 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  OneToOne,
+} from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
 import type { UserRoles } from '../types/role.types';
+import { Doctor } from '../../doctors/entities/doctor.entity';
+
 @Entity()
 export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()
@@ -21,6 +29,9 @@ export class User extends TimestampEntity {
 
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
+
+  @OneToOne(() => Doctor, (doctor) => doctor.user)
+  doctor?: Doctor;
 
   @Column({ type: 'varchar' })
   role: UserRoles;
