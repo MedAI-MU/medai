@@ -6,7 +6,7 @@ export class CreateDocScheduleTemplateSlotDto {
   @IsNotEmpty()
   @IsInt()
   @IsRange(0, 6, {
-    message: 'Week day must be between 0 (Saturday) and 6 (Friday)',
+    message: 'Week day must be between 0 (Sunday) and 6 (Saturday)',
   })
   @Expose({ name: 'weekDay' })
   day: number;

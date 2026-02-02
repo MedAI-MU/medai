@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from 'src/auth/jwt.config';
 import { App } from 'supertest/types';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { DocScheduleTemplate } from '../src/schedules/entities/doc-schedule-template.entity';
 import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.entity';
 import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
@@ -20,6 +20,8 @@ import { Doctor } from '../src/doctors/entities/doctor.entity';
 import { SchedulesModule } from '../src/schedules/schedules.module';
 import { PagedListDto } from '../src/shared/dtos/paged-list.dto';
 import { DocScheduleTemplateDto } from '../src/schedules/dtos/doc-schedule-template.dto';
+import { ApplyDocScheduleTemplateDto } from '../src/schedules/dtos/apply-doc-schedule-template.dto';
+import { CreateDocScheduleDto } from '../src/schedules/dtos/create-doc-schedule.dto';
 import {
   DocScheduleDto,
   DocScheduleDayDto,
@@ -38,6 +40,8 @@ describe('SchedulesController (e2e)', () => {
     `/api/doctors/${doctorId}/schedule-templates`;
   const DELETE_SCHEDULE_TEMPLATE_URL = (doctorId: number) =>
     `/api/doctors/${doctorId}/schedule-templates`;
+  const APPLY_SCHEDULE_TEMPLATE_URL = (doctorId: number, templateId: number) =>
+    `/api/doctors/${doctorId}/schedule-templates/${templateId}/apply`;
   const GET_ALL_TEMPLATES_URL = '/api/doctors/schedule-templates';
   const CREATE_SCHEDULE_SLOTS_URL = (doctorId: number) =>
     `/api/doctors/${doctorId}/schedule-slots`;
@@ -742,6 +746,355 @@ describe('SchedulesController (e2e)', () => {
     });
   });
 
+  describe('/api/doctors/:doctorId/schedule-templates/:templateId/apply (POST)', () => {
+    let templateId: number;
+
+    beforeEach(async () => {
+      const templateDto = {
+        name: `Apply Template ${Date.now()}`,
+        slots: [
+          { weekDay: 1, startTime: '09:00', endTime: '10:00' },
+          { weekDay: 3, startTime: '11:00', endTime: '12:00' },
+          { weekDay: 5, startTime: '14:00', endTime: '15:00' },
+        ],
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(CREATE_SCHEDULE_TEMPLATE_URL(doctorUserId))
+        .set('Cookie', authCookie)
+        .send(templateDto)
+        .expect(201);
+
+      const template = await dataSource
+        .getRepository(DocScheduleTemplate)
+        .findOne({
+          where: { doctor: { userId: doctorUserId } },
+          order: { createdAt: 'DESC' },
+        });
+      expect(template).toBeDefined();
+      templateId = template!.id;
+    });
+
+    it('should apply template and create schedules/slots for matching weekdays', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-04-06',
+        endDate: '2026-04-12',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(201);
+
+      const templateSlots = await dataSource
+        .getRepository(DocScheduleTemplateSlot)
+        .find({ where: { template: { id: templateId } } });
+
+      const applicableDates: string[] = [];
+      const currentDate = new Date(applyDto.startDate);
+      const endDate = new Date(applyDto.endDate);
+
+      while (currentDate <= endDate) {
+        const weekDay = currentDate.getDay();
+        if (templateSlots.some((slot) => slot.weekDay === weekDay)) {
+          applicableDates.push(currentDate.toISOString().split('T')[0]);
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      const schedules = await dataSource.getRepository(DocSchedule).find({
+        where: {
+          doctor: { userId: doctorUserId },
+          dayDate: In(applicableDates),
+        },
+        relations: ['slots'],
+      });
+
+      expect(schedules.length).toBe(applicableDates.length);
+      schedules.forEach((schedule) => {
+        expect(schedule.slots.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should allow secretary to apply template for any doctor', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-04-13',
+        endDate: '2026-04-19',
+      };
+
+      const response = await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto);
+
+      expect(response.status).toBe(201);
+    });
+
+    it('should allow doctor to apply template for themselves', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-04-20',
+        endDate: '2026-04-26',
+      };
+
+      const response = await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', doctorAuthCookie)
+        .send(applyDto);
+
+      expect(response.status).toBe(201);
+    });
+
+    it('should return 401 when doctor applies template for another doctor', async () => {
+      const otherTemplateDto = {
+        name: `Other Doctor Template ${Date.now()}`,
+        slots: [{ weekDay: 2, startTime: '09:00', endTime: '10:00' }],
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(CREATE_SCHEDULE_TEMPLATE_URL(anotherDoctorUserId))
+        .set('Cookie', authCookie)
+        .send(otherTemplateDto)
+        .expect(201);
+
+      const otherTemplate = await dataSource
+        .getRepository(DocScheduleTemplate)
+        .findOne({
+          where: { doctor: { userId: anotherDoctorUserId } },
+          order: { createdAt: 'DESC' },
+        });
+      expect(otherTemplate).toBeDefined();
+
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-04-27',
+        endDate: '2026-05-03',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(
+          APPLY_SCHEDULE_TEMPLATE_URL(anotherDoctorUserId, otherTemplate!.id),
+        )
+        .set('Cookie', doctorAuthCookie)
+        .send(applyDto)
+        .expect(401);
+    });
+
+    it('should return 404 when template does not exist', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-05-04',
+        endDate: '2026-05-10',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, 99999))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(404);
+    });
+
+    it('should return 400 when startDate is missing', async () => {
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send({ endDate: '2026-05-10' })
+        .expect(400);
+    });
+
+    it('should return 400 when endDate is missing', async () => {
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send({ startDate: '2026-05-04' })
+        .expect(400);
+    });
+
+    it('should return 400 when startDate is after endDate', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-05-20',
+        endDate: '2026-05-10',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(400);
+    });
+
+    it('should return 400 when dates have invalid format', async () => {
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send({ startDate: 'invalid', endDate: 'also-invalid' })
+        .expect(400);
+    });
+
+    it('should return 400 when overlapping slots are detected', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-05-11',
+        endDate: '2026-05-17',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(201);
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(400);
+    });
+
+    it('should reuse existing schedule when adding slots to an already scheduled day', async () => {
+      // First, create a schedule slot for a specific date
+      const scheduleDto: CreateDocScheduleDto = {
+        days: [
+          {
+            date: '2027-09-15',
+            slots: [{ startTime: '09:00', endTime: '10:00' }],
+          },
+        ],
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(CREATE_SCHEDULE_SLOTS_URL(doctorUserId))
+        .set('Cookie', authCookie)
+        .send(scheduleDto)
+        .expect(201);
+
+      const schedulesBeforeCount = await dataSource
+        .getRepository(DocSchedule)
+        .count({
+          where: { doctor: { userId: doctorUserId }, dayDate: '2027-09-15' },
+        });
+      expect(schedulesBeforeCount).toBe(1);
+
+      // Create a template that matches the day of the week for Sep 15, 2027
+      // Sep 15, 2027 is a Wednesday (weekDay 3)
+      const newTemplateDto = {
+        name: `Wednesday Template ${Date.now()}`,
+        slots: [{ weekDay: 3, startTime: '16:00', endTime: '17:00' }],
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(CREATE_SCHEDULE_TEMPLATE_URL(doctorUserId))
+        .set('Cookie', authCookie)
+        .send(newTemplateDto)
+        .expect(201);
+
+      const newTemplate = await dataSource
+        .getRepository(DocScheduleTemplate)
+        .findOne({
+          where: { doctor: { userId: doctorUserId } },
+          order: { createdAt: 'DESC' },
+        });
+
+      // Apply the new template to include the same date (Sep 15)
+      // Should add a slot to the existing schedule, not create a new one
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2027-09-15',
+        endDate: '2027-09-15',
+      };
+
+      await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, newTemplate!.id))
+        .set('Cookie', authCookie)
+        .send(applyDto)
+        .expect(201);
+
+      // Should still have only 1 schedule for that date
+      const schedulesAfterCount = await dataSource
+        .getRepository(DocSchedule)
+        .count({
+          where: { doctor: { userId: doctorUserId }, dayDate: '2027-09-15' },
+        });
+      expect(schedulesAfterCount).toBe(1);
+
+      // But it should now have 2 slots
+      const schedule = await dataSource.getRepository(DocSchedule).findOne({
+        where: { doctor: { userId: doctorUserId }, dayDate: '2027-09-15' },
+        relations: ['slots'],
+      });
+      expect(schedule!.slots.length).toBe(2);
+    });
+
+    it('should apply template with same startDate and endDate', async () => {
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2026-06-01',
+        endDate: '2026-06-01',
+      };
+
+      const response = await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto);
+
+      expect([200, 201]).toContain(response.status);
+    });
+
+    it('should create slots with correct times from template', async () => {
+      // Verify that when a template is applied, the created slots
+      // have the same time values as defined in the template slots
+
+      // Get the template that was created in beforeEach
+      const template = await dataSource
+        .getRepository(DocScheduleTemplate)
+        .findOne({
+          where: { id: templateId },
+          relations: ['slots'],
+        });
+      expect(template).toBeDefined();
+      expect(template!.slots.length).toBeGreaterThan(0);
+
+      // Apply the template to a wide date range
+      const applyDto: ApplyDocScheduleTemplateDto = {
+        startDate: '2028-01-01',
+        endDate: '2028-01-31',
+      };
+
+      const response = await request(app.getHttpServer() as App)
+        .post(APPLY_SCHEDULE_TEMPLATE_URL(doctorUserId, templateId))
+        .set('Cookie', authCookie)
+        .send(applyDto);
+
+      expect([200, 201]).toContain(response.status);
+
+      // Get all created slots for this doctor
+      const createdSlots = await dataSource
+        .getRepository(DocScheduleSlot)
+        .find({
+          where: {
+            schedule: { doctor: { userId: doctorUserId } },
+          },
+        });
+
+      // Verify that any created slots have times that match the template slots
+      const templateTimes = template!.slots.map((s) => ({
+        startTime: s.startTime,
+        endTime: s.endTime,
+      }));
+
+      // Each created slot should have times that match one of the template slots
+      createdSlots.forEach((slot) => {
+        const matchesTemplate = templateTimes.some(
+          (t) => t.startTime === slot.startTime && t.endTime === slot.endTime,
+        );
+        // Only check slots that might be from our template
+        // (since other tests may have created slots too)
+        if (
+          slot.startTime === '09:00:00' ||
+          slot.startTime === '11:00:00' ||
+          slot.startTime === '14:00:00'
+        ) {
+          expect(matchesTemplate).toBe(true);
+        }
+      });
+    });
+  });
+
   describe('/api/doctors/schedules (POST)', () => {
     const getInvalidCreateScheduleDtoTestCases = () => [
       {
@@ -828,7 +1181,7 @@ describe('SchedulesController (e2e)', () => {
     );
 
     it('should return 404 when doctor does not exist', async () => {
-      const dto = {
+      const dto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-01',
@@ -850,7 +1203,7 @@ describe('SchedulesController (e2e)', () => {
     });
 
     it('should create schedule slots and return 201 status', async () => {
-      const dto = {
+      const dto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-01',
@@ -881,7 +1234,7 @@ describe('SchedulesController (e2e)', () => {
     });
 
     it('should create schedule slots successfully as doctor for themselves', async () => {
-      const dto = {
+      const dto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-03',
@@ -903,7 +1256,7 @@ describe('SchedulesController (e2e)', () => {
     });
 
     it('should return 401 when doctor tries to create schedule for another doctor', async () => {
-      const dto = {
+      const dto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-01',
@@ -925,7 +1278,7 @@ describe('SchedulesController (e2e)', () => {
     });
 
     it('should return 400 for overlapping time slots on the same day', async () => {
-      const dto = {
+      const dto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-01',
@@ -954,7 +1307,7 @@ describe('SchedulesController (e2e)', () => {
   describe('/api/doctors/:doctorId/schedule-slots (GET)', () => {
     beforeEach(async () => {
       // Create multiple schedule slots for the doctor
-      const createDto = {
+      const createDto: CreateDocScheduleDto = {
         days: [
           {
             date: '2026-02-10',

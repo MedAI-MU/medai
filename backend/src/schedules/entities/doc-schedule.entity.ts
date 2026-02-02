@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -11,6 +12,7 @@ import { User } from '../../users/entities/user.entity';
 import { DocScheduleSlot } from './doc-schedule-slot.entity';
 
 @Entity()
+@Index('IDX_doc_schedule_doctor_day', ['doctor', 'dayDate'])
 export class DocSchedule {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,7 +23,7 @@ export class DocSchedule {
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
 
-  // TODO: add index to (doctorId, dayDate)
+  @Index('IDX_doc_schedule_day_date')
   @Column('date')
   dayDate: string;
 

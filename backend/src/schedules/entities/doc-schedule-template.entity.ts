@@ -14,6 +14,7 @@ import { User } from '../../users/entities/user.entity';
 import { DocScheduleTemplateSlot } from './doc-schedule-template-slot.entity';
 
 @Entity()
+@Index('IDX_doc_schedule_template_doctor_created', ['doctor', 'createdAt'])
 export class DocScheduleTemplate {
   @PrimaryGeneratedColumn()
   id: number;

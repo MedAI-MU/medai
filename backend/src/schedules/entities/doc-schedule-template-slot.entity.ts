@@ -1,7 +1,14 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { DocScheduleTemplate } from './doc-schedule-template.entity';
 
 @Entity()
+@Index('IDX_doc_schedule_template_slot_template', ['template'])
 export class DocScheduleTemplateSlot {
   @PrimaryGeneratedColumn()
   id: number;

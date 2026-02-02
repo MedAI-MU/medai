@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import type { SlotStatus } from '../types/slot-status.types';
 import { DocSchedule } from './doc-schedule.entity';
 
 @Entity()
+@Index('IDX_doc_schedule_slot_schedule_status', ['schedule', 'status'])
 export class DocScheduleSlot {
   @PrimaryGeneratedColumn()
   id: number;

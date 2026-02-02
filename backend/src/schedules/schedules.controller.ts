@@ -20,6 +20,7 @@ import { CreateDocScheduleDto } from './dtos/create-doc-schedule.dto';
 import { DocScheduleSlotsService } from './doc-schedule-slots.service';
 import { UpdateDocScheduleSlotDto } from './dtos/update-doc-schedule-slot.dto';
 import { PagedListDto } from '../shared/dtos/paged-list.dto';
+import { ApplyDocScheduleTemplateDto } from './dtos/apply-doc-schedule-template.dto';
 
 @Controller('doctors')
 export class SchedulesController {
@@ -148,5 +149,21 @@ export class SchedulesController {
     @Param('slotId', ParseIntPipe) slotId: number,
   ) {
     await this.scheduleSlotsService.delete(slotId, doctorId, currentUser);
+  }
+
+  @Post(':doctorId/schedule-templates/:templateId/apply')
+  @HttpCode(HttpStatus.CREATED)
+  async applyTemplateToDoctor(
+    @CurrentUser() currentUser: TokenUser,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('templateId', ParseIntPipe) templateId: number,
+    @Body() applyTemplateDto: ApplyDocScheduleTemplateDto,
+  ) {
+    await this.scheduleTemplatesService.applyTemplate(
+      templateId,
+      doctorId,
+      applyTemplateDto,
+      currentUser,
+    );
   }
 }
