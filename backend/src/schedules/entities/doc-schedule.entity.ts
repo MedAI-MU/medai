@@ -21,6 +21,7 @@ export class DocSchedule {
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
 
+  // TODO: add index to (doctorId, dayDate)
   @Column('date')
   dayDate: string;
 

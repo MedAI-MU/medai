@@ -28,7 +28,7 @@ export class SchedulesController {
     private readonly scheduleSlotsService: DocScheduleSlotsService,
   ) {}
 
-  @Get('schedules/templates')
+  @Get('schedule-templates')
   @HttpCode(HttpStatus.OK)
   async getAllTemplates(
     @CurrentUser() currentUser: TokenUser,
@@ -47,42 +47,51 @@ export class SchedulesController {
     return new PagedListDto(data, total, pageNo, pageSize);
   }
 
-  @Post('schedules/templates')
+  @Post(':doctorId/schedule-templates')
   @HttpCode(HttpStatus.CREATED)
   async createTemplate(
     @CurrentUser() currentUser: TokenUser,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
     @Body() createDocScheduleTemplateDto: CreateDocScheduleTemplateDto,
   ) {
     await this.scheduleTemplatesService.create(
+      doctorId,
       createDocScheduleTemplateDto,
       currentUser,
     );
   }
 
-  @Patch('schedules/templates/:id')
+  @Patch(':doctorId/schedule-templates/:templateId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateTemplate(
     @CurrentUser() currentUser: TokenUser,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('templateId', ParseIntPipe) templateId: number,
     @Body() updateDocScheduleTemplateDto: UpdateDocScheduleTemplateDto,
-    @Param('id') id: number,
   ) {
     await this.scheduleTemplatesService.update(
       updateDocScheduleTemplateDto,
-      id,
+      templateId,
+      doctorId,
       currentUser,
     );
   }
 
-  @Delete('schedules/templates/:id')
+  @Delete(':doctorId/schedule-templates/:templateId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTemplate(
     @CurrentUser() currentUser: TokenUser,
-    @Param('id') id: number,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('templateId', ParseIntPipe) templateId: number,
   ) {
-    await this.scheduleTemplatesService.delete(id, currentUser);
+    await this.scheduleTemplatesService.delete(
+      templateId,
+      doctorId,
+      currentUser,
+    );
   }
 
-  @Get(':doctorId/schedules')
+  @Get(':doctorId/schedule-slots')
   @HttpCode(HttpStatus.OK)
   async getDoctorSlots(
     @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -101,35 +110,43 @@ export class SchedulesController {
     );
   }
 
-  @Post('schedules')
+  @Post(':doctorId/schedule-slots')
   @HttpCode(HttpStatus.CREATED)
   async createSlots(
     @CurrentUser() currentUser: TokenUser,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
     @Body() createDocScheduleDto: CreateDocScheduleDto,
   ) {
-    await this.scheduleSlotsService.create(createDocScheduleDto, currentUser);
-  }
-
-  @Patch('schedules/slots/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updateSlot(
-    @CurrentUser() currentUser: TokenUser,
-    @Body() updateDocScheduleSlotDto: UpdateDocScheduleSlotDto,
-    @Param('id') id: number,
-  ) {
-    await this.scheduleSlotsService.update(
-      updateDocScheduleSlotDto,
-      id,
+    await this.scheduleSlotsService.create(
+      doctorId,
+      createDocScheduleDto,
       currentUser,
     );
   }
 
-  @Delete('schedules/slots/:id')
+  @Patch(':doctorId/schedule-slots/:slotId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateSlot(
+    @CurrentUser() currentUser: TokenUser,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('slotId', ParseIntPipe) slotId: number,
+    @Body() updateDocScheduleSlotDto: UpdateDocScheduleSlotDto,
+  ) {
+    await this.scheduleSlotsService.update(
+      updateDocScheduleSlotDto,
+      slotId,
+      doctorId,
+      currentUser,
+    );
+  }
+
+  @Delete(':doctorId/schedule-slots/:slotId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSlot(
     @CurrentUser() currentUser: TokenUser,
-    @Param('id') id: number,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('slotId', ParseIntPipe) slotId: number,
   ) {
-    await this.scheduleSlotsService.delete(id, currentUser);
+    await this.scheduleSlotsService.delete(slotId, doctorId, currentUser);
   }
 }

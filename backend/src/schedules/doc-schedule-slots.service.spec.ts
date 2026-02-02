@@ -91,7 +91,6 @@ describe('DocScheduleSlotsService', () => {
     } as Doctor;
 
     const createDto: CreateDocScheduleDto = {
-      doctorId,
       days: [
         {
           date: '2024-01-15',
@@ -133,7 +132,7 @@ describe('DocScheduleSlotsService', () => {
 
       scheduleSlotRepositoryMock.save.mockResolvedValue(slotsToSave);
 
-      const result = await service.create(createDto, secretaryUser);
+      const result = await service.create(doctorId, createDto, secretaryUser);
 
       expect(doctorRepositoryMock.findOneBy).toHaveBeenCalledWith({
         userId: doctorId,
@@ -164,14 +163,14 @@ describe('DocScheduleSlotsService', () => {
 
       scheduleSlotRepositoryMock.save.mockResolvedValue(slotsToSave);
 
-      const result = await service.create(createDto, doctorUser);
+      const result = await service.create(doctorId, createDto, doctorUser);
 
       expect(result).toEqual(slotsToSave);
     });
 
     it('should throw UnauthorizedException when doctor tries to create schedule for another doctor', async () => {
       await expect(
-        service.create(createDto, anotherDoctorUser),
+        service.create(doctorId, createDto, anotherDoctorUser),
       ).rejects.toThrow(
         new UnauthorizedException(
           'Doctors can only create schedules for themselves',
@@ -182,16 +181,15 @@ describe('DocScheduleSlotsService', () => {
     it('should throw NotFoundException if doctor not found (secretary)', async () => {
       doctorRepositoryMock.findOneBy.mockResolvedValue(null);
 
-      await expect(service.create(createDto, secretaryUser)).rejects.toThrow(
-        new NotFoundException('Doctor not found'),
-      );
+      await expect(
+        service.create(doctorId, createDto, secretaryUser),
+      ).rejects.toThrow(new NotFoundException('Doctor not found'));
     });
 
     it('should throw BadRequestException if slots have invalid time ranges', async () => {
       doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
       // Create overlapping slots to trigger validation error
       const invalidDto: CreateDocScheduleDto = {
-        doctorId,
         days: [
           {
             date: '2024-01-15',
@@ -211,7 +209,9 @@ describe('DocScheduleSlotsService', () => {
 
       scheduleRepositoryMock.find.mockResolvedValue([]);
 
-      await expect(service.create(invalidDto, secretaryUser)).rejects.toThrow(
+      await expect(
+        service.create(doctorId, invalidDto, secretaryUser),
+      ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
     });
@@ -234,14 +234,15 @@ describe('DocScheduleSlotsService', () => {
       doctorRepositoryMock.findOneBy.mockResolvedValue(doctorEntity);
       scheduleRepositoryMock.find.mockResolvedValue([mockSchedule]);
 
-      await expect(service.create(createDto, secretaryUser)).rejects.toThrow(
+      await expect(
+        service.create(doctorId, createDto, secretaryUser),
+      ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
     });
 
     it('should handle multiple days correctly', async () => {
       const multiDayDto: CreateDocScheduleDto = {
-        doctorId,
         days: [
           {
             date: '2024-01-15',
@@ -269,14 +270,13 @@ describe('DocScheduleSlotsService', () => {
       scheduleRepositoryMock.save.mockResolvedValue([]);
       scheduleSlotRepositoryMock.save.mockResolvedValue([]);
 
-      await service.create(multiDayDto, secretaryUser);
+      await service.create(doctorId, multiDayDto, secretaryUser);
 
       expect(scheduleRepositoryMock.find).toHaveBeenCalled();
     });
 
     it('should handle empty slots array', async () => {
       const emptyDto: CreateDocScheduleDto = {
-        doctorId,
         days: [],
       };
 
@@ -284,7 +284,7 @@ describe('DocScheduleSlotsService', () => {
       scheduleRepositoryMock.find.mockResolvedValue([]);
       scheduleSlotRepositoryMock.save.mockResolvedValue([]);
 
-      await service.create(emptyDto, secretaryUser);
+      await service.create(doctorId, emptyDto, secretaryUser);
 
       expect(scheduleSlotRepositoryMock.save).toHaveBeenCalled();
     });
@@ -341,10 +341,18 @@ describe('DocScheduleSlotsService', () => {
         endTime: updateDto.endTime,
       });
 
-      const result = await service.update(updateDto, slotId, secretaryUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        secretaryUser,
+      );
 
       expect(scheduleSlotRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: { id: slotId },
+        where: {
+          id: slotId,
+          schedule: { doctor: { userId: doctorEntity.userId } },
+        },
         relations: ['schedule', 'schedule.doctor'],
       });
       expect(result.startTime).toBe(updateDto.startTime);
@@ -369,10 +377,18 @@ describe('DocScheduleSlotsService', () => {
         endTime: updateDto.endTime,
       });
 
-      const result = await service.update(updateDto, slotId, doctorUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        doctorUser,
+      );
 
       expect(scheduleSlotRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: { id: slotId },
+        where: {
+          id: slotId,
+          schedule: { doctor: { userId: doctorEntity.userId } },
+        },
         relations: ['schedule', 'schedule.doctor'],
       });
       expect(result.startTime).toBe(updateDto.startTime);
@@ -388,7 +404,12 @@ describe('DocScheduleSlotsService', () => {
       scheduleSlotRepositoryMock.findOne.mockResolvedValue(existingSlot);
 
       await expect(
-        service.update(updateDto, slotId, anotherDoctorUser),
+        service.update(
+          updateDto,
+          slotId,
+          doctorEntity.userId,
+          anotherDoctorUser,
+        ),
       ).rejects.toThrow(
         new UnauthorizedException(
           'Doctors can only update their own schedule slots',
@@ -404,7 +425,7 @@ describe('DocScheduleSlotsService', () => {
       };
 
       await expect(
-        service.update(updateDto, slotId, secretaryUser),
+        service.update(updateDto, slotId, doctorEntity.userId, secretaryUser),
       ).rejects.toThrow(new NotFoundException('Schedule slot not found'));
     });
 
@@ -418,7 +439,7 @@ describe('DocScheduleSlotsService', () => {
       scheduleSlotRepositoryMock.find.mockResolvedValue([existingSlot]);
 
       await expect(
-        service.update(updateDto, slotId, secretaryUser),
+        service.update(updateDto, slotId, doctorEntity.userId, secretaryUser),
       ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
@@ -446,7 +467,12 @@ describe('DocScheduleSlotsService', () => {
         startTime: updateDto.startTime,
       });
 
-      const result = await service.update(updateDto, slotId, secretaryUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        secretaryUser,
+      );
 
       expect(result.startTime).toBe(updateDto.startTime);
       expect(result.endTime).toBe(slotWithSeconds.endTime);
@@ -467,7 +493,7 @@ describe('DocScheduleSlotsService', () => {
       scheduleSlotRepositoryMock.find.mockResolvedValue([]);
 
       await expect(
-        service.update(updateDto, slotId, secretaryUser),
+        service.update(updateDto, slotId, doctorEntity.userId, secretaryUser),
       ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
@@ -495,7 +521,12 @@ describe('DocScheduleSlotsService', () => {
         endTime: updateDto.endTime,
       });
 
-      const result = await service.update(updateDto, slotId, secretaryUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        secretaryUser,
+      );
 
       expect(result.startTime).toBe(slotWithSeconds.startTime);
       expect(result.endTime).toBe(updateDto.endTime);
@@ -516,7 +547,7 @@ describe('DocScheduleSlotsService', () => {
       scheduleSlotRepositoryMock.find.mockResolvedValue([]);
 
       await expect(
-        service.update(updateDto, slotId, secretaryUser),
+        service.update(updateDto, slotId, doctorEntity.userId, secretaryUser),
       ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
@@ -545,7 +576,12 @@ describe('DocScheduleSlotsService', () => {
         schedule: newSchedule,
       });
 
-      const result = await service.update(updateDto, slotId, secretaryUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        secretaryUser,
+      );
 
       expect(result.schedule.dayDate).toBe(updateDto.day);
     });
@@ -576,7 +612,12 @@ describe('DocScheduleSlotsService', () => {
         endTime: updateDto.endTime,
       });
 
-      const result = await service.update(updateDto, slotId, secretaryUser);
+      const result = await service.update(
+        updateDto,
+        slotId,
+        doctorEntity.userId,
+        secretaryUser,
+      );
 
       expect(scheduleSlotRepositoryMock.save).toHaveBeenCalled();
       expect(result.startTime).toBe(updateDto.startTime);
@@ -605,7 +646,7 @@ describe('DocScheduleSlotsService', () => {
       scheduleRepositoryMock.findOne.mockResolvedValue(scheduleWithSlots);
 
       await expect(
-        service.update(updateDto, slotId, secretaryUser),
+        service.update(updateDto, slotId, doctorEntity.userId, secretaryUser),
       ).rejects.toThrow(
         new BadRequestException('Invalid or overlapping time ranges detected'),
       );
@@ -647,7 +688,7 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await service.delete(slotId, secretaryUser);
+      await service.delete(slotId, doctorUser.id, secretaryUser);
 
       expect(scheduleSlotRepositoryMock.createQueryBuilder).toHaveBeenCalled();
       expect(queryBuilderMock.delete).toHaveBeenCalled();
@@ -678,7 +719,7 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await service.delete(slotId, doctorUser);
+      await service.delete(slotId, doctorUser.id, doctorUser);
 
       expect(scheduleSlotRepositoryMock.createQueryBuilder).toHaveBeenCalled();
       expect(queryBuilderMock.delete).toHaveBeenCalled();
@@ -715,7 +756,9 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await expect(service.delete(slotId, secretaryUser)).rejects.toThrow(
+      await expect(
+        service.delete(slotId, doctorUser.id, secretaryUser),
+      ).rejects.toThrow(
         new BadRequestException(
           'Slot not found, not available, or not authorized to delete',
         ),
@@ -736,7 +779,9 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await expect(service.delete(slotId, secretaryUser)).rejects.toThrow(
+      await expect(
+        service.delete(slotId, doctorUser.id, secretaryUser),
+      ).rejects.toThrow(
         new BadRequestException(
           'Slot not found, not available, or not authorized to delete',
         ),
@@ -757,7 +802,7 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await service.delete(slotId, doctorUser);
+      await service.delete(slotId, doctorUser.id, doctorUser);
 
       // Verify andWhere is called for doctor authorization
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -786,10 +831,10 @@ describe('DocScheduleSlotsService', () => {
         queryBuilderMock,
       );
 
-      await service.delete(slotId, secretaryUser);
+      await service.delete(slotId, doctorUser.id, secretaryUser);
 
-      // Should have exactly 2 andWhere calls (one for status, no doctor authorization)
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledTimes(1);
+      // Should have exactly 2 andWhere calls (status + doctor subquery)
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledTimes(2);
     });
   });
 });

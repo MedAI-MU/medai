@@ -98,9 +98,9 @@ export class DocScheduleSlotsService {
     });
   }
 
-  async create(dto: CreateDocScheduleDto, user: TokenUser) {
+  async create(doctorId: number, dto: CreateDocScheduleDto, user: TokenUser) {
     // Authorization: Secretary can create for any doctor, Doctor can only create for themselves
-    if (user.role === 'doctor' && user.id !== dto.doctorId)
+    if (user.role === 'doctor' && user.id !== doctorId)
       throw new UnauthorizedException(
         'Doctors can only create schedules for themselves',
       );
@@ -108,11 +108,11 @@ export class DocScheduleSlotsService {
     let doctor: Doctor;
     if (user.role !== 'doctor') {
       const doctorEntity = await this.doctorsRepository.findOneBy({
-        userId: dto.doctorId,
+        userId: doctorId,
       });
       if (!doctorEntity) throw new NotFoundException('Doctor not found');
       doctor = doctorEntity;
-    } else doctor = new Doctor({ userId: dto.doctorId });
+    } else doctor = new Doctor({ userId: doctorId });
 
     const flattenedSlots = dto.days.flatMap((day) =>
       day.slots.map((slot) => ({
@@ -126,7 +126,7 @@ export class DocScheduleSlotsService {
 
     const existingSchedules = await this.docSchedulesRepository.find({
       where: {
-        doctor: { userId: dto.doctorId },
+        doctor: { userId: doctorId },
         dayDate: In(dayDates.map((dayDate) => new Date(dayDate))),
       },
       relations: ['slots'],
@@ -180,15 +180,20 @@ export class DocScheduleSlotsService {
     return this.docScheduleSlotsRepository.save(slotsToSave);
   }
 
-  async update(dto: UpdateDocScheduleSlotDto, slotId: number, user: TokenUser) {
+  async update(
+    dto: UpdateDocScheduleSlotDto,
+    slotId: number,
+    doctorId: number,
+    user: TokenUser,
+  ) {
     const slot = await this.docScheduleSlotsRepository.findOne({
-      where: { id: slotId },
+      where: { id: slotId, schedule: { doctor: { userId: doctorId } } },
       relations: ['schedule', 'schedule.doctor'],
     });
     if (!slot) throw new NotFoundException('Schedule slot not found');
 
     // Authorization: Secretary can update any slot, Doctor can only update their own slots
-    if (user.role === 'doctor' && slot.schedule.doctor.userId !== user.id) {
+    if (user.role === 'doctor' && doctorId !== user.id) {
       throw new UnauthorizedException(
         'Doctors can only update their own schedule slots',
       );
@@ -243,7 +248,7 @@ export class DocScheduleSlotsService {
     return this.docScheduleSlotsRepository.save(slot);
   }
 
-  async delete(slotId: number, user: TokenUser) {
+  async delete(slotId: number, doctorId: number, user: TokenUser) {
     const qb = this.docScheduleSlotsRepository
       .createQueryBuilder()
       .delete()
@@ -251,10 +256,8 @@ export class DocScheduleSlotsService {
       .where('id = :slotId', { slotId })
       .andWhere('status = :status', {
         status: 'available',
-      });
-
-    if (user.role === 'doctor') {
-      qb.andWhere(
+      })
+      .andWhere(
         `
       "docScheduleId" IN (
         SELECT ds.id
@@ -262,7 +265,13 @@ export class DocScheduleSlotsService {
         WHERE ds."doctorId" = :doctorId
       )
     `,
-      ).setParameter('doctorId', user.id);
+      )
+      .setParameter('doctorId', doctorId);
+
+    if (user.role === 'doctor' && user.id !== doctorId) {
+      throw new UnauthorizedException(
+        'Doctors can only delete their own schedule slots',
+      );
     }
 
     const result = await qb.execute();

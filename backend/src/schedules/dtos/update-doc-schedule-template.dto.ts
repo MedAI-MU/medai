@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsInt,
   IsOptional,
   IsString,
   Length,
@@ -14,10 +13,6 @@ export class UpdateDocScheduleTemplateDto {
   @IsString()
   @Length(5, 100, { message: 'Name must be between 5 and 100 characters' })
   name?: string;
-
-  @IsOptional()
-  @IsInt()
-  doctorId?: number;
 
   @IsOptional()
   @IsArray({ message: 'Slots must be an array' })

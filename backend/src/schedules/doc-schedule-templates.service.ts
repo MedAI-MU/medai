@@ -1,12 +1,13 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-template.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from '../doctors/entities/doctor.entity';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { areValidTimeRanges } from './utils/are-valid-time-ranges.utils';
 import { User } from '../users/entities/user.entity';
 import { DocScheduleTemplate } from './entities/doc-schedule-template.entity';
@@ -92,8 +93,12 @@ export class DocScheduleTemplatesService {
     };
   }
 
-  async create(dto: CreateDocScheduleTemplateDto, user: TokenUser) {
-    if (user.role == 'doctor' && dto.doctorId !== user.id)
+  async create(
+    doctorId: number,
+    dto: CreateDocScheduleTemplateDto,
+    user: TokenUser,
+  ) {
+    if (user.role == 'doctor' && doctorId !== user.id)
       throw new UnauthorizedException(
         'Doctors can only create schedule templates for themselves',
       );
@@ -101,9 +106,9 @@ export class DocScheduleTemplatesService {
     let doctor: Doctor;
     if (user.role !== 'doctor') {
       const doctorEntity = await this.doctorRepository.findOneBy({
-        userId: dto.doctorId,
+        userId: doctorId,
       });
-      if (!doctorEntity) throw new BadRequestException('Doctor not found');
+      if (!doctorEntity) throw new NotFoundException('Doctor not found');
       doctor = doctorEntity;
     } else doctor = new Doctor({ userId: user.id });
 
@@ -131,43 +136,26 @@ export class DocScheduleTemplatesService {
   async update(
     dto: UpdateDocScheduleTemplateDto,
     templateId: number,
+    doctorId: number,
     user: TokenUser,
   ) {
     return this.dataSource.transaction(async (manager) => {
       const templateRepo = manager.getRepository(DocScheduleTemplate);
       const slotRepo = manager.getRepository(DocScheduleTemplateSlot);
-      const doctorRepo = manager.getRepository(Doctor);
 
       const scheduleTemplate = await templateRepo.findOne({
-        where: { id: templateId },
+        where: { id: templateId, doctor: { userId: doctorId } },
         relations: ['doctor'],
       });
 
       if (!scheduleTemplate)
-        throw new BadRequestException('Schedule template not found');
+        throw new NotFoundException('Schedule template not found');
 
       // Authorization: Only doctor can update their own templates created by them or assigned to them, secretary can update everyone's
       if (user.role == 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
         throw new UnauthorizedException(
           'Doctors can only update their own schedule templates',
         );
-      }
-
-      if (dto.doctorId) {
-        // Doctors cannot change the doctor ID of a template
-        if (user.role === 'doctor') {
-          throw new UnauthorizedException(
-            'Doctors cannot change the doctor of a schedule template',
-          );
-        }
-
-        const doctor = await doctorRepo.findOneBy({
-          userId: dto.doctorId,
-        });
-
-        if (!doctor) throw new BadRequestException('Doctor not found');
-
-        scheduleTemplate.doctor = doctor;
       }
 
       scheduleTemplate.name = dto.name ?? scheduleTemplate.name;
@@ -196,14 +184,14 @@ export class DocScheduleTemplatesService {
     });
   }
 
-  async delete(templateId: number, user: TokenUser) {
+  async delete(templateId: number, doctorId: number, user: TokenUser) {
     const scheduleTemplate = await this.scheduleTemplateRepository.findOne({
-      where: { id: templateId },
+      where: { id: templateId, doctor: { userId: doctorId } },
       relations: ['doctor'],
     });
 
     if (!scheduleTemplate)
-      throw new BadRequestException('Schedule template not found');
+      throw new NotFoundException('Schedule template not found');
 
     // Authorization: Only doctor can delete their own templates, secretary can delete everyone's
     if (user.role === 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
@@ -214,9 +202,10 @@ export class DocScheduleTemplatesService {
 
     const result = await this.scheduleTemplateRepository.delete({
       id: templateId,
+      doctor: { userId: doctorId },
     });
 
     if (result.affected === 0)
-      throw new BadRequestException('Schedule template not found');
+      throw new NotFoundException('Schedule template not found');
   }
 }
