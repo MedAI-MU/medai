@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { DocScheduleTemplatesService } from './doc-schedule-templates.service';
 import { DocScheduleTemplate } from './entities/doc-schedule-template.entity';
 import { DocScheduleTemplateSlot } from './entities/doc-schedule-template-slot.entity';
@@ -327,7 +327,7 @@ describe('DocScheduleTemplatesService', () => {
       expect(result).toBeDefined();
     });
 
-    it('should throw BadRequestException if doctor tries to create for another doctor', async () => {
+    it('should throw UnauthorizedException if doctor tries to create for another doctor', async () => {
       const otherDoctorUser: TokenUser = {
         id: 99,
         email: 'other@test.com',
@@ -335,7 +335,7 @@ describe('DocScheduleTemplatesService', () => {
       };
 
       await expect(service.create(createDto, otherDoctorUser)).rejects.toThrow(
-        new BadRequestException(
+        new UnauthorizedException(
           'Doctors can only create schedule templates for themselves',
         ),
       );
@@ -507,7 +507,7 @@ describe('DocScheduleTemplatesService', () => {
       await expect(
         service.update(updateDto, templateId, otherDoctorUser),
       ).rejects.toThrow(
-        new BadRequestException(
+        new UnauthorizedException(
           'Doctors can only update their own schedule templates',
         ),
       );
@@ -566,7 +566,7 @@ describe('DocScheduleTemplatesService', () => {
       await expect(
         service.update(updateDto, templateId, doctorUser),
       ).rejects.toThrow(
-        new BadRequestException(
+        new UnauthorizedException(
           'Doctors cannot change the doctor of a schedule template',
         ),
       );
@@ -826,7 +826,7 @@ describe('DocScheduleTemplatesService', () => {
       );
 
       await expect(service.delete(templateId, otherDoctorUser)).rejects.toThrow(
-        new BadRequestException(
+        new UnauthorizedException(
           'Doctors can only delete their own schedule templates',
         ),
       );

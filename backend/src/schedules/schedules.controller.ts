@@ -21,14 +21,14 @@ import { DocScheduleSlotsService } from './doc-schedule-slots.service';
 import { UpdateDocScheduleSlotDto } from './dtos/update-doc-schedule-slot.dto';
 import { PagedListDto } from '../shared/dtos/paged-list.dto';
 
-@Controller('doctors/schedules')
+@Controller('doctors')
 export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,
     private readonly scheduleSlotsService: DocScheduleSlotsService,
   ) {}
 
-  @Get('templates')
+  @Get('schedules/templates')
   @HttpCode(HttpStatus.OK)
   async getAllTemplates(
     @CurrentUser() currentUser: TokenUser,
@@ -47,7 +47,7 @@ export class SchedulesController {
     return new PagedListDto(data, total, pageNo, pageSize);
   }
 
-  @Post('templates')
+  @Post('schedules/templates')
   @HttpCode(HttpStatus.CREATED)
   async createTemplate(
     @CurrentUser() currentUser: TokenUser,
@@ -59,7 +59,7 @@ export class SchedulesController {
     );
   }
 
-  @Patch('templates/:id')
+  @Patch('schedules/templates/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateTemplate(
     @CurrentUser() currentUser: TokenUser,
@@ -73,7 +73,7 @@ export class SchedulesController {
     );
   }
 
-  @Delete('templates/:id')
+  @Delete('schedules/templates/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTemplate(
     @CurrentUser() currentUser: TokenUser,
@@ -82,30 +82,54 @@ export class SchedulesController {
     await this.scheduleTemplatesService.delete(id, currentUser);
   }
 
-  @Post()
+  @Get(':doctorId/schedules')
+  @HttpCode(HttpStatus.OK)
+  async getDoctorSlots(
+    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('pageNo', new ParseIntPipe({ optional: true })) pageNo: number = 1,
+    @Query('pageSize', new ParseIntPipe({ optional: true }))
+    pageSize: number = 10,
+  ) {
+    return this.scheduleSlotsService.getByDoctorId(
+      doctorId,
+      fromDate,
+      toDate,
+      pageNo,
+      pageSize,
+    );
+  }
+
+  @Post('schedules')
   @HttpCode(HttpStatus.CREATED)
   async createSlots(
     @CurrentUser() currentUser: TokenUser,
     @Body() createDocScheduleDto: CreateDocScheduleDto,
   ) {
-    await this.scheduleSlotsService.create(
-      createDocScheduleDto,
-      currentUser.id,
-    );
+    await this.scheduleSlotsService.create(createDocScheduleDto, currentUser);
   }
 
-  @Patch('slots/:id')
+  @Patch('schedules/slots/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateSlot(
+    @CurrentUser() currentUser: TokenUser,
     @Body() updateDocScheduleSlotDto: UpdateDocScheduleSlotDto,
     @Param('id') id: number,
   ) {
-    await this.scheduleSlotsService.update(updateDocScheduleSlotDto, id);
+    await this.scheduleSlotsService.update(
+      updateDocScheduleSlotDto,
+      id,
+      currentUser,
+    );
   }
 
-  @Delete('slots/:id')
+  @Delete('schedules/slots/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteSlot(@Param('id') id: number) {
-    await this.scheduleSlotsService.delete(id);
+  async deleteSlot(
+    @CurrentUser() currentUser: TokenUser,
+    @Param('id') id: number,
+  ) {
+    await this.scheduleSlotsService.delete(id, currentUser);
   }
 }

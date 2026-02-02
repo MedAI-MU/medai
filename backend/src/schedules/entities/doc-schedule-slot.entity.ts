@@ -5,23 +5,19 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Doctor } from '../../doctors/entities/doctor.entity';
 import type { SlotStatus } from '../types/slot-status.types';
-import { User } from '../../users/entities/user.entity';
+import { DocSchedule } from './doc-schedule.entity';
 
 @Entity()
 export class DocScheduleSlot {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.scheduleSlots, {
-    onDelete: 'RESTRICT',
+  @ManyToOne(() => DocSchedule, (schedule) => schedule.slots, {
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'doctorId' })
-  doctor: Doctor;
-
-  @Column('date')
-  dayDate: string;
+  @JoinColumn({ name: 'docScheduleId' })
+  schedule: DocSchedule;
 
   @Column('time')
   startTime: string;
@@ -35,12 +31,6 @@ export class DocScheduleSlot {
     default: 'available',
   })
   status: SlotStatus;
-
-  @ManyToOne(() => User, (user) => user.doctor, {
-    onDelete: 'RESTRICT',
-  })
-  @JoinColumn({ name: 'createdByUserId' })
-  createdBy: User;
 
   constructor(partial: Partial<DocScheduleSlot>) {
     Object.assign(this, partial);

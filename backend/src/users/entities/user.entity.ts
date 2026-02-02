@@ -11,7 +11,7 @@ import { RefreshToken } from './refresh-token.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import type { UserRoles } from '../types/role.types';
 import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
-import { DocScheduleSlot } from '../../schedules/entities/doc-schedule-slot.entity';
+import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -47,8 +47,8 @@ export class User {
   @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];
 
-  @OneToMany(() => DocScheduleSlot, (slot) => slot.createdBy)
-  doctorScheduleSlots?: DocScheduleSlot[];
+  @OneToMany(() => DocSchedule, (schedule) => schedule.createdBy)
+  doctorSchedules?: DocSchedule[];
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

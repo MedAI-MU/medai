@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-template.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from '../doctors/entities/doctor.entity';
@@ -90,7 +94,7 @@ export class DocScheduleTemplatesService {
 
   async create(dto: CreateDocScheduleTemplateDto, user: TokenUser) {
     if (user.role == 'doctor' && dto.doctorId !== user.id)
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'Doctors can only create schedule templates for themselves',
       );
 
@@ -144,7 +148,7 @@ export class DocScheduleTemplatesService {
 
       // Authorization: Only doctor can update their own templates created by them or assigned to them, secretary can update everyone's
       if (user.role == 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
-        throw new BadRequestException(
+        throw new UnauthorizedException(
           'Doctors can only update their own schedule templates',
         );
       }
@@ -152,7 +156,7 @@ export class DocScheduleTemplatesService {
       if (dto.doctorId) {
         // Doctors cannot change the doctor ID of a template
         if (user.role === 'doctor') {
-          throw new BadRequestException(
+          throw new UnauthorizedException(
             'Doctors cannot change the doctor of a schedule template',
           );
         }
@@ -203,7 +207,7 @@ export class DocScheduleTemplatesService {
 
     // Authorization: Only doctor can delete their own templates, secretary can delete everyone's
     if (user.role === 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'Doctors can only delete their own schedule templates',
       );
     }

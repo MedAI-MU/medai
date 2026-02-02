@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
-import { DocScheduleSlot } from '../../schedules/entities/doc-schedule-slot.entity';
+import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 
 @Entity()
 export class Doctor {
@@ -25,8 +25,8 @@ export class Doctor {
   @OneToMany(() => DocScheduleTemplate, (template) => template.doctor)
   scheduleTemplates: DocScheduleTemplate[];
 
-  @OneToMany(() => DocScheduleSlot, (slot) => slot.doctor)
-  scheduleSlots: DocScheduleSlot[];
+  @OneToMany(() => DocSchedule, (schedule) => schedule.doctor)
+  schedules: DocSchedule[];
 
   constructor(partial: Partial<Doctor>) {
     Object.assign(this, partial);

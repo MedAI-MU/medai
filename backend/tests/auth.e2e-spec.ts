@@ -15,6 +15,7 @@ import { DataSource } from 'typeorm';
 import { DocScheduleTemplate } from '../src/schedules/entities/doc-schedule-template.entity';
 import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.entity';
 import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
+import { DocSchedule } from '../src/schedules/entities/doc-schedule.entity';
 import { Doctor } from '../src/doctors/entities/doctor.entity';
 
 describe('AuthController (e2e)', () => {
@@ -40,6 +41,7 @@ describe('AuthController (e2e)', () => {
             User,
             RefreshToken,
             Doctor,
+            DocSchedule,
             DocScheduleSlot,
             DocScheduleTemplate,
             DocScheduleTemplateSlot,
@@ -66,7 +68,10 @@ describe('AuthController (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await dataSource.synchronize(true);
+    // Only clear the data that changes between tests instead of full synchronize
+    await dataSource.getRepository(RefreshToken).clear();
+    await dataSource.getRepository(User).clear();
+    await dataSource.getRepository(Doctor).clear();
   });
 
   describe('/api/auth/login (POST)', () => {

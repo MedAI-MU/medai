@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SchedulesController } from './schedules.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocScheduleSlot } from './entities/doc-schedule-slot.entity';
+import { DocSchedule } from './entities/doc-schedule.entity';
 import { DocScheduleTemplate } from './entities/doc-schedule-template.entity';
 import { DocScheduleTemplateSlot } from './entities/doc-schedule-template-slot.entity';
 import { DocScheduleTemplatesService } from './doc-schedule-templates.service';
@@ -15,6 +16,7 @@ import { User } from '../users/entities/user.entity';
       DocScheduleTemplate,
       DocScheduleTemplateSlot,
       DocScheduleSlot,
+      DocSchedule,
       Doctor,
       User,
     ]),
