@@ -12,6 +12,7 @@ import { Patient } from './entities/patient.entity';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { PatientDto } from './dtos/patient.dto';
+import { UpdatePatientDto } from './dtos/update_patient.dto';
 
 @Controller('patients')
 export class PatientsController {
@@ -51,5 +52,19 @@ export class PatientsController {
     }
     throw new ForbiddenException();
   }
-  // TODO: add endpoints for allergies, chronic diseases, family histories, and surgeries.
+
+  @Patch(':id')
+  async update(
+    @CurrentUser() user: User,
+    @Body() data: UpdatePatientDto,
+    @Param('id') id: number,
+  ): Promise<Patient> {
+    if (
+      user.role === 'secretary' ||
+      (user.role === 'patient' && user.id === id)
+    ) {
+      return await this.patientsService.update(data, id);
+    }
+    throw new ForbiddenException();
+  }
 }
