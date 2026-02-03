@@ -12,6 +12,11 @@ import { ConfigModule } from '@nestjs/config';
 import jwtConfig from 'src/auth/jwt.config';
 import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
+import { DocScheduleTemplate } from '../src/schedules/entities/doc-schedule-template.entity';
+import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.entity';
+import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
+import { DocSchedule } from '../src/schedules/entities/doc-schedule.entity';
+import { Doctor } from '../src/doctors/entities/doctor.entity';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -32,7 +37,15 @@ describe('AuthController (e2e)', () => {
           location: ':memory:',
           synchronize: true,
           dropSchema: true,
-          entities: [User, RefreshToken],
+          entities: [
+            User,
+            RefreshToken,
+            Doctor,
+            DocSchedule,
+            DocScheduleSlot,
+            DocScheduleTemplate,
+            DocScheduleTemplateSlot,
+          ],
         }),
         ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
       ],
@@ -55,7 +68,10 @@ describe('AuthController (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await dataSource.synchronize(true);
+    // Only clear the data that changes between tests instead of full synchronize
+    await dataSource.getRepository(RefreshToken).clear();
+    await dataSource.getRepository(User).clear();
+    await dataSource.getRepository(Doctor).clear();
   });
 
   describe('/api/auth/login (POST)', () => {
