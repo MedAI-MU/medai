@@ -10,6 +10,8 @@ import { TimestampEntity } from '../../common/entities/timestamp.entity';
 import type { UserRoles } from '../types/role.types';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 
+import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
+import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 @Entity()
 export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()
@@ -35,6 +37,12 @@ export class User extends TimestampEntity {
 
   @Column({ type: 'varchar' })
   role: UserRoles;
+
+  @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
+  doctorScheduleTemplates?: DocScheduleTemplate[];
+
+  @OneToMany(() => DocSchedule, (schedule) => schedule.createdBy)
+  doctorSchedules?: DocSchedule[];
 
   constructor(partial: Partial<User>) {
     super();

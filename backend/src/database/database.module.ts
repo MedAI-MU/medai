@@ -16,6 +16,7 @@ import databaseConfig from './database.config';
         migrations: ['./src/database/migrations/**/*{.js,.ts}'],
         autoLoadEntities: true,
         synchronize: false,
+        logging: true,
       }),
       inject: [databaseConfig.KEY],
     }),
