@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './jwt.config';
 import * as argon2 from 'argon2';
 import { Request } from 'express';
+import { UserRoles } from 'src/users/types/role.types';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -278,7 +279,7 @@ describe('AuthService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@test.com',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       // Mock JWT generation

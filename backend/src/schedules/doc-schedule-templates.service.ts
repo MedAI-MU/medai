@@ -18,6 +18,7 @@ import { TokenUser } from '../auth/interfaces/token-user.interface';
 import { ApplyDocScheduleTemplateDto } from './dtos/apply-doc-schedule-template.dto';
 import { DocSchedule } from './entities/doc-schedule.entity';
 import { DocScheduleSlot } from './entities/doc-schedule-slot.entity';
+import { UserRoles } from '../users/types/role.types';
 
 @Injectable()
 export class DocScheduleTemplatesService {
@@ -35,7 +36,7 @@ export class DocScheduleTemplatesService {
     name?: string,
     doctorId?: number,
   ) {
-    if (user.role === 'doctor') {
+    if (user.role === UserRoles.DOCTOR) {
       doctorId = user.id;
     }
     const templateQuery =
@@ -101,13 +102,13 @@ export class DocScheduleTemplatesService {
     dto: CreateDocScheduleTemplateDto,
     user: TokenUser,
   ) {
-    if (user.role == 'doctor' && doctorId !== user.id)
+    if (user.role == UserRoles.DOCTOR && doctorId !== user.id)
       throw new UnauthorizedException(
         'Doctors can only create schedule templates for themselves',
       );
 
     let doctor: Doctor;
-    if (user.role !== 'doctor') {
+    if (user.role !== UserRoles.DOCTOR) {
       const doctorEntity = await this.doctorRepository.findOneBy({
         userId: doctorId,
       });
@@ -155,7 +156,10 @@ export class DocScheduleTemplatesService {
         throw new NotFoundException('Schedule template not found');
 
       // Authorization: Only doctor can update their own templates created by them or assigned to them, secretary can update everyone's
-      if (user.role == 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
+      if (
+        user.role == UserRoles.DOCTOR &&
+        scheduleTemplate.doctor.userId !== user.id
+      ) {
         throw new UnauthorizedException(
           'Doctors can only update their own schedule templates',
         );
@@ -197,7 +201,10 @@ export class DocScheduleTemplatesService {
       throw new NotFoundException('Schedule template not found');
 
     // Authorization: Only doctor can delete their own templates, secretary can delete everyone's
-    if (user.role === 'doctor' && scheduleTemplate.doctor.userId !== user.id) {
+    if (
+      user.role === UserRoles.DOCTOR &&
+      scheduleTemplate.doctor.userId !== user.id
+    ) {
       throw new UnauthorizedException(
         'Doctors can only delete their own schedule templates',
       );
@@ -220,7 +227,7 @@ export class DocScheduleTemplatesService {
   ) {
     return this.dataSource.transaction(async (manager) => {
       // Authorization: Secretary can apply for any doctor, Doctor can only apply for themselves
-      if (user.role === 'doctor' && user.id !== doctorId)
+      if (user.role === UserRoles.DOCTOR && user.id !== doctorId)
         throw new UnauthorizedException(
           'Doctors can only apply templates to their own schedules',
         );

@@ -9,6 +9,7 @@ import { Test } from '@nestjs/testing';
 import { RegisterDto } from './dtos/register.dto';
 import * as argon2 from 'argon2';
 import { ConflictException } from '@nestjs/common';
+import { UserRoles } from './types/role.types';
 
 describe('users.service', () => {
   let usersService: UsersService;
@@ -53,7 +54,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       const result = await usersService.registerUser(dto);
@@ -74,7 +75,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(
@@ -92,7 +93,7 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(

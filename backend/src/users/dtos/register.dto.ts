@@ -6,7 +6,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import type { UserRoles } from '../types/role.types';
+import { type UserRole, UserRoles } from '../types/role.types';
 
 export class RegisterDto {
   @Length(5, 100)
@@ -35,8 +35,8 @@ export class RegisterDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsIn(['doctor', 'patient'], {
+  @IsIn([UserRoles.DOCTOR, UserRoles.PATIENT], {
     message: 'role must be either doctor or patient',
   })
-  role: UserRoles;
+  role: UserRole;
 }

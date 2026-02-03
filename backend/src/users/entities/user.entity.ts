@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
-import type { UserRoles } from '../types/role.types';
+import type { UserRole } from '../types/role.types';
 import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
 import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 @Entity()
@@ -42,7 +42,7 @@ export class User {
   doctor?: Doctor;
 
   @Column({ type: 'varchar' })
-  role: UserRoles;
+  role: UserRole;
 
   @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];

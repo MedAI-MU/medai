@@ -17,6 +17,7 @@ import { UpdateDocScheduleTemplateDto } from './dtos/update-doc-schedule-templat
 import { ApplyDocScheduleTemplateDto } from './dtos/apply-doc-schedule-template.dto';
 import { DataSource, EntityManager } from 'typeorm';
 import { TokenUser } from '../auth/interfaces/token-user.interface';
+import { UserRoles } from '../users/types/role.types';
 
 describe('DocScheduleTemplatesService', () => {
   let service: DocScheduleTemplatesService;
@@ -90,7 +91,7 @@ describe('DocScheduleTemplatesService', () => {
     const secretaryUser: TokenUser = {
       id: 1,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
 
     const mockTemplates = [
@@ -200,13 +201,13 @@ describe('DocScheduleTemplatesService', () => {
     const secretaryUser: TokenUser = {
       id: secretaryId,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     const createDto: CreateDocScheduleTemplateDto = {
@@ -260,7 +261,7 @@ describe('DocScheduleTemplatesService', () => {
       const otherDoctorUser: TokenUser = {
         id: 99,
         email: 'other@test.com',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       await expect(
@@ -312,19 +313,19 @@ describe('DocScheduleTemplatesService', () => {
     const secretaryUser: TokenUser = {
       id: secretaryId,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     const otherDoctorUser: TokenUser = {
       id: 99,
       email: 'other@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     const existingTemplate: DocScheduleTemplate = {
@@ -606,19 +607,19 @@ describe('DocScheduleTemplatesService', () => {
     const secretaryUser: TokenUser = {
       id: secretaryId,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     const otherDoctorUser: TokenUser = {
       id: 99,
       email: 'other@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     const existingTemplate: DocScheduleTemplate = {
@@ -708,12 +709,12 @@ describe('DocScheduleTemplatesService', () => {
     const secretaryUser: TokenUser = {
       id: 1,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     interface MockTemplateRepo {

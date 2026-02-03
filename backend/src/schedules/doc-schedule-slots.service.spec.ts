@@ -13,6 +13,7 @@ import { CreateDocScheduleDto } from './dtos/create-doc-schedule.dto';
 import { UpdateDocScheduleSlotDto } from './dtos/update-doc-schedule-slot.dto';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 import { DocSchedule } from './entities/doc-schedule.entity';
+import { UserRoles } from '../users/types/role.types';
 
 describe('DocScheduleSlotsService', () => {
   let service: DocScheduleSlotsService;
@@ -73,17 +74,17 @@ describe('DocScheduleSlotsService', () => {
     const secretaryUser: TokenUser = {
       id: 1,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const doctorId = 10;
     const doctorEntity: Doctor = {
@@ -295,17 +296,17 @@ describe('DocScheduleSlotsService', () => {
     const secretaryUser: TokenUser = {
       id: 1,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const doctorEntity: Doctor = {
       userId: 10,
@@ -658,17 +659,17 @@ describe('DocScheduleSlotsService', () => {
     const secretaryUser: TokenUser = {
       id: 1,
       email: 'secretary@test.com',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const _anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
     const _doctorEntity: Doctor = {
       userId: 10,

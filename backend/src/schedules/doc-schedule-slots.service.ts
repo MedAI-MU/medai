@@ -23,6 +23,8 @@ import { DocSchedule } from './entities/doc-schedule.entity';
 import { DocScheduleDto, DocScheduleDayDto } from './dtos/doc-schedule.dto';
 import { PagedListDto } from '../shared/dtos/paged-list.dto';
 import { DocScheduleSlotDto } from './dtos/doc-schedule-slot.dot';
+import { SlotStatus } from './types/slot-status.types';
+import { UserRoles } from '../users/types/role.types';
 
 @Injectable()
 export class DocScheduleSlotsService {
@@ -100,13 +102,13 @@ export class DocScheduleSlotsService {
 
   async create(doctorId: number, dto: CreateDocScheduleDto, user: TokenUser) {
     // Authorization: Secretary can create for any doctor, Doctor can only create for themselves
-    if (user.role === 'doctor' && user.id !== doctorId)
+    if (user.role === UserRoles.DOCTOR && user.id !== doctorId)
       throw new UnauthorizedException(
         'Doctors can only create schedules for themselves',
       );
 
     let doctor: Doctor;
-    if (user.role !== 'doctor') {
+    if (user.role !== UserRoles.DOCTOR) {
       const doctorEntity = await this.doctorsRepository.findOneBy({
         userId: doctorId,
       });
@@ -193,7 +195,7 @@ export class DocScheduleSlotsService {
     if (!slot) throw new NotFoundException('Schedule slot not found');
 
     // Authorization: Secretary can update any slot, Doctor can only update their own slots
-    if (user.role === 'doctor' && doctorId !== user.id) {
+    if (user.role === UserRoles.DOCTOR && doctorId !== user.id) {
       throw new UnauthorizedException(
         'Doctors can only update their own schedule slots',
       );
@@ -255,7 +257,7 @@ export class DocScheduleSlotsService {
       .from(DocScheduleSlot)
       .where('id = :slotId', { slotId })
       .andWhere('status = :status', {
-        status: 'available',
+        status: SlotStatus.AVAILABLE,
       })
       .andWhere(
         `
@@ -268,7 +270,7 @@ export class DocScheduleSlotsService {
       )
       .setParameter('doctorId', doctorId);
 
-    if (user.role === 'doctor' && user.id !== doctorId) {
+    if (user.role === UserRoles.DOCTOR && user.id !== doctorId) {
       throw new UnauthorizedException(
         'Doctors can only delete their own schedule slots',
       );

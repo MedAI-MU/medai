@@ -27,6 +27,7 @@ import {
   DocScheduleDayDto,
 } from '../src/schedules/dtos/doc-schedule.dto';
 import * as argon2 from 'argon2';
+import { UserRoles } from '../src/users/types/role.types';
 
 describe('SchedulesController (e2e)', () => {
   let app: INestApplication;
@@ -106,7 +107,7 @@ describe('SchedulesController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test Secretary',
       phone: '01123456789',
-      role: 'secretary',
+      role: UserRoles.SECRETARY,
     };
 
     const secretary = new User({
@@ -142,7 +143,7 @@ describe('SchedulesController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test Doctor',
       phone: '01198765432',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     await request(app.getHttpServer() as App)
@@ -193,7 +194,7 @@ describe('SchedulesController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test Doctor 2',
       phone: '01187654321',
-      role: 'doctor',
+      role: UserRoles.DOCTOR,
     };
 
     await request(app.getHttpServer() as App)

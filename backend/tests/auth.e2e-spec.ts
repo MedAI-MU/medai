@@ -17,6 +17,7 @@ import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.ent
 import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
 import { DocSchedule } from '../src/schedules/entities/doc-schedule.entity';
 import { Doctor } from '../src/doctors/entities/doctor.entity';
+import { UserRoles } from '../src/users/types/role.types';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -109,7 +110,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       // first register the user
       await request(app.getHttpServer() as App)
@@ -149,7 +150,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       // first register the user
@@ -233,7 +234,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
 
       // first register the user

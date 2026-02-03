@@ -13,6 +13,7 @@ import { DocScheduleTemplate } from '../src/schedules/entities/doc-schedule-temp
 import { DocScheduleSlot } from '../src/schedules/entities/doc-schedule-slot.entity';
 import { DocScheduleTemplateSlot } from '../src/schedules/entities/doc-schedule-template-slot.entity';
 import { DocSchedule } from '../src/schedules/entities/doc-schedule.entity';
+import { UserRoles } from '../src/users/types/role.types';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -135,7 +136,7 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
@@ -149,14 +150,14 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       const duplicateEmailDto: RegisterDto = {
         name: 'Another Name',
         email: 'test@test.com',
         password: '654321',
         phone: '01087654321',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
@@ -174,14 +175,14 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       const duplicatePhoneDto: RegisterDto = {
         name: 'Another Name',
         email: 'nottest@test.com',
         password: '654321',
         phone: '01012345678',
-        role: 'doctor',
+        role: UserRoles.DOCTOR,
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
