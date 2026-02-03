@@ -1,5 +1,6 @@
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
-import { BloodType, MaritalStatus } from '../enums/patients.enum';
+import { IsIn, IsNumber, IsOptional } from 'class-validator';
+import { BloodTypeEnum, MaritalStatusEnum } from '../enums/patients.enum';
+import type { BloodType, MaritalStatus } from '../types/patient.types';
 
 export class UpdatePatientDto {
   @IsOptional()
@@ -11,10 +12,10 @@ export class UpdatePatientDto {
   weight: number;
 
   @IsOptional()
-  @IsEnum(BloodType)
+  @IsIn(BloodTypeEnum)
   bloodType: BloodType;
 
   @IsOptional()
-  @IsEnum(MaritalStatus)
+  @IsIn(MaritalStatusEnum)
   maritalStatus: MaritalStatus;
 }

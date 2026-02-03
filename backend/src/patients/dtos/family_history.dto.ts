@@ -1,8 +1,9 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { FamilyRelation } from '../enums/patients.enum';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { FamilyRelationEnum } from '../enums/patients.enum';
+import type { FamilyRelation } from '../types/patient.types';
 
 export class FamilyHistoryDto {
-  @IsEnum(FamilyRelation)
+  @IsIn(FamilyRelationEnum)
   relation: FamilyRelation;
 
   @IsString()

@@ -1,6 +1,11 @@
-import { BloodType, Gender, MaritalStatus } from '../enums/patients.enum';
-import { IsNumber, IsEnum, IsOptional, IsDate } from 'class-validator';
+import { IsNumber, IsOptional, IsDate, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  BloodTypeEnum,
+  GenderEnum,
+  MaritalStatusEnum,
+} from '../enums/patients.enum';
+import type { BloodType, Gender, MaritalStatus } from '../types/patient.types';
 export class PatientDto {
   @IsDate()
   @Type(() => Date)
@@ -12,14 +17,14 @@ export class PatientDto {
   @IsNumber()
   weight: number;
 
-  @IsEnum(Gender)
+  @IsIn(GenderEnum)
   gender: Gender;
 
   @IsOptional()
-  @IsEnum(BloodType)
+  @IsIn(BloodTypeEnum)
   bloodType?: BloodType;
 
   @IsOptional()
-  @IsEnum(MaritalStatus)
+  @IsIn(MaritalStatusEnum)
   maritalStatus?: MaritalStatus;
 }

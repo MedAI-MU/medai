@@ -12,8 +12,13 @@ import { ChronicDisease } from './chronic_disease.entity';
 import { Surgery } from './surgery.entity';
 import { FamilyHistory } from './family_history.entity';
 import { EmergencyContact } from './emergency_contact.entity';
-import { Gender, MaritalStatus, BloodType } from '../enums/patients.enum';
+import {
+  GenderEnum,
+  MaritalStatusEnum,
+  BloodTypeEnum,
+} from '../enums/patients.enum';
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import type { BloodType, Gender, MaritalStatus } from '../types/patient.types';
 
 // TODO: Add surgery, family history, emergency contact, medications
 
@@ -35,13 +40,13 @@ export class Patient extends TimestampEntity {
   @Column({ type: 'float', nullable: true })
   weight: number;
 
-  @Column({ type: 'enum', enum: Gender })
+  @Column({ type: 'enum', enum: GenderEnum })
   gender: Gender;
 
-  @Column({ type: 'enum', enum: BloodType, nullable: true })
+  @Column({ type: 'enum', enum: BloodTypeEnum, nullable: true })
   bloodType: BloodType;
 
-  @Column({ type: 'enum', enum: MaritalStatus, nullable: true })
+  @Column({ type: 'enum', enum: MaritalStatusEnum, nullable: true })
   maritalStatus: MaritalStatus;
 
   @OneToMany(() => Allergy, (allergy) => allergy.patient, {

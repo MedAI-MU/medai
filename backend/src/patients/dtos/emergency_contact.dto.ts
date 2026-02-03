@@ -1,17 +1,12 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  Matches,
-} from 'class-validator';
-import { FamilyRelation } from '../enums/patients.enum';
+import { IsEmail, IsIn, IsOptional, IsString, Matches } from 'class-validator';
+import { FamilyRelationEnum } from '../enums/patients.enum';
+import type { FamilyRelation } from '../types/patient.types';
 
 export class EmergencyContactDto {
   @IsString()
   name: string;
 
-  @IsEnum(FamilyRelation)
+  @IsIn(FamilyRelationEnum)
   relation: FamilyRelation;
 
   @IsString()

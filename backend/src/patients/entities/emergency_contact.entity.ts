@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Patient } from './patient.entity';
-import { FamilyRelation } from '../enums/patients.enum';
+import { FamilyRelationEnum } from '../enums/patients.enum';
 import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import type { FamilyRelation } from '../types/patient.types';
 
 @Entity()
 export class EmergencyContact extends TimestampEntity {
@@ -16,7 +17,7 @@ export class EmergencyContact extends TimestampEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ type: 'enum', enum: FamilyRelation })
+  @Column({ type: 'enum', enum: FamilyRelationEnum })
   relation: FamilyRelation;
 
   @Column({ length: 15 })
