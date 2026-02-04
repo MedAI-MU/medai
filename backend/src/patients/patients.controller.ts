@@ -28,6 +28,14 @@ import { SurgeryDto } from './dtos/surgery.dto';
 import { Surgery } from './entities/surgery.entity';
 import { EmergencyContactDto } from './dtos/emergency_contact.dto';
 import { EmergencyContact } from './entities/emergency_contact.entity';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller('patients')
 export class PatientsController {
@@ -36,12 +44,19 @@ export class PatientsController {
   @Get()
   @Roles('secretary')
   @UseGuards(RolesGuard)
+  @ApiOkResponse({ description: 'Returns an array of patients' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getPatients(): Promise<Patient[]> {
     return this.patientsService.findAll();
   }
+
   @Get(':id')
   @Roles('secretary')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Returns a patient' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getPatient(@Param('id') id: number): Promise<Patient | null> {
     return await this.patientsService.findOne(id);
   }
@@ -49,6 +64,11 @@ export class PatientsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('patient', 'secretary')
+  @ApiCreatedResponse({ description: 'Patient created' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: PatientDto })
   async create(
     @CurrentUser() user: User,
     @Body() patient: PatientDto,
@@ -61,6 +81,11 @@ export class PatientsController {
 
   @Patch(':id')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: UpdatePatientDto })
   async update(
     @Body() data: UpdatePatientDto,
     @Param('id') id: number,
@@ -70,6 +95,11 @@ export class PatientsController {
 
   @Put(':id/allergies')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: [AllergyDto] })
   async updateAllergies(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: AllergyDto })) data: AllergyDto[],
@@ -81,6 +111,11 @@ export class PatientsController {
 
   @Put(':id/chronic-diseases')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: [ChronicDiseaseDto] })
   async updateChronicDiseases(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: ChronicDiseaseDto }))
@@ -93,6 +128,11 @@ export class PatientsController {
 
   @Put(':id/family-histories')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: [FamilyHistoryDto] })
   async updateFamilyHistories(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: FamilyHistoryDto }))
@@ -105,6 +145,11 @@ export class PatientsController {
 
   @Put(':id/surgeries')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: [SurgeryDto] })
   async updateSurgeries(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: SurgeryDto })) data: SurgeryDto[],
@@ -116,6 +161,11 @@ export class PatientsController {
 
   @Put(':id/emergency-contacts')
   @UseGuards(PatientGuard)
+  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBody({ type: [EmergencyContactDto] })
   async updateEmergencyContacts(
     @Param('id') id: number,
     @Body(new ParseArrayPipe({ items: EmergencyContactDto }))
