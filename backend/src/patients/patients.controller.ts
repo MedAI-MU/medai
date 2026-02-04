@@ -34,6 +34,7 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiOkResponse,
+  ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -54,6 +55,7 @@ export class PatientsController {
   @Get(':id')
   @Roles('secretary')
   @UseGuards(PatientGuard)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiOkResponse({ description: 'Returns a patient' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -81,6 +83,7 @@ export class PatientsController {
 
   @Patch(':id')
   @UseGuards(PatientGuard)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiOkResponse({ description: 'Patient updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -95,7 +98,8 @@ export class PatientsController {
 
   @Put(':id/allergies')
   @UseGuards(PatientGuard)
-  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: 'Patient allergies updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -111,7 +115,8 @@ export class PatientsController {
 
   @Put(':id/chronic-diseases')
   @UseGuards(PatientGuard)
-  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: 'Patient chronic diseases updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -128,7 +133,8 @@ export class PatientsController {
 
   @Put(':id/family-histories')
   @UseGuards(PatientGuard)
-  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: 'Patient family histories updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -145,7 +151,8 @@ export class PatientsController {
 
   @Put(':id/surgeries')
   @UseGuards(PatientGuard)
-  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: 'Patient surgeries updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -161,7 +168,8 @@ export class PatientsController {
 
   @Put(':id/emergency-contacts')
   @UseGuards(PatientGuard)
-  @ApiOkResponse({ description: 'Patient updated' })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: 'Patient emergency contacts updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
