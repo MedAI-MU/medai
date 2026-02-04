@@ -1,4 +1,4 @@
-export const GenderEnum = ['MALE', 'FEMALE'] as const;
+export const GenderEnum = ['male', 'female'] as const;
 export const BloodTypeEnum = [
   'A+',
   'A-',
@@ -10,16 +10,16 @@ export const BloodTypeEnum = [
   'O-',
 ] as const;
 export const MaritalStatusEnum = [
-  'SINGLE',
-  'MARRIED',
-  'DIVORCED',
-  'WIDOWED',
+  'single',
+  'married',
+  'divorced',
+  'widowed',
 ] as const;
 export const FamilyRelationEnum = [
-  'FATHER',
-  'MOTHER',
-  'SIBLING',
-  'CHILD',
-  'SPOUSE',
-  'OTHER',
+  'father',
+  'mother',
+  'sibling',
+  'child',
+  'spouse',
+  'other',
 ] as const;

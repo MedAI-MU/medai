@@ -15,7 +15,7 @@ export class EmergencyContactDto {
       'Phone must start with 010, 011, 012 or 015 and be followed by 8 digits',
     each: true,
   })
-  phoneNumber: string[];
+  phoneNumber: string;
 
   @IsEmail()
   email: string;

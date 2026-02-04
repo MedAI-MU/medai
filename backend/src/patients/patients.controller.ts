@@ -7,6 +7,7 @@ import {
   Patch,
   Put,
   UseGuards,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { Patient } from './entities/patient.entity';
@@ -70,9 +71,8 @@ export class PatientsController {
   @Put(':id/allergies')
   @UseGuards(PatientGuard)
   async updateAllergies(
-    @CurrentUser() user: User,
     @Param('id') id: number,
-    @Body() data: AllergyDto[],
+    @Body(new ParseArrayPipe({ items: AllergyDto })) data: AllergyDto[],
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     patient.allergies = data as Allergy[];
@@ -82,9 +82,9 @@ export class PatientsController {
   @Put(':id/chronic-diseases')
   @UseGuards(PatientGuard)
   async updateChronicDiseases(
-    @CurrentUser() user: User,
     @Param('id') id: number,
-    @Body() data: ChronicDiseaseDto[],
+    @Body(new ParseArrayPipe({ items: ChronicDiseaseDto }))
+    data: ChronicDiseaseDto[],
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     patient.chronicDiseases = data as ChronicDisease[];
@@ -94,9 +94,9 @@ export class PatientsController {
   @Put(':id/family-histories')
   @UseGuards(PatientGuard)
   async updateFamilyHistories(
-    @CurrentUser() user: User,
     @Param('id') id: number,
-    @Body() data: FamilyHistoryDto[],
+    @Body(new ParseArrayPipe({ items: FamilyHistoryDto }))
+    data: FamilyHistoryDto[],
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     patient.familyHistories = data as FamilyHistory[];
@@ -106,24 +106,23 @@ export class PatientsController {
   @Put(':id/surgeries')
   @UseGuards(PatientGuard)
   async updateSurgeries(
-    @CurrentUser() user: User,
     @Param('id') id: number,
-    @Body() data: SurgeryDto[],
+    @Body(new ParseArrayPipe({ items: SurgeryDto })) data: SurgeryDto[],
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     patient.surgeries = data as Surgery[];
     return patient.save();
   }
 
-  // @Put(':id/emergency-contacts')
-  // @UseGuards(PatientGuard)
-  // async updateEmergencyContacts(
-  //   @CurrentUser() user: User,
-  //   @Param('id') id: number,
-  //   @Body() data: EmergencyContactDto[],
-  // ): Promise<Patient> {
-  //   const patient = (await this.patientsService.findOne(id)) as Patient;
-  //   patient.emergencyContacts = data as EmergencyContact[];
-  //   return patient.save();
-  // }
+  @Put(':id/emergency-contacts')
+  @UseGuards(PatientGuard)
+  async updateEmergencyContacts(
+    @Param('id') id: number,
+    @Body(new ParseArrayPipe({ items: EmergencyContactDto }))
+    data: EmergencyContactDto[],
+  ): Promise<Patient> {
+    const patient = (await this.patientsService.findOne(id)) as Patient;
+    patient.emergencyContacts = data as EmergencyContact[];
+    return patient.save();
+  }
 }
