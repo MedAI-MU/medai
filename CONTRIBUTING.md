@@ -69,3 +69,8 @@ Use **feature branches + pull requests** instead.
   * Because it might **break other features** in your app
 
 > 🚨 “App” here refers to **your track’s codebase**, not the entire project.
+
+## Backend Instructions for Mobile and Frontend
+
+* Run `make run` to start the backend server.
+* Visit `http://localhost:8000/api/docs` to access the API documentation.
