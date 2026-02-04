@@ -15,6 +15,8 @@ import { AllowAnon } from './decorators/allow-anon.decorator';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
+import { ApiBody, ApiOkResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -50,6 +52,12 @@ export class AuthController {
   @AllowAnon()
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
+  @ApiOkResponse({
+    description:
+      'Tokens issued and cookies set (No tokens returned in response)',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid Email or Password' })
   async login(
     @CurrentUser() currentUser: Partial<User>,
     @Res({ passthrough: true }) res: Response,
@@ -64,6 +72,12 @@ export class AuthController {
   @AllowAnon()
   @UseGuards(RefreshJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
+  @ApiOkResponse({
+    description:
+      'Tokens refreshed and cookies updated (No tokens returned in response)',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid refresh token' })
   async refreshToken(
     @CurrentUser() currentUser: Partial<User>,
     @Req() req: Request,

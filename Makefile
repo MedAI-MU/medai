@@ -1,4 +1,8 @@
 run:
+	@echo "Cleaning up node modules volume..."
+	@docker container rm medai-backend -f || true
+	@docker volume rm medai-local_backend-node_modules || true
+	@echo "Starting MedAI local development environment..."
 	@COMPOSE_BAKE=true DOCKER_BUILDKIT=1 \
 	docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env up --build --remove-orphans -d
 	@$(MAKE) migrate

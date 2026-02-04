@@ -1,6 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsDateString } from 'class-validator';
 
 export class ApplyDocScheduleTemplateDto {
+  @ApiProperty({
+    description: 'The start date of the schedule template',
+    example: '2023-01-01',
+  })
   @IsNotEmpty()
   @IsDateString(
     {},
@@ -8,6 +13,10 @@ export class ApplyDocScheduleTemplateDto {
   )
   startDate: string;
 
+  @ApiProperty({
+    description: 'The end date of the schedule template',
+    example: '2023-01-31',
+  })
   @IsNotEmpty()
   @IsDateString(
     {},
