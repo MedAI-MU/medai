@@ -3,6 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,20 +13,35 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (errors) => {
-        const messages = errors.map((err) => ({
-          field: err.property,
-          errors: Object.values(err.constraints!),
-        }));
+      exceptionFactory: (errors: ValidationError[]) => {
+        const flattenErrors = (
+          errs: ValidationError[],
+          parent = '',
+        ): { field: string; error: string }[] =>
+          errs.flatMap((err) => [
+            ...(err.constraints
+              ? Object.values(err.constraints).map((msg) => ({
+                  field: parent ? `${parent}.${err.property}` : err.property,
+                  error: msg,
+                }))
+              : []),
+            ...(err.children?.length
+              ? flattenErrors(
+                  err.children,
+                  parent ? `${parent}.${err.property}` : err.property,
+                )
+              : []),
+          ]);
 
         return new BadRequestException({
           success: false,
           message: 'Validation failed',
-          validationErrors: messages,
+          validationErrors: flattenErrors(errors),
         });
       },
     }),
   );
+
   app.use(cookieParser());
 
   const config = new DocumentBuilder()

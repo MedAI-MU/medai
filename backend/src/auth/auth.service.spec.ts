@@ -278,6 +278,7 @@ describe('AuthService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@test.com',
+        role: 'doctor',
       };
 
       // Mock JWT generation
@@ -304,14 +305,14 @@ describe('AuthService', () => {
       // 1. JWTs are issued
       expect(jwtServiceMock.signAsync).toHaveBeenCalledTimes(2);
       expect(jwtServiceMock.signAsync).toHaveBeenCalledWith(
-        { sub: fakeUser.id, email: fakeUser.email },
+        { sub: fakeUser.id, email: fakeUser.email, role: fakeUser.role },
         {
           secret: jwtOptionsMock.tokenSecret,
           expiresIn: `${jwtOptionsMock.tokenExpiresInMs}ms`,
         },
       );
       expect(jwtServiceMock.signAsync).toHaveBeenCalledWith(
-        { sub: fakeUser.id, email: fakeUser.email },
+        { sub: fakeUser.id, email: fakeUser.email, role: fakeUser.role },
         {
           secret: jwtOptionsMock.refreshTokenSecret,
           expiresIn: `${jwtOptionsMock.refreshTokenExpiresInMs}ms`,
