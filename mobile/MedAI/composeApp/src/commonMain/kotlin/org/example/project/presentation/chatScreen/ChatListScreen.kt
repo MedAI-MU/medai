@@ -47,18 +47,49 @@ class ChatListScreen : Screen {
             }
         }
 
-        MedAIScaffold(title = "Messages", snackbarHost = { SnackbarHost(snackbarHostState) }, containerColor = MedAITheme.colors.primary) {
+        MedAIScaffold(
+            title = "Messages",
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = MedAITheme.colors.primary,
+            contentWindowInsets = WindowInsets.statusBars
+        ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Box(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)).background(MedAITheme.colors.background).padding(top = 16.dp)) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .background(MedAITheme.colors.background)
+                        .padding(top = 16.dp)
+                ) {
                     if (state.isLoading) {
-                        CircularProgressIndicator(color = MedAITheme.colors.primary, modifier = Modifier.align(Alignment.Center))
+                        CircularProgressIndicator(
+                            color = MedAITheme.colors.primary,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     } else if (state.conversations.isEmpty()) {
-                        MedAIText(text = "No messages yet", style = MedAITheme.textStyle.body.large, color = MedAITheme.colors.text.tertiary, modifier = Modifier.align(Alignment.Center))
+                        MedAIText(
+                            text = "No messages yet",
+                            style = MedAITheme.textStyle.body.large,
+                            color = MedAITheme.colors.text.tertiary,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
+                        ) {
                             items(state.conversations) { conversation ->
-                                ChatListItem(conversation = conversation, onClick = { viewModel.onEvent(ChatListEvent.ConversationClicked(conversation.doctorId, conversation.doctorName)) })
+                                ChatListItem(
+                                    conversation = conversation,
+                                    onClick = {
+                                        viewModel.onEvent(
+                                            ChatListEvent.ConversationClicked(
+                                                conversation.doctorId,
+                                                conversation.doctorName
+                                            )
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
