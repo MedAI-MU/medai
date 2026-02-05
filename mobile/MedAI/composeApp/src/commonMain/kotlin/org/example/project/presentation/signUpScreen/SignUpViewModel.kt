@@ -23,6 +23,7 @@ class SignUpViewModel(
             is SignUpEvent.PasswordChanged -> _state.update { it.copy(password = event.value) }
             is SignUpEvent.MobileChanged -> _state.update { it.copy(mobile = event.value) }
             is SignUpEvent.DateOfBirthChanged -> _state.update { it.copy(dob = event.value) }
+            is SignUpEvent.RoleChanged -> _state.update { it.copy(selectedRole = event.role) }
             is SignUpEvent.ErrorShown -> _state.update { it.copy(error = null) }
             is SignUpEvent.SignUpClicked -> performSignUp()
             is SignUpEvent.ToggleDatePicker -> {
@@ -44,7 +45,8 @@ class SignUpViewModel(
                 email = s.email,
                 pass = s.password,
                 mobile = s.mobile,
-                dob = s.dob
+                dob = s.dob,
+                role = s.selectedRole
             )
 
             result.fold(

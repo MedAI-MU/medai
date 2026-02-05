@@ -37,6 +37,12 @@ import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.onboardingScreen.OnboardingScreen
 import org.example.project.presentation.welcomeScreen.WelcomeScreen
+import org.koin.compose.koinInject
+import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.model.UserRole
+import kotlinx.coroutines.flow.first
+import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
+import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 
 
 class SplashScreen : Screen {
@@ -48,6 +54,8 @@ class SplashScreen : Screen {
         val scale = remember { Animatable(0.8f) }
         val alpha = remember { Animatable(0f) }
         val logoOffset = remember { Animatable(50f) }
+
+        val userSessionManager = koinInject<UserSessionManager>()
 
         LaunchedEffect(Unit) {
             launch {
@@ -62,10 +70,19 @@ class SplashScreen : Screen {
 
             delay(2000)
 
-            if (storage.isOnboardingCompleted()) {
-                navigator.replace(WelcomeScreen())
+            if (userSessionManager.isUserLoggedIn.first()) {
+                val role = userSessionManager.getUserRole()
+                when (role) {
+                    UserRole.DOCTOR -> navigator.replace(DoctorDashboardScreen())
+                    UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
+                    else -> navigator.replace(WelcomeScreen()) // Default to patient flow (Welcome -> Home)
+                }
             } else {
-                navigator.replace(OnboardingScreen())
+                if (storage.isOnboardingCompleted()) {
+                    navigator.replace(WelcomeScreen())
+                } else {
+                    navigator.replace(OnboardingScreen())
+                }
             }
         }
 

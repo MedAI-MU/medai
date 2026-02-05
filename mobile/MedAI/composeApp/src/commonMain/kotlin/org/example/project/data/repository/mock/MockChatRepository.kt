@@ -32,11 +32,22 @@ class MockChatRepository : ChatRepository {
         )
     }
 
-    override fun getMessages(doctorId: String): Flow<List<Message>> {
+    override suspend fun getPatientConversations(): Result<List<ChatConversation>> {
+        delay(500)
+        return Result.success(
+            listOf(
+                ChatConversation("p1", "John Doe", null, "I'm feeling much better.", "10:30 AM", 1, true),
+                ChatConversation("p2", "Jane Smith", null, "When is my next checkup?", "Yesterday", 0, false),
+                ChatConversation("p3", "Michael Brown", null, "New X-Rays uploaded.", "Oct 24", 0, false)
+            )
+        )
+    }
+
+    override fun getMessages(recipientId: String): Flow<List<Message>> {
         return _messages.map { list -> list.sortedByDescending { it.timestamp } }
     }
 
-    override suspend fun sendMessage(doctorId: String, text: String): Result<Message> {
+    override suspend fun sendMessage(recipientId: String, text: String): Result<Message> {
         val newMessage = Message(
             id = Clock.System.now().toEpochMilliseconds().toString(),
             text = text,
@@ -51,8 +62,8 @@ class MockChatRepository : ChatRepository {
         delay(1000) // Simulate Auto-Reply
         val reply = Message(
             id = Clock.System.now().toEpochMilliseconds().toString(),
-            text = "I received your message: \"$text\"",
-            senderId = doctorId,
+            text = "Reply from $recipientId: \"$text\"",
+            senderId = recipientId,
             status = MessageStatus.READ,
             isFromUser = false
         )
@@ -61,7 +72,7 @@ class MockChatRepository : ChatRepository {
         return Result.success(newMessage)
     }
 
-    override fun observeDoctorTyping(doctorId: String): Flow<Boolean> = flow {
+    override fun observeDoctorTyping(recipientId: String): Flow<Boolean> = flow {
         while(true) {
             emit(false)
             delay(5000)

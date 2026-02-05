@@ -47,6 +47,7 @@ import org.example.project.data.remote.dto.MessageDto
 import org.example.project.domain.model.ChatConversation
 import org.example.project.domain.model.Message
 import org.example.project.domain.model.MessageStatus
+import org.example.project.domain.model.UserRole
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -115,7 +116,13 @@ fun UserDto.toDomain(): User {
         id = this.id,
         name = this.name,
         email = this.email,
-        role = this.role ?: "patient",
+        role = this.role?.let {
+            try {
+                UserRole.valueOf(it.uppercase())
+            } catch (e: Exception) {
+                UserRole.PATIENT
+            }
+        } ?: UserRole.PATIENT,
     )
 }
 

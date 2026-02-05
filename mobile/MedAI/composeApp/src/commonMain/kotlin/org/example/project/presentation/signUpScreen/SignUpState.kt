@@ -6,6 +6,7 @@ data class SignUpState(
     val password: String = "",
     val mobile: String = "",
     val dob: String = "",
+    val selectedRole: org.example.project.domain.model.UserRole = org.example.project.domain.model.UserRole.PATIENT,
     val showDatePicker: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,

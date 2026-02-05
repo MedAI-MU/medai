@@ -2,6 +2,7 @@ package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
 import org.example.project.data.remote.dto.AuthResult
+import org.example.project.domain.model.UserRole
 import org.example.project.domain.repository.LoginRepository
 
 class MockLoginRepository : LoginRepository {
@@ -18,7 +19,8 @@ class MockLoginRepository : LoginRepository {
                 AuthResult(
                     userId = "patient_123_jane",
                     token = "mock_token_xyz",
-                    userName = "Jane Doe"
+                    userName = "Jane Doe",
+                    role = "PATIENT",
                 )
             )
         }

@@ -3,6 +3,7 @@ package org.example.project.domain.usecase
 import org.example.project.data.remote.dto.SignUpRequest
 import org.example.project.data.remote.dto.SignUpResponse
 import org.example.project.domain.repository.SignUpRepository
+import org.example.project.domain.model.UserRole
 
 class SignUpUseCase(
     private val repository: SignUpRepository
@@ -12,7 +13,8 @@ class SignUpUseCase(
         email: String,
         pass: String,
         mobile: String,
-        dob: String
+        dob: String,
+        role: UserRole
     ): Result<SignUpResponse> {
         // 1. Business Logic Validation
         if (fullName.isBlank()) return Result.failure(Exception("Name is required"))
@@ -25,7 +27,8 @@ class SignUpUseCase(
             email = email,
             password = pass,
             mobile = mobile,
-            dob = dob
+            dob = dob,
+            role = role.name // Convert Enum to String
         )
 
         // 3. Call Repository

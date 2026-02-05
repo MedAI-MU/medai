@@ -22,7 +22,7 @@ class NetworkLoginRepository(
             // TODO: Save token securely (e.g., to KeyStore/Keychain via Multiplatform Settings)
             // SecureStorage.saveToken(response.token)
 
-            Result.success(AuthResult(response.userId, response.token, response.name))
+            Result.success(AuthResult(response.userId, response.token, response.name, response.role ?: "patient"))
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)
