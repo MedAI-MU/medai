@@ -1,18 +1,19 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   OneToOne,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
-import { Doctor } from '../../doctors/entities/doctor.entity';
+import { TimestampEntity } from '../../common/entities/timestamp.entity';
 import type { UserRoles } from '../types/role.types';
+import { Doctor } from '../../doctors/entities/doctor.entity';
 
+import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
+import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 @Entity()
-export class User {
+export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,12 +29,6 @@ export class User {
   @Column({ unique: true, length: 20 })
   phone: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken[];
 
@@ -43,7 +38,14 @@ export class User {
   @Column({ type: 'varchar' })
   role: UserRoles;
 
+  @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
+  doctorScheduleTemplates?: DocScheduleTemplate[];
+
+  @OneToMany(() => DocSchedule, (schedule) => schedule.createdBy)
+  doctorSchedules?: DocSchedule[];
+
   constructor(partial: Partial<User>) {
+    super();
     Object.assign(this, partial);
   }
 }
