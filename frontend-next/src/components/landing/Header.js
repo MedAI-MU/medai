@@ -9,7 +9,7 @@ import MobileMenu from "./MobileMenu";
 import Container from "../ui/Container";
 
 const NavLinks = [
-  { text: "Home", to: "#home" },
+  { text: "Home", to: "#" },
   { text: "Services", to: "#services" },
   { text: "Doctors", to: "#doctors" },
   { text: "About", to: "#about" },
