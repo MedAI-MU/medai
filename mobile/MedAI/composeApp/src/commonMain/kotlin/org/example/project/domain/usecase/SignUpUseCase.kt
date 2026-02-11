@@ -4,9 +4,11 @@ import org.example.project.data.remote.dto.SignUpRequest
 import org.example.project.data.remote.dto.SignUpResponse
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.model.UserRole
+import org.example.project.domain.repository.UserSessionManager
 
 class SignUpUseCase(
-    private val repository: SignUpRepository
+    private val repository: SignUpRepository,
+    private val sessionManager: UserSessionManager
 ) {
     suspend operator fun invoke(
         fullName: String,
@@ -23,15 +25,33 @@ class SignUpUseCase(
 
         // 2. Map to DTO
         val request = SignUpRequest(
-            fullName = fullName,
+            name = fullName,
             email = email,
             password = pass,
-            mobile = mobile,
-            dob = dob,
-            role = role.name // Convert Enum to String
+            phone = mobile,
+            //dob = dob,
+            role = role.name.lowercase() // Convert Enum to String
         )
 
         // 3. Call Repository
-        return repository.register(request)
+        val result = repository.register(request)
+
+        // 4. If Success -> Save to Session Manager
+        return result.map { signUpData ->
+            // Try to parse role safely
+            val userRole = try {
+                UserRole.valueOf(signUpData.role.lowercase())
+            } catch (e: Exception) {
+                UserRole.PATIENT // Fallback
+            }
+
+            sessionManager.saveSession(
+                userId = signUpData.userId,
+                token = signUpData.token,
+                name = fullName, // We can use the requested name as fallback or from response if available
+                role = userRole
+            )
+            signUpData
+        }
     }
 }

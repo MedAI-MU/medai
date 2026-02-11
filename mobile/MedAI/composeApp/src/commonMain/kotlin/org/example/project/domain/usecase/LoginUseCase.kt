@@ -22,7 +22,7 @@ class LoginUseCase(
                 userId = authData.userId,
                 token = authData.token,
                 name = authData.userName,
-                role = UserRole.valueOf(authData.role)
+                role = UserRole.valueOf(authData.role.uppercase())
             )
         }
     }

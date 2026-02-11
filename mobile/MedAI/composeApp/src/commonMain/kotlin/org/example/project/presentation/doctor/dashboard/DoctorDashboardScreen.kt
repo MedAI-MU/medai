@@ -93,7 +93,7 @@ class DoctorDashboardScreen : Screen {
                 }
             },
             // Reverting to default behavior for safer insets handling unless specifically needed otherwise
-            // contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+            contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         ) { padding ->
             Box(modifier = Modifier.padding(padding).fillMaxSize()) {
                 when (val uiState = state) {
@@ -156,7 +156,7 @@ fun DashboardContent(appointments: List<AppointmentDetail>) {
         Text("Today's Appointments", style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
 
-        AppointmentList(appointments)
+        AppointmentList(appointments, modifier = Modifier.weight(1f))
     }
 }
 
@@ -201,11 +201,11 @@ fun StatsCard(label: String, count: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun AppointmentList(appointments: List<AppointmentDetail>) {
+fun AppointmentList(appointments: List<AppointmentDetail>, modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.currentOrThrow
     LazyColumn(
         contentPadding = PaddingValues(top = 16.dp),
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         items(appointments) { appointment ->
             AppointmentCard(
