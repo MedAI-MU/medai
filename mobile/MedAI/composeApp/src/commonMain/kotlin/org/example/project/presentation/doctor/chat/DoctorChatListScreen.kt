@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,7 +57,10 @@ class DoctorChatListScreen : Screen {
 
         MedAIScaffold(
             title = "Consultations",
-            onBackClick = { navigator.pop() }
+            onBackClick = { navigator.pop() },
+            contentWindowInsets = androidx.compose.foundation.layout.WindowInsets.safeDrawing.only(
+                androidx.compose.foundation.layout.WindowInsetsSides.Horizontal + androidx.compose.foundation.layout.WindowInsetsSides.Top
+            )
         ) { padding ->
             Box(modifier = Modifier.padding(padding).fillMaxSize()) {
                 if (state.isLoading) {

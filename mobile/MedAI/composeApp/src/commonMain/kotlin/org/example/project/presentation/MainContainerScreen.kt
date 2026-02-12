@@ -37,6 +37,13 @@ import org.example.project.presentation.chatScreen.ChatListScreen
 import org.example.project.presentation.homeScreen.HomeScreen
 import org.example.project.presentation.profileScreen.ProfileScreen
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.zIndex
+import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.model.UserRole
+import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
+import org.koin.compose.koinInject
+
 class MainContainerScreen : Screen {
     @Composable
     override fun Content() {
@@ -45,12 +52,22 @@ class MainContainerScreen : Screen {
             val tabNavigator = LocalTabNavigator.current
 
             // Map the Voyager Tabs to our Navigation Item data class
-            val navItems = listOf(
-                BottomNavItem("Home", "home", Icons.Default.Home),
-                BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline),
-                BottomNavItem("Schedule", "schedule", Icons.Default.CalendarMonth),
-                BottomNavItem("Profile", "profile", Icons.Default.Person)
-            )
+            val userSessionManager = koinInject<UserSessionManager>()
+            val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
+                value = userSessionManager.getUserRole()
+            }.value
+
+            // Map the Voyager Tabs to our Navigation Item data class
+            val navItems = mutableListOf<BottomNavItem>()
+
+            navItems.add(BottomNavItem("Home", "home", Icons.Default.Home))
+            navItems.add(BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline))
+
+            if (role == UserRole.DOCTOR || role == UserRole.SECRETARY) {
+                 navItems.add(BottomNavItem("Schedule", "schedule", Icons.Default.CalendarMonth))
+            }
+
+            navItems.add(BottomNavItem("Profile", "profile", Icons.Default.Person))
 
             MedAIScaffold (
                 containerColor = MedAITheme.colors.background,
@@ -66,7 +83,7 @@ class MainContainerScreen : Screen {
                             when(route) {
                                 "home" -> tabNavigator.current = HomeTab
                                 "messages" -> tabNavigator.current = MessagesTab
-                                "schedule" -> tabNavigator.current = ScheduleTab
+                                "schedule" -> if(role == UserRole.DOCTOR || role == UserRole.SECRETARY) tabNavigator.current = ScheduleTab
                                 "profile" -> tabNavigator.current = ProfileTab
                             }
                         },
@@ -114,7 +131,18 @@ object HomeTab : Tab {
         }
     @Composable
     override fun Content() {
-        HomeScreen().Content()
+        val userSessionManager = koinInject<UserSessionManager>()
+        val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
+            value = userSessionManager.getUserRole()
+        }.value
+
+        if (role == UserRole.DOCTOR) {
+             DoctorDashboardScreen().Content()
+        } else if (role == UserRole.SECRETARY) {
+             HomeScreen().Content()
+        }else {
+            HomeScreen().Content()
+        }
     }
 }
 
@@ -128,7 +156,16 @@ object MessagesTab : Tab {
 
     @Composable
     override fun Content() {
-        ChatListScreen().Content()
+        val userSessionManager = koinInject<UserSessionManager>()
+        val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
+            value = userSessionManager.getUserRole()
+        }.value
+
+        if (role == UserRole.DOCTOR) {
+             org.example.project.presentation.doctor.chat.DoctorChatListScreen().Content()
+        } else {
+             ChatListScreen().Content()
+        }
     }
 }
 

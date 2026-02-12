@@ -28,6 +28,7 @@ import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiPasswordTextField
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.presentation.MainContainerScreen
 import org.example.project.domain.model.UserRole
 import org.example.project.presentation.loginScreen.component.InputLabel
 import org.example.project.presentation.loginScreen.component.SocialLoginSection
@@ -57,7 +58,7 @@ class SignUpScreen : Screen {
         LaunchedEffect(state.isSuccess) {
             if (state.isSuccess) {
                 // Navigate to home or login? Usually Login after registration
-                navigator.pop()
+                navigator.replaceAll(MainContainerScreen())
             }
         }
         LaunchedEffect(state.error) {

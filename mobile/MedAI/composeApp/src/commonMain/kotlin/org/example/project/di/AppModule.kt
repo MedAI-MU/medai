@@ -7,6 +7,7 @@ import org.example.project.data.remote.KtorClient
 import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
+import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
@@ -84,14 +85,14 @@ val appModule = module {
     single { KtorClient.client }
 
     // --- Repositories ---
-    single<LoginRepository> { MockLoginRepository() }
+    single<LoginRepository> { NetworkLoginRepository(get()) }
     single<SignUpRepository> { NetworkSignUpRepository(client = get()) }
     single<HomeRepository> { MockHomeRepository() }
     single<SpecialtiesRepository> { MockSpecialtiesRepository() }
     single<DoctorRepository> { MockDoctorRepository() }
     single<ProfileRepository> { MockProfileRepository() }
     //single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
-    //single<LoginRepository> { NetworkLoginRepository(get()) }
+    //single<LoginRepository> { MockLoginRepository() }
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
@@ -102,7 +103,7 @@ val appModule = module {
         InMemoryUserSessionManager(dataStore = get())
     }
     factory { LoginUseCase(get(),get()) }
-    factory { SignUpUseCase(repository = get()) }
+    factory { SignUpUseCase(repository = get(), sessionManager = get()) }
     factory { GetHomeDataUseCase(get(), get()) }
     factory { GetSpecialtiesUseCase(get()) }
     factory { GetDoctorsUseCase(get()) }

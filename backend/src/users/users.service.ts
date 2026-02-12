@@ -9,7 +9,7 @@ import * as argon2 from 'argon2';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async registerUser(registerDto: RegisterDto) {
     // check if email or phone already exists
