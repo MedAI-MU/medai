@@ -56,5 +56,10 @@ export class RegisterDto {
   @IsIn(['doctor', 'patient'], {
     message: 'role must be either doctor or patient',
   })
+  @ApiProperty({
+    example: 'doctor',
+    description: 'Role of the user',
+    enum: ['doctor', 'patient'],
+  })
   role: UserRoles;
 }
