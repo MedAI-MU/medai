@@ -13,6 +13,7 @@ export class PatientDto {
     description: 'The date of birth of the patient',
     example: '2022-01-01',
   })
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
   birthDate: Date;
@@ -21,6 +22,7 @@ export class PatientDto {
     description: 'The height of the patient',
     example: 170,
   })
+  @IsOptional()
   @IsNumber()
   height: number;
 
@@ -28,6 +30,7 @@ export class PatientDto {
     description: 'The weight of the patient',
     example: 70,
   })
+  @IsOptional()
   @IsNumber()
   weight: number;
 

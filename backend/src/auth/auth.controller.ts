@@ -23,7 +23,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
   private async issueTokensAndSetCookies(
     user: User,
     req: Request,
