@@ -42,6 +42,7 @@ import androidx.compose.ui.zIndex
 import org.example.project.domain.repository.UserSessionManager
 import org.example.project.domain.model.UserRole
 import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
+import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 import org.koin.compose.koinInject
 
 class MainContainerScreen : Screen {
@@ -139,7 +140,7 @@ object HomeTab : Tab {
         if (role == UserRole.DOCTOR) {
              DoctorDashboardScreen().Content()
         } else if (role == UserRole.SECRETARY) {
-             HomeScreen().Content()
+             SecretaryDashboardScreen().Content()
         }else {
             HomeScreen().Content()
         }

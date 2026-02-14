@@ -63,11 +63,22 @@ import org.example.project.presentation.doctor.dashboard.DoctorDashboardViewMode
 import org.example.project.presentation.doctor.chat.DoctorChatListViewModel
 import org.example.project.domain.usecase.GetPatientConversationsUseCase
 import org.example.project.domain.usecase.GetDoctorAppointmentsUseCase
+import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
+import org.example.project.domain.usecase.secretary.CreatePatientUseCase
+import org.example.project.domain.usecase.secretary.GenerateInvoiceUseCase
+import org.example.project.domain.usecase.secretary.GetAllPatientsUseCase
+import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
+import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
+import org.example.project.domain.usecase.secretary.GetDoctorQueueUseCase
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
 import org.example.project.presentation.notificationScreen.NotificationViewModel
 import org.example.project.presentation.profileScreen.ProfileViewModel
 import org.example.project.presentation.recordScreen.MedicalRecordViewModel
+import org.example.project.presentation.secretary.billing.BillingViewModel
+import org.example.project.presentation.secretary.dashboard.SecretaryDashboardViewModel
+import org.example.project.presentation.secretary.patient.PatientManagementViewModel
+import org.example.project.presentation.secretary.queue.QueueManagementViewModel
 import org.example.project.presentation.signUpScreen.SignUpViewModel
 import org.example.project.presentation.specialtiesScreen.SpecialtiesViewModel
 
@@ -97,7 +108,13 @@ val appModule = module {
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
+    single<MedicalRecordRepository> { MockMedicalRecordRepository() }
     single<AppointmentRepository> { MockAppointmentRepository() }
+
+    // --- Secretary ---
+    single<org.example.project.domain.repository.SecretaryRepository> {
+        org.example.project.data.repository.mock.MockSecretaryRepositoryImpl()
+    }
 
     // --- Use Cases ---
     single<UserSessionManager> {
@@ -172,6 +189,36 @@ val appModule = module {
     factory { DoctorChatListViewModel(get()) }
 
     factory { ChatListViewModel(get()) }
+
+    // --- Secretary ---
+    single { GetDashboardStatsUseCase(get()) }
+    single { GetAllPatientsUseCase(get()) }
+    single { CreatePatientUseCase(get()) }
+    single { CheckInPatientUseCase(get()) }
+    single { GetDoctorQueueUseCase(get()) }
+    single { GetAllQueuesUseCase(get()) }
+    single { GenerateInvoiceUseCase(get()) }
+
+    factory {
+        SecretaryDashboardViewModel(
+            get(), get(), get(), get()
+        )
+    }
+    factory {
+        PatientManagementViewModel(
+            get(), get()
+        )
+    }
+    factory {
+        QueueManagementViewModel(
+            get(), get()
+        )
+    }
+    factory {
+        BillingViewModel(
+            get()
+        )
+    }
     factory { (doctorId: String, doctorName: String) ->
         ChatViewModel(
             doctorId,
