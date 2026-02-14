@@ -21,6 +21,7 @@ class InMemoryUserSessionManager(
         private val KEY_NAME = stringPreferencesKey("user_name")
         private val KEY_ROLE = stringPreferencesKey("user_role")
         private val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        private val KEY_COOKIES = stringPreferencesKey("cookies")
     }
 
     override val isUserLoggedIn: Flow<Boolean> = dataStore.data.map { prefs ->
@@ -43,6 +44,18 @@ class InMemoryUserSessionManager(
              } catch (e: IllegalArgumentException) {
                  null
              }
+        }
+    }
+
+    override suspend fun getCookies(): Set<String> {
+         // Storing as a delimited string for simplicity, or JSON
+         val cookiesString = dataStore.data.first()[KEY_COOKIES]
+         return cookiesString?.split("|")?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
+    }
+
+    override suspend fun saveCookies(cookies: Set<String>) {
+        dataStore.edit { prefs ->
+            prefs[KEY_COOKIES] = cookies.joinToString("|")
         }
     }
 

@@ -7,6 +7,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.setBody
 import io.ktor.client.call.body
 import io.ktor.http.setCookie
+import org.example.project.data.remote.dto.LoginResponse
 import org.example.project.data.remote.util.decodeBase64String
 import org.example.project.data.remote.dto.SignUpRequest
 import org.example.project.data.remote.dto.SignUpResponse
@@ -51,7 +52,7 @@ class NetworkSignUpRepository(
 
             // 5. Deserialize
             val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val claims = json.decodeFromString<org.example.project.data.remote.dto.LoginResponse>(payloadJson)
+            val claims = json.decodeFromString<LoginResponse>(payloadJson)
 
             Result.success(SignUpResponse(
                 token = authToken,
