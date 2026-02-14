@@ -73,7 +73,7 @@ class SplashScreen : Screen {
             if (userSessionManager.isUserLoggedIn.first()) {
                 val role = userSessionManager.getUserRole()
                 when (role) {
-                    UserRole.DOCTOR -> navigator.replace(DoctorDashboardScreen())
+                    UserRole.DOCTOR -> navigator.replace(WelcomeScreen())
                     UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
                     else -> navigator.replace(WelcomeScreen()) // Default to patient flow (Welcome -> Home)
                 }

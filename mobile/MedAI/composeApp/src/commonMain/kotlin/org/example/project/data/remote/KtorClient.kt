@@ -7,38 +7,90 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.plugin
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.post
+import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.example.project.domain.repository.UserSessionManager
+import io.ktor.client.plugins.HttpSend
+import io.ktor.client.request.url
+import io.ktor.http.HttpStatusCode
 
-object KtorClient {
-    private const val BASE_URL = "http://10.0.2.2:8000/api/" // Android Emulator localhost alias
+class KtorClientFactory(
+    private val sessionManager: UserSessionManager
+) {
+    private val BASE_URL = "http://10.0.2.2:8000/api/"
 
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
-        }
+    fun create(): HttpClient {
+        return HttpClient {
+            expectSuccess = true // Throw exception on non-2xx
 
-        install(HttpCookies)
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
 
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    // In production, we will use a real logger (e.g. Kermit or Timber)
-                    println("Network: $message")
+            install(HttpCookies) {
+                storage = PersistentCookiesStorage(sessionManager)
+            }
+
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("Network: $message")
+                    }
+                }
+                level = LogLevel.ALL
+            }
+
+            defaultRequest {
+                url(BASE_URL)
+                contentType(ContentType.Application.Json)
+            }
+        }.apply {
+             plugin(HttpSend).intercept { request ->
+                val originalCall = execute(request)
+                if (originalCall.response.status == HttpStatusCode.Unauthorized) {
+                     println("Auth: 401 Detected. Attempting refresh...")
+                     // Pause and Refresh
+                     try {
+                         // We create a separate client or raw request to avoid infinite loop if refresh fails
+                         // But here we can use the same client if we are careful, or just manually construct the request
+                         // To be safe, let's use a side-channel or just retry once?
+                         // Ktor's Auth plugin handles this better, but we are doing cookies.
+
+                         // Manually call refresh endpoint.
+                         // The Cookies plugin will automatically send the "Refresh" cookie if it exists in storage!
+                         val refreshResponse = execute(HttpRequestBuilder().apply {
+                             url(BASE_URL + "auth/refresh-token")
+                             method = io.ktor.http.HttpMethod.Post
+                         })
+
+                         if (refreshResponse.response.status == HttpStatusCode.OK) {
+                             println("Auth: Refresh Success! Retrying original request...")
+                             // Cookies are auto-updated in storage by the plugin from the refresh response
+                             execute(request)
+                         } else {
+                             println("Auth: Refresh Failed. Logout.")
+                             sessionManager.clearSession()
+                             originalCall
+                         }
+                     } catch (e: Exception) {
+                         println("Auth: Refresh Error: ${e.message}")
+                         sessionManager.clearSession()
+                         originalCall
+                     }
+                } else {
+                    originalCall
                 }
             }
-            level = LogLevel.ALL
-        }
-
-        defaultRequest {
-            url(BASE_URL)
-            contentType(ContentType.Application.Json)
         }
     }
 }

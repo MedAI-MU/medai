@@ -3,7 +3,7 @@ package org.example.project.di
 import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.core.presentation.util.ResourceProviderImpl
-import org.example.project.data.remote.KtorClient
+import org.example.project.data.remote.KtorClientFactory
 import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
@@ -82,7 +82,8 @@ val appModule = module {
 
 
     // --- Network ---
-    single { KtorClient.client }
+    // --- Network ---
+    single { KtorClientFactory(sessionManager = get()).create() }
 
     // --- Repositories ---
     single<LoginRepository> { NetworkLoginRepository(get()) }
