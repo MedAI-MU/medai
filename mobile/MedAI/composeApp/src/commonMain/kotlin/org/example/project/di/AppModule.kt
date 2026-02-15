@@ -8,6 +8,7 @@ import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkLoginRepository
+import org.example.project.data.repository.NetworkScheduleRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
@@ -27,6 +28,8 @@ import org.example.project.domain.repository.MedicalRecordRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
 import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.repository.ScheduleRepository
+import org.example.project.data.repository.mock.MockScheduleRepository
 import org.example.project.domain.usecase.BookAppointmentUseCase
 import org.example.project.domain.usecase.CancelAppointmentUseCase
 import org.example.project.domain.usecase.GetAllergiesUseCase
@@ -226,6 +229,24 @@ val appModule = module {
             get(),
             get(),
             get()
+        )
+    }
+
+    // Schedule
+//    single<ScheduleRepository> { MockScheduleRepository() }
+    single<ScheduleRepository> { NetworkScheduleRepository(client = get()) }
+    factory { org.example.project.domain.usecase.schedule.GetScheduleTemplatesUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.CreateScheduleTemplateUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.UpdateScheduleTemplateUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.DeleteScheduleTemplateUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.ApplyScheduleTemplateUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.GetScheduleSlotsUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.CreateScheduleSlotsUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.UpdateScheduleSlotUseCase(get()) }
+    factory { org.example.project.domain.usecase.schedule.DeleteScheduleSlotUseCase(get()) }
+    factory { (doctorId: Int) ->
+        org.example.project.presentation.schedule.ScheduleViewModel(
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), doctorId
         )
     }
 }
