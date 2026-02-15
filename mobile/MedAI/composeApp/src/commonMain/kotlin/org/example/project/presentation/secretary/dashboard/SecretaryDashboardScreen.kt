@@ -40,6 +40,7 @@ import org.example.project.domain.model.secretary.QueueStatus
 import org.example.project.presentation.secretary.patient.PatientManagementScreen
 import org.example.project.presentation.secretary.queue.QueueManagementScreen
 import org.example.project.presentation.secretary.billing.BillingScreen
+import org.example.project.presentation.patientDirectory.PatientsDirectoryScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
@@ -88,13 +89,36 @@ class SecretaryDashboardScreen : Screen {
                     color = MedAITheme.colors.text.primary
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    MedAICardButton(text = "New Patient", icon = Icons.Default.Add, onClick = { navigator.push(PatientManagementScreen()) })
-                    MedAICardButton(text = "Check-In", icon = Icons.Default.Schedule, onClick = { navigator.push(QueueManagementScreen()) })
-                    MedAICardButton(text = "Billing", icon = Icons.Default.AttachMoney, onClick = { navigator.push(BillingScreen()) })
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MedAICardButton(
+                            text = "Patients",
+                            icon = Icons.Default.Group,
+                            onClick = { navigator.push(PatientsDirectoryScreen()) })
+                        MedAICardButton(
+                            text = "New Patient",
+                            icon = Icons.Default.Add,
+                            onClick = { navigator.push(PatientManagementScreen()) })
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MedAICardButton(
+                            text = "Check-In",
+                            icon = Icons.Default.Schedule,
+                            onClick = { navigator.push(QueueManagementScreen()) })
+                        MedAICardButton(
+                            text = "Billing",
+                            icon = Icons.Default.AttachMoney,
+                            onClick = { navigator.push(BillingScreen()) })
+                    }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
 

@@ -8,6 +8,7 @@ import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkLoginRepository
+import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
@@ -15,6 +16,7 @@ import org.example.project.data.repository.mock.MockDoctorRepository
 import org.example.project.data.repository.mock.MockMedicalRecordRepository
 import org.example.project.data.repository.mock.MockNotificationRepository
 import org.example.project.data.repository.mock.MockProfileRepository
+import org.example.project.data.repository.mock.MockSecretaryRepositoryImpl
 import org.example.project.data.repository.mock.MockSpecialtiesRepository
 import org.example.project.domain.repository.ChatRepository
 import org.example.project.domain.repository.AppointmentRepository
@@ -24,6 +26,8 @@ import org.example.project.domain.repository.LoginRepository
 import org.example.project.domain.repository.NotificationRepository
 import org.example.project.domain.repository.ProfileRepository
 import org.example.project.domain.repository.MedicalRecordRepository
+import org.example.project.domain.repository.PatientRepository
+import org.example.project.domain.repository.SecretaryRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
 import org.example.project.domain.repository.UserSessionManager
@@ -63,6 +67,9 @@ import org.example.project.presentation.doctor.dashboard.DoctorDashboardViewMode
 import org.example.project.presentation.doctor.chat.DoctorChatListViewModel
 import org.example.project.domain.usecase.GetPatientConversationsUseCase
 import org.example.project.domain.usecase.GetDoctorAppointmentsUseCase
+import org.example.project.domain.usecase.GetPatientByIdUseCase
+import org.example.project.domain.usecase.GetPatientsUseCase
+import org.example.project.domain.usecase.UpdatePatientUseCase
 import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GenerateInvoiceUseCase
@@ -70,9 +77,11 @@ import org.example.project.domain.usecase.secretary.GetAllPatientsUseCase
 import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
 import org.example.project.domain.usecase.secretary.GetDoctorQueueUseCase
+import org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
 import org.example.project.presentation.notificationScreen.NotificationViewModel
+import org.example.project.presentation.patientDirectory.PatientsDirectoryViewModel
 import org.example.project.presentation.profileScreen.ProfileViewModel
 import org.example.project.presentation.recordScreen.MedicalRecordViewModel
 import org.example.project.presentation.secretary.billing.BillingViewModel
@@ -111,9 +120,23 @@ val appModule = module {
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
     single<AppointmentRepository> { MockAppointmentRepository() }
 
+    // --- Patient ---
+    single<PatientRepository> {
+        NetworkPatientRepository(get())
+    }
+
+    // Patient Use Cases
+    factory { GetPatientsUseCase(get()) }
+    factory { GetPatientByIdUseCase(get()) }
+    factory { CreatePatientUseCase(get()) }
+    factory { UpdatePatientUseCase(get()) }
+
+    // Patient ViewModel
+    factory { PatientsDirectoryViewModel(get()) }
+
     // --- Secretary ---
-    single<org.example.project.domain.repository.SecretaryRepository> {
-        org.example.project.data.repository.mock.MockSecretaryRepositoryImpl()
+    single<SecretaryRepository> {
+        MockSecretaryRepositoryImpl()
     }
 
     // --- Use Cases ---
@@ -165,7 +188,7 @@ val appModule = module {
     factory { GetDoctorAppointmentsUseCase(get()) }
     factory { DoctorDashboardViewModel(get(), get()) }
     factory { (patientId: String) ->
-        org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel(
+        DoctorPatientRecordsViewModel(
             patientId,
             get(),
             get(),

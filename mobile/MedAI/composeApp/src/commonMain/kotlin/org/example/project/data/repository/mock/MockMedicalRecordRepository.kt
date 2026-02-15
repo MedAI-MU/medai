@@ -1,7 +1,6 @@
 package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
-import kotlinx.datetime.LocalDate
 import org.example.project.data.remote.dto.AllergyDto
 import org.example.project.data.remote.dto.AnalysisDto
 import org.example.project.data.remote.dto.MedicalHistoryDto
@@ -11,8 +10,11 @@ import org.example.project.data.remote.mapper.toEntity
 import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisDetailEntity
 import org.example.project.domain.model.AnalysisEntity
+import org.example.project.domain.model.BloodType
+import org.example.project.domain.model.Gender
+import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.MedicalHistoryEntity
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 import org.example.project.domain.model.VaccinationEntity
 import org.example.project.domain.repository.MedicalRecordRepository
 import kotlin.collections.map
@@ -23,12 +25,13 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
 
     private var patientDto = PatientDto(
         id = "p1",
-        full_name = "Jane Doe",
-        gender_code = "F",
-        age = 24,
-        weight_kg = 55.0,
-        height_cm = 165.0,
-        blood_group = "AB+"
+        name = "John Doe",
+        birthDate = "1990-05-15",
+        height = 17.9,
+        weight = 70.5,
+        gender = Gender.Male,
+        bloodType = BloodType.B_NEG,
+        maritalStatus = MaritalStatus.Married,
     )
 
     private val allergyDtos = listOf(
@@ -64,7 +67,7 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
 
     // --- Implementation ---
 
-    override suspend fun getPatientProfile(patientId: String): Result<PatientEntity> {
+    override suspend fun getPatientProfile(patientId: String): Result<Patient> {
         delay(1500) // Simulate network delay
         return Result.success(patientDto.toEntity())
     }
@@ -73,10 +76,10 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
         patientId: String,
         weight: Double,
         height: Double
-    ): Result<PatientEntity> {
+    ): Result<Patient> {
         delay(100)
         // Update local mock store
-        patientDto = patientDto.copy(weight_kg = weight, height_cm = height)
+        patientDto = patientDto.copy(weight = weight, height = height)
         return Result.success(patientDto.toEntity())
     }
 

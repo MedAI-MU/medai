@@ -5,12 +5,12 @@ import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisDetailEntity
 import org.example.project.domain.model.AnalysisEntity
 import org.example.project.domain.model.MedicalHistoryEntity
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 import org.example.project.domain.model.VaccinationEntity
 import org.example.project.domain.repository.MedicalRecordRepository
 
 class GetPatientProfileUseCase(private val repository: MedicalRecordRepository) {
-    suspend operator fun invoke(patientId: String): Result<PatientEntity> {
+    suspend operator fun invoke(patientId: String): Result<Patient> {
         return repository.getPatientProfile(patientId)
     }
 }
@@ -18,7 +18,7 @@ class GetPatientProfileUseCase(private val repository: MedicalRecordRepository) 
 class UpdatePatientMetricsUseCase(private val repository: MedicalRecordRepository) {
     data class Params(val patientId: String, val weight: Double, val height: Double)
 
-    suspend operator fun invoke(params: Params): Result<PatientEntity> {
+    suspend operator fun invoke(params: Params): Result<Patient> {
         return repository.updatePatientMetrics(params.patientId, params.weight, params.height)
     }
 }

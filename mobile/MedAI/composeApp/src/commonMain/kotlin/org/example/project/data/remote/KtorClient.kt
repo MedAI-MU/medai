@@ -56,6 +56,16 @@ class KtorClientFactory(
             }
         }.apply {
              plugin(HttpSend).intercept { request ->
+                // Inject Token
+                try {
+                    val token = sessionManager.getUserToken()
+                    if (!token.isNullOrBlank()) {
+                        request.headers.append("Authorization", "Bearer $token")
+                    }
+                } catch (e: Exception) {
+                    println("Auth: Failed to get token: ${e.message}")
+                }
+
                 val originalCall = execute(request)
                 if (originalCall.response.status == HttpStatusCode.Unauthorized) {
                      println("Auth: 401 Detected. Attempting refresh...")

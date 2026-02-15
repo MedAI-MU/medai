@@ -5,7 +5,6 @@ import org.example.project.domain.model.Patient
 import org.example.project.domain.model.secretary.ClinicStats
 import org.example.project.domain.model.secretary.Invoice
 import org.example.project.domain.model.secretary.QueueEntry
-import org.example.project.domain.model.secretary.QueueStatus
 import org.example.project.domain.repository.SecretaryRepository
 
 class GetDashboardStatsUseCase(
@@ -28,7 +27,7 @@ class CreatePatientUseCase(
     private val repository: SecretaryRepository
 ) {
     suspend operator fun invoke(patient: Patient): Result<Patient> {
-        if (patient.name.isBlank()) return Result.failure(Exception("Name cannot be empty"))
+        if (patient.fullName.isBlank()) return Result.failure(Exception("Name cannot be empty"))
         return repository.createPatient(patient)
     }
 }
