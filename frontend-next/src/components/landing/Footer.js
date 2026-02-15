@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Container from "../ui/Container";
 import Logo from "../ui/Logo";
+import Copyright from "../ui/Copyright";
 
 const Links = [
   { text: "Home", to: "#" },
@@ -80,9 +81,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-[#4a5568] pt-8 text-center">
-          <p className="text-secondary-gray text-sm">
-            &copy; 2026 MedAI. All rights reserved.
-          </p>
+          <Copyright className="text-secondary-gray" />
         </div>
       </Container>
     </footer>
