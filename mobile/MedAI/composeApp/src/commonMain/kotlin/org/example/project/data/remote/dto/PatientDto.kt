@@ -1,16 +1,39 @@
 package org.example.project.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.example.project.domain.model.BloodType
+import org.example.project.domain.model.Gender
+import org.example.project.domain.model.MaritalStatus
 
 @Serializable
 data class PatientDto(
-    val id: String,
-    val full_name: String,
-    val gender_code: String,
-    val age: Int,
-    val weight_kg: Double,
-    val height_cm: Double,
-    val blood_group: String
+    val id: String? = null,
+    val name: String? = null,
+    @SerialName("birthDate") val birthDate: String,
+    val height: Double,
+    val weight: Double,
+    val gender: Gender,
+    @SerialName("bloodType") val bloodType: BloodType,
+    @SerialName("maritalStatus") val maritalStatus: MaritalStatus,
+)
+
+@Serializable
+data class CreatePatientDto(
+    @SerialName("birthDate") val birthDate: String,
+    val height: Double,
+    val weight: Double,
+    val gender: Gender,
+    @SerialName("bloodType") val bloodType: BloodType,
+    @SerialName("maritalStatus") val maritalStatus: MaritalStatus
+)
+
+@Serializable
+data class UpdatePatientDto(
+    val height: Double,
+    val weight: Double,
+    @SerialName("bloodType") val bloodType: BloodType,
+    @SerialName("maritalStatus") val maritalStatus: MaritalStatus
 )
 
 @Serializable

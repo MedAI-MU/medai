@@ -1,8 +1,9 @@
 package org.example.project.data.remote.mapper
 
-import io.ktor.client.utils.EmptyContent.status
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.yearsUntil
+import kotlinx.datetime.todayIn
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.app_name
 import medai.composeapp.generated.resources.cat_doctors
@@ -30,15 +31,12 @@ import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisEntity
 import org.example.project.domain.model.AnalysisStatus
 import org.example.project.domain.model.AppointmentStatus
-import org.example.project.domain.model.BloodType
 import org.example.project.domain.model.Category
 import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
-import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MedicalHistoryEntity
 import org.example.project.domain.model.Notification
-import org.example.project.domain.model.NotificationType
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 import org.example.project.domain.model.User
 import org.example.project.domain.model.VaccinationEntity
 import org.example.project.domain.model.VaccinationStatus
@@ -47,6 +45,7 @@ import org.example.project.data.remote.dto.MessageDto
 import org.example.project.domain.model.ChatConversation
 import org.example.project.domain.model.Message
 import org.example.project.domain.model.MessageStatus
+import org.example.project.domain.model.NotificationType
 import org.example.project.domain.model.UserRole
 
 fun mapStatus(status: String?): AppointmentStatus {
@@ -158,19 +157,30 @@ private fun parseInstant(isoString: String): Instant {
     }
 }
 
-fun PatientDto.toEntity(): PatientEntity {
-    return PatientEntity(
-        id = this.id,
-        fullName = this.full_name,
-        gender = when (this.gender_code) {
-            "M" -> Gender.Male
-            "F" -> Gender.Female
-            else -> Gender.Other
-        },
-        age = this.age,
-        weight = this.weight_kg,
-        height = this.height_cm,
-        bloodType = BloodType.entries.find { it.label == this.blood_group } ?: BloodType.UNKNOWN
+fun PatientDto.toEntity(): Patient {
+    // Assuming birthDate is in "YYYY-MM-DD" or similar ISO format
+    val birthDateParsed = try {
+         LocalDate.parse(this.birthDate.take(10))
+    } catch (e: Exception) {
+         null
+    }
+
+    val calculatedAge = if (birthDateParsed != null) {
+         try {
+             birthDateParsed.yearsUntil(kotlinx.datetime.Clock.System.todayIn(kotlinx.datetime.TimeZone.currentSystemDefault()))
+         } catch (e: Exception) { 0 }
+    } else 0
+
+    return Patient(
+        id = this.id ?: "",
+        fullName = this.name ?: "Unknown",
+        gender = this.gender,
+        age = calculatedAge,
+        birthDate = this.birthDate,
+        weight = this.weight,
+        height = this.height,
+        bloodType = this.bloodType,
+        maritalStatus = this.maritalStatus
     )
 }
 

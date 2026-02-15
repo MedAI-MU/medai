@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisEntity
 import org.example.project.domain.model.MedicalHistoryEntity
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 import org.example.project.domain.model.VaccinationEntity
 import org.example.project.domain.repository.UserSessionManager
 
@@ -22,7 +22,7 @@ import org.example.project.domain.usecase.UpdatePatientMetricsUseCase
 
 data class MedicalRecordState(
     val isLoading: Boolean = false,
-    val patientProfile: PatientEntity? = null,
+    val patientProfile: Patient? = null,
     val allergies: List<AllergyEntity> = emptyList(),
     val analyses: List<AnalysisEntity> = emptyList(),
     val vaccinations: List<VaccinationEntity> = emptyList(),

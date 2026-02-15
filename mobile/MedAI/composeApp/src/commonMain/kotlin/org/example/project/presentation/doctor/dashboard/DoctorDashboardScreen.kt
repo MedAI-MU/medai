@@ -44,6 +44,7 @@ import kotlinx.datetime.TimeZone
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.appBar.MedAiAppBar
@@ -118,7 +119,7 @@ class DoctorDashboardScreen : Screen {
 
 @Composable
 fun DashboardContent(appointments: List<AppointmentDetail>) {
-    val navigator = LocalNavigator.currentOrThrow
+    val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     val total = appointments.size
     val pending = appointments.count { it.status == AppointmentDetailStatus.UPCOMING }
     val finished = appointments.count { it.status == AppointmentDetailStatus.COMPLETED }
@@ -138,6 +139,12 @@ fun DashboardContent(appointments: List<AppointmentDetail>) {
                 text = "Prescriptions",
                 icon = Icons.Default.Description,
                 onClick = { navigator.push(org.example.project.presentation.doctor.prescription.EPrescriptionScreen()) },
+                modifier = Modifier.weight(1f)
+            )
+            ActionButton(
+                text = "Patients",
+                icon = Icons.Default.Person,
+                onClick = { navigator.push(org.example.project.presentation.patientDirectory.PatientsDirectoryScreen()) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -202,7 +209,7 @@ fun StatsCard(label: String, count: Int, modifier: Modifier = Modifier) {
 
 @Composable
 fun AppointmentList(appointments: List<AppointmentDetail>, modifier: Modifier = Modifier) {
-    val navigator = LocalNavigator.currentOrThrow
+    val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     LazyColumn(
         contentPadding = PaddingValues(top = 16.dp),
         modifier = modifier.fillMaxSize()

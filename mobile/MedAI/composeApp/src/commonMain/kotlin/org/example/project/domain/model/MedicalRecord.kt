@@ -2,24 +2,7 @@ package org.example.project.domain.model
 
 import kotlinx.datetime.LocalDate
 
-data class PatientEntity(
-    val id: String,
-    val fullName: String,
-    val gender: Gender,
-    val age: Int,
-    val weight: Double,
-    val height: Double,
-    val bloodType: BloodType
-)
-
-enum class Gender { Male, Female, Other }
-enum class BloodType(val label: String) {
-    A_POS("A+"), A_NEG("A-"),
-    B_POS("B+"), B_NEG("B-"),
-    AB_POS("AB+"), AB_NEG("AB-"),
-    O_POS("O+"), O_NEG("O-"),
-    UNKNOWN("Unknown")
-}
+// Enums moved to Patient.kt
 
 data class AllergyEntity(
     val id: String,

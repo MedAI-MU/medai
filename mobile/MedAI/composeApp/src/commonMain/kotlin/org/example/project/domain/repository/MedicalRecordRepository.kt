@@ -4,14 +4,14 @@ import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisDetailEntity
 import org.example.project.domain.model.AnalysisEntity
 import org.example.project.domain.model.MedicalHistoryEntity
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 import org.example.project.domain.model.VaccinationEntity
 
 
 interface MedicalRecordRepository {
     // Patient Profile
-    suspend fun getPatientProfile(patientId: String): Result<PatientEntity>
-    suspend fun updatePatientMetrics(patientId: String, weight: Double, height: Double): Result<PatientEntity>
+    suspend fun getPatientProfile(patientId: String): Result<Patient>
+    suspend fun updatePatientMetrics(patientId: String, weight: Double, height: Double): Result<Patient>
 
     // Lists (All fetching requires patientId context)
     suspend fun getAllergies(patientId: String): Result<List<AllergyEntity>>
