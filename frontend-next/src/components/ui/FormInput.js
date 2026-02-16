@@ -1,3 +1,5 @@
+import ErrorMessage from "./ErrorMessage";
+
 function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
   let px = "";
   if (startIcon) px += "ps-10";
@@ -6,7 +8,7 @@ function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
 
   return (
     <div>
-      <label className="text-primary-dark mb-2 block text-sm font-medium">
+      <label className={`"text-primary-dark" mb-2 block text-sm font-medium`}>
         {label}
       </label>
       <div className="relative">
@@ -16,7 +18,7 @@ function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
           </span>
         )}
         <input
-          className={`border-border-gray w-full rounded-lg border outline-none ${px} ring-primary-blue/90 py-3 transition-all focus:ring-2`}
+          className={`border-border-gray w-full rounded-lg border outline-none ${px} ${error ? "ring-red-400" : "ring-primary-blue/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         />
         {endIcon && (
@@ -25,6 +27,7 @@ function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
           </span>
         )}
       </div>
+      {error && <ErrorMessage message={error} />}
     </div>
   );
 }

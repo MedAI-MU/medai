@@ -10,7 +10,7 @@ function FormSection({ title, subTitle, footer, children }) {
       <p className="mt-10 text-center text-gray-600">
         {footer.text}
         <Link
-          className="text-primary-blue ml-1 font-bold underline-offset-4 hover:underline"
+          className="text-primary-blue ml-1 font-bold whitespace-nowrap underline-offset-4 hover:underline"
           href={footer.href}
         >
           {footer.action}
