@@ -17,7 +17,7 @@ import {
   MaritalStatusEnum,
   BloodTypeEnum,
 } from '../enums/patients.enum';
-import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import type { BloodType, Gender, MaritalStatus } from '../types/patient.types';
 
 // TODO: Add surgery, family history, emergency contact, medications

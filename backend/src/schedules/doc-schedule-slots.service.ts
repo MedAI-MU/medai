@@ -93,7 +93,8 @@ export class DocScheduleSlotsService {
     return new DocScheduleDto({
       doctorId: doctor.userId,
       name: doctor.user.name,
-      speciality: doctor.specialty,
+      // TODO: Update this when possible
+      speciality: doctor.specialities[0].speciality.name,
       days: pagedDays,
     });
   }

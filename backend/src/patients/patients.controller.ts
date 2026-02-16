@@ -17,7 +17,7 @@ import { User } from 'src/users/entities/user.entity';
 import { PatientDto } from './dtos/patient.dto';
 import { UpdatePatientDto } from './dtos/update_patient.dto';
 import { AllergyDto } from './dtos/allergy.dto';
-import { PatientGuard } from './guards/patient.guard';
+import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Allergy } from './entities/allergy.entity';
 import { ChronicDiseaseDto } from './dtos/chronic_disease.dto';
 import { ChronicDisease } from './entities/chronic_disease.entity';
@@ -54,7 +54,7 @@ export class PatientsController {
 
   @Get(':id')
   @Roles('secretary')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient' })
   async getPatient(@Param('id') id: number): Promise<Patient | null> {
@@ -80,7 +80,7 @@ export class PatientsController {
   }
 
   @Patch(':id')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiOkResponse({ description: 'Patient updated' })
   @ApiPatientGeneral()
   @ApiBody({ type: UpdatePatientDto })
@@ -92,7 +92,7 @@ export class PatientsController {
   }
 
   @Post(':id/allergies')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added allergy' })
   @ApiPatientGeneral()
   @ApiBody({ type: AllergyDto })
@@ -109,7 +109,7 @@ export class PatientsController {
   }
 
   @Patch(':id/allergies/:allergyId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'allergyId', description: 'Allergy ID', type: Number })
   @ApiOkResponse({ description: 'Updated allergy' })
   @ApiPatientGeneral()
@@ -129,7 +129,7 @@ export class PatientsController {
   }
 
   @Delete(':id/allergies/:allergyId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'allergyId', description: 'Allergy ID', type: Number })
   @ApiOkResponse({ description: 'Removed allergy' })
   @ApiPatientGeneral()
@@ -145,7 +145,7 @@ export class PatientsController {
     );
   }
   @Post(':id/chronic-diseases')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added chronic disease' })
   @ApiPatientGeneral()
   @ApiBody({ type: ChronicDiseaseDto })
@@ -162,7 +162,7 @@ export class PatientsController {
   }
 
   @Patch(':id/chronic-diseases/:chronicDiseaseId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'chronicDiseaseId',
     description: 'Chronic Disease ID',
@@ -186,7 +186,7 @@ export class PatientsController {
   }
 
   @Delete(':id/chronic-diseases/:chronicDiseaseId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'chronicDiseaseId',
     description: 'Chronic Disease ID',
@@ -206,7 +206,7 @@ export class PatientsController {
     );
   }
   @Post(':id/family-histories')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added family history' })
   @ApiPatientGeneral()
   @ApiBody({ type: FamilyHistoryDto })
@@ -223,7 +223,7 @@ export class PatientsController {
   }
 
   @Patch(':id/family-histories/:familyHistoryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'familyHistoryId',
     description: 'Family History ID',
@@ -247,7 +247,7 @@ export class PatientsController {
   }
 
   @Delete(':id/family-histories/:familyHistoryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'familyHistoryId',
     description: 'Family History ID',
@@ -267,7 +267,7 @@ export class PatientsController {
     );
   }
   @Post(':id/surgeries')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added surgery' })
   @ApiPatientGeneral()
   @ApiBody({ type: SurgeryDto })
@@ -284,7 +284,7 @@ export class PatientsController {
   }
 
   @Patch(':id/surgeries/:surgeryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'surgeryId', description: 'Surgery ID', type: Number })
   @ApiOkResponse({ description: 'Updated surgery' })
   @ApiPatientGeneral()
@@ -304,7 +304,7 @@ export class PatientsController {
   }
 
   @Delete(':id/surgeries/:surgeryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'surgeryId', description: 'Surgery ID', type: Number })
   @ApiOkResponse({ description: 'Removed surgery' })
   @ApiPatientGeneral()
@@ -320,7 +320,7 @@ export class PatientsController {
     );
   }
   @Post(':id/emergency-contacts')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added Emergency Contact' })
   @ApiPatientGeneral()
   @ApiBody({ type: EmergencyContactDto })
@@ -337,7 +337,7 @@ export class PatientsController {
   }
 
   @Patch(':id/emergency-contacts/:emergencyContactId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'emergencyContactId',
     description: 'Emergency Contact ID',
@@ -361,7 +361,7 @@ export class PatientsController {
   }
 
   @Delete(':id/emergency-contacts/:emergencyContactId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'emergencyContactId',
     description: 'Emergency Contact ID',

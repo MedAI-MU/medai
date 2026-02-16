@@ -6,7 +6,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
-import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import type { UserRoles } from '../types/role.types';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 

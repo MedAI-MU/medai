@@ -5,7 +5,7 @@ import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface
 import { UserRoles } from 'src/users/types/role.types';
 
 @Injectable()
-export class PatientGuard implements CanActivate {
+export class SameIdGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {

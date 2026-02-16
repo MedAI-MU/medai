@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Patient } from './patient.entity';
 import { FamilyRelationEnum } from '../enums/patients.enum';
-import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import type { FamilyRelation } from '../types/patient.types';
 
 @Entity()

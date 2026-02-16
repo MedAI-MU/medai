@@ -1,31 +1,50 @@
 import { Injectable } from '@nestjs/common';
 import { Doctor } from './entities/doctor.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Speciality } from './entities/speciality.entity';
+import { SpecialityDto } from './dtos/speciality.dto';
 
 @Injectable()
 export class DoctorsService {
   constructor(
     @InjectRepository(Doctor)
     private doctorsRepository: Repository<Doctor>,
+    @InjectRepository(Speciality)
+    private specialitiesRepository: Repository<Speciality>,
   ) {}
 
-  async createDoctor(specialty: string, userId: number): Promise<Doctor> {
+  async create(userId: number): Promise<Doctor> {
     const doctor = this.doctorsRepository.create({
-      specialty,
       user: { id: userId },
     });
     return this.doctorsRepository.save(doctor);
   }
 
-  async findDoctorByUserId(userId: number): Promise<Doctor | null> {
+  async findOne(userId: number): Promise<Doctor | null> {
     return this.doctorsRepository.findOne({
-      where: { user: { id: userId } },
-      relations: ['user'],
+      where: { userId: userId },
+      relations: {
+        specialities: true,
+      },
     });
   }
 
-  async getAllDoctors(): Promise<Doctor[]> {
-    return this.doctorsRepository.find({ relations: ['user'] });
+  async findAllBySpeciality(name: string): Promise<Doctor[]> {
+    return this.doctorsRepository.find({
+      where: { specialities: { speciality: { name: ILike(`%${name}%`) } } },
+      relations: {
+        specialities: true,
+      },
+    });
+  }
+
+  async createSpeciality(specialityDto: SpecialityDto): Promise<Speciality> {
+    const speciality = this.specialitiesRepository.create({
+      name: specialityDto.name,
+    });
+
+    await this.specialitiesRepository.save(speciality);
+    return speciality;
   }
 }
