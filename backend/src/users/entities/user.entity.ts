@@ -4,6 +4,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   OneToOne,
+  Index,
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
@@ -12,6 +13,8 @@ import { Doctor } from '../../doctors/entities/doctor.entity';
 
 import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
 import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
+
+@Index('idx_user_name_trgm', { synchronize: false })
 @Entity()
 export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()

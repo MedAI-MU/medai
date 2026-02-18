@@ -14,9 +14,9 @@ export class DoctorSpeciality extends TimestampEntity {
   @ManyToOne(() => Speciality)
   speciality: Speciality;
 
-  @Column()
+  @Column({ default: false })
   isPrimary: boolean;
 
-  @Column()
+  @Column({ default: 0 })
   yearsOfExperience: number;
 }

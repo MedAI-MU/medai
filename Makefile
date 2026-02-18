@@ -18,6 +18,10 @@ generate-migration:
 	@echo "Generating new migration..."
 	@pnpm --prefix ./backend run migration:generate
 
+create-migration:
+	@echo "Creating migration..."
+	@pnpm --prefix ./backend run migration:create
+
 seed:
 	@echo "Running seeders..."
 	@pnpm --prefix ./backend run seed
