@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-export class SpecialityDto {
+export class DoctorDto {
   @ApiProperty({
-    description: 'The name of the medical speciality',
-    example: 'Cardiology',
+    description: 'The name of the doctor',
+    example: 'Dr. Ahmed Mostafa',
   })
   @IsString()
   name: string;

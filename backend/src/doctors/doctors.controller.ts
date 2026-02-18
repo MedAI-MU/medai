@@ -3,12 +3,24 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { DoctorsService } from './doctors.service';
 import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -18,6 +30,7 @@ import { SpecialityDto } from './dtos/speciality.dto';
 import { Speciality } from './entities/speciality.entity';
 import { SpecialityService } from './speciality.service';
 import { DoctorSpecialityDto } from './dtos/doctor-speciality.dto';
+import { DoctorDto } from './dtos/doctor.dto';
 
 @Controller('doctors')
 export class DoctorsController {
@@ -29,6 +42,12 @@ export class DoctorsController {
   @UseGuards(SameIdGuard)
   @Roles('secretary')
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
+  @ApiOkResponse({ description: 'Doctor details retrieved successfully' })
+  @ApiNotFoundResponse({ description: 'Doctor not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   // TODO: Retrieve doctor details for assigned patient
   async findOne(@Param('id') id: number): Promise<Doctor> {
     const doctor = await this.doctorsService.findOne(id);
@@ -41,6 +60,13 @@ export class DoctorsController {
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Post(':id/specialities')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
+  @ApiBody({ type: DoctorSpecialityDto })
+  @ApiCreatedResponse({ description: 'Doctor speciality added successfully' })
+  @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async addDoctorSpeciality(
     @Param('id') id: number,
     @Body() doctorSpeciality: DoctorSpecialityDto,
@@ -67,6 +93,18 @@ export class DoctorsController {
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Patch(':id/specialities/:specialityId')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
+  @ApiParam({
+    name: 'specialityId',
+    description: 'Doctor speciality ID',
+    type: Number,
+  })
+  @ApiBody({ type: DoctorSpecialityDto })
+  @ApiOkResponse({ description: 'Doctor speciality updated successfully' })
+  @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async updateDoctorSpeciality(
     @Param('id') id: number,
     @Param('specialityId') doctorSpecialityId: number,
@@ -90,6 +128,19 @@ export class DoctorsController {
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Delete(':id/specialities/:specialityId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
+  @ApiParam({
+    name: 'specialityId',
+    description: 'Doctor speciality ID',
+    type: Number,
+  })
+  @ApiNoContentResponse({
+    description: 'Doctor speciality removed successfully',
+  })
+  @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async removeDoctorSpeciality(
     @Param('id') id: number,
     @Param('specialityId') doctorSpecialityId: number,
@@ -110,6 +161,11 @@ export class DoctorsController {
   @Roles('secretary', 'patient')
   @UseGuards(RolesGuard)
   @Post('search/speciality')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: SpecialityDto })
+  @ApiOkResponse({ description: 'Doctors matching the speciality' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async searchBySpeciality(
     @Body() speciality: SpecialityDto,
   ): Promise<Doctor[]> {
@@ -119,13 +175,23 @@ export class DoctorsController {
   @Roles('secretary', 'patient')
   @UseGuards(RolesGuard)
   @Post('search/name')
-  async searchByName(@Body() name: string): Promise<Doctor[]> {
-    return this.doctorsService.findAllByName(name);
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: DoctorDto })
+  @ApiOkResponse({ description: 'Doctors matching the name' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async searchByName(@Body() doctor: DoctorDto): Promise<Doctor[]> {
+    return this.doctorsService.findAllByName(doctor.name);
   }
 
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Post('specialities')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: SpecialityDto })
+  @ApiCreatedResponse({ description: 'Speciality created successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async createSpeciality(
     @Body() specialityDto: SpecialityDto,
   ): Promise<Speciality> {
@@ -135,6 +201,13 @@ export class DoctorsController {
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Patch('specialities/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
+  @ApiBody({ type: SpecialityDto })
+  @ApiOkResponse({ description: 'Speciality updated successfully' })
+  @ApiNotFoundResponse({ description: 'Speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async updateSpeciality(
     @Param('id') id: number,
     @Body() specialityDto: SpecialityDto,
@@ -152,6 +225,12 @@ export class DoctorsController {
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Delete('specialities/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
+  @ApiNoContentResponse({ description: 'Speciality deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async deleteSpeciality(@Param('id') id: number): Promise<void> {
     const speciality = await this.specialityService.deleteSpeciality(id);
     if (!speciality) {
