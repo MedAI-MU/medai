@@ -22,5 +22,6 @@ import { EmergencyContact } from './entities/emergency_contact.entity';
   ],
   controllers: [PatientsController],
   providers: [PatientsService],
+  exports: [PatientsService],
 })
 export class PatientsModule {}

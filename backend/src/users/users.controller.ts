@@ -8,10 +8,16 @@ import {
   ApiConflictResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { DoctorsService } from 'src/doctors/doctors.service';
+import { PatientsService } from 'src/patients/patients.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly doctorsService: DoctorsService,
+    private readonly patientsService: PatientsService,
+  ) {}
 
   @Post()
   @AllowAnon()
@@ -21,6 +27,11 @@ export class UsersController {
   @ApiConflictResponse({ description: 'Phone number or email already in use' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   async registerUser(@Body() registerDto: RegisterDto) {
-    await this.usersService.registerUser(registerDto);
+    const user = await this.usersService.registerUser(registerDto);
+    if (registerDto.role === 'doctor') {
+      await this.doctorsService.create(user.id);
+    } else if (registerDto.role === 'patient') {
+      await this.patientsService.create(user.id);
+    }
   }
 }

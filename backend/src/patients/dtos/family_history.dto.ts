@@ -21,6 +21,7 @@ export class FamilyHistoryDto {
   @ApiProperty({
     description: 'Notes about the family member',
     example: 'notes',
+    required: false,
   })
   @IsOptional()
   @IsString()

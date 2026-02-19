@@ -48,6 +48,7 @@ export class EmergencyContactDto {
   @ApiProperty({
     description: 'Notes about an emergency contact',
     example: 'Call at 10:00 AM',
+    required: false,
   })
   @IsOptional()
   @IsString()

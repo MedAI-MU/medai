@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -64,6 +65,7 @@ export class DoctorsController {
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiBody({ type: DoctorSpecialityDto })
   @ApiCreatedResponse({ description: 'Doctor speciality added successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
@@ -102,6 +104,7 @@ export class DoctorsController {
   })
   @ApiBody({ type: DoctorSpecialityDto })
   @ApiOkResponse({ description: 'Doctor speciality updated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
@@ -164,6 +167,7 @@ export class DoctorsController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: SpecialityDto })
   @ApiOkResponse({ description: 'Doctors matching the speciality' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async searchBySpeciality(
@@ -178,6 +182,7 @@ export class DoctorsController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: DoctorDto })
   @ApiOkResponse({ description: 'Doctors matching the name' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async searchByName(@Body() doctor: DoctorDto): Promise<Doctor[]> {
@@ -190,6 +195,7 @@ export class DoctorsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SpecialityDto })
   @ApiCreatedResponse({ description: 'Speciality created successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async createSpeciality(
@@ -205,6 +211,7 @@ export class DoctorsController {
   @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
   @ApiBody({ type: SpecialityDto })
   @ApiOkResponse({ description: 'Speciality updated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })

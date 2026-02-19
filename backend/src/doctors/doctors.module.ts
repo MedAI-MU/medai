@@ -11,6 +11,6 @@ import { SpecialityService } from './speciality.service';
   imports: [TypeOrmModule.forFeature([Doctor, DoctorSpeciality, Speciality])],
   controllers: [DoctorsController],
   providers: [DoctorsService, SpecialityService],
-  exports: [],
+  exports: [DoctorsService],
 })
 export class DoctorsModule {}

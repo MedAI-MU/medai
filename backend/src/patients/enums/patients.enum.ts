@@ -1,4 +1,3 @@
-export const GenderEnum = ['male', 'female'] as const;
 export const BloodTypeEnum = [
   'A+',
   'A-',
