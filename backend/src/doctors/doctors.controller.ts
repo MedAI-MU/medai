@@ -40,6 +40,101 @@ export class DoctorsController {
     private readonly specialityService: SpecialityService,
   ) {}
 
+  @Roles('secretary', 'patient')
+  @UseGuards(RolesGuard)
+  @Post('search/speciality')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: SpecialityDto })
+  @ApiOkResponse({ description: 'Doctors matching the speciality' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async searchBySpeciality(
+    @Body() speciality: SpecialityDto,
+  ): Promise<Doctor[]> {
+    return this.doctorsService.findAllBySpeciality(speciality.name);
+  }
+
+  @Roles('secretary', 'patient')
+  @UseGuards(RolesGuard)
+  @Post('search/name')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: DoctorDto })
+  @ApiOkResponse({ description: 'Doctors matching the name' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async searchByName(@Body() doctor: DoctorDto): Promise<Doctor[]> {
+    return this.doctorsService.findAllByName(doctor.name);
+  }
+
+  @Roles('secretary')
+  @UseGuards(RolesGuard)
+  @Get('specialities')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Specialities retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getSpecialities(): Promise<Speciality[]> {
+    return await this.specialityService.findAll();
+  }
+
+  @Roles('secretary')
+  @UseGuards(RolesGuard)
+  @Post('specialities')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: SpecialityDto })
+  @ApiCreatedResponse({ description: 'Speciality created successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async createSpeciality(
+    @Body() specialityDto: SpecialityDto,
+  ): Promise<Speciality> {
+    return await this.specialityService.createSpeciality(specialityDto);
+  }
+
+  @Roles('secretary')
+  @UseGuards(RolesGuard)
+  @Patch('specialities/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
+  @ApiBody({ type: SpecialityDto })
+  @ApiOkResponse({ description: 'Speciality updated successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
+  @ApiNotFoundResponse({ description: 'Speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async updateSpeciality(
+    @Param('id') id: number,
+    @Body() specialityDto: SpecialityDto,
+  ): Promise<Speciality> {
+    const speciality = await this.specialityService.updateSpeciality(
+      id,
+      specialityDto,
+    );
+    if (!speciality) {
+      throw new NotFoundException(`Speciality not found`);
+    }
+    return speciality;
+  }
+
+  @Roles('secretary')
+  @UseGuards(RolesGuard)
+  @Delete('specialities/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
+  @ApiNoContentResponse({ description: 'Speciality deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Speciality not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async deleteSpeciality(@Param('id') id: number): Promise<void> {
+    const speciality = await this.specialityService.deleteSpeciality(id);
+    if (!speciality) {
+      throw new NotFoundException(`Speciality not found`);
+    }
+  }
+
   @UseGuards(SameIdGuard)
   @Roles('secretary')
   @Get(':id')
@@ -158,90 +253,6 @@ export class DoctorsController {
     );
     if (!removedDoctor) {
       throw new NotFoundException('Speciality not found');
-    }
-  }
-
-  @Roles('secretary', 'patient')
-  @UseGuards(RolesGuard)
-  @Post('search/speciality')
-  @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: SpecialityDto })
-  @ApiOkResponse({ description: 'Doctors matching the speciality' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async searchBySpeciality(
-    @Body() speciality: SpecialityDto,
-  ): Promise<Doctor[]> {
-    return this.doctorsService.findAllBySpeciality(speciality.name);
-  }
-
-  @Roles('secretary', 'patient')
-  @UseGuards(RolesGuard)
-  @Post('search/name')
-  @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: DoctorDto })
-  @ApiOkResponse({ description: 'Doctors matching the name' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async searchByName(@Body() doctor: DoctorDto): Promise<Doctor[]> {
-    return this.doctorsService.findAllByName(doctor.name);
-  }
-
-  @Roles('secretary')
-  @UseGuards(RolesGuard)
-  @Post('specialities')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiBody({ type: SpecialityDto })
-  @ApiCreatedResponse({ description: 'Speciality created successfully' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async createSpeciality(
-    @Body() specialityDto: SpecialityDto,
-  ): Promise<Speciality> {
-    return await this.specialityService.createSpeciality(specialityDto);
-  }
-
-  @Roles('secretary')
-  @UseGuards(RolesGuard)
-  @Patch('specialities/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
-  @ApiBody({ type: SpecialityDto })
-  @ApiOkResponse({ description: 'Speciality updated successfully' })
-  @ApiBadRequestResponse({ description: 'Invalid input data' })
-  @ApiNotFoundResponse({ description: 'Speciality not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async updateSpeciality(
-    @Param('id') id: number,
-    @Body() specialityDto: SpecialityDto,
-  ): Promise<Speciality> {
-    const speciality = await this.specialityService.updateSpeciality(
-      id,
-      specialityDto,
-    );
-    if (!speciality) {
-      throw new NotFoundException(`Speciality not found`);
-    }
-    return speciality;
-  }
-
-  @Roles('secretary')
-  @UseGuards(RolesGuard)
-  @Delete('specialities/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
-  @ApiNoContentResponse({ description: 'Speciality deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Speciality not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async deleteSpeciality(@Param('id') id: number): Promise<void> {
-    const speciality = await this.specialityService.deleteSpeciality(id);
-    if (!speciality) {
-      throw new NotFoundException(`Speciality not found`);
     }
   }
 }

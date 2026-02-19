@@ -56,4 +56,8 @@ export class SpecialityService {
       where: { id },
     });
   }
+
+  async findAll(): Promise<Speciality[]> {
+    return await this.specialitiesRepository.find();
+  }
 }
