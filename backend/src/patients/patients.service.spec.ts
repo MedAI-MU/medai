@@ -4,7 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { Patient } from './entities/patient.entity';
 import { UpdatePatientDto } from './dtos/update_patient.dto';
-import type { Gender, BloodType, MaritalStatus } from './types/patient.types';
+import type { BloodType, MaritalStatus } from './types/patient.types';
 import type { GenericPatientRelation } from './interfaces/generic-patient-relation.interface';
 
 describe('PatientsService', () => {
@@ -25,10 +25,8 @@ describe('PatientsService', () => {
 
   const mockPatient: Partial<Patient> = {
     userId: 1,
-    birthDate: new Date('1990-01-15'),
     height: 175,
     weight: 70,
-    gender: 'male' as Gender,
     bloodType: 'A+' as BloodType,
     maritalStatus: 'single' as MaritalStatus,
     allergies: [],
@@ -168,46 +166,31 @@ describe('PatientsService', () => {
 
   describe('create', () => {
     it('should create and return a new patient', async () => {
-      const patientData = {
-        userId: 2,
-        birthDate: new Date('1985-05-20'),
-        height: 180,
-        weight: 75,
-        gender: 'female' as Gender,
-        bloodType: 'B+' as BloodType,
-        maritalStatus: 'married' as MaritalStatus,
-      } as Patient;
-
-      const createdPatient = { ...patientData } as Patient;
+      const userId = 2;
+      const createdPatient = { userId } as Patient;
 
       patientsRepositoryMock.create.mockReturnValue(createdPatient);
       patientsRepositoryMock.save.mockResolvedValue(createdPatient);
 
-      const result = await service.create(patientData);
+      const result = await service.create(userId);
 
       expect(result).toEqual(createdPatient);
-      expect(patientsRepositoryMock.create).toHaveBeenCalledWith(patientData);
+      expect(patientsRepositoryMock.create).toHaveBeenCalledWith({ userId });
       expect(patientsRepositoryMock.save).toHaveBeenCalledWith(createdPatient);
     });
 
-    it('should create patient with optional fields as undefined', async () => {
-      const patientData = {
-        userId: 3,
-        birthDate: new Date('2000-01-01'),
-        height: 165,
-        weight: 60,
-        gender: 'male' as Gender,
-      } as Patient;
-
-      const createdPatient = { ...patientData } as Patient;
+    it('should create patient with only userId', async () => {
+      const userId = 3;
+      const createdPatient = { userId } as Patient;
 
       patientsRepositoryMock.create.mockReturnValue(createdPatient);
       patientsRepositoryMock.save.mockResolvedValue(createdPatient);
 
-      const result = await service.create(patientData);
+      const result = await service.create(userId);
 
       expect(result).toEqual(createdPatient);
-      expect(patientsRepositoryMock.create).toHaveBeenCalledWith(patientData);
+      expect(result.userId).toBe(userId);
+      expect(patientsRepositoryMock.create).toHaveBeenCalledWith({ userId });
     });
   });
 
