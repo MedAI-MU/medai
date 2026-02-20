@@ -30,8 +30,9 @@ import { Doctor } from './entities/doctor.entity';
 import { SpecialityDto } from './dtos/speciality.dto';
 import { Speciality } from './entities/speciality.entity';
 import { SpecialityService } from './speciality.service';
-import { DoctorSpecialityDto } from './dtos/doctor-speciality.dto';
+import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorDto } from './dtos/doctor.dto';
+import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Controller('doctors')
 export class DoctorsController {
@@ -158,7 +159,7 @@ export class DoctorsController {
   @Post(':id/specialities')
   @HttpCode(HttpStatus.CREATED)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
-  @ApiBody({ type: DoctorSpecialityDto })
+  @ApiBody({ type: CreateDoctorSpecialityDto })
   @ApiCreatedResponse({ description: 'Doctor speciality added successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
@@ -166,7 +167,7 @@ export class DoctorsController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async addDoctorSpeciality(
     @Param('id') id: number,
-    @Body() doctorSpeciality: DoctorSpecialityDto,
+    @Body() doctorSpeciality: CreateDoctorSpecialityDto,
   ): Promise<Doctor> {
     const doctor = await this.doctorsService.findOne(id);
     if (!doctor) {
@@ -197,7 +198,7 @@ export class DoctorsController {
     description: 'Doctor speciality ID',
     type: Number,
   })
-  @ApiBody({ type: DoctorSpecialityDto })
+  @ApiBody({ type: UpdateDoctorSpecialityDto })
   @ApiOkResponse({ description: 'Doctor speciality updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
@@ -206,7 +207,7 @@ export class DoctorsController {
   async updateDoctorSpeciality(
     @Param('id') id: number,
     @Param('specialityId') doctorSpecialityId: number,
-    @Body() doctorSpeciality: DoctorSpecialityDto,
+    @Body() doctorSpeciality: UpdateDoctorSpecialityDto,
   ): Promise<Doctor> {
     const doctor = await this.doctorsService.findOne(id);
     if (!doctor) {

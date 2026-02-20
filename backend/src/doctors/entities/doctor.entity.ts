@@ -26,7 +26,9 @@ export class Doctor extends TimestampEntity {
   @OneToMany(() => DocSchedule, (schedule) => schedule.doctor)
   schedules: DocSchedule[];
 
-  @OneToMany(() => DoctorSpeciality, (speciality) => speciality.doctor)
+  @OneToMany(() => DoctorSpeciality, (speciality) => speciality.doctor, {
+    cascade: true,
+  })
   specialities: DoctorSpeciality[];
 
   constructor(partial: Partial<Doctor>) {

@@ -3,8 +3,9 @@ import { Doctor } from './entities/doctor.entity';
 import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Speciality } from './entities/speciality.entity';
-import { DoctorSpecialityDto } from './dtos/doctor-speciality.dto';
+import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorSpeciality } from './entities/doctor-speciality.entity';
+import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -24,7 +25,7 @@ export class DoctorsService {
     return this.doctorsRepository.findOne({
       where: { userId: userId },
       relations: {
-        specialities: true,
+        specialities: { speciality: true },
       },
     });
   }
@@ -33,7 +34,7 @@ export class DoctorsService {
     return this.doctorsRepository.find({
       where: { user: { name: ILike(`%${name}%`) } },
       relations: {
-        specialities: true,
+        specialities: { speciality: true },
       },
     });
   }
@@ -42,27 +43,29 @@ export class DoctorsService {
     return this.doctorsRepository.find({
       where: { specialities: { speciality: { name: ILike(`%${name}%`) } } },
       relations: {
-        specialities: true,
+        specialities: { speciality: true },
       },
     });
   }
 
   async addSpeciality(
     doctor: Doctor,
-    doctorSpeciality: DoctorSpecialityDto,
+    doctorSpeciality: CreateDoctorSpecialityDto,
     speciality: Speciality,
   ): Promise<Doctor> {
     doctor.specialities.push({
+      doctor,
       speciality,
       isPrimary: doctorSpeciality.isPrimary || false,
       yearsOfExperience: doctorSpeciality.yearsOfExperience || 0,
     } as DoctorSpeciality);
-    return this.doctorsRepository.save(doctor);
+    await this.doctorsRepository.save(doctor);
+    return (await this.findOne(doctor.userId)) as Doctor;
   }
 
   async updateDoctorSpeciality(
     doctor: Doctor,
-    doctorSpeciality: DoctorSpecialityDto,
+    doctorSpeciality: UpdateDoctorSpecialityDto,
     doctorSpecialityId: number,
   ): Promise<Doctor | null> {
     const doctorSpecialityToUpdate = doctor.specialities.find(
