@@ -30,9 +30,9 @@ export class PatientsService {
     });
   }
 
-  async create(patientData: Patient): Promise<Patient> {
+  async create(userId: number): Promise<Patient> {
     return this.patientsRepository.save(
-      this.patientsRepository.create(patientData),
+      this.patientsRepository.create({ userId }),
     );
   }
 

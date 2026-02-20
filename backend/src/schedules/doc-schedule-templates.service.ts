@@ -75,7 +75,8 @@ export class DocScheduleTemplatesService {
       doctor: {
         id: template.doctor.userId,
         name: template.doctor.user.name,
-        specialty: template.doctor.specialty,
+        // TODO: Update this when possible
+        specialty: template.doctor.specialities[0].speciality.name,
       },
       slots: template.slots.map((slot) => ({
         weekDay: slot.weekDay,

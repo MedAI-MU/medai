@@ -10,6 +10,20 @@ import { CreateDocScheduleSlotDto } from './create-doc-schedule-slot.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDocScheduleDto {
+  @ApiProperty({
+    description: 'Days of the schedule',
+    example: [
+      {
+        date: '2023-09-25',
+        slots: [
+          {
+            startTime: '09:00',
+            endTime: '10:00',
+          },
+        ],
+      },
+    ],
+  })
   @IsNotEmpty()
   @IsArray({ message: 'Days must be an array' })
   @ArrayMinSize(1, { message: 'Days must have at least one item' })

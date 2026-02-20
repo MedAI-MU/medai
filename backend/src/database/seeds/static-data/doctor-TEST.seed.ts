@@ -9,7 +9,6 @@ export class DoctorsSeed implements ISeed {
     const doctors: Doctor[] = [
       new Doctor({
         userId: 1,
-        specialty: 'General Medicine',
       }),
     ];
     await dataSource.getRepository(Doctor).save(doctors);

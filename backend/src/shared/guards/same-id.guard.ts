@@ -5,7 +5,7 @@ import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface
 import { UserRoles } from 'src/users/types/role.types';
 
 @Injectable()
-export class PatientGuard implements CanActivate {
+export class SameIdGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -18,7 +18,7 @@ export class PatientGuard implements CanActivate {
     if (!user) return false;
     return (
       user.id === parseInt(request.params.id) ||
-      (allowedRoles && user.role in allowedRoles)
+      (allowedRoles && allowedRoles.includes(user.role))
     );
   }
 }

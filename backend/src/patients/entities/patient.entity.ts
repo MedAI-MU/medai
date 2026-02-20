@@ -12,13 +12,9 @@ import { ChronicDisease } from './chronic_disease.entity';
 import { Surgery } from './surgery.entity';
 import { FamilyHistory } from './family_history.entity';
 import { EmergencyContact } from './emergency_contact.entity';
-import {
-  GenderEnum,
-  MaritalStatusEnum,
-  BloodTypeEnum,
-} from '../enums/patients.enum';
-import { TimestampEntity } from '../../common/entities/timestamp.entity';
-import type { BloodType, Gender, MaritalStatus } from '../types/patient.types';
+import { MaritalStatusEnum, BloodTypeEnum } from '../enums/patients.enum';
+import { TimestampEntity } from '../../shared/entities/timestamp.entity';
+import type { BloodType, MaritalStatus } from '../types/patient.types';
 
 // TODO: Add surgery, family history, emergency contact, medications
 
@@ -31,17 +27,11 @@ export class Patient extends TimestampEntity {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ type: 'date', nullable: true })
-  birthDate: Date;
-
   @Column({ type: 'float', nullable: true })
   height: number;
 
   @Column({ type: 'float', nullable: true })
   weight: number;
-
-  @Column({ type: 'enum', enum: GenderEnum })
-  gender: Gender;
 
   @Column({ type: 'enum', enum: BloodTypeEnum, nullable: true })
   bloodType: BloodType;

@@ -22,6 +22,7 @@ import { UpdateDocScheduleSlotDto } from './dtos/update-doc-schedule-slot.dto';
 import { PagedListDto } from '../shared/dtos/paged-list.dto';
 import { ApplyDocScheduleTemplateDto } from './dtos/apply-doc-schedule-template.dto';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -65,6 +66,7 @@ export class SchedulesController {
   @HttpCode(HttpStatus.CREATED)
   @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
   @ApiCreatedResponse({ description: 'Schedule template created successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiBody({ type: CreateDocScheduleTemplateDto })
   async createTemplate(
     @CurrentUser() currentUser: TokenUser,
@@ -89,6 +91,7 @@ export class SchedulesController {
   @ApiNoContentResponse({
     description: 'Schedule template updated successfully',
   })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiBody({ type: UpdateDocScheduleTemplateDto })
   async updateTemplate(
     @CurrentUser() currentUser: TokenUser,
@@ -184,6 +187,7 @@ export class SchedulesController {
   @ApiCreatedResponse({
     description: 'Schedule slots created successfully',
   })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   async createSlots(
     @CurrentUser() currentUser: TokenUser,
     @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -207,6 +211,7 @@ export class SchedulesController {
   @ApiNoContentResponse({
     description: 'Schedule slot updated successfully',
   })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   async updateSlot(
     @CurrentUser() currentUser: TokenUser,
     @Param('doctorId', ParseIntPipe) doctorId: number,
@@ -247,6 +252,7 @@ export class SchedulesController {
   @ApiCreatedResponse({
     description: 'Schedule template applied successfully',
   })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiBody({
     type: ApplyDocScheduleTemplateDto,
     description: 'Schedule template application payload',

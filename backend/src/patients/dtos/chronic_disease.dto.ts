@@ -7,6 +7,7 @@ export class ChronicDiseaseDto extends PatientCommonInfoDto {
   @ApiProperty({
     description: 'The diagnosis date of a chronic disease',
     example: '2022-01-01',
+    required: false,
   })
   @IsOptional()
   @IsDate()
