@@ -14,13 +14,18 @@ export class PatientsService {
   ) {}
 
   async findAll(): Promise<Patient[]> {
-    return this.patientsRepository.find();
+    return this.patientsRepository.find({
+      relations: {
+        user: true,
+      },
+    });
   }
   // TODO: Filter patients by the supervised doctor
   async findOne(id: number): Promise<Patient | null> {
     return this.patientsRepository.findOne({
       where: { userId: id },
       relations: {
+        user: true,
         allergies: true,
         chronicDiseases: true,
         surgeries: true,
