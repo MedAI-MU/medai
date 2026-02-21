@@ -51,6 +51,7 @@ import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.Patient
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GetAllPatientsUseCase
+import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
 
 class PatientManagementScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -121,7 +122,7 @@ class PatientManagementScreen : Screen {
                         }
 
                         items(filteredPatients) { patient ->
-                            PatientItem(patient, onClick = { /* TODO: View Patient Details */ })
+                            PatientItem(patient, onClick = { navigator.push(DoctorPatientRecordsScreen(patient.id)) })
                         }
                     }
                 }

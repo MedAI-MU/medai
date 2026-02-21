@@ -1,6 +1,7 @@
 package org.example.project.presentation.secretary.dashboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
+import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -139,7 +141,7 @@ class SecretaryDashboardScreen : Screen {
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(state.queues) { entry ->
-                            QueueItem(entry)
+                            QueueItem(entry, onClick = { navigator.push(DoctorPatientRecordsScreen(entry.patientId)) })
                         }
                     }
                 }
@@ -161,11 +163,12 @@ class SecretaryDashboardScreen : Screen {
     }
 
     @Composable
-    fun QueueItem(entry: QueueEntry) {
+    fun QueueItem(entry: QueueEntry, onClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                .clickable { onClick() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
