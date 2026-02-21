@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Doctor } from './entities/doctor.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Speciality } from './entities/speciality.entity';
+import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
+import { DoctorSpeciality } from './entities/doctor-speciality.entity';
+import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -10,22 +14,89 @@ export class DoctorsService {
     private doctorsRepository: Repository<Doctor>,
   ) {}
 
-  async createDoctor(specialty: string, userId: number): Promise<Doctor> {
+  async create(userId: number): Promise<Doctor> {
     const doctor = this.doctorsRepository.create({
-      specialty,
       user: { id: userId },
     });
     return this.doctorsRepository.save(doctor);
   }
 
-  async findDoctorByUserId(userId: number): Promise<Doctor | null> {
+  async findOne(userId: number): Promise<Doctor | null> {
     return this.doctorsRepository.findOne({
-      where: { user: { id: userId } },
-      relations: ['user'],
+      where: { userId: userId },
+      relations: {
+        specialities: { speciality: true },
+      },
     });
   }
 
-  async getAllDoctors(): Promise<Doctor[]> {
-    return this.doctorsRepository.find({ relations: ['user'] });
+  async findAllByName(name: string): Promise<Doctor[]> {
+    return this.doctorsRepository.find({
+      where: { user: { name: ILike(`%${name}%`) } },
+      relations: {
+        specialities: { speciality: true },
+      },
+    });
+  }
+
+  async findAllBySpeciality(name: string): Promise<Doctor[]> {
+    return this.doctorsRepository.find({
+      where: { specialities: { speciality: { name: ILike(`%${name}%`) } } },
+      relations: {
+        specialities: { speciality: true },
+      },
+    });
+  }
+
+  async addSpeciality(
+    doctor: Doctor,
+    doctorSpeciality: CreateDoctorSpecialityDto,
+    speciality: Speciality,
+  ): Promise<Doctor> {
+    doctor.specialities.push({
+      doctor,
+      speciality,
+      isPrimary: doctorSpeciality.isPrimary || false,
+      yearsOfExperience: doctorSpeciality.yearsOfExperience || 0,
+    } as DoctorSpeciality);
+    await this.doctorsRepository.save(doctor);
+    return (await this.findOne(doctor.userId)) as Doctor;
+  }
+
+  async updateDoctorSpeciality(
+    doctor: Doctor,
+    doctorSpeciality: UpdateDoctorSpecialityDto,
+    doctorSpecialityId: number,
+  ): Promise<Doctor | null> {
+    const doctorSpecialityToUpdate = doctor.specialities.find(
+      (speciality) => speciality.id === doctorSpecialityId,
+    );
+    if (!doctorSpecialityToUpdate) {
+      return null;
+    }
+    if (doctorSpeciality.isPrimary !== undefined) {
+      doctorSpecialityToUpdate.isPrimary = doctorSpeciality.isPrimary;
+    }
+    if (doctorSpeciality.yearsOfExperience !== undefined) {
+      doctorSpecialityToUpdate.yearsOfExperience =
+        doctorSpeciality.yearsOfExperience;
+    }
+    return this.doctorsRepository.save(doctor);
+  }
+
+  async removeDoctorSpeciality(
+    doctor: Doctor,
+    doctorSpecialityId: number,
+  ): Promise<Doctor | null> {
+    const doctorSpecialityToRemove = doctor.specialities.find(
+      (speciality) => speciality.id === doctorSpecialityId,
+    );
+    if (!doctorSpecialityToRemove) {
+      return null;
+    }
+    doctor.specialities = doctor.specialities.filter(
+      (speciality) => speciality.id !== doctorSpecialityId,
+    );
+    return this.doctorsRepository.save(doctor);
   }
 }

@@ -10,25 +10,26 @@ import {
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { Patient } from './entities/patient.entity';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { User } from 'src/users/entities/user.entity';
-import { PatientDto } from './dtos/patient.dto';
 import { UpdatePatientDto } from './dtos/update_patient.dto';
 import { AllergyDto } from './dtos/allergy.dto';
-import { PatientGuard } from './guards/patient.guard';
+import { UpdateAllergyDto } from './dtos/update-allergy.dto';
+import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Allergy } from './entities/allergy.entity';
 import { ChronicDiseaseDto } from './dtos/chronic_disease.dto';
+import { UpdateChronicDiseaseDto } from './dtos/update-chronic-disease.dto';
 import { ChronicDisease } from './entities/chronic_disease.entity';
 import { FamilyHistoryDto } from './dtos/family_history.dto';
+import { UpdateFamilyHistoryDto } from './dtos/update-family-history.dto';
 import { FamilyHistory } from './entities/family_history.entity';
 import { SurgeryDto } from './dtos/surgery.dto';
+import { UpdateSurgeryDto } from './dtos/update-surgery.dto';
 import { Surgery } from './entities/surgery.entity';
 import { EmergencyContactDto } from './dtos/emergency_contact.dto';
+import { UpdateEmergencyContactDto } from './dtos/update-emergency-contact.dto';
 import { EmergencyContact } from './entities/emergency_contact.entity';
 import {
-  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -54,33 +55,15 @@ export class PatientsController {
 
   @Get(':id')
   @Roles('secretary')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient' })
   async getPatient(@Param('id') id: number): Promise<Patient | null> {
     return await this.patientsService.findOne(id);
   }
 
-  @Post()
-  @UseGuards(RolesGuard)
-  @Roles('patient')
-  @ApiCreatedResponse({ description: 'Patient created' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiBody({ type: PatientDto })
-  async create(
-    @CurrentUser() user: User,
-    @Body() patient: PatientDto,
-  ): Promise<Patient> {
-    return await this.patientsService.create({
-      userId: user.id,
-      ...patient,
-    } as Patient);
-  }
-
   @Patch(':id')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiOkResponse({ description: 'Patient updated' })
   @ApiPatientGeneral()
   @ApiBody({ type: UpdatePatientDto })
@@ -92,7 +75,7 @@ export class PatientsController {
   }
 
   @Post(':id/allergies')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added allergy' })
   @ApiPatientGeneral()
   @ApiBody({ type: AllergyDto })
@@ -109,15 +92,15 @@ export class PatientsController {
   }
 
   @Patch(':id/allergies/:allergyId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'allergyId', description: 'Allergy ID', type: Number })
   @ApiOkResponse({ description: 'Updated allergy' })
   @ApiPatientGeneral()
-  @ApiBody({ type: AllergyDto })
+  @ApiBody({ type: UpdateAllergyDto })
   async updateAllergy(
     @Param('id') id: number,
     @Param('allergyId') allergyId: number,
-    @Body() data: AllergyDto,
+    @Body() data: UpdateAllergyDto,
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     return await this.patientsService.updateRelation<Allergy>(
@@ -129,7 +112,7 @@ export class PatientsController {
   }
 
   @Delete(':id/allergies/:allergyId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'allergyId', description: 'Allergy ID', type: Number })
   @ApiOkResponse({ description: 'Removed allergy' })
   @ApiPatientGeneral()
@@ -145,7 +128,7 @@ export class PatientsController {
     );
   }
   @Post(':id/chronic-diseases')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added chronic disease' })
   @ApiPatientGeneral()
   @ApiBody({ type: ChronicDiseaseDto })
@@ -162,7 +145,7 @@ export class PatientsController {
   }
 
   @Patch(':id/chronic-diseases/:chronicDiseaseId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'chronicDiseaseId',
     description: 'Chronic Disease ID',
@@ -170,11 +153,11 @@ export class PatientsController {
   })
   @ApiOkResponse({ description: 'Updated chronic disease' })
   @ApiPatientGeneral()
-  @ApiBody({ type: ChronicDiseaseDto })
+  @ApiBody({ type: UpdateChronicDiseaseDto })
   async updateChronicDisease(
     @Param('id') id: number,
     @Param('chronicDiseaseId') chronicDiseaseId: number,
-    @Body() data: ChronicDiseaseDto,
+    @Body() data: UpdateChronicDiseaseDto,
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     return await this.patientsService.updateRelation<ChronicDisease>(
@@ -186,7 +169,7 @@ export class PatientsController {
   }
 
   @Delete(':id/chronic-diseases/:chronicDiseaseId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'chronicDiseaseId',
     description: 'Chronic Disease ID',
@@ -206,7 +189,7 @@ export class PatientsController {
     );
   }
   @Post(':id/family-histories')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added family history' })
   @ApiPatientGeneral()
   @ApiBody({ type: FamilyHistoryDto })
@@ -223,7 +206,7 @@ export class PatientsController {
   }
 
   @Patch(':id/family-histories/:familyHistoryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'familyHistoryId',
     description: 'Family History ID',
@@ -231,11 +214,11 @@ export class PatientsController {
   })
   @ApiOkResponse({ description: 'Updated family history' })
   @ApiPatientGeneral()
-  @ApiBody({ type: FamilyHistoryDto })
+  @ApiBody({ type: UpdateFamilyHistoryDto })
   async updateFamilyHistory(
     @Param('id') id: number,
     @Param('familyHistoryId') familyHistoryId: number,
-    @Body() data: FamilyHistoryDto,
+    @Body() data: UpdateFamilyHistoryDto,
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     return await this.patientsService.updateRelation<FamilyHistory>(
@@ -247,7 +230,7 @@ export class PatientsController {
   }
 
   @Delete(':id/family-histories/:familyHistoryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'familyHistoryId',
     description: 'Family History ID',
@@ -267,7 +250,7 @@ export class PatientsController {
     );
   }
   @Post(':id/surgeries')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added surgery' })
   @ApiPatientGeneral()
   @ApiBody({ type: SurgeryDto })
@@ -284,15 +267,15 @@ export class PatientsController {
   }
 
   @Patch(':id/surgeries/:surgeryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'surgeryId', description: 'Surgery ID', type: Number })
   @ApiOkResponse({ description: 'Updated surgery' })
   @ApiPatientGeneral()
-  @ApiBody({ type: SurgeryDto })
+  @ApiBody({ type: UpdateSurgeryDto })
   async updateSurgery(
     @Param('id') id: number,
     @Param('surgeryId') surgeryId: number,
-    @Body() data: SurgeryDto,
+    @Body() data: UpdateSurgeryDto,
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     return await this.patientsService.updateRelation<Surgery>(
@@ -304,7 +287,7 @@ export class PatientsController {
   }
 
   @Delete(':id/surgeries/:surgeryId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({ name: 'surgeryId', description: 'Surgery ID', type: Number })
   @ApiOkResponse({ description: 'Removed surgery' })
   @ApiPatientGeneral()
@@ -320,7 +303,7 @@ export class PatientsController {
     );
   }
   @Post(':id/emergency-contacts')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiCreatedResponse({ description: 'Added Emergency Contact' })
   @ApiPatientGeneral()
   @ApiBody({ type: EmergencyContactDto })
@@ -337,7 +320,7 @@ export class PatientsController {
   }
 
   @Patch(':id/emergency-contacts/:emergencyContactId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'emergencyContactId',
     description: 'Emergency Contact ID',
@@ -345,11 +328,11 @@ export class PatientsController {
   })
   @ApiOkResponse({ description: 'Updated emergency contact' })
   @ApiPatientGeneral()
-  @ApiBody({ type: EmergencyContactDto })
+  @ApiBody({ type: UpdateEmergencyContactDto })
   async updateEmergencyContact(
     @Param('id') id: number,
     @Param('emergencyContactId') emergencyContactId: number,
-    @Body() data: EmergencyContactDto,
+    @Body() data: UpdateEmergencyContactDto,
   ): Promise<Patient> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
     return await this.patientsService.updateRelation<EmergencyContact>(
@@ -361,7 +344,7 @@ export class PatientsController {
   }
 
   @Delete(':id/emergency-contacts/:emergencyContactId')
-  @UseGuards(PatientGuard)
+  @UseGuards(SameIdGuard)
   @ApiParam({
     name: 'emergencyContactId',
     description: 'Emergency Contact ID',

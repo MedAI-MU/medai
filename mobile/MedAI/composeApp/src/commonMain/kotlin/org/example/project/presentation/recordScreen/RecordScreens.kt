@@ -52,7 +52,7 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.AnalysisStatus
-import org.example.project.domain.model.PatientEntity
+import org.example.project.domain.model.Patient
 
 class RecordsEmptyScreen : Screen {
     @Composable
@@ -175,7 +175,7 @@ fun DashboardCard(item: DashboardItem) {
 }
 
 @Composable
-fun UserHeader(profile: PatientEntity) {
+fun UserHeader(profile: Patient) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

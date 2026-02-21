@@ -13,6 +13,7 @@ export class UpdateDocScheduleTemplateDto {
   @ApiProperty({
     description: 'Name of the schedule template',
     example: 'Monday Schedule',
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -27,6 +28,7 @@ export class UpdateDocScheduleTemplateDto {
         endTime: '10:00',
       },
     ],
+    required: false,
   })
   @IsOptional()
   @IsArray({ message: 'Slots must be an array' })

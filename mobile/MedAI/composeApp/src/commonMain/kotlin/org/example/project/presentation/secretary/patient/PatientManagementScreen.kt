@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -118,7 +117,7 @@ class PatientManagementScreen : Screen {
                     ) {
                         // Simple client-side filter for now
                         val filteredPatients = state.patients.filter {
-                            it.name.contains(searchQuery, ignoreCase = true) || it.contactNumber.contains(searchQuery)
+                            it.fullName.contains(searchQuery, ignoreCase = true) || it.contactNumber.contains(searchQuery)
                         }
 
                         items(filteredPatients) { patient ->
@@ -141,7 +140,7 @@ class PatientManagementScreen : Screen {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = patient.name, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
+                Text(text = patient.fullName, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
                 Text(text = "Age: ${patient.age} • ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 Text(text = patient.contactNumber, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
             }

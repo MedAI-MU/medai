@@ -1,11 +1,8 @@
 import {
   BloodTypeEnum,
   FamilyRelationEnum,
-  GenderEnum,
   MaritalStatusEnum,
 } from '../enums/patients.enum';
-
-export type Gender = (typeof GenderEnum)[number];
 
 export type BloodType = (typeof BloodTypeEnum)[number];
 

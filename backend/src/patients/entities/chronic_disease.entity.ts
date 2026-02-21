@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Patient } from './patient.entity';
-import { TimestampEntity } from '../../common/entities/timestamp.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 
 @Entity()
 export class ChronicDisease extends TimestampEntity {

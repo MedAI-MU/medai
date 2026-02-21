@@ -16,7 +16,6 @@ import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
-import org.example.project.domain.usecase.secretary.GetDoctorQueueUseCase
 
 data class SecretaryState(
     val clinicStats: ClinicStats = ClinicStats(0, 0, 0.0, 0),

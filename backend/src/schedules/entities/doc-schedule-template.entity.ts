@@ -15,6 +15,7 @@ import { DocScheduleTemplateSlot } from './doc-schedule-template-slot.entity';
 
 @Entity()
 @Index('IDX_doc_schedule_template_doctor_created', ['doctor', 'createdAt'])
+@Index('idx_template_name_trgm', { synchronize: false })
 export class DocScheduleTemplate {
   @PrimaryGeneratedColumn()
   id: number;

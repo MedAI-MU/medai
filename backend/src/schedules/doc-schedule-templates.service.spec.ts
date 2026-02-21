@@ -117,7 +117,7 @@ describe('DocScheduleTemplatesService', () => {
         doctor: {
           userId: 10,
           user: { name: 'Dr. Smith' },
-          specialty: 'Cardiology',
+          specialities: [{ speciality: { name: 'Cardiology' } }],
         },
         createdBy: { id: 1, name: 'Secretary' },
         slots: [
@@ -133,7 +133,7 @@ describe('DocScheduleTemplatesService', () => {
         doctor: {
           userId: 10,
           user: { name: 'Dr. Smith' },
-          specialty: 'Cardiology',
+          specialities: [{ speciality: { name: 'Cardiology' } }],
         },
         createdBy: { id: 1, name: 'Secretary' },
         slots: [{ weekDay: 2, startTime: '14:00', endTime: '17:00' }],

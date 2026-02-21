@@ -3,6 +3,9 @@ package org.example.project.data.repository.mock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import org.example.project.domain.model.BloodType
+import org.example.project.domain.model.Gender
+import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.Patient
 import org.example.project.domain.model.secretary.ClinicStats
 import org.example.project.domain.model.secretary.Invoice
@@ -16,11 +19,11 @@ class MockSecretaryRepositoryImpl : SecretaryRepository {
 
     private val patients = MutableStateFlow(
         listOf(
-            Patient("1", "John Doe", 30, "Male", "1234567890", "john@example.com", "123 Main St", "Hypertension", "2023-10-01"),
-            Patient("2", "Jane Smith", 25, "Female", "0987654321", "jane@example.com", "456 Elm St", "None", "2023-10-05"),
-            Patient("3", "Alice Johnson", 40, "Female", "1122334455", "alice@example.com", "789 Oak St", "Diabetes", "2023-09-20"),
-            Patient("4", "Bob Brown", 50, "Male", "5566778899", "bob@example.com", "321 Pine St", "Asthma", "2023-10-10"),
-            Patient("5", "Charlie Davis", 60, "Male", "6677889900", "charlie@example.com", "654 Cedar St", "Arthritis", "2023-09-15"),
+            Patient("1", "John Doe", Gender.Male, 1, "1234567890", 17.85, 22.5, BloodType.B_NEG, MaritalStatus.Married),
+            Patient("2", "Jane Smith", Gender.Female, 2, "0987654321", 22.4, 33.6, BloodType.B_NEG, MaritalStatus.Married),
+            Patient("3", "Alice Johnson", Gender.Female, 5, "1122334455", 22.5, 44.2, BloodType.B_NEG, MaritalStatus.Married),
+            Patient("4", "Bob Brown", Gender.Male, 6, "5566778899", 33.5, 33.3, BloodType.B_NEG, MaritalStatus.Married),
+            Patient("5", "Charlie Davis", Gender.Male, 8, "6677889900", 41.5, 33.5, BloodType.B_NEG, MaritalStatus.Married),
         )
     )
 
@@ -70,7 +73,7 @@ class MockSecretaryRepositoryImpl : SecretaryRepository {
 
     override suspend fun searchPatients(query: String): List<Patient> {
         return patients.value.filter {
-            it.name.contains(query, ignoreCase = true) || it.contactNumber.contains(query)
+            it.fullName.contains(query, ignoreCase = true)
         }
     }
 
@@ -103,7 +106,7 @@ class MockSecretaryRepositoryImpl : SecretaryRepository {
         val invoice = Invoice(
             id = (invoices.value.size + 1).toString(),
             patientId = patientId,
-            patientName = patient.name,
+            patientName = patient.fullName,
             amount = amount,
             status = "PENDING",
             date = "2023-10-27", // Mock date
