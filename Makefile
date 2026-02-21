@@ -6,9 +6,13 @@ run:
 	@COMPOSE_BAKE=true DOCKER_BUILDKIT=1 \
 	docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env up --build --remove-orphans -d
 	@$(MAKE) migrate
-	@$(MAKE) seed &2> /dev/null
+	@$(MAKE) seed 2> /dev/null
 	@echo "Showing logs..."
 	@docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env logs -f backend
+
+clean-db:
+	@docker container rm medai-db -f 2> /dev/null
+	@docker volume rm medai-local_postgres_data -f
 
 migrate:
 	@echo "Running migrations..."
