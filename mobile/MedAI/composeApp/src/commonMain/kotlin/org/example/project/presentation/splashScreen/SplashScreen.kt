@@ -41,7 +41,6 @@ import org.koin.compose.koinInject
 import org.example.project.domain.repository.UserSessionManager
 import org.example.project.domain.model.UserRole
 import kotlinx.coroutines.flow.first
-import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 
 

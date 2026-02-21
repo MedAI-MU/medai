@@ -17,14 +17,111 @@ data class Patient(
     val email: String = "",
     val address: String = "",
     val medicalHistorySummary: String? = null,
-    val lastVisitDate: String? = null
+    val lastVisitDate: String? = null,
+    val allergies: List<AllergyEntity> = emptyList(),
+    val chronicDiseases: List<ChronicDiseaseEntity> = emptyList(),
+    val familyHistories: List<FamilyHistoryEntity> = emptyList(),
+    val surgeries: List<SurgeryEntity> = emptyList(),
+    val emergencyContacts: List<EmergencyContactEntity> = emptyList(),
+)
+
+@Serializable
+data class AllergyEntity(
+    val id: String,
+    val name: String,
+    val symptoms: String,
+    val dateAdded: String
+)
+
+@Serializable
+data class ChronicDiseaseEntity(
+    val id: String,
+    val name: String,
+    val description: String? = null,
+    val diagnosisDate: String? = null
+)
+
+@Serializable
+data class FamilyHistoryEntity(
+    val id: String,
+    val relation: String,
+    val condition: String,
+    val notes: String? = null
+)
+
+@Serializable
+data class SurgeryEntity(
+    val id: String,
+    val name: String,
+    val description: String? = null,
+    val date: String
+)
+
+@Serializable
+data class EmergencyContactEntity(
+    val id: String,
+    val name: String,
+    val relation: String,
+    val phoneNumber: String,
+    val email: String,
+    val address: String,
+    val notes: String? = null
+)
+
+// --- Params for Repository Operations (to avoid DTO leakage) ---
+
+data class CreatePatientParams(
+    val birthDate: String,
+    val height: Double? = null,
+    val weight: Double? = null,
+    val gender: Gender? = null,
+    val bloodType: BloodType? = null,
+    val maritalStatus: MaritalStatus? = null
+)
+
+data class UpdatePatientParams(
+    val height: Double? = null,
+    val weight: Double? = null,
+    val bloodType: BloodType? = null,
+    val maritalStatus: MaritalStatus? = null
+)
+
+data class AllergyParams(
+    val name: String,
+    val symptoms: String
+)
+
+data class ChronicDiseaseParams(
+    val name: String,
+    val description: String? = null,
+    val diagnosisDate: String? = null
+)
+
+data class FamilyHistoryParams(
+    val relation: String,
+    val condition: String,
+    val notes: String? = null
+)
+
+data class SurgeryParams(
+    val name: String,
+    val description: String? = null,
+    val date: String
+)
+
+data class EmergencyContactParams(
+    val name: String,
+    val relation: String,
+    val phoneNumber: String,
+    val email: String,
+    val address: String,
+    val notes: String? = null
 )
 
 @Serializable
 enum class Gender {
     @SerialName("male") Male,
     @SerialName("female") Female,
-    @SerialName("other") Other
 }
 
 @Serializable
