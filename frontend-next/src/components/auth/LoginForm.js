@@ -2,39 +2,29 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import {
-  Eye,
-  EyeOff,
-  IdCard,
-  Lock,
-  Mail,
-  Phone,
-  UsersRound,
-} from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema } from "@/lib/zod/schemas";
-import { signupAction } from "@/lib/actions/auth";
-import { ROLES } from "@/constants/roles";
+import { loginSchema } from "@/lib/zod/schemas";
+import { loginAction, signupAction } from "@/lib/actions/auth";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
-import FormSelect from "@/components/ui/FormSelect";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 
-function SignupForm() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(signupSchema) });
+  } = useForm({ resolver: zodResolver(loginSchema) });
 
   async function onSubmit(data) {
-    const res = await signupAction(data);
+    const res = await loginAction(data);
     const { fieldErrors, success, message } = res || {};
 
-    // 1) Handle fields error came from server | backend
+    // 1) Handle fields error came from server
     if (fieldErrors) {
       for (const errorKey in fieldErrors)
         setError(errorKey, { message: fieldErrors[errorKey] });
@@ -56,34 +46,6 @@ function SignupForm() {
       className="gap-form mt-8 flex flex-col"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormSelect
-        label="Role"
-        options={ROLES}
-        startIcon={<UsersRound />}
-        defaultValue={ROLES[0]}
-        {...register("role")}
-        error={errors?.role?.message}
-      />
-      <div className="gap-form grid md:grid-cols-2">
-        <FormInput
-          type="text"
-          label="Full Name"
-          autoComplete="name"
-          placeholder="John Doe"
-          startIcon={<IdCard />}
-          {...register("name")}
-          error={errors?.name?.message}
-        />
-        <FormInput
-          type="tel"
-          label="Phone"
-          autoComplete="tel"
-          placeholder="01X XXX XXXX"
-          startIcon={<Phone />}
-          {...register("phone")}
-          error={errors?.phone?.message}
-        />
-      </div>
       <FormInput
         type="email"
         label="Email"
@@ -111,7 +73,7 @@ function SignupForm() {
       />
       <div className="mt-6 text-center">
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          Sign Up
+          Log In
         </Button>
         {errors?.root?.message && (
           <ErrorMessage
@@ -124,4 +86,4 @@ function SignupForm() {
   );
 }
 
-export default SignupForm;
+export default LoginForm;
