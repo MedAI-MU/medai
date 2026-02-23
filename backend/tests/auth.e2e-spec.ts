@@ -126,6 +126,14 @@ describe('AuthController (e2e)', () => {
         .send(loginDto)
         .expect(200);
 
+      expect(response.body).toMatchObject({
+        name: registerDto.name,
+        email: registerDto.email,
+        phone: registerDto.phone,
+        role: registerDto.role,
+      });
+      expect(response.body.id).toEqual(expect.any(Number));
+
       const setCookies = response.headers['set-cookie'] as string | string[];
       expect(setCookies).toBeDefined();
       const cookiesArray = Array.isArray(setCookies)

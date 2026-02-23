@@ -17,6 +17,8 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
 import { ApiBody, ApiOkResponse, ApiBadRequestResponse } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { CredentialsDto } from './dto/credentials.dto';
+import { AuthenticatedUserDto } from './dto/authenticated-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +30,7 @@ export class AuthController {
     user: User,
     req: Request,
     res: Response,
-  ) {
+  ): Promise<CredentialsDto> {
     // remove existing refresh token
     await this.authService.removeOldRefreshToken(req, user);
     // issue new tokens
@@ -46,6 +48,8 @@ export class AuthController {
       expires: credentials.refreshTokenExpiresAt,
       path: '/api/auth',
     });
+
+    return credentials;
   }
 
   @Post('login')
@@ -54,18 +58,30 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({
-    description:
-      'Tokens issued and cookies set (No tokens returned in response)',
+    description: 'User authenticated and cookies set',
+    type: AuthenticatedUserDto,
   })
   @ApiBadRequestResponse({ description: 'Invalid Email or Password' })
   async login(
     @CurrentUser() currentUser: Partial<User>,
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
-  ) {
+  ): Promise<AuthenticatedUserDto> {
     // logged in user trying to login again
     // remove existing refresh token if refresh cookie exists and then issue new tokens
-    await this.issueTokensAndSetCookies(currentUser as User, req, res);
+    const credentials = await this.issueTokensAndSetCookies(
+      currentUser as User,
+      req,
+      res,
+    );
+
+    return {
+      id: credentials.id,
+      name: credentials.name,
+      email: credentials.email,
+      phone: credentials.phone,
+      role: credentials.role,
+    };
   }
 
   @Post('refresh-token')
