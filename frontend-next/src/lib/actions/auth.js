@@ -1,31 +1,17 @@
-"use server";
-
+import { validateSchema } from "../utils/validateSchema";
 import { loginSchema, signupSchema } from "../zod/schemas";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function signupAction(userData) {
-  // 1) Validation before sending to backend
-  const validation = signupSchema.safeParse(userData);
-
-  if (!validation.success) {
-    console.error("Server schema validation error");
-
-    // unify error formate => {email: "error"}
-    const schemaErrors = validation.error.flatten().fieldErrors;
-    const fieldErrors = {};
-
-    // gets the first error message in each field
-    for (const field in schemaErrors) {
-      if (!fieldErrors[field]) fieldErrors[field] = schemaErrors[field][0];
-    }
-
+  // 1) Validation to ensure integrity
+  const validation = validateSchema(signupSchema, userData);
+  if (!validation.success)
     return {
       success: false,
       type: "validation",
-      fieldErrors,
+      fieldErrors: validation.fieldErrors,
     };
-  }
 
   // 2) Send data to backend
   try {
@@ -38,9 +24,9 @@ export async function signupAction(userData) {
       credentials: "include",
     });
 
-    // 3) All is good
+    // 3) ✅ All is good
     if (res.status === 201) {
-      // Direct login
+      // Quick login
       const loginRes = await loginAction({
         email: userData?.email,
         password: userData?.password,
@@ -48,11 +34,11 @@ export async function signupAction(userData) {
 
       if (!loginRes.success) throw new Error("Error during direct login");
 
-      // ✅ All is good
       return {
         success: true,
         type: "backend",
         message: "Account created successfully.",
+        user: loginRes.user,
       };
     }
 
@@ -103,27 +89,14 @@ export async function signupAction(userData) {
 }
 
 export async function loginAction(userData) {
-  // 1) Validation before sending to backend
-  const validation = loginSchema.safeParse(userData);
-
-  if (!validation.success) {
-    console.error("Server schema validation error");
-
-    // unify error formate => {email: "error"}
-    const schemaErrors = validation.error.flatten().fieldErrors;
-    const fieldErrors = {};
-
-    // gets the first error message in each field
-    for (const field in schemaErrors) {
-      if (!fieldErrors[field]) fieldErrors[field] = schemaErrors[field][0];
-    }
-
+  // 1) Validation to ensure integrity
+  const validation = validateSchema(loginSchema, userData);
+  if (!validation.success)
     return {
       success: false,
       type: "validation",
-      fieldErrors,
+      fieldErrors: validation.fieldErrors,
     };
-  }
 
   // 2) Send data to backend
   try {
@@ -135,7 +108,7 @@ export async function loginAction(userData) {
       body: JSON.stringify(userData),
       credentials: "include",
     });
-    console.log(res);
+
     // 3a) Invalid email or password
     if (res?.status === 400)
       return {
@@ -149,12 +122,15 @@ export async function loginAction(userData) {
     if (res.status !== 200 || !res.ok) throw new Error("login error thrown");
 
     // 4) ✅ All is good
-    if (res.status === 200)
+    if (res.status === 200) {
+      const data = await res.json();
       return {
         success: true,
         type: "backend",
         message: "You have logged in successfully.",
+        user: data, // user info
       };
+    }
   } catch (err) {
     console.error(err?.message || "Network error, try again");
 
@@ -164,6 +140,23 @@ export async function loginAction(userData) {
       message: "Network/server error, try again",
       statusCode: 500,
     };
+  }
+}
+
+export async function refreshToken() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (res.status === 200)
+      return {
+        success: true,
+      };
+    return { success: false };
+  } catch {
+    return { success: false };
   }
 }
 
@@ -194,4 +187,45 @@ export async function loginAction(userData) {
 // {
 //   name: 'name should not be empty',
 //   password: 'password should not be empty'
+// }
+
+/* Patient info */
+
+// {
+//     "createdAt": "2026-02-22T11:56:48.433Z",
+//     "updatedAt": "2026-02-22T11:56:48.433Z",
+//     "userId": 1,
+//     "user": {
+//         "createdAt": "2026-02-22T11:56:48.388Z",
+//         "updatedAt": "2026-02-22T11:56:48.388Z",
+//         "id": 1,
+//         "name": "Abdo Ghozal",
+//         "gender": null,
+//         "role": "patient"
+//     },
+//     "height": null,
+//     "weight": null,
+//     "bloodType": null,
+//     "maritalStatus": null,
+//     "allergies": [],
+//     "chronicDiseases": [],
+//     "surgeries": [],
+//     "familyHistories": [],
+//     "emergencyContacts": []
+// }
+
+/* Doctor info */
+// {
+//     "createdAt": "2026-02-23T20:01:17.427Z",
+//     "updatedAt": "2026-02-23T20:01:17.427Z",
+//     "userId": 3,
+//     "user": {
+//         "createdAt": "2026-02-23T20:01:17.380Z",
+//         "updatedAt": "2026-02-23T20:01:17.380Z",
+//         "id": 3,
+//         "name": "doctor ghozal",
+//         "gender": null,
+//         "role": "doctor"
+//     },
+//     "specialities": []
 // }

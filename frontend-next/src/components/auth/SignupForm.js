@@ -20,6 +20,7 @@ import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import FormSelect from "@/components/ui/FormSelect";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import { useRouter } from "next/navigation";
 
 function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,10 +30,11 @@ function SignupForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(signupSchema) });
+  const router = useRouter();
 
   async function onSubmit(data) {
     const res = await signupAction(data);
-    const { fieldErrors, success, message } = res || {};
+    const { fieldErrors, success, message, user } = res || {};
 
     // 1) Handle fields error came from server | backend
     if (fieldErrors) {
@@ -49,6 +51,7 @@ function SignupForm() {
     }
 
     toast.success(message);
+    router.replace(`/${user?.role}/dashboard`);
   }
 
   return (

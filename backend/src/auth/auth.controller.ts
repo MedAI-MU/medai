@@ -46,7 +46,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
       expires: credentials.refreshTokenExpiresAt,
-      path: '/api/auth',
+      path: '/',
     });
 
     return credentials;

@@ -6,10 +6,11 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/zod/schemas";
-import { loginAction, signupAction } from "@/lib/actions/auth";
+import { loginAction } from "@/lib/actions/auth";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import { useRouter } from "next/navigation";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,10 +20,11 @@ function LoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(loginSchema) });
+  const router = useRouter();
 
   async function onSubmit(data) {
     const res = await loginAction(data);
-    const { fieldErrors, success, message } = res || {};
+    const { fieldErrors, success, message, user } = res || {};
 
     // 1) Handle fields error came from server
     if (fieldErrors) {
@@ -39,6 +41,7 @@ function LoginForm() {
     }
 
     toast.success(message);
+    router.replace(`/${user?.role}/dashboard`);
   }
 
   return (
