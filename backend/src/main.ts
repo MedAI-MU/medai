@@ -11,6 +11,12 @@ import { ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // CORS CONFIGURATION
+  app.enableCors({
+    origin: 'http://localhost:3000', // frontend URL
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+  });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({

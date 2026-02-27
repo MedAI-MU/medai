@@ -14,9 +14,11 @@ function MobileMenu({ navLinks }) {
         </Link>
       ))}
 
-      <div className="flex flex-col gap-2 pt-3">
-        <Button variation="secondary">Login</Button>
-        <Button>Sign Up</Button>
+      <div className="flex flex-col gap-2 pt-3 text-center">
+        <Button variation="secondary" href="/auth/login">
+          Login
+        </Button>
+        <Button href="/auth/signup">Sign Up</Button>
       </div>
     </div>
   );
