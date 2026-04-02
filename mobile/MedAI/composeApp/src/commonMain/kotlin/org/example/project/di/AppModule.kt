@@ -317,7 +317,7 @@ val appModule = module {
 
     // Schedule
 //    single<ScheduleRepository> { MockScheduleRepository() }
-    single<ScheduleRepository> { NetworkScheduleRepository(client = get()) }
+    single<ScheduleRepository> { org.example.project.data.repository.NetworkScheduleRepository(client = get()) }
     factory { org.example.project.domain.usecase.schedule.GetScheduleTemplatesUseCase(get()) }
     factory { org.example.project.domain.usecase.schedule.CreateScheduleTemplateUseCase(get()) }
     factory { org.example.project.domain.usecase.schedule.UpdateScheduleTemplateUseCase(get()) }
