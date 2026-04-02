@@ -330,34 +330,37 @@ private fun TemplateCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Time slots preview
-            val groupedByDay = template.slots.groupBy { it.weekDay }
-                .toSortedMap()
-                .entries.take(3) // Show first 3 days
+            val weekDayGroups = template.slots.groupBy { it.weekDay }.entries.sortedBy { it.key }
+            val groupedByDayList = weekDayGroups.take(3) // Show first 3 days
 
-            groupedByDay.forEach { (day, slots) ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = weekDays.getOrElse(day) { "?" },
-                        style = MedAITheme.textStyle.label.medium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MedAITheme.colors.primary,
-                        modifier = Modifier.width(40.dp)
-                    )
-                    Text(
-                        text = slots.joinToString(" · ") { "${it.startTime}-${it.endTime}" },
-                        style = MedAITheme.textStyle.body.small,
-                        color = MedAITheme.colors.text.secondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+            Column {
+                groupedByDayList.forEach { entry ->
+                    val day = entry.key
+                    val slots = entry.value
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = weekDays.getOrElse(day) { "?" },
+                            style = MedAITheme.textStyle.label.medium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MedAITheme.colors.primary,
+                            modifier = Modifier.width(40.dp)
+                        )
+                        Text(
+                            text = slots.joinToString(" · ") { "${it.startTime}-${it.endTime}" },
+                            style = MedAITheme.textStyle.body.small,
+                            color = MedAITheme.colors.text.secondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
-            if (groupedByDay.size < template.slots.groupBy { it.weekDay }.size) {
+            if (groupedByDayList.size < weekDayGroups.size) {
                 Text(
-                    text = "+${template.slots.groupBy { it.weekDay }.size - groupedByDay.size} more days",
+                    text = "+${weekDayGroups.size - groupedByDayList.size} more days",
                     style = MedAITheme.textStyle.label.small,
                     color = MedAITheme.colors.text.tertiary,
                     modifier = Modifier.padding(top = 2.dp)
