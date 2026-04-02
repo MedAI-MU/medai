@@ -98,4 +98,9 @@ class MockAppointmentRepository : AppointmentRepository {
         // For mock, just return all appointments as if they are for the doctor today
         return Result.success(mockAppointments)
     }
+
+    override suspend fun createAppointment(doctorId: Int, slotId: Int, problemDescription: String?): Result<Unit> {
+        delay(500)
+        return Result.success(Unit)
+    }
 }

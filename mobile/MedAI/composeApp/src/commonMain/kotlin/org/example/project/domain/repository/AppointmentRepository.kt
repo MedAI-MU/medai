@@ -11,4 +11,5 @@ interface AppointmentRepository {
     suspend fun cancelAppointment(id: String, reasonId: String, otherReason: String?): Result<Unit>
     suspend fun submitReview(appointmentId: String, rating: Int, comment: String): Result<Unit>
     suspend fun getCancelReasons(): Result<List<CancelReason>>
+    suspend fun createAppointment(doctorId: Int, slotId: Int, problemDescription: String?): Result<Unit>
 }

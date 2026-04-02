@@ -23,5 +23,6 @@ import { User } from '../users/entities/user.entity';
   ],
   controllers: [SchedulesController],
   providers: [DocScheduleTemplatesService, DocScheduleSlotsService],
+  exports: [DocScheduleSlotsService, TypeOrmModule],
 })
 export class SchedulesModule {}
