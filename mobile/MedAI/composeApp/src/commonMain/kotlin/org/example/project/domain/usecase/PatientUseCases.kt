@@ -1,8 +1,6 @@
 package org.example.project.domain.usecase
 
-import org.example.project.data.remote.dto.CreatePatientDto
-import org.example.project.data.remote.dto.UpdatePatientDto
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.*
 import org.example.project.domain.repository.PatientRepository
 
 class GetPatientsUseCase(
@@ -24,7 +22,7 @@ class GetPatientByIdUseCase(
 class CreatePatientUseCase(
     private val repository: PatientRepository
 ) {
-    suspend operator fun invoke(patient: CreatePatientDto): Result<Boolean> {
+    suspend operator fun invoke(patient: CreatePatientParams): Result<Boolean> {
         return repository.createPatient(patient)
     }
 }
@@ -32,7 +30,7 @@ class CreatePatientUseCase(
 class UpdatePatientUseCase(
     private val repository: PatientRepository
 ) {
-    suspend operator fun invoke(id: String, patient: UpdatePatientDto): Result<Boolean> {
+    suspend operator fun invoke(id: String, patient: UpdatePatientParams): Result<Boolean> {
         return repository.updatePatient(id, patient)
     }
 }

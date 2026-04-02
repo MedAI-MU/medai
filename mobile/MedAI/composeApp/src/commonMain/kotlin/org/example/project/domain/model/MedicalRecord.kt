@@ -4,13 +4,6 @@ import kotlinx.datetime.LocalDate
 
 // Enums moved to Patient.kt
 
-data class AllergyEntity(
-    val id: String,
-    val name: String,
-    val symptoms: String,
-    val dateAdded: LocalDate
-)
-
 data class AnalysisEntity(
     val id: String,
     val type: String,

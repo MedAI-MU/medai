@@ -37,7 +37,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
-import medai.composeapp.generated.resources.cardiology_label
 import medai.composeapp.generated.resources.filter
 import medai.composeapp.generated.resources.find_your_doctor_subtitle
 import medai.composeapp.generated.resources.search_placeholder

@@ -6,7 +6,6 @@ import org.example.project.core.presentation.util.ResourceProviderImpl
 import org.example.project.data.remote.KtorClientFactory
 import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
-import org.example.project.data.repository.mock.MockLoginRepository
 import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.NetworkSignUpRepository
@@ -79,7 +78,6 @@ import org.example.project.domain.usecase.secretary.GetAllPatientsUseCase
 import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
 import org.example.project.domain.usecase.secretary.GetDoctorQueueUseCase
-import org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel
 import org.example.project.presentation.homeScreen.HomeViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
 import org.example.project.presentation.notificationScreen.NotificationViewModel
@@ -92,6 +90,22 @@ import org.example.project.presentation.secretary.patient.PatientManagementViewM
 import org.example.project.presentation.secretary.queue.QueueManagementViewModel
 import org.example.project.presentation.signUpScreen.SignUpViewModel
 import org.example.project.presentation.specialtiesScreen.SpecialtiesViewModel
+import org.example.project.domain.usecase.AddAllergyUseCase
+import org.example.project.domain.usecase.AddEmergencyContactUseCase
+import org.example.project.domain.usecase.AddFamilyHistoryUseCase
+import org.example.project.domain.usecase.AddSurgeryUseCase
+import org.example.project.domain.usecase.AddChronicDiseaseUseCase
+import org.example.project.domain.usecase.DeleteAllergyUseCase
+import org.example.project.domain.usecase.DeleteEmergencyContactUseCase
+import org.example.project.domain.usecase.DeleteFamilyHistoryUseCase
+import org.example.project.domain.usecase.DeleteSurgeryUseCase
+import org.example.project.domain.usecase.DeleteChronicDiseaseUseCase
+import org.example.project.domain.usecase.UpdateAllergyUseCase
+import org.example.project.domain.usecase.UpdateEmergencyContactUseCase
+import org.example.project.domain.usecase.UpdateFamilyHistoryUseCase
+import org.example.project.domain.usecase.UpdateSurgeryUseCase
+import org.example.project.domain.usecase.UpdateChronicDiseaseUseCase
+import org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel
 
 import org.koin.dsl.module
 
@@ -103,7 +117,6 @@ val appModule = module {
 
 
 
-    // --- Network ---
     // --- Network ---
     single { KtorClientFactory(sessionManager = get()).create() }
 
@@ -119,7 +132,6 @@ val appModule = module {
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
-    single<MedicalRecordRepository> { MockMedicalRecordRepository() }
     single<AppointmentRepository> { MockAppointmentRepository() }
 
     // --- Patient ---
@@ -133,6 +145,23 @@ val appModule = module {
     factory { CreatePatientUseCase(get()) }
     factory { UpdatePatientUseCase(get()) }
 
+    // New Medical Record Use Cases
+    factory { AddAllergyUseCase(get()) }
+    factory { UpdateAllergyUseCase(get()) }
+    factory { DeleteAllergyUseCase(get()) }
+    factory { AddChronicDiseaseUseCase(get()) }
+    factory { UpdateChronicDiseaseUseCase(get()) }
+    factory { DeleteChronicDiseaseUseCase(get()) }
+    factory { AddSurgeryUseCase(get()) }
+    factory { UpdateSurgeryUseCase(get()) }
+    factory { DeleteSurgeryUseCase(get()) }
+    factory { AddFamilyHistoryUseCase(get()) }
+    factory { UpdateFamilyHistoryUseCase(get()) }
+    factory { DeleteFamilyHistoryUseCase(get()) }
+    factory { AddEmergencyContactUseCase(get()) }
+    factory { UpdateEmergencyContactUseCase(get()) }
+    factory { DeleteEmergencyContactUseCase(get()) }
+
     // Patient ViewModel
     factory { PatientsDirectoryViewModel(get()) }
 
@@ -143,7 +172,7 @@ val appModule = module {
 
     // --- Use Cases ---
     single<UserSessionManager> {
-        InMemoryUserSessionManager(dataStore = get())
+        InMemoryUserSessionManager(get())
     }
     factory { LoginUseCase(get(),get()) }
     factory { SignUpUseCase(repository = get(), sessionManager = get()) }
@@ -183,7 +212,27 @@ val appModule = module {
     }
     factory { ProfileViewModel(get()) }
     factory { NotificationViewModel(get()) }
-    factory { MedicalRecordViewModel(get(), get(), get(), get(), get(), get(),get()) }
+    factory {
+        MedicalRecordViewModel(
+            patientRepository = get(),
+            addAllergyUseCase = get(),
+            updateAllergyUseCase = get(),
+            deleteAllergyUseCase = get(),
+            addChronicDiseaseUseCase = get(),
+            updateChronicDiseaseUseCase = get(),
+            deleteChronicDiseaseUseCase = get(),
+            addSurgeryUseCase = get(),
+            updateSurgeryUseCase = get(),
+            deleteSurgeryUseCase = get(),
+            addFamilyHistoryUseCase = get(),
+            updateFamilyHistoryUseCase = get(),
+            deleteFamilyHistoryUseCase = get(),
+            addEmergencyContactUseCase = get(),
+            updateEmergencyContactUseCase = get(),
+            deleteEmergencyContactUseCase = get(),
+            sessionManager = get()
+        )
+    }
     factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
 
     // Doctor
@@ -191,12 +240,24 @@ val appModule = module {
     factory { DoctorDashboardViewModel(get(), get()) }
     factory { (patientId: String) ->
         DoctorPatientRecordsViewModel(
-            patientId,
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
+            patientId = patientId,
+            getPatientByIdUseCase = get(),
+            updatePatientUseCase = get(),
+            addAllergyUseCase = get(),
+            updateAllergyUseCase = get(),
+            deleteAllergyUseCase = get(),
+            addChronicDiseaseUseCase = get(),
+            updateChronicDiseaseUseCase = get(),
+            deleteChronicDiseaseUseCase = get(),
+            addSurgeryUseCase = get(),
+            updateSurgeryUseCase = get(),
+            deleteSurgeryUseCase = get(),
+            addFamilyHistoryUseCase = get(),
+            updateFamilyHistoryUseCase = get(),
+            deleteFamilyHistoryUseCase = get(),
+            addEmergencyContactUseCase = get(),
+            updateEmergencyContactUseCase = get(),
+            deleteEmergencyContactUseCase = get()
         )
     }
 

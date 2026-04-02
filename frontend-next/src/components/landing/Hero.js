@@ -1,6 +1,7 @@
 import Image from "next/image";
-import Button from "../ui/Button";
-import Container from "../ui/Container";
+import heroImg from "@/assets/hero-image.jpeg";
+import Button from "@/components/ui/Button";
+import Container from "@/components/ui/Container";
 import Section from "./Section";
 
 function Hero() {
@@ -26,10 +27,11 @@ function Hero() {
 
           <div className="relative aspect-video overflow-hidden rounded-2xl shadow-2xl">
             <Image
-              src="/hero-image.jpeg"
+              src={heroImg}
               className="object-cover"
+              placeholder="blur"
               fill
-              alt="Doctor with tablet"
+              alt="Doctor image"
             />
           </div>
         </div>

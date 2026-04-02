@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const Variations = {
   primary: "text-white hover:opacity-90 bg-primary-blue",
   secondary:
@@ -11,14 +13,19 @@ function Button({
   disabled,
   children,
   type,
+  href,
 }) {
+  const Style = `rounded-lg px-5 py-2 transition-all cursor-pointer ${Variations[variation]} ${className}`;
+
+  if (href)
+    return (
+      <Link className={Style} href={href}>
+        {children}
+      </Link>
+    );
+
   return (
-    <button
-      className={`rounded-lg px-5 py-2 transition-all ${Variations[variation]} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-      type={type}
-    >
+    <button className={Style} onClick={onClick} disabled={disabled} type={type}>
       {children}
     </button>
   );

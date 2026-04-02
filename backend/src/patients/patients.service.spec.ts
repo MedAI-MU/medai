@@ -93,7 +93,11 @@ describe('PatientsService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual(patients);
-      expect(patientsRepositoryMock.find).toHaveBeenCalledTimes(1);
+      expect(patientsRepositoryMock.find).toHaveBeenCalledWith({
+        relations: {
+          user: true,
+        },
+      });
     });
 
     it('should return an empty array when no patients exist', async () => {
@@ -102,7 +106,11 @@ describe('PatientsService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual([]);
-      expect(patientsRepositoryMock.find).toHaveBeenCalledTimes(1);
+      expect(patientsRepositoryMock.find).toHaveBeenCalledWith({
+        relations: {
+          user: true,
+        },
+      });
     });
   });
 
@@ -118,6 +126,7 @@ describe('PatientsService', () => {
       expect(patientsRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { userId: 1 },
         relations: {
+          user: true,
           allergies: true,
           chronicDiseases: true,
           surgeries: true,
@@ -136,6 +145,7 @@ describe('PatientsService', () => {
       expect(patientsRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { userId: 999 },
         relations: {
+          user: true,
           allergies: true,
           chronicDiseases: true,
           surgeries: true,
@@ -153,6 +163,7 @@ describe('PatientsService', () => {
       expect(patientsRepositoryMock.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: {
+            user: true,
             allergies: true,
             chronicDiseases: true,
             surgeries: true,

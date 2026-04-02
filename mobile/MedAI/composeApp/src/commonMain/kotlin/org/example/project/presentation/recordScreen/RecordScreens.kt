@@ -20,39 +20,91 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContactPhone
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Vaccines
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.component.textFields.MedAiDateTextField
+import org.example.project.design_system.component.textFields.MedAiTextArea
+import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.domain.model.AllergyEntity
+import org.example.project.domain.model.AllergyParams
 import org.example.project.domain.model.AnalysisStatus
+import org.example.project.domain.model.BloodType
+import org.example.project.domain.model.ChronicDiseaseEntity
+import org.example.project.domain.model.ChronicDiseaseParams
+import org.example.project.domain.model.EmergencyContactEntity
+import org.example.project.domain.model.EmergencyContactParams
+import org.example.project.domain.model.FamilyHistoryEntity
+import org.example.project.domain.model.FamilyHistoryParams
+import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.Patient
+import org.example.project.domain.model.SurgeryEntity
+import org.example.project.domain.model.SurgeryParams
+import org.example.project.domain.model.UpdatePatientParams
+
+// --- Sheet Type Sealed Class (patient-specific) ---
+sealed class PatientSheetType {
+    object None : PatientSheetType()
+    object AddAllergy : PatientSheetType()
+    data class EditAllergy(val allergy: AllergyEntity) : PatientSheetType()
+    object AddDisease : PatientSheetType()
+    data class EditDisease(val disease: ChronicDiseaseEntity) : PatientSheetType()
+    object AddSurgery : PatientSheetType()
+    data class EditSurgery(val surgery: SurgeryEntity) : PatientSheetType()
+    object AddFamily : PatientSheetType()
+    data class EditFamily(val history: FamilyHistoryEntity) : PatientSheetType()
+    object AddEmergency : PatientSheetType()
+    data class EditEmergency(val contact: EmergencyContactEntity) : PatientSheetType()
+    object EditProfile : PatientSheetType()
+}
 
 class RecordsEmptyScreen : Screen {
     @Composable
@@ -75,17 +127,8 @@ class RecordsEmptyScreen : Screen {
                     text = "You Have Not Added Any Medical Records Yet",
                     style = MedAITheme.textStyle.title.medium,
                     color = MedAITheme.colors.text.secondary,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = { navigator.push(AddRecordScreen()) },
-                    colors = ButtonDefaults.buttonColors(containerColor = MedAITheme.colors.primary)
-                ) {
-                    Icon(Icons.Default.Add, null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add Records")
-                }
             }
         }
     }
@@ -95,46 +138,58 @@ class RecordsEmptyScreen : Screen {
 // 2. Dashboard Screen (Main Entry)
 // -----------------------------------------------------------------------------
 class RecordsDashboardScreen : Screen {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<MedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
-        MedAIScaffold(title = "Medical Records") {
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+        }
+
+        MedAIScaffold(title = "Medical Records", snackbarHost = { SnackbarHost(snackbarHostState) }) {
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = MedAITheme.colors.primary)
                 }
-            } else if (state.patientProfile == null) {
-                // If no profile data, redirect or show empty state
-                // (In a real app, you might check a specific flag "hasRecords")
-                // For this mock logic, we assume if profile is null, it's empty.
-                // But since mock repo always returns a profile, this won't trigger unless we empty the mock.
-                // navigator.replace(RecordsEmptyScreen()) // Logic depends on requirements
-
-                // Just render Dashboard assuming data exists as per Mock
-                DashboardContent(state, navigator)
             } else {
-                DashboardContent(state, navigator)
+                DashboardContent(state, navigator, onEditProfile = { currentSheet = PatientSheetType.EditProfile })
+            }
+        }
+
+        if (currentSheet == PatientSheetType.EditProfile) {
+            ModalBottomSheet(
+                onDismissRequest = { currentSheet = PatientSheetType.None },
+                sheetState = sheetState,
+                containerColor = MedAITheme.colors.background
+            ) {
+                PatientProfileForm(
+                    profile = state.patientProfile,
+                    onDismiss = { currentSheet = PatientSheetType.None },
+                    onEvent = { viewModel.onEvent(it) }
+                )
             }
         }
     }
 
     @Composable
-    fun DashboardContent(state: MedicalRecordState, navigator: cafe.adriel.voyager.navigator.Navigator) {
+    fun DashboardContent(state: MedicalRecordState, navigator: cafe.adriel.voyager.navigator.Navigator, onEditProfile: () -> Unit) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            // User Header
-            state.patientProfile?.let { UserHeader(it) }
-
+            state.patientProfile?.let { UserHeader(it, onEditClick = onEditProfile) }
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Grid Menu
             val items = listOf(
                 DashboardItem("Allergies", Icons.Default.LocalHospital, Color(0xFFFFCDD2)) { navigator.push(AllergiesScreen()) },
-                DashboardItem("Analysis", Icons.Default.Science, Color(0xFFE1BEE7)) { navigator.push(AnalysesScreen()) },
-                DashboardItem("Vaccinations", Icons.Default.Vaccines, Color(0xFFC8E6C9)) { navigator.push(VaccinationsScreen()) },
-                DashboardItem("History", Icons.Default.History, Color(0xFFBBDEFB)) { navigator.push(MedicalHistoryScreen()) }
+                DashboardItem("Diseases", Icons.Default.Science, Color(0xFFE1BEE7)) { navigator.push(DiseasesScreen()) },
+                DashboardItem("Surgeries", Icons.Default.Vaccines, Color(0xFFC8E6C9)) { navigator.push(SurgeriesScreen()) },
+                DashboardItem("Family", Icons.Default.History, Color(0xFFBBDEFB)) { navigator.push(FamilyHistoryScreen()) },
+                DashboardItem("Emergency", Icons.Default.ContactPhone, Color(0xFFFFF9C4)) { navigator.push(EmergencyContactsScreen()) },
+                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) }
             )
 
             LazyVerticalGrid(
@@ -142,9 +197,7 @@ class RecordsDashboardScreen : Screen {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(items) { item ->
-                    DashboardCard(item)
-                }
+                items(items) { item -> DashboardCard(item) }
             }
         }
     }
@@ -155,10 +208,7 @@ data class DashboardItem(val title: String, val icon: ImageVector, val color: Co
 @Composable
 fun DashboardCard(item: DashboardItem) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .clickable { item.onClick() },
+        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clickable { item.onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = item.color.copy(alpha = 0.2f))
     ) {
@@ -175,7 +225,7 @@ fun DashboardCard(item: DashboardItem) {
 }
 
 @Composable
-fun UserHeader(profile: Patient) {
+fun UserHeader(profile: Patient, onEditClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -184,41 +234,243 @@ fun UserHeader(profile: Patient) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             MedAIText(profile.fullName, style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.height(4.dp))
             MedAIText("Blood Type: ${profile.bloodType.label}", style = MedAITheme.textStyle.body.medium)
             MedAIText("Height: ${profile.height} cm", style = MedAITheme.textStyle.body.medium)
             MedAIText("Weight: ${profile.weight} kg", style = MedAITheme.textStyle.body.medium)
+            MedAIText("Status: ${profile.maritalStatus.name}", style = MedAITheme.textStyle.body.medium)
+        }
+        IconButton(onClick = onEditClick) {
+            Icon(
+                Icons.Default.Edit,
+                contentDescription = "Edit Profile",
+                tint = MedAITheme.colors.primary,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PatientProfileForm(
+    profile: Patient?,
+    onDismiss: () -> Unit,
+    onEvent: (MedicalRecordEvent) -> Unit
+) {
+    var height by remember { mutableStateOf(profile?.height?.toString() ?: "") }
+    var weight by remember { mutableStateOf(profile?.weight?.toString() ?: "") }
+    var selectedBloodType by remember { mutableStateOf(profile?.bloodType ?: BloodType.UNKNOWN) }
+    var selectedMaritalStatus by remember { mutableStateOf(profile?.maritalStatus ?: MaritalStatus.Single) }
+    var bloodTypeExpanded by remember { mutableStateOf(false) }
+    var maritalStatusExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())
+    ) {
+        MedAIText(
+            "Edit Profile",
+            style = MedAITheme.textStyle.headline.small,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        MedAiTextField(value = height, onValueChange = { height = it }, placeholder = "Height (cm)")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = weight, onValueChange = { weight = it }, placeholder = "Weight (kg)")
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Blood Type Dropdown
+        MedAIText("Blood Type", style = MedAITheme.textStyle.label.medium, modifier = Modifier.padding(bottom = 8.dp))
+        ExposedDropdownMenuBox(
+            expanded = bloodTypeExpanded,
+            onExpandedChange = { bloodTypeExpanded = it }
+        ) {
+            MedAiTextField(
+                value = selectedBloodType.label,
+                onValueChange = {},
+                readOnly = true,
+                placeholder = "Select Blood Type",
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = bloodTypeExpanded,
+                onDismissRequest = { bloodTypeExpanded = false }
+            ) {
+                BloodType.entries.filter { it != BloodType.UNKNOWN }.forEach { type ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(type.label) },
+                        onClick = {
+                            selectedBloodType = type
+                            bloodTypeExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Marital Status Dropdown
+        MedAIText("Marital Status", style = MedAITheme.textStyle.label.medium, modifier = Modifier.padding(bottom = 8.dp))
+        ExposedDropdownMenuBox(
+            expanded = maritalStatusExpanded,
+            onExpandedChange = { maritalStatusExpanded = it }
+        ) {
+            MedAiTextField(
+                value = selectedMaritalStatus.name,
+                onValueChange = {},
+                readOnly = true,
+                placeholder = "Select Marital Status",
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = maritalStatusExpanded,
+                onDismissRequest = { maritalStatusExpanded = false }
+            ) {
+                MaritalStatus.entries.forEach { status ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(status.name) },
+                        onClick = {
+                            selectedMaritalStatus = status
+                            maritalStatusExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        MedAIButton(
+            text = "Save Changes",
+            onClick = {
+                val params = UpdatePatientParams(
+                    height = height.toDoubleOrNull(),
+                    weight = weight.toDoubleOrNull(),
+                    bloodType = selectedBloodType,
+                    maritalStatus = selectedMaritalStatus
+                )
+                onEvent(MedicalRecordEvent.UpdatePatientInfo(params))
+                onDismiss()
+            }
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+fun RecordEmptyState(label: String, onAddClick: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = null,
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(36.dp))
+                .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
+                .padding(16.dp),
+            tint = MedAITheme.colors.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAIText(
+            text = label,
+            style = MedAITheme.textStyle.title.medium,
+            color = MedAITheme.colors.text.secondary,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        MedAIText(
+            text = "Tap the button below to add your first entry.",
+            style = MedAITheme.textStyle.body.medium,
+            color = MedAITheme.colors.text.secondary,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = "Add First Record", onClick = onAddClick)
+    }
+}
+
 // -----------------------------------------------------------------------------
-// 3. Sub-Screens (Lists)
+// 3. Sub-Screens with Add/Edit/Delete support
 // -----------------------------------------------------------------------------
 
-// --- Allergies ---
+@OptIn(ExperimentalMaterial3Api::class)
 class AllergiesScreen : Screen {
     @Composable
     override fun Content() {
         val viewModel = getScreenModel<MedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
-        MedAIScaffold(title = "Allergies", onBackClick = { navigator.pop() }) {
-            LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(state.allergies) { allergy ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { effect ->
+                if (effect is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+
+        MedAIScaffold(
+            title = "Allergies",
+            onBackClick = { navigator.pop() },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (state.allergies.isEmpty()) {
+                    RecordEmptyState(
+                        label = "No allergies on record yet",
+                        onAddClick = { currentSheet = PatientSheetType.AddAllergy }
+                    )
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            MedAIText(allergy.name, style = MedAITheme.textStyle.title.medium)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            MedAIText("Symptoms: ${allergy.symptoms}", style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
+                        items(state.allergies) { allergy ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)
+                            ) {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
+                                        MedAIText(allergy.name, style = MedAITheme.textStyle.title.medium)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        MedAIText("Symptoms: ${allergy.symptoms}", style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
+                                    }
+                                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                                        IconButton(onClick = { currentSheet = PatientSheetType.EditAllergy(allergy) }) {
+                                            Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp))
+                                        }
+                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteAllergy(allergy.id)) }) {
+                                            Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp))
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = { currentSheet = PatientSheetType.AddAllergy },
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Add Allergy") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        containerColor = MedAITheme.colors.primary
+                    )
+                }
+
+                if (currentSheet != PatientSheetType.None) {
+                    ModalBottomSheet(
+                        onDismissRequest = { currentSheet = PatientSheetType.None },
+                        sheetState = sheetState,
+                        containerColor = MedAITheme.colors.background
+                    ) {
+                        PatientAllergyForm(currentSheet, onDismiss = { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
                 }
             }
@@ -226,7 +478,29 @@ class AllergiesScreen : Screen {
     }
 }
 
-// --- Analyses ---
+@Composable
+fun PatientAllergyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+    val allergy = (sheetType as? PatientSheetType.EditAllergy)?.allergy
+    var name by remember { mutableStateOf(allergy?.name ?: "") }
+    var symptoms by remember { mutableStateOf(allergy?.symptoms ?: "") }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
+        MedAIText(if (allergy == null) "Add Allergy" else "Edit Allergy", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
+        MedAiTextField(value = name, onValueChange = { name = it }, placeholder = "Allergy Name")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextArea(value = symptoms, onValueChange = { symptoms = it }, placeholder = "Symptoms / Description")
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = if (allergy == null) "Add" else "Update", onClick = {
+            val params = AllergyParams(name = name, symptoms = symptoms)
+            if (allergy == null) onEvent(MedicalRecordEvent.AddAllergy(params))
+            else onEvent(MedicalRecordEvent.EditAllergy(allergy.id, params))
+            onDismiss()
+        })
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// --- Analyses (read-only) ---
 class AnalysesScreen : Screen {
     @Composable
     override fun Content() {
@@ -251,7 +525,6 @@ class AnalysesScreen : Screen {
                                 MedAIText(analysis.type, style = MedAITheme.textStyle.title.medium)
                                 MedAIText(analysis.date.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                             }
-                            // Status Chip logic could go here
                             Text(
                                 text = analysis.status.name,
                                 color = if (analysis.status == AnalysisStatus.Completed) Color(0xFF4CAF50) else Color(0xFFFF9800),
@@ -265,7 +538,342 @@ class AnalysesScreen : Screen {
     }
 }
 
-// --- Vaccinations ---
+// --- Diseases ---
+@OptIn(ExperimentalMaterial3Api::class)
+class DiseasesScreen : Screen {
+    @Composable
+    override fun Content() {
+        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val state by viewModel.state.collectAsState()
+        val navigator = LocalNavigator.currentOrThrow
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+        }
+
+        MedAIScaffold(title = "Chronic Diseases", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
+            val diseases = state.patientProfile?.chronicDiseases ?: emptyList()
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (diseases.isEmpty()) {
+                    RecordEmptyState(label = "No chronic diseases on record yet", onAddClick = { currentSheet = PatientSheetType.AddDisease })
+                } else {
+                    LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(diseases) { disease ->
+                            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)) {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
+                                        MedAIText(disease.name, style = MedAITheme.textStyle.title.medium)
+                                        MedAIText(disease.description.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                                        MedAIText("Diagnosed: ${disease.diagnosisDate}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                                    }
+                                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                                        IconButton(onClick = { currentSheet = PatientSheetType.EditDisease(disease) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteChronicDisease(disease.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = { currentSheet = PatientSheetType.AddDisease },
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Add Disease") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        containerColor = MedAITheme.colors.primary
+                    )
+                }
+                if (currentSheet != PatientSheetType.None) {
+                    ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
+                        PatientDiseaseForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+    val disease = (sheetType as? PatientSheetType.EditDisease)?.disease
+    var name by remember { mutableStateOf(disease?.name ?: "") }
+    var desc by remember { mutableStateOf(disease?.description ?: "") }
+    var date by remember { mutableStateOf(disease?.diagnosisDate ?: "") }
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
+        MedAIText(if (disease == null) "Add Chronic Disease" else "Edit Chronic Disease", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
+        MedAiTextField(value = name, onValueChange = { name = it }, placeholder = "Disease Name")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextArea(value = desc, onValueChange = { desc = it }, placeholder = "Description")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiDateTextField(value = date, onValueChange = { date = it }, placeholder = "Diagnosis Date (DDMMYYYY)")
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = if (disease == null) "Add" else "Update", onClick = {
+            val params = ChronicDiseaseParams(name = name, description = desc, diagnosisDate = date)
+            if (disease == null) onEvent(MedicalRecordEvent.AddChronicDisease(params))
+            else onEvent(MedicalRecordEvent.EditChronicDisease(disease.id, params))
+            onDismiss()
+        })
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// --- Surgeries ---
+@OptIn(ExperimentalMaterial3Api::class)
+class SurgeriesScreen : Screen {
+    @Composable
+    override fun Content() {
+        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val state by viewModel.state.collectAsState()
+        val navigator = LocalNavigator.currentOrThrow
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+        }
+
+        MedAIScaffold(title = "Surgeries", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
+            val surgeries = state.patientProfile?.surgeries ?: emptyList()
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (surgeries.isEmpty()) {
+                    RecordEmptyState(label = "No surgeries on record yet", onAddClick = { currentSheet = PatientSheetType.AddSurgery })
+                } else {
+                    LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(surgeries) { surgery ->
+                            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)) {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
+                                        MedAIText(surgery.name, style = MedAITheme.textStyle.title.medium)
+                                        MedAIText(surgery.description.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                                        MedAIText("Date: ${surgery.date}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                                    }
+                                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                                        IconButton(onClick = { currentSheet = PatientSheetType.EditSurgery(surgery) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteSurgery(surgery.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = { currentSheet = PatientSheetType.AddSurgery },
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Add Surgery") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        containerColor = MedAITheme.colors.primary
+                    )
+                }
+                if (currentSheet != PatientSheetType.None) {
+                    ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
+                        PatientSurgeryForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+    val surgery = (sheetType as? PatientSheetType.EditSurgery)?.surgery
+    var name by remember { mutableStateOf(surgery?.name ?: "") }
+    var desc by remember { mutableStateOf(surgery?.description ?: "") }
+    var date by remember { mutableStateOf(surgery?.date ?: "") }
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
+        MedAIText(if (surgery == null) "Add Surgery" else "Edit Surgery", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
+        MedAiTextField(value = name, onValueChange = { name = it }, placeholder = "Surgery Name")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextArea(value = desc, onValueChange = { desc = it }, placeholder = "Details")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiDateTextField(value = date, onValueChange = { date = it }, placeholder = "Date (DDMMYYYY)")
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = if (surgery == null) "Add" else "Update", onClick = {
+            val params = SurgeryParams(name = name, description = desc, date = date)
+            if (surgery == null) onEvent(MedicalRecordEvent.AddSurgery(params))
+            else onEvent(MedicalRecordEvent.EditSurgery(surgery.id, params))
+            onDismiss()
+        })
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// --- Family History ---
+@OptIn(ExperimentalMaterial3Api::class)
+class FamilyHistoryScreen : Screen {
+    @Composable
+    override fun Content() {
+        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val state by viewModel.state.collectAsState()
+        val navigator = LocalNavigator.currentOrThrow
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+        }
+
+        MedAIScaffold(title = "Family History", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
+            val histories = state.patientProfile?.familyHistories ?: emptyList()
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (histories.isEmpty()) {
+                    RecordEmptyState(label = "No family history on record yet", onAddClick = { currentSheet = PatientSheetType.AddFamily })
+                } else {
+                    LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(histories) { history ->
+                            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)) {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
+                                        MedAIText("${history.relation}: ${history.condition}", style = MedAITheme.textStyle.title.medium)
+                                        MedAIText(history.notes.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                                    }
+                                    Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                                        IconButton(onClick = { currentSheet = PatientSheetType.EditFamily(history) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteFamilyHistory(history.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = { currentSheet = PatientSheetType.AddFamily },
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Add Family History") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        containerColor = MedAITheme.colors.primary
+                    )
+                }
+                if (currentSheet != PatientSheetType.None) {
+                    ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
+                        PatientFamilyForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+    val history = (sheetType as? PatientSheetType.EditFamily)?.history
+    var relation by remember { mutableStateOf(history?.relation ?: "") }
+    var condition by remember { mutableStateOf(history?.condition ?: "") }
+    var notes by remember { mutableStateOf(history?.notes ?: "") }
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
+        MedAIText(if (history == null) "Add Family History" else "Edit Family History", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
+        MedAiTextField(value = relation, onValueChange = { relation = it }, placeholder = "Relation (e.g. Father)")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = condition, onValueChange = { condition = it }, placeholder = "Condition")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextArea(value = notes, onValueChange = { notes = it }, placeholder = "Notes")
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = if (history == null) "Add" else "Update", onClick = {
+            val params = FamilyHistoryParams(relation = relation, condition = condition, notes = notes)
+            if (history == null) onEvent(MedicalRecordEvent.AddFamilyHistory(params))
+            else onEvent(MedicalRecordEvent.EditFamilyHistory(history.id, params))
+            onDismiss()
+        })
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// --- Emergency Contacts ---
+@OptIn(ExperimentalMaterial3Api::class)
+class EmergencyContactsScreen : Screen {
+    @Composable
+    override fun Content() {
+        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val state by viewModel.state.collectAsState()
+        val navigator = LocalNavigator.currentOrThrow
+        val snackbarHostState = remember { SnackbarHostState() }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+
+        LaunchedEffect(viewModel) {
+            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+        }
+
+        MedAIScaffold(title = "Emergency Contacts", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
+            val contacts = state.patientProfile?.emergencyContacts ?: emptyList()
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (contacts.isEmpty()) {
+                    RecordEmptyState(label = "No emergency contacts on record yet", onAddClick = { currentSheet = PatientSheetType.AddEmergency })
+                } else {
+                        LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(contacts) { contact ->
+                                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)) {
+                                    Box(modifier = Modifier.fillMaxWidth()) {
+                                        Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
+                                            MedAIText(contact.name, style = MedAITheme.textStyle.title.medium)
+                                            MedAIText("${contact.relation} • ${contact.phoneNumber}", style = MedAITheme.textStyle.body.small)
+                                            MedAIText(contact.address, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                                        }
+                                        Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+                                            IconButton(onClick = { currentSheet = PatientSheetType.EditEmergency(contact) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
+                                            IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteEmergencyContact(contact.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = { currentSheet = PatientSheetType.AddEmergency },
+                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                        text = { Text("Add Contact") },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        containerColor = MedAITheme.colors.primary
+                    )
+                }
+                if (currentSheet != PatientSheetType.None) {
+                    ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
+                        PatientEmergencyForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
+                    }
+                }
+            }
+        }
+    }
+
+@Composable
+fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+    val contact = (sheetType as? PatientSheetType.EditEmergency)?.contact
+    var name by remember { mutableStateOf(contact?.name ?: "") }
+    var relation by remember { mutableStateOf(contact?.relation ?: "") }
+    var phone by remember { mutableStateOf(contact?.phoneNumber ?: "") }
+    var email by remember { mutableStateOf(contact?.email ?: "") }
+    var address by remember { mutableStateOf(contact?.address ?: "") }
+    var notes by remember { mutableStateOf(contact?.notes ?: "") }
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
+        MedAIText(if (contact == null) "Add Emergency Contact" else "Edit Emergency Contact", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
+        MedAiTextField(value = name, onValueChange = { name = it }, placeholder = "Full Name")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = relation, onValueChange = { relation = it }, placeholder = "Relation")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = phone, onValueChange = { phone = it }, placeholder = "Phone Number")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = email, onValueChange = { email = it }, placeholder = "Email")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextField(value = address, onValueChange = { address = it }, placeholder = "Address")
+        Spacer(modifier = Modifier.height(16.dp))
+        MedAiTextArea(value = notes, onValueChange = { notes = it }, placeholder = "Notes")
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(text = if (contact == null) "Add" else "Update", onClick = {
+            val params = EmergencyContactParams(
+                name = name, relation = relation, phoneNumber = phone,
+                email = email, address = address, notes = notes
+            )
+            if (contact == null) onEvent(MedicalRecordEvent.AddEmergencyContact(params))
+            else onEvent(MedicalRecordEvent.EditEmergencyContact(contact.id, params))
+            onDismiss()
+        })
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// --- Vaccinations (read-only) ---
 class VaccinationsScreen : Screen {
     @Composable
     override fun Content() {
@@ -299,7 +907,7 @@ class VaccinationsScreen : Screen {
     }
 }
 
-// --- Medical History ---
+// --- Medical History (read-only) ---
 class MedicalHistoryScreen : Screen {
     @Composable
     override fun Content() {
@@ -326,19 +934,6 @@ class MedicalHistoryScreen : Screen {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-// 4. Add Record Screen (Placeholder)
-class AddRecordScreen : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-        MedAIScaffold(title = "Add Record", onBackClick = { navigator.pop() }) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Form to add profile data goes here")
             }
         }
     }

@@ -24,7 +24,7 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
     // --- Mock Data Store ---
 
     private var patientDto = PatientDto(
-        id = "p1",
+        //id = "p1",
         name = "John Doe",
         birthDate = "1990-05-15",
         height = 17.9,
@@ -35,10 +35,10 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
     )
 
     private val allergyDtos = listOf(
-        AllergyDto("a1", "Insulin Allergy", "Skin rash, Itching", "2022-05-10"),
-        AllergyDto("a2", "Codeine Allergy", "Dizziness, Nausea", "2021-03-15"),
-        AllergyDto("a3", "Pollen Allergy", "Sneezing, Runny nose", "2020-04-01"),
-        AllergyDto("a4", "Latex Allergy", "Skin irritation", "2019-08-20")
+        AllergyDto(1, "Insulin Allergy", "Skin rash, Itching", ),
+        AllergyDto(2, "Codeine Allergy", "Dizziness, Nausea", ),
+        AllergyDto(3, "Pollen Allergy", "Sneezing, Runny nose", ),
+        AllergyDto(4, "Latex Allergy", "Skin irritation", )
     )
 
     private val analysisDtos = listOf(
