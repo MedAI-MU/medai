@@ -331,8 +331,8 @@ private fun TemplateCard(
 
             // Time slots preview
             val groupedByDay = template.slots.groupBy { it.weekDay }
-                .toSortedMap()
-                .entries.take(3) // Show first 3 days
+                .entries.sortedBy { it.key }
+                .take(3) // Show first 3 days
 
             groupedByDay.forEach { (day, slots) ->
                 Row(

@@ -49,7 +49,7 @@ export async function proxy(request) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  // 3b) Redirect to dashboard if authenticated and on (auth or landing) route 
+  // 3b) Redirect to dashboard if authenticated and on (auth or landing) route
   if(isAuthenticated && (isAuthRoute || pathname === '/')){
     const response = NextResponse.redirect(new URL(`/${payload?.role}/dashboard`, request.url));
     if(refreshedTokensInCookies)
