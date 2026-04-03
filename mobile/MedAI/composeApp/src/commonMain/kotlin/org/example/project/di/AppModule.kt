@@ -9,6 +9,8 @@ import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.NetworkSignUpRepository
+import org.example.project.data.repository.NetworkDoctorRepository
+import org.example.project.data.repository.NetworkSpecialtiesRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
@@ -122,10 +124,9 @@ val appModule = module {
     single<LoginRepository> { NetworkLoginRepository(get()) }
     single<SignUpRepository> { NetworkSignUpRepository(client = get()) }
     single<HomeRepository> { MockHomeRepository() }
-    single<SpecialtiesRepository> { MockSpecialtiesRepository() }
-    single<DoctorRepository> { MockDoctorRepository() }
+    single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
+    single<DoctorRepository> { NetworkDoctorRepository(get()) }
     single<ProfileRepository> { MockProfileRepository() }
-    //single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     //single<LoginRepository> { MockLoginRepository() }
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
