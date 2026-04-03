@@ -107,7 +107,7 @@ class HomeScreen : Screen {
                             }
                             CategoryType.RECORDS -> {
                                 val rootNavigator = navigator.parent ?: navigator
-                                rootNavigator.push(MedicalReportsScreen(patientId = 1, token = "dummy_token_for_now", httpClient = HttpClient()))
+                                rootNavigator.push(MedicalReportsScreen(patientId = 1, token = "dummy_token_for_now"))
                             }
                             CategoryType.UNKNOWN -> snackbarHostState.showSnackbar(effect.category.id)
                         }

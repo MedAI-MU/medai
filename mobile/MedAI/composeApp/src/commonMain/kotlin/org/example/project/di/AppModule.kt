@@ -77,6 +77,11 @@ import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
 import org.example.project.domain.usecase.secretary.GetDoctorQueueUseCase
 import org.example.project.presentation.homeScreen.HomeViewModel
+import org.example.project.domain.repository.MedicalReportsRepository
+import org.example.project.data.repository.NetworkMedicalReportsRepository
+import org.example.project.domain.usecase.CreateMedicalReportUseCase
+import org.example.project.domain.usecase.GetMedicalReportsUseCase
+import org.example.project.presentation.medicalReportsScreen.MedicalReportsViewModel
 import org.example.project.presentation.loginScreen.LoginViewModel
 import org.example.project.presentation.notificationScreen.NotificationViewModel
 import org.example.project.presentation.patientDirectory.PatientsDirectoryViewModel
@@ -131,6 +136,7 @@ val appModule = module {
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
     single<AppointmentRepository> { MockAppointmentRepository() }
+    single<MedicalReportsRepository> { NetworkMedicalReportsRepository(get()) }
 
     // --- Patient ---
     single<PatientRepository> {
@@ -193,6 +199,8 @@ val appModule = module {
     factory { CancelAppointmentUseCase(get()) }
     factory { SubmitReviewUseCase(get()) }
     factory { GetCancelReasonsUseCase(get()) }
+    factory { GetMedicalReportsUseCase(get()) }
+    factory { CreateMedicalReportUseCase(get()) }
 
     // --- ViewModels ---
     factory { LoginViewModel(get()) }
@@ -210,6 +218,7 @@ val appModule = module {
     }
     factory { ProfileViewModel(get()) }
     factory { NotificationViewModel(get()) }
+    factory { MedicalReportsViewModel(get(), get()) }
     factory {
         MedicalRecordViewModel(
             patientRepository = get(),
