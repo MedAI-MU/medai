@@ -35,7 +35,7 @@ describe('AuthService', () => {
     refreshTokenExpiresInMs: 604800000,
   };
 
-  const now = new Date('2025-12-05T12:00:00Z');
+  const now = new Date('2025-12-05T12:00:00Z').getTime();
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -178,7 +178,7 @@ describe('AuthService', () => {
           {
             id: 10,
             token: 'hashedRT',
-            expiresAt: new Date(now.getTime() + 60 * 60 * 1000), // +1 hour
+            expiresAt: new Date(now + 60 * 60 * 1000), // +1 hour
           },
         ],
       };
@@ -209,7 +209,7 @@ describe('AuthService', () => {
           {
             id: 10,
             token: 'hashedRT',
-            expiresAt: new Date(now.getTime() - 60 * 60 * 1000), // -1 hour (expired)
+            expiresAt: new Date(now - 60 * 60 * 1000), // -1 hour (expired)
           },
         ],
       };
@@ -236,7 +236,7 @@ describe('AuthService', () => {
           {
             id: 10,
             token: 'hashedRT',
-            expiresAt: new Date(now.getTime() + 60 * 60 * 1000), // +1 hour
+            expiresAt: new Date(now + 60 * 60 * 1000), // +1 hour
           },
         ],
       };
@@ -331,7 +331,7 @@ describe('AuthService', () => {
 
       // Access token expiration is correct
       const expectedAccessExp = new Date(
-        now.getTime() + jwtOptionsMock.tokenExpiresInMs,
+        now + jwtOptionsMock.tokenExpiresInMs,
       );
       expect(result.accessTokenExpiresAt.getTime()).toBe(
         expectedAccessExp.getTime(),
@@ -339,7 +339,7 @@ describe('AuthService', () => {
 
       // Refresh token expiration is correct
       const expectedRefreshExp = new Date(
-        now.getTime() + jwtOptionsMock.refreshTokenExpiresInMs,
+        now + jwtOptionsMock.refreshTokenExpiresInMs,
       );
       expect(result.refreshTokenExpiresAt.getTime()).toBe(
         expectedRefreshExp.getTime(),

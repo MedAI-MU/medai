@@ -70,7 +70,9 @@ import org.example.project.presentation.homeScreen.component.SpecialtyItem
 import org.example.project.presentation.notificationScreen.NotificationScreen
 import org.example.project.presentation.recordScreen.RecordsDashboardScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
+import org.example.project.presentation.medicalReportsScreen.MedicalReportsScreen
 import org.jetbrains.compose.resources.stringResource
+import io.ktor.client.HttpClient
 
 class HomeScreen : Screen {
     @Composable
@@ -105,7 +107,7 @@ class HomeScreen : Screen {
                             }
                             CategoryType.RECORDS -> {
                                 val rootNavigator = navigator.parent ?: navigator
-                                rootNavigator.push(RecordsDashboardScreen())
+                                rootNavigator.push(MedicalReportsScreen(patientId = 1, token = "dummy_token_for_now", httpClient = HttpClient()))
                             }
                             CategoryType.UNKNOWN -> snackbarHostState.showSnackbar(effect.category.id)
                         }
