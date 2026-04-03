@@ -40,7 +40,7 @@ class SignUpUseCase(
         return result.map { signUpData ->
             // Try to parse role safely
             val userRole = try {
-                UserRole.valueOf(signUpData.role.lowercase())
+                UserRole.valueOf(signUpData.role.uppercase())
             } catch (e: Exception) {
                 UserRole.PATIENT // Fallback
             }

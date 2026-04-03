@@ -59,7 +59,7 @@ export class DocScheduleTemplatesService {
     const fullTemplates = await this.scheduleTemplateRepository.find({
       where: { id: In(templateIds) },
       relations: {
-        doctor: true,
+        doctor: { specialities: { speciality: true } },
         createdBy: true,
         slots: true,
       },
@@ -76,7 +76,7 @@ export class DocScheduleTemplatesService {
         id: template.doctor.userId,
         name: template.doctor.user.name,
         // TODO: Update this when possible
-        specialty: template.doctor.specialities[0].speciality.name,
+        specialty: template.doctor.specialities?.[0]?.speciality?.name ?? 'General',
       },
       slots: template.slots.map((slot) => ({
         weekDay: slot.weekDay,

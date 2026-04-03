@@ -29,11 +29,10 @@ class NetworkScheduleRepository(
     ): Result<PagedTemplates> {
         return try {
             val response: PagedResponseDto<ScheduleTemplateResponseDto> =
-                client.get("/api/doctors/schedule-templates") {
+                client.get("/api/doctors/$doctorId/schedule-templates") {
                     parameter("pageNo", pageNo)
                     parameter("pageSize", pageSize)
                     if (name != null) parameter("name", name)
-                    if (doctorId != null) parameter("doctorId", doctorId)
                 }.body()
 
             Result.success(

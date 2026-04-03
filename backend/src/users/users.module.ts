@@ -16,4 +16,4 @@ import { PatientsModule } from 'src/patients/patients.module';
   controllers: [UsersController],
   providers: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}
