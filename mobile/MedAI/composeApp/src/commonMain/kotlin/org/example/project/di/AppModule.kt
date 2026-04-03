@@ -7,7 +7,6 @@ import org.example.project.data.remote.KtorClientFactory
 import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.NetworkLoginRepository
-import org.example.project.data.repository.NetworkHomeRepository
 import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.NetworkDoctorRepository
@@ -124,7 +123,7 @@ val appModule = module {
     // --- Repositories ---
     single<LoginRepository> { NetworkLoginRepository(get()) }
     single<SignUpRepository> { NetworkSignUpRepository(client = get()) }
-    single<HomeRepository> { NetworkHomeRepository(get()) }
+    single<HomeRepository> { MockHomeRepository() }
     single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     single<DoctorRepository> { NetworkDoctorRepository(get()) }
     single<ProfileRepository> { MockProfileRepository() }
