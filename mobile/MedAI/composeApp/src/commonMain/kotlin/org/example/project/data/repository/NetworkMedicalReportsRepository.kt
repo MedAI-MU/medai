@@ -18,7 +18,7 @@ class NetworkMedicalReportsRepository(
 
     override suspend fun getReports(patientId: Int, token: String): Result<List<MedicalReport>> {
         return try {
-            val response = client.get("http://10.0.2.2:3000/patients/$patientId/reports") {
+            val response = client.get("patients/$patientId/reports") {
                 header("Authorization", "Bearer $token")
             }
             Result.success(response.body())
@@ -33,7 +33,7 @@ class NetworkMedicalReportsRepository(
         request: CreateMedicalReportRequest
     ): Result<MedicalReport> {
         return try {
-            val response = client.post("http://10.0.2.2:3000/patients/$patientId/reports") {
+            val response = client.post("patients/$patientId/reports") {
                 header("Authorization", "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(request)
