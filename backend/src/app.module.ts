@@ -9,6 +9,7 @@ import databaseConfig from './database/database.config';
 import jwtConfig from './auth/jwt.config';
 import { SchedulesModule } from './schedules/schedules.module';
 import { SharedModule } from './shared/shared.module';
+import { MedicalReportsModule } from './medical-reports/medical-reports.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SharedModule } from './shared/shared.module';
     DoctorsModule,
     SchedulesModule,
     SharedModule,
+    MedicalReportsModule,
   ],
 })
 export class AppModule {}
