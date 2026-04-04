@@ -15,15 +15,20 @@ export default function MedicalReports({ patientId, token }) {
     fetchReports();
   }, [patientId]);
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/patients/${patientId}/reports`, {
+      const response = await fetch(`${API_BASE_URL}/patients/${patientId}/reports`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch reports");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to fetch reports");
+      }
       const data = await response.json();
       setReports(data);
     } catch (err) {
@@ -40,7 +45,7 @@ export default function MedicalReports({ patientId, token }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`http://localhost:3000/patients/${patientId}/reports`, {
+      const response = await fetch(`${API_BASE_URL}/patients/${patientId}/reports`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +54,10 @@ export default function MedicalReports({ patientId, token }) {
         body: JSON.stringify({ scanData }),
       });
 
-      if (!response.ok) throw new Error("Failed to generate report");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to generate report");
+      }
 
       const newReport = await response.json();
       setReports([newReport, ...reports]);
