@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
-import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "next-themes";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,10 +15,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          enableSystem
+          disableTransitionOnChange
+          defaultTheme="system"
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

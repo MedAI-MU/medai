@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 const Variations = {
-  primary: "text-white hover:opacity-90 bg-primary-blue",
+  primary: "bg-primary text-white font-medium hover:opacity-90",
   secondary:
-    "border-primary-blue border-2 text-primary-blue border hover:bg-blue-50",
+    "border-2 border-primary text-primary font-medium hover:bg-primary/10",
 };
 
 function Button({

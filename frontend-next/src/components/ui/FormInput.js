@@ -8,21 +8,21 @@ function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
 
   return (
     <div>
-      <label className={`"text-primary-dark" mb-2 block text-sm font-medium`}>
+      <label className="text-text-base mb-2 block text-sm font-medium">
         {label}
       </label>
       <div className="relative">
         {startIcon && (
-          <span className="absolute top-1/2 left-3 flex h-5 w-5 -translate-y-1/2 items-center justify-center text-gray-400">
+          <span className="text-text-subtle absolute top-1/2 left-3 flex h-5 w-5 -translate-y-1/2 items-center justify-center">
             {startIcon}
           </span>
         )}
         <input
-          className={`border-border-gray w-full rounded-lg border outline-none ${px} ${error ? "ring-red-400" : "ring-primary-blue/90"} py-3 transition-all focus:ring-2`}
+          className={`border-border bg-surface-overlay text-text-base placeholder:text-text-subtle w-full rounded-lg border outline-none ${px} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         />
         {endIcon && (
-          <span className="absolute top-1/2 right-3 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center text-gray-400">
+          <span className="text-text-subtle absolute top-1/2 right-3 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center">
             {endIcon}
           </span>
         )}
