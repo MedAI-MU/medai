@@ -9,13 +9,13 @@ const Variations = {
 function Button({
   variation = "primary",
   onClick,
-  className,
+  className = "",
   disabled,
   children,
   type,
   href,
 }) {
-  const Style = `rounded-lg px-5 py-2 transition-all cursor-pointer ${Variations[variation]} ${className}`;
+  const Style = `rounded-lg px-5 py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${Variations[variation]} ${className}`;
 
   if (href)
     return (

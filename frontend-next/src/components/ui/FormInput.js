@@ -18,7 +18,7 @@ function FormInput({ label, error, startIcon, endIcon, ...attrs }) {
           </span>
         )}
         <input
-          className={`border-border bg-surface-overlay text-text-base placeholder:text-text-subtle w-full rounded-lg border outline-none ${px} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
+          className={`border-border disabled:bg-surface-overlay disabled:text-text-subtle disabled:border-border bg-surface text-text-base placeholder:text-text-subtle w-full rounded-lg border outline-none disabled:cursor-not-allowed disabled:opacity-70 ${px} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         />
         {endIcon && (

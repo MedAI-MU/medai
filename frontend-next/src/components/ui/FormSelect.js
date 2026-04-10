@@ -1,6 +1,13 @@
 import ErrorMessage from "./ErrorMessage";
 
-function FormSelect({ label, options, error, startIcon, ...attrs }) {
+function FormSelect({
+  label,
+  defaultValue = "Select role...",
+  options,
+  error,
+  startIcon,
+  ...attrs
+}) {
   return (
     <div>
       <label className={`text-text-base mb-2 block text-sm font-medium`}>
@@ -13,11 +20,11 @@ function FormSelect({ label, options, error, startIcon, ...attrs }) {
           </span>
         )}
         <select
-          className={`border-border bg-surface-overlay text-text-base w-full cursor-pointer rounded-lg border capitalize outline-none ${startIcon ? "ps-10 pe-4" : "px-4"} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
+          className={`border-border bg-surface disabled:bg-surface-overlay disabled:text-text-subtle disabled:border-border text-text-base w-full cursor-pointer rounded-lg border capitalize outline-none disabled:cursor-not-allowed disabled:opacity-70 ${startIcon ? "ps-10 pe-4" : "px-4"} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         >
           <option value="" disabled>
-            Select role...
+            {defaultValue}
           </option>
           {options.map((option) => (
             <option key={option} value={option}>

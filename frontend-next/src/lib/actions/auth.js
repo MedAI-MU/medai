@@ -143,11 +143,14 @@ export async function loginAction(userData) {
   }
 }
 
-export async function refreshToken() {
+export async function refreshToken({ headers = {} }) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
       method: "POST",
       credentials: "include",
+      headers: {
+        ...headers,
+      },
     });
 
     if (res.status === 200)

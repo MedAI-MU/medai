@@ -23,7 +23,11 @@ const LINKS = {
     { text: "dashboard", href: "#", icon: LayoutDashboard },
     { text: "book appointment", href: "/", icon: CalendarPlus },
     { text: "my appointments", href: "#", icon: CalendarCheck },
-    { text: "medical records", href: "#", icon: FileText },
+    {
+      text: "medical records",
+      href: "/patient/medical-records",
+      icon: FileText,
+    },
     { text: "messages", href: "#", icon: MessageCircle },
   ],
 };
@@ -32,7 +36,6 @@ function Sidebar() {
   const { isSidebarOpen, toggleSidebar, openSidebar, closeSidebar } =
     useSidebar();
   const pathname = usePathname();
-  const isActive = false;
 
   return (
     <>
@@ -62,21 +65,24 @@ function Sidebar() {
 
         {/* Navigation Links */}
         <nav className="flex-1 space-y-1 px-4 py-4">
-          {LINKS["patient"].map(({ text, href, icon: Icon }) => (
-            <Link
-              key={text}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-text-muted hover:bg-surface-overlay"
-              }`}
-              href={href}
-              onClick={closeSidebar}
-            >
-              <Icon size={18} />
-              <span className="text-sm capitalize">{text}</span>
-            </Link>
-          ))}
+          {LINKS["patient"].map(({ text, href, icon: Icon }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={text}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
+                  isActive
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-text-muted hover:bg-surface-overlay"
+                }`}
+                href={href}
+                onClick={closeSidebar}
+              >
+                <Icon size={18} />
+                <span className="text-sm capitalize">{text}</span>
+              </Link>
+            );
+          })}
 
           {/* Account Section */}
           <div className="pt-4 pb-2">

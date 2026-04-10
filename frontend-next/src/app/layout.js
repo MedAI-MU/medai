@@ -24,7 +24,12 @@ export default function RootLayout({ children }) {
           defaultTheme="system"
         >
           {children}
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              className:
+                "!bg-surface !text-text-base !border !border-border !shadow-md",
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>
