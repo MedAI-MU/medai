@@ -21,8 +21,8 @@
 //     "emergencyContacts": []
 // }
 
-import PageHeading from "@/components/ui/PageHeading";
-import MedicalStates from "./MedicalStates";
+import Heading from "@/components/ui/Heading";
+import MedicalStates from "@/components/patient/MedicalStates";
 import { getPatient } from "@/services/server/patient";
 import MedicalTabs from "@/components/patient/MedicalTabs";
 
@@ -31,13 +31,13 @@ async function Page() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading
-        title="my medical records"
+      <Heading
+        title="My Medical Records"
         subtitle="Manage and view your comprehensive medical history."
       />
 
       <MedicalStates data={data} />
-      <MedicalTabs data={data} key={JSON.stringify(data)} />
+      <MedicalTabs data={data} />
     </div>
   );
 }

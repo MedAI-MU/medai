@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PersonalInfoTab from "./PersonalInfoTab";
+import AllergiesTab from "./AllergiesTab";
 
 const TABS = [
   "personal info",
@@ -28,7 +29,10 @@ function MedicalTabs({ data }) {
           </button>
         ))}
       </div>
-      {activeTab === TABS[0] && <PersonalInfoTab data={data} />}
+      {activeTab === TABS[0] && (
+        <PersonalInfoTab data={data} key={JSON.stringify(data)} />
+      )}
+      {activeTab === TABS[1] && <AllergiesTab data={data} />}
     </div>
   );
 }

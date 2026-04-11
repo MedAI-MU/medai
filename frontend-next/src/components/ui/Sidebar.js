@@ -20,7 +20,7 @@ import ButtonIcon from "./ButtonIcon";
 
 const LINKS = {
   patient: [
-    { text: "dashboard", href: "#", icon: LayoutDashboard },
+    { text: "dashboard", href: "/patient", icon: LayoutDashboard },
     { text: "book appointment", href: "/", icon: CalendarPlus },
     { text: "my appointments", href: "#", icon: CalendarCheck },
     {
@@ -33,8 +33,7 @@ const LINKS = {
 };
 
 function Sidebar() {
-  const { isSidebarOpen, toggleSidebar, openSidebar, closeSidebar } =
-    useSidebar();
+  const { isSidebarOpen, closeSidebar } = useSidebar();
   const pathname = usePathname();
 
   return (

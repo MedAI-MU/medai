@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 /* Dark mode controlled by the .dark class */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -77,6 +78,7 @@
     font-family: "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     scroll-behavior: smooth;
+    font-size: clamp(14px, 2vw, 16px);
   }
 
   body {

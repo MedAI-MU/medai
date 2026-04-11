@@ -51,7 +51,7 @@ function SignupForm() {
     }
 
     toast.success(message);
-    router.replace(`/${user?.role}/dashboard`);
+    router.replace(`/${user?.role}`);
   }
 
   return (

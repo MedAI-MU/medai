@@ -1,3 +1,5 @@
+import ErrorMessage from "./ErrorMessage";
+
 function TextArea({ label, rows, error, ...attrs }) {
   return (
     <div>
@@ -5,10 +7,11 @@ function TextArea({ label, rows, error, ...attrs }) {
         {label}
       </label>
       <textarea
-        className="border-border text-text-base bg-surface-overlay placeholder:text-text-subtle ring-primary/90 w-full resize-none rounded-lg border px-4 py-3 transition-all outline-none focus:ring-2"
+        className={`border-border text-text-base bg-surface placeholder:text-text-subtle block w-full resize-none rounded-lg border px-4 py-3 transition-all outline-none focus:ring-2 ${error ? "ring-danger" : "ring-primary/90"}`}
         rows={rows}
         {...attrs}
       />
+      {error && <ErrorMessage message={error} />}
     </div>
   );
 }

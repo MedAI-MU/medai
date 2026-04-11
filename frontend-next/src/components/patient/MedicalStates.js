@@ -1,9 +1,10 @@
 import MedicalStateCard from "@/components/patient/MedicalStateCard";
 import { Activity, AlertTriangle, HeartCrack, Users } from "lucide-react";
+import Grid from "../ui/Grid";
 
 function MedicalStates({ data }) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <Grid>
       <MedicalStateCard
         title="allergies"
         color="orange"
@@ -28,7 +29,7 @@ function MedicalStates({ data }) {
         icon={<Activity />}
         value={data?.familyHistories?.length || 0}
       />
-    </div>
+    </Grid>
   );
 }
 

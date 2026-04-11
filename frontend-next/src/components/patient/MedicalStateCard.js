@@ -3,10 +3,8 @@ import { THEMES } from "@/constants/badgeColors";
 
 function MedicalStateCard({ title, value, color = "red", icon }) {
   return (
-    <div className="bg-surface border-border rounded-xl border p-5 shadow-md">
-      <div className="mb-2 flex items-center justify-between">
-        <IconBadge icon={icon} color={color} />
-      </div>
+    <div className="bg-surface border-border flex flex-col items-center rounded-xl border p-5 shadow-md sm:items-start">
+      <IconBadge icon={icon} color={color} className="mb-2" />
       <p className="text-text-muted text-sm font-medium capitalize">{title}</p>
       <div className="flex items-baseline gap-2">
         <p className="text-text-base text-2xl font-bold">{value}</p>
