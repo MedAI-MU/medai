@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { addAllergy, updateAllergy } from "@/services/client/patient";
+import DialogBody from "../ui/DialogBody";
 
 function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
   const router = useRouter();
@@ -27,7 +28,7 @@ function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
         await addAllergy(data, patientId);
       }
 
-      toast.success(`Allergy ${isEdit ? "editted" : "added"} successfully`);
+      toast.success(`Allergy ${isEdit ? "edited" : "added"} successfully`);
       closeModal();
       router.refresh();
     } catch (err) {
@@ -37,7 +38,7 @@ function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col gap-6 py-6">
+      <DialogBody>
         <FormInput
           label="Allergy Name"
           placeholder="e.g. Penuts, Penicillin"
@@ -55,7 +56,7 @@ function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
           disabled={isSubmitting}
           error={errors?.description?.message}
         />
-      </div>
+      </DialogBody>
       <DialogFooter showCloseButton={!isEdit}>
         {isEdit && (
           <Button

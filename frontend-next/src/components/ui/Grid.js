@@ -1,6 +1,6 @@
 const GRID_SHAPE = {
-  four: "md:grid-cols-2 lg:grid-cols-4",
   two: "md:grid-cols-2",
+  four: "md:grid-cols-2 lg:grid-cols-4",
 };
 
 function Grid({ cols = "four", gap = "gap-6", className, children }) {

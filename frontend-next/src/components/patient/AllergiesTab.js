@@ -1,10 +1,9 @@
-import { Plus } from "lucide-react";
-import Button from "@/components/ui/Button";
 import Heading from "@/components/ui/Heading";
 import Grid from "@/components/ui/Grid";
 import AllergyCard from "@/components/patient/AllergyCard";
 import EmptyState from "@/components/ui/EmptyState";
-import AddEditAllergy from "./AddEditAllergy";
+import AllergyForm from "./AllergyForm";
+import AddItemDialog from "../ui/AddItemDialog";
 
 function AllergiesTab({ data }) {
   const { allergies } = data;
@@ -12,34 +11,25 @@ function AllergiesTab({ data }) {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <Heading
-          size="lg"
-          title="Allergies"
-          Tag="h2"
-          subtitle="Total of 6 recorded sensitivities"
-        />
-        {hasAllergies && (
-          <AddEditAllergy patientId={data?.userId}>
-            <Button>
-              <Plus />
-              <span>Add Allergy</span>
-            </Button>
-          </AddEditAllergy>
-        )}
-      </div>
+      <Heading
+        size="lg"
+        title="Allergies"
+        Tag="h2"
+        subtitle="Total of 6 recorded sensitivities"
+      >
+        <AddItemDialog
+          title="Add new allergy"
+          description="Enter the details of the allergy to add it to your medical records."
+          form={<AllergyForm patientId={data?.userId} />}
+        >
+          Add New Allergy
+        </AddItemDialog>
+      </Heading>
       {!hasAllergies ? (
         <EmptyState
           title="No Allergies Recorded"
           description="Adding allergies helps doctors assess your health risks and provide more personalized care."
-        >
-          <AddEditAllergy patientId={data?.userId}>
-            <Button>
-              <Plus />
-              <span>Add Allergy</span>
-            </Button>
-          </AddEditAllergy>
-        </EmptyState>
+        />
       ) : (
         <Grid cols="two">
           {allergies.map((el) => (

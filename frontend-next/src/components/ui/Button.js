@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 const Variations = {
   primary: "bg-primary text-white font-medium hover:opacity-90",
@@ -10,30 +12,48 @@ const Variations = {
   dangerGhost: "text-danger font-medium hover:bg-danger-muted",
 };
 
-function Button({
-  variation = "primary",
-  onClick,
-  className = "",
-  disabled,
-  children,
-  type,
-  href,
-  ...props
-}) {
-  const Style = `rounded-lg px-5 flex gap-4 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${Variations[variation]} ${className}`;
-
-  if (href)
-    return (
-      <Link className={Style} href={href} {...props}>
-        {children}
-      </Link>
+const Button = forwardRef(
+  (
+    {
+      variation = "primary",
+      onClick,
+      className = "",
+      disabled,
+      children,
+      type,
+      href,
+      ...props
+    },
+    ref,
+  ) => {
+    const Style = cn(
+      "rounded-lg px-5 flex justify-center gap-4 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
+      Variations[variation],
+      className,
     );
 
-  return (
-    <button className={Style} onClick={onClick} disabled={disabled} type={type} {...props}>
-      {children}
-    </button>
-  );
-}
+    if (href)
+      return (
+        <Link className={Style} href={href} ref={ref} {...props}>
+          {children}
+        </Link>
+      );
+
+    return (
+      <button
+        className={Style}
+        onClick={onClick}
+        disabled={disabled}
+        type={type}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  },
+);
+
+Button.displayName = "Button";
 
 export default Button;

@@ -3,7 +3,7 @@ import Button from "../ui/Button";
 
 function MobileMenu({ navLinks }) {
   return (
-    <div className="mt-4 space-y-3 pb-4 lg:hidden">
+    <div className="bg-surface absolute inset-x-0 top-[76px] mt-4 space-y-3 pb-4 lg:hidden">
       {navLinks.map((link) => (
         <Link
           key={link.text}

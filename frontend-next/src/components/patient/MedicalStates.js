@@ -1,34 +1,48 @@
 import MedicalStateCard from "@/components/patient/MedicalStateCard";
 import { Activity, AlertTriangle, HeartCrack, Users } from "lucide-react";
-import Grid from "../ui/Grid";
+import Grid from "@/components/ui/Grid";
+import AnimateWrapper from "@/components/ui/AnimateWrapper";
 
 function MedicalStates({ data }) {
+  const CardsData = [
+    {
+      title: "allergies",
+      color: "orange",
+      icon: <AlertTriangle />,
+      value: data?.allergies?.length || 0,
+    },
+    {
+      title: "choronic diseases",
+      color: "red",
+      icon: <HeartCrack />,
+      value: data?.chronicDiseases?.length || 0,
+    },
+    {
+      title: "surgeries",
+      color: "blue",
+      icon: <Users />,
+      value: data?.surgeries?.length || 0,
+    },
+    {
+      title: "family history",
+      color: "green",
+      icon: <Activity />,
+      value: data?.familyHistories?.length || 0,
+    },
+  ];
+
   return (
     <Grid>
-      <MedicalStateCard
-        title="allergies"
-        color="orange"
-        icon={<AlertTriangle />}
-        value={data?.allergies?.length || 0}
-      />
-      <MedicalStateCard
-        title="choronic diseases"
-        color="red"
-        icon={<HeartCrack />}
-        value={data?.chronicDiseases?.length || 0}
-      />
-      <MedicalStateCard
-        title="surgeries"
-        color="blue"
-        icon={<Users />}
-        value={data?.surgeries?.length || 0}
-      />
-      <MedicalStateCard
-        title="family history"
-        color="green"
-        icon={<Activity />}
-        value={data?.familyHistories?.length || 0}
-      />
+      {CardsData.map(({ title, color, icon, value }, i) => (
+        <AnimateWrapper key={title} type="slideUp" delay={i * 0.1}>
+          <MedicalStateCard
+            title={title}
+            color={color}
+            icon={icon}
+            value={value}
+          />
+        </AnimateWrapper>
+      ))}
     </Grid>
   );
 }

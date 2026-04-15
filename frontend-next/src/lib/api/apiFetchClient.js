@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { refreshToken } from "../actions/auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -24,6 +25,8 @@ async function apiClientFetch({ endpoint, options = {} }) {
     if (!refreshResponse.success) {
       const error = new Error("SESSION EXPIRED, PLEASE LOGIN");
       error.status = response.status;
+      toast.error("SESSION EXPIRED, PLEASE LOGIN");
+      window.location.replace("/auth/login");
       throw error;
     }
 

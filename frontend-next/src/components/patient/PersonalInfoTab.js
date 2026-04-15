@@ -6,7 +6,6 @@ import FormSelect from "@/components/ui/FormSelect";
 import Button from "@/components/ui/Button";
 import { updatePatientPersonalInfo } from "@/services/client/patient";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import SpinnerMini from "../ui/SpinnerMini";
 import Heading from "../ui/Heading";
 import Grid from "../ui/Grid";
@@ -15,7 +14,6 @@ const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const MARITAL_STATUSES = ["single", "married", "divorced", "widowed"];
 
 function PersonalInfoTab({ data }) {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -31,10 +29,13 @@ function PersonalInfoTab({ data }) {
   });
 
   async function onSubmit(formData) {
+    if (!isDirty) return;
+
     try {
-      await updatePatientPersonalInfo(formData, data?.userId);
+      const response = await updatePatientPersonalInfo(formData, data?.userId);
+      const { userId, updatedAt, createdAt, ...newData } = response;
+      reset(newData);
       toast.success("Personal Info updated successfully");
-      router.refresh();
     } catch (err) {
       toast.error("Something went wrong");
       console.error(err?.message);
@@ -62,6 +63,7 @@ function PersonalInfoTab({ data }) {
           {/* Editable Fields */}
           <FormInput
             label="Height (cm)"
+            inputMode="numeric"
             {...register("height", {
               required: "Required",
               pattern: {
@@ -70,10 +72,11 @@ function PersonalInfoTab({ data }) {
               },
               setValueAs: (val) => (val === "" ? "" : Number(val)),
             })}
-            // Allows numbers only
+            // Allow numbers only
             onInput={(e) => {
               e.target.value = e.target.value.replace(/\D/g, "");
             }}
+            disabled={isSubmitting}
             error={errors?.height?.message}
           />
           <FormInput
@@ -90,6 +93,7 @@ function PersonalInfoTab({ data }) {
             onInput={(e) => {
               e.target.value = e.target.value.replace(/\D/g, "");
             }}
+            disabled={isSubmitting}
             error={errors?.weight?.message}
           />
           <FormSelect
@@ -99,6 +103,7 @@ function PersonalInfoTab({ data }) {
             {...register("bloodType", {
               validate: (val) => BLOOD_TYPES.includes(val) || "Invalid choice",
             })}
+            disabled={isSubmitting}
             error={errors?.bloodType?.message}
           />
           <FormSelect
@@ -109,12 +114,18 @@ function PersonalInfoTab({ data }) {
               validate: (val) =>
                 MARITAL_STATUSES.includes(val) || "Invalid Choice",
             })}
+            disabled={isSubmitting}
             error={errors?.maritalStatus?.message}
           />
         </Grid>
 
         <div className="border-border mt-10 flex justify-end gap-6 border-t pt-6">
-          <Button onClick={() => reset()} type="button" variation="ghost">
+          <Button
+            onClick={() => reset()}
+            type="button"
+            variation="ghost"
+            disabled={isSubmitting || !isDirty}
+          >
             Reset
           </Button>
           <Button
