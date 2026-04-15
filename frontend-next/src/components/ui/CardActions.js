@@ -22,7 +22,7 @@ function CardActions({
           description={editDescription}
           form={editForm}
         >
-          <ButtonIcon>
+          <ButtonIcon className="hover:text-primary">
             <Pencil size={16} />
           </ButtonIcon>
         </FormDialog>
@@ -36,7 +36,7 @@ function CardActions({
           failMessage={deleteFailMessage}
           onConfirm={onConfirmDelete}
         >
-          <ButtonIcon className="hover:bg-danger-muted hover:text-danger">
+          <ButtonIcon className="hover:text-danger">
             <Trash2 size={16} />
           </ButtonIcon>
         </DeleteDialog>

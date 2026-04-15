@@ -25,10 +25,10 @@ function TimelineItem({
       </div>
       <Card className="relative flex flex-col gap-6">
         <Heading Tag="h3" size="sm" title={title} subtitle={description} />
-        <span className="text-text-muted text-sm italic">
-          {dateDescription}
-          <span className="font-bold"> {format(date, "MMMM dd, yyyy")}</span>
-        </span>
+        <p className="text-text-muted text-sm italic">
+          <span>{dateDescription} </span>
+          <span className="font-bold">{format(date, "MMMM dd, yyyy")}</span>
+        </p>
         {(editForm || onDelete) && (
           <CardActions
             editTitle={editTitle}

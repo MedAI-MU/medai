@@ -12,7 +12,6 @@ function SurgeriesTab({ data }) {
   const sortedSurgeries = surgeries.sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
-  console.log(data);
 
   return (
     <>
