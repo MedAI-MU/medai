@@ -39,3 +39,20 @@ export async function deleteChronicDisease(patientId, chronicId) {
     `api/patients/${patientId}/chronic-diseases/${chronicId}`,
   );
 }
+
+export async function addSurgery(data, patientId) {
+  return apiClient.post(`api/patients/${patientId}/surgeries`, data);
+}
+
+export async function updateSurgery(data, patientId) {
+  const { surgeryId, ...surgeryData } = data;
+
+  return apiClient.patch(
+    `api/patients/${patientId}/surgeries/${surgeryId}`,
+    surgeryData,
+  );
+}
+
+export async function deleteSurgery(patientId, surgeryId) {
+  return apiClient.delete(`api/patients/${patientId}/surgeries/${surgeryId}`);
+}
