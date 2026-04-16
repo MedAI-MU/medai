@@ -5,13 +5,14 @@ import EmptyState from "@/components/ui/EmptyState";
 import Timeline from "@/components/ui/Timeline";
 import TimelineItem from "@/components/ui/TimelineItem";
 import { deleteSurgery } from "@/services/client/patient";
+import TimelineCard from "@/components/ui/TimelineCard";
+import ActionButtons from "@/components/ui/ActionButtons";
+import EditAction from "@/components/ui/EditAction";
+import DeleteAction from "@/components/ui/DeleteAction";
 
 function SurgeriesTab({ data }) {
   const { surgeries, userId } = data || {};
   const hasSurgeries = surgeries?.length > 0;
-  const sortedSurgeries = surgeries.sort(
-    (a, b) => new Date(b.date) - new Date(a.date),
-  );
 
   return (
     <>
@@ -19,7 +20,7 @@ function SurgeriesTab({ data }) {
         Tag="h2"
         size="lg"
         title="Surgeries"
-        subtitle="Timeline of diagnosed long-term conditions"
+        subtitle="Timeline of your past surgical procedures"
       >
         <AddItemDialog
           title="Add surgery"
@@ -32,28 +33,39 @@ function SurgeriesTab({ data }) {
       {!hasSurgeries && (
         <EmptyState
           title="No surgeries recorded"
-          description="Adding surgeries conditions helps doctors understand your medical history and provide better care."
+          description="Adding your surgical history helps doctors understand your medical background and provide better care."
         />
       )}
       {hasSurgeries && (
         <Timeline
-          items={sortedSurgeries}
+          items={surgeries}
+          sortBy="date"
           render={(item) => (
-            <TimelineItem
-              key={item.id}
-              title={item.name}
-              description={item.description}
-              date={item.date}
-              dateDescription="Performed at"
-              editTitle="Edit Surgery"
-              editDescription="Edit your surgery to be precise to help doctor know your diagnose."
-              editForm={
-                <SurgeriesForm patientId={userId} surgeryToEdit={item} />
-              }
-              onDelete={() => deleteSurgery(userId, item.id)}
-              deleteSuccessMessage="Surgery has been deleted successfully"
-              deleteFailMessage="Failed to delete surgery"
-            />
+            <TimelineItem key={item.id} date={item.date}>
+              <TimelineCard
+                title={item.name}
+                description={item.description}
+                date={item.date}
+                dateDescription="Performed at"
+              >
+                <ActionButtons>
+                  <EditAction
+                    title="Edit Surgery"
+                    description="Update your surgery details to ensure your medical history remains accurate."
+                    form={
+                      <SurgeriesForm patientId={userId} surgeryToEdit={item} />
+                    }
+                  />
+                  <DeleteAction
+                    title="Delete Surgery"
+                    description="This action cannot be undone. This will permanently remove this surgery from your medical records."
+                    onConfirm={() => deleteSurgery(userId, item.id)}
+                    successMessage="Surgery has been deleted successfully"
+                    failMessage="Failed to delete surgery"
+                  />
+                </ActionButtons>
+              </TimelineCard>
+            </TimelineItem>
           )}
         />
       )}

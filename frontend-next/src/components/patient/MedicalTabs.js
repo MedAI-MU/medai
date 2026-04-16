@@ -4,7 +4,7 @@ import PersonalInfoTab from "./PersonalInfoTab";
 import AllergiesTab from "./AllergiesTab";
 import ChronicDiseasesTab from "./ChronicDiseasesTab";
 import SurgeriesTab from "./SurgeriesTab";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useState } from "react";
 
 const TABS = [
   {
@@ -34,10 +34,7 @@ const TABS = [
 ];
 
 function MedicalTabs({ data }) {
-  const [activeTab, setActiveTab] = useLocalStorage(
-    "medical-tab",
-    TABS[0].label,
-  );
+  const [activeTab, setActiveTab] = useState(TABS[0].label);
 
   const ActiveComponent = TABS.find((tab) => tab.label === activeTab).component;
 

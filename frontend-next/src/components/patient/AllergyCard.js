@@ -3,8 +3,10 @@ import { deleteAllergy } from "@/services/client/patient";
 import IconBadge from "@/components/ui/IconBadge";
 import AllergyForm from "./AllergyForm";
 import Heading from "@/components/ui/Heading";
-import CardActions from "@/components/ui/CardActions";
 import Card from "@/components/ui/Card";
+import ActionButtons from "@/components/ui/ActionButtons";
+import EditAction from "@/components/ui/EditAction";
+import DeleteAction from "@/components/ui/DeleteAction";
 
 function AllergyCard({ allergy, patientId }) {
   const { name, description, id: allergyId } = allergy || {};
@@ -22,16 +24,20 @@ function AllergyCard({ allergy, patientId }) {
       />
 
       {/* actions — visible on hover */}
-      <CardActions
-        editTitle="Edit Allergy"
-        editDescription="Edit your allergy to be precise to help doctor know your diagnose."
-        editForm={<AllergyForm allergyToEdit={allergy} patientId={patientId} />}
-        deleteDescription="This action cannot be undone. This will permanently delete allergy
+      <ActionButtons>
+        <EditAction
+          title="Edit Allergy"
+          description="Edit your allergy to be precise to help doctor know your diagnose."
+          form={<AllergyForm allergyToEdit={allergy} patientId={patientId} />}
+        />
+        <DeleteAction
+          description="This action cannot be undone. This will permanently delete allergy
             from our servers."
-        onConfirmDelete={() => deleteAllergy(patientId, allergyId)}
-        deleteSuccessMessage="Allergy has been deleted successfully"
-        deleteFailMessage="Failed to delete allergy"
-      />
+          onConfirm={() => deleteAllergy(patientId, allergyId)}
+          successMessage="Allergy has been deleted successfully"
+          failMessage="Failed to delete allergy"
+        />
+      </ActionButtons>
     </Card>
   );
 }

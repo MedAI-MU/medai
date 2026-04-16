@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Logo from "../ui/Logo";
-import ActionButtons from "./ActionButtons";
+import AuthActions from "./AuthActions";
 import Navbar from "./Navbar";
 import MobileMenu from "./MobileMenu";
 import Container from "../ui/Container";
@@ -31,7 +31,7 @@ function LandingHeader() {
           {/* Right side: action buttons + dark mode toggle */}
           <div className="flex items-center gap-2">
             <DarkmodeToggler />
-            <ActionButtons />
+            <AuthActions />
             <MenuToggler
               menuOpen={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((prev) => !prev)}

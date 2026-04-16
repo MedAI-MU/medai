@@ -1,4 +1,8 @@
-function Timeline({ items, render }) {
+function Timeline({ items, sortBy, render }) {
+  const sortedItems = sortBy
+    ? [...items].sort((a, b) => new Date(b[sortBy]) - new Date(a[sortBy]))
+    : items;
+
   return (
     <div
       style={{
@@ -15,7 +19,7 @@ function Timeline({ items, render }) {
       className="relative flex flex-col gap-(--timeline-container-gap)"
     >
       <div className="absolute inset-y-0 left-0 w-px -translate-x-1/2 bg-slate-200 sm:left-(--timeline-line-start-desktop)" />
-      {items && items.map(render)}
+      {sortedItems && sortedItems.map(render)}
     </div>
   );
 }

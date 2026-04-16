@@ -4,14 +4,15 @@ import ChronicDiseaseForm from "@/components/patient/ChronicDiseaseForm";
 import EmptyState from "@/components/ui/EmptyState";
 import Timeline from "@/components/ui/Timeline";
 import TimelineItem from "@/components/ui/TimelineItem";
+import TimelineCard from "@/components/ui/TimelineCard";
+import ActionButtons from "@/components/ui/ActionButtons";
+import EditAction from "@/components/ui/EditAction";
+import DeleteAction from "@/components/ui/DeleteAction";
 import { deleteChronicDisease } from "@/services/client/patient";
 
 function ChronicDiseasesTab({ data }) {
   const { chronicDiseases, userId } = data || {};
   const hasChronicDisease = chronicDiseases?.length > 0;
-  const sortedChronic = chronicDiseases.sort(
-    (a, b) => new Date(b.diagnosisDate) - new Date(a.diagnosisDate),
-  );
 
   return (
     <>
@@ -37,23 +38,37 @@ function ChronicDiseasesTab({ data }) {
       )}
       {hasChronicDisease && (
         <Timeline
-          items={sortedChronic}
+          items={chronicDiseases}
+          sortBy="diagnosisDate"
           render={(item) => (
-            <TimelineItem
-              key={item.id}
-              title={item.name}
-              description={item.description}
-              date={item.diagnosisDate}
-              dateDescription="Diagnosed at"
-              editTitle="Edit Chronic Disease"
-              editDescription="Edit your chronic disease to be precise to help doctor know your diagnose."
-              editForm={
-                <ChronicDiseaseForm patientId={userId} ChronicToEdit={item} />
-              }
-              onDelete={() => deleteChronicDisease(userId, item.id)}
-              deleteSuccessMessage="Chrocic disease has been deleted successfully"
-              deleteFailMessage="Failed to delete chrocic disease"
-            />
+            <TimelineItem key={item.id} date={item.diagnosisDate}>
+              <TimelineCard
+                title={item.name}
+                description={item.description}
+                date={item.diagnosisDate}
+                dateDescription="Diagnosed at"
+              >
+                <ActionButtons>
+                  <EditAction
+                    title="Edit Chronic Disease"
+                    description="Update your chronic disease details to ensure your medical history remains accurate."
+                    form={
+                      <ChronicDiseaseForm
+                        patientId={userId}
+                        ChronicToEdit={item}
+                      />
+                    }
+                  />
+                  <DeleteAction
+                    title="Delete Chronic Disease"
+                    description="This action cannot be undone. This will permanently remove this chronic disease from your medical records."
+                    onConfirm={() => deleteChronicDisease(userId, item.id)}
+                    successMessage="Chronic disease has been deleted successfully"
+                    failMessage="Failed to delete chronic disease"
+                  />
+                </ActionButtons>
+              </TimelineCard>
+            </TimelineItem>
           )}
         />
       )}
