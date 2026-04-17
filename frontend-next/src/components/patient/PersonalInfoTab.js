@@ -6,12 +6,10 @@ import FormSelect from "@/components/ui/FormSelect";
 import Button from "@/components/ui/Button";
 import { updatePatientPersonalInfo } from "@/services/client/patient";
 import toast from "react-hot-toast";
-import SpinnerMini from "../ui/SpinnerMini";
-import Heading from "../ui/Heading";
-import Grid from "../ui/Grid";
-
-const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-const MARITAL_STATUSES = ["single", "married", "divorced", "widowed"];
+import SpinnerMini from "@/components/ui/SpinnerMini";
+import Heading from "@/components/ui/Heading";
+import Grid from "@/components/ui/Grid";
+import { BLOOD_TYPES, MARITAL_STATUSES } from "@/constants/patient";
 
 function PersonalInfoTab({ data }) {
   const {

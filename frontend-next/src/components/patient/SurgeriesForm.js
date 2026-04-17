@@ -26,8 +26,6 @@ function SurgeriesForm({ patientId, closeModal, surgeryToEdit = {} }) {
   });
 
   async function onSubmit(formData) {
-    if (!isDirty) return;
-
     const dataAfterDateFormat = {
       ...formData,
       date: format(formData.date, "yyyy-MM-dd"),
@@ -35,6 +33,7 @@ function SurgeriesForm({ patientId, closeModal, surgeryToEdit = {} }) {
 
     try {
       if (isEdit) {
+        if (!isDirty) return;
         await updateSurgery({ ...dataAfterDateFormat, surgeryId }, patientId);
       } else {
         await addSurgery(dataAfterDateFormat, patientId);
@@ -78,18 +77,18 @@ function SurgeriesForm({ patientId, closeModal, surgeryToEdit = {} }) {
           error={errors?.description?.message}
         />
       </DialogBody>
-      <DialogFooter showCloseButton={!isEdit}>
+      <DialogFooter showCloseButton={!isEdit} disableCloseButton={isSubmitting}>
         {isEdit && (
           <Button
             type="button"
             variation="ghost"
             onClick={() => reset()}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isDirty}
           >
             Reset
           </Button>
         )}
-        <Button disabled={isSubmitting || !isDirty}>
+        <Button disabled={isSubmitting || (!isDirty && isEdit)}>
           {!isSubmitting ? (
             isEdit ? (
               "Save Changes"

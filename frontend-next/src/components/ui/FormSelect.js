@@ -20,6 +20,7 @@ function FormSelect({
           </span>
         )}
         <select
+          defaultValue=""
           className={`border-border bg-surface disabled:bg-surface-overlay disabled:text-text-subtle disabled:border-border text-text-base w-full cursor-pointer rounded-lg border capitalize outline-none disabled:cursor-not-allowed disabled:opacity-70 ${startIcon ? "ps-10 pe-4" : "px-4"} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         >

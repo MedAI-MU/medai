@@ -24,7 +24,7 @@ export const THEMES = {
     bg: "bg-purple-50 dark:bg-purple-900/20",
   },
   slate: {
-    text: "text-slate-600",
-    bg: "bg-slate-50 dark:bg-slate-900/20",
+    text: "text-slate-500",
+    bg: "bg-slate-100 dark:bg-slate-800",
   },
 };

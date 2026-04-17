@@ -29,8 +29,6 @@ function AddChronicForm({ patientId, closeModal, ChronicToEdit = {} }) {
   });
 
   async function onSubmit(data) {
-    if (!isDirty) return;
-
     const dataAfterDateFormat = {
       ...data,
       diagnosisDate: format(data.diagnosisDate, "yyyy-MM-dd"),
@@ -38,6 +36,7 @@ function AddChronicForm({ patientId, closeModal, ChronicToEdit = {} }) {
 
     try {
       if (isEdit) {
+        if (!isDirty) return;
         await updateChronicDiesease(
           { ...dataAfterDateFormat, chronicId },
           patientId,
@@ -86,18 +85,18 @@ function AddChronicForm({ patientId, closeModal, ChronicToEdit = {} }) {
           error={errors?.description?.message}
         />
       </DialogBody>
-      <DialogFooter showCloseButton={!isEdit}>
+      <DialogFooter showCloseButton={!isEdit} disableCloseButton={isSubmitting}>
         {isEdit && (
           <Button
             type="button"
             variation="ghost"
             onClick={() => reset()}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isDirty}
           >
             Reset
           </Button>
         )}
-        <Button disabled={isSubmitting || !isDirty}>
+        <Button disabled={isSubmitting || (!isDirty && isEdit)}>
           {!isSubmitting ? (
             isEdit ? (
               "Save Changes"

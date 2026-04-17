@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { addAllergy, updateAllergy } from "@/services/client/patient";
-import DialogBody from "../ui/DialogBody";
+import DialogBody from "@/components/ui/DialogBody";
 
 function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
   const router = useRouter();
@@ -17,12 +17,13 @@ function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
     handleSubmit,
     register,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm({ defaultValues: isEdit ? { name, description } : {} });
 
   async function onSubmit(data) {
     try {
       if (isEdit) {
+        if (!isDirty) return;
         await updateAllergy({ ...data, allergyId }, patientId);
       } else {
         await addAllergy(data, patientId);
@@ -57,18 +58,18 @@ function AllergyForm({ patientId, closeModal, allergyToEdit = {} }) {
           error={errors?.description?.message}
         />
       </DialogBody>
-      <DialogFooter showCloseButton={!isEdit}>
+      <DialogFooter showCloseButton={!isEdit} disableCloseButton={isSubmitting}>
         {isEdit && (
           <Button
             type="button"
             variation="ghost"
             onClick={() => reset()}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isDirty}
           >
             Reset
           </Button>
         )}
-        <Button disabled={isSubmitting}>
+        <Button disabled={isSubmitting || (!isDirty && isEdit)}>
           {!isSubmitting ? "Add Allergy" : <SpinnerMini />}
         </Button>
       </DialogFooter>

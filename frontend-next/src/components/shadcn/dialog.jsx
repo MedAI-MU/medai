@@ -83,6 +83,7 @@ function DialogHeader({ className, ...props }) {
 function DialogFooter({
   className,
   showCloseButton = false,
+  disableCloseButton = false,
   children,
   ...props
 }) {
@@ -97,7 +98,9 @@ function DialogFooter({
     >
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variation="ghost">Close</Button>
+          <Button variation="ghost" disabled={disableCloseButton}>
+            Close
+          </Button>
         </DialogPrimitive.Close>
       )}
       {children}

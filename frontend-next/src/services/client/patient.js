@@ -56,3 +56,22 @@ export async function updateSurgery(data, patientId) {
 export async function deleteSurgery(patientId, surgeryId) {
   return apiClient.delete(`api/patients/${patientId}/surgeries/${surgeryId}`);
 }
+
+export async function addFamilyHistory(data, patientId) {
+  return apiClient.post(`api/patients/${patientId}/family-histories`, data);
+}
+
+export async function updateFamilyHistory(data, patientId) {
+  const { recordId, ...familyHistoryData } = data;
+
+  return apiClient.patch(
+    `api/patients/${patientId}/family-histories/${recordId}`,
+    familyHistoryData,
+  );
+}
+
+export async function deleteFamilyHistory(patientId, recordId) {
+  return apiClient.delete(
+    `api/patients/${patientId}/family-histories/${recordId}`,
+  );
+}
