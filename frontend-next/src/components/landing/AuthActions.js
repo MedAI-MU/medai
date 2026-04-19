@@ -1,8 +1,8 @@
 import Button from "../ui/Button";
 
-function ActionButtons() {
+function AuthActions() {
   return (
-    <div className="hidden items-center gap-3 md:flex">
+    <div className="hidden items-center gap-3 lg:flex">
       <Button variation="secondary" href="/auth/login">
         Login
       </Button>
@@ -11,4 +11,4 @@ function ActionButtons() {
   );
 }
 
-export default ActionButtons;
+export default AuthActions;
