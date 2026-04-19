@@ -3,13 +3,12 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 const Variations = {
-  primary: "bg-primary text-white font-medium hover:opacity-90",
-  secondary:
-    "border-2 border-primary text-primary font-medium hover:bg-primary/10",
-  ghost:
-    "text-text-muted font-medium hover:bg-surface-overlay hover:text-text-base",
-  danger: "bg-danger text-white font-medium hover:opacity-90",
-  dangerGhost: "text-danger font-medium hover:bg-danger-muted",
+  primary: "bg-primary text-white hover:opacity-90",
+  secondary: "border-2 border-primary text-primary hover:bg-primary/10",
+  ghost: "text-text-muted hover:bg-surface-overlay hover:text-text-base",
+  danger: "bg-danger text-white hover:opacity-90",
+  dangerGhost: "text-danger hover:bg-danger-muted",
+  green: "text-white bg-emerald-500 hover:bg-emerald-600",
 };
 
 const Button = forwardRef(
@@ -27,7 +26,7 @@ const Button = forwardRef(
     ref,
   ) => {
     const Style = cn(
-      "rounded-lg px-5 flex justify-center gap-4 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
+      "rounded-lg px-5 flex justify-center font-medium gap-4 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
       Variations[variation],
       className,
     );

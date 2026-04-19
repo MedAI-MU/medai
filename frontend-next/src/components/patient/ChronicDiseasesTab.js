@@ -11,7 +11,7 @@ import DeleteAction from "@/components/ui/DeleteAction";
 import { deleteChronicDisease } from "@/services/client/patient";
 
 function ChronicDiseasesTab({ data }) {
-  const { chronicDiseases, userId } = data || {};
+  const { chronicDiseases = [], userId } = data || {};
   const hasChronicDisease = chronicDiseases?.length > 0;
 
   return (

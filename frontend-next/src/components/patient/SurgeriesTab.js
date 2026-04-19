@@ -11,7 +11,7 @@ import EditAction from "@/components/ui/EditAction";
 import DeleteAction from "@/components/ui/DeleteAction";
 
 function SurgeriesTab({ data }) {
-  const { surgeries, userId } = data || {};
+  const { surgeries = [], userId } = data || {};
   const hasSurgeries = surgeries?.length > 0;
 
   return (

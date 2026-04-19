@@ -6,6 +6,7 @@ import ChronicDiseasesTab from "./ChronicDiseasesTab";
 import SurgeriesTab from "./SurgeriesTab";
 import { useState } from "react";
 import FamilyHistoryTab from "./FamilyHistoryTab";
+import EmergencyContactsTab from "./EmergencyContactsTab";
 
 const TABS = [
   {
@@ -30,7 +31,7 @@ const TABS = [
   },
   {
     label: "emergencyContacts",
-    component: null,
+    component: EmergencyContactsTab,
   },
 ];
 

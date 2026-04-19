@@ -6,8 +6,7 @@ import FamilyHistoryCard from "./FamilyHistoryCard";
 import FamilyHistoryForm from "./FamilyHistoryForm";
 
 function FamilyHistoryTab({ data }) {
-  const { familyHistories, userId } = data || {};
-  console.log(familyHistories);
+  const { familyHistories = [], userId } = data || {};
 
   const hasHistory = familyHistories?.length > 0;
 

@@ -6,7 +6,7 @@ import AllergyForm from "./AllergyForm";
 import AddItemDialog from "../ui/AddItemDialog";
 
 function AllergiesTab({ data }) {
-  const { allergies } = data;
+  const { allergies = [] } = data;
   const hasAllergies = allergies?.length > 0;
 
   return (
@@ -22,7 +22,7 @@ function AllergiesTab({ data }) {
           description="Enter the details of the allergy to add it to your medical records."
           form={<AllergyForm patientId={data?.userId} />}
         >
-          Add New Allergy
+          Add Allergy
         </AddItemDialog>
       </Heading>
       {!hasAllergies ? (

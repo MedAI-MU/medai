@@ -1,5 +1,5 @@
 /**
- * Can Accept action button too
+ * Can Accept action button too.
  */
 
 const SIZES = {
@@ -42,7 +42,7 @@ function Heading({
   if (!children) return Header;
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       {Header}
       {children}
     </div>

@@ -75,3 +75,22 @@ export async function deleteFamilyHistory(patientId, recordId) {
     `api/patients/${patientId}/family-histories/${recordId}`,
   );
 }
+
+export async function addEmergencyContact(data, patientId) {
+  return apiClient.post(`api/patients/${patientId}/emergency-contacts`, data);
+}
+
+export async function updateEmergencyContact(data, patientId) {
+  const { contactId, ...contactData } = data;
+
+  return apiClient.patch(
+    `api/patients/${patientId}/emergency-contacts/${contactId}`,
+    contactData,
+  );
+}
+
+export async function deleteEmergencyContact(patientId, contactId) {
+  return apiClient.delete(
+    `api/patients/${patientId}/emergency-contacts/${contactId}`,
+  );
+}
