@@ -49,7 +49,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-surface text-text-base border-border data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border p-6 shadow-lg duration-100 outline-none sm:max-w-md",
+          "bg-surface text-text-base border-border max-sm:animate-in max-sm:slide-in-from-bottom-full max-sm:data-[state=closed]:animate-out max-sm:data-[state=closed]:slide-out-to-bottom-full sm:data-[state=open]:animate-in sm:data-[state=open]:fade-in-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:animate-out sm:data-[state=closed]:fade-out-0 sm:data-[state=closed]:zoom-out-95 fixed z-50 grid w-full gap-4 rounded-t-xl border p-6 shadow-lg duration-100 outline-none max-sm:bottom-0 sm:top-1/2 sm:left-1/2 sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-b-xl",
           className,
         )}
         {...props}
@@ -72,7 +72,7 @@ function DialogHeader({ className, ...props }) {
     <div
       data-slot="dialog-header"
       className={cn(
-        "flex flex-col gap-1.5 text-center sm:text-left",
+        "flex flex-col gap-1.5 text-center sm:text-start",
         className,
       )}
       {...props}
@@ -91,7 +91,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "bg-surface-overlay border-border -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 rounded-b-xl border-t p-4",
+        "bg-surface-overlay border-border -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 border-t p-4 sm:rounded-b-xl",
         className,
       )}
       {...props}
