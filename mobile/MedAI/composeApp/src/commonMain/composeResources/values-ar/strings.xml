@@ -1,29 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">MedIA</string>
-
-    <!-- General -->
     <string name="skip">تخطي</string>
     <string name="next">التالي</string>
     <string name="get_started">ابدأ الآن</string>
-
-    <!-- Onboarding Page 1 -->
     <string name="onboarding_title_1">اختر طبيبك</string>
     <string name="onboarding_desc_1">ابحث عن أفضل المتخصصين بالقرب منك للعناية بصحتك.</string>
-
-    <!-- Onboarding Page 2 -->
     <string name="onboarding_title_2">حدد المواعيد</string>
     <string name="onboarding_desc_2">احجز المواعيد ببضع نقرات فقط، في أي وقت وفي أي مكان.</string>
-
-    <!-- Onboarding Page 3 -->
     <string name="onboarding_title_3">تاريخك الطبي</string>
     <string name="onboarding_desc_3">يمكنك الوصول إلى تاريخك الطبي الكامل بأمان في أي مكان.</string>
-
-    <!-- Welcome Screen -->
     <string name="welcome_description">اعثر على أفضل المتخصصين بالقرب منك، وأدر مواعيدك، وتتبع تاريخك الطبي بأمان في مكان واحد.</string>
     <string name="log_in">تسجيل الدخول</string>
     <string name="sign_up">إنشاء حساب</string>
-
-    <!-- Login Screen -->
     <string name="welcome_back">مرحباً بك</string>
     <string name="login_subtitle">الرجاء إدخال تفاصيل حسابك لتسجيل الدخول.</string>
     <string name="email_or_mobile_label">البريد الإلكتروني أو رقم الهاتف</string>
@@ -35,9 +24,6 @@
     <string name="dont_have_account">ليس لديك حساب؟ </string>
     <string name="error_empty_fields">البريد الإلكتروني وكلمة المرور لا يمكن أن تكون فارغة</string>
     <string name="error_invalid_credentials">بيانات الاعتماد غير صالحة</string>
-
-    <!-- Sign Up Screen -->
-
     <string name="new_account">حساب جديد</string>
     <string name="full_name_label">الاسم الكامل</string>
     <string name="full_name_placeholder">اسمك بالكامل</string>
@@ -48,50 +34,36 @@
     <string name="terms_agreement">بالمتابعة، أنت توافق على \nشروط الاستخدام وسياسة الخصوصية.</string>
     <string name="already_have_account">لديك حساب بالفعل؟ </string>
     <string name="email_label">البريد الإلكتروني</string>
-
-    <!-- Home Screen -->
     <string name="home_greeting">مرحباً بك مجدداً</string>
     <string name="categories">الفئات</string>
     <string name="see_all">عرض الكل</string>
     <string name="upcoming_schedule">المواعيد القادمة</string>
     <string name="month">الشهر</string>
     <string name="specialties">التخصصات</string>
-
-    <!-- Categories -->
     <string name="cat_favorite">المفضلة</string>
     <string name="cat_doctors">الأطباء</string>
     <string name="cat_pharmacy">الصيدلية</string>
     <string name="cat_specialties">التخصصات</string>
     <string name="cat_record">السجلات</string>
-
-    <!-- Specialties -->
     <string name="spec_cardiology">القلب</string>
     <string name="spec_dermatology">الجلدية</string>
     <string name="spec_general">طب عام</string>
     <string name="spec_gynecology">النساء والتوليد</string>
     <string name="spec_odontology">الأسنان</string>
     <string name="spec_oncology">الأورام</string>
-
-    <!-- Specialties Screen -->
     <string name="find_your_doctor">ابحث عن طبيبك</string>
     <string name="search_placeholder">بحث...</string>
     <string name="sort_by">ترتيب حسب </string>
     <string name="sort_az">أ → ي</string>
     <string name="filter">تصفية</string>
     <string name="doctors_label">الأطباء</string>
-
-    <!-- Doctors Screen -->
     <string name="find_your_doctor_subtitle">ابحث عن طبيبك</string>
     <string name="info_button">معلومات</string>
     <string name="cardiology_label">القلب</string>
-
-    <!-- Doctor Details Screen -->
     <string name="doctor_details_title">تفاصيل الطبيب</string>
     <string name="reviews_count">%d مراجعة</string>
     <string name="about_doctor">عن الطبيب</string>
     <string name="book_appointment_action">حجز موعد</string>
-
-    <!-- Booking Screen -->
     <string name="booking_screen_title">الحجز</string>
     <string name="upcoming_schedule_title">المواعيد القادمة</string>
     <string name="available_time_title">الأوقات المتاحة</string>
@@ -109,15 +81,20 @@
     <string name="appointment_booked_success">تم حجز الموعد بنجاح!</string>
     <string name="failed_load_doctor">فشل تحميل بيانات الطبيب: %s</string>
     <string name="failed_load_slots">فشل تحميل المواعيد</string>
-
     <string name="success_title">تم حجز الموعد!</string>
     <string name="success_message">تم جدولة موعدك بنجاح. ستتلقى إشعارًا قريباً.</string>
     <string name="go_home">الذهاب للرئيسية</string>
-
-    <!-- Record Screen -->
     <string name="medical_record_title">السجل الطبي</string>
     <string name="history_label">السجل</string>
     <string name="view_details">عرض</string>
     <string name="re_book">حجز مجددًا</string>
     <string name="no_records_found">لا توجد سجلات طبية</string>
+    <string name="my_profile_title">ملفي الشخصي</string>
+    <string name="menu_profile">الملف الشخصي</string>
+    <string name="menu_favorite">المفضلة</string>
+    <string name="menu_payment">طريقة الدفع</string>
+    <string name="menu_privacy">سياسة الخصوصية</string>
+    <string name="menu_settings">الإعدادات</string>
+    <string name="menu_help">مساعدة</string>
+    <string name="menu_logout">تسجيل الخروج</string>
 </resources>
