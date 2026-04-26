@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import medai.composeapp.generated.resources.Res
+import medai.composeapp.generated.resources.app_logo
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,6 +47,7 @@ import org.example.project.domain.repository.UserSessionManager
 import org.example.project.domain.model.UserRole
 import kotlinx.coroutines.flow.first
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
+import org.example.project.presentation.MainContainerScreen
 
 
 class SplashScreen : Screen {
@@ -72,7 +78,7 @@ class SplashScreen : Screen {
             if (userSessionManager.isUserLoggedIn.first()) {
                 val role = userSessionManager.getUserRole()
                 when (role) {
-                    UserRole.DOCTOR -> navigator.replace(WelcomeScreen())
+                    UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
                     UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
                     else -> navigator.replace(WelcomeScreen()) // Default to patient flow (Welcome -> Home)
                 }
@@ -114,7 +120,7 @@ class SplashScreen : Screen {
 @Composable
 fun MedAILogo(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 100.dp,
+    iconSize: Dp = 150.dp, // Increased size for the logo image
     tint: Color,
     textColor: Color
 ) {
@@ -123,21 +129,21 @@ fun MedAILogo(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.Favorite,
+        Image(
+            painter = painterResource(Res.drawable.app_logo),
             contentDescription = "MedAI Logo",
             modifier = Modifier.size(iconSize),
-            tint = tint
+            contentScale = ContentScale.Fit
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        MedAIText(
-            text = "MedAI",
-            style = MedAITheme.textStyle.headline.large.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            color = textColor
-        )
+//        MedAIText(
+//            text = "MedAI",
+//            style = MedAITheme.textStyle.headline.large.copy(
+//                fontWeight = FontWeight.Bold
+//            ),
+//            color = textColor
+//        )
     }
 }
