@@ -17,13 +17,9 @@ export class SameIdGuard implements CanActivate {
     const user = request.user;
     if (!user) return false;
 
-    let targetId: number | null = null;
-    const paramId: any = request.params.id;
-    if (typeof paramId === 'string') {
-        targetId = parseInt(paramId, 10);
-    } else if (Array.isArray(paramId) && (paramId as any[]).length > 0) {
-        targetId = parseInt(paramId[0], 10);
-    }
+    const paramId = request.params.id;
+    const idString = Array.isArray(paramId) ? paramId[0] : paramId;
+    const targetId = idString ? parseInt(idString, 10) : null;
 
     return (
       (targetId !== null && user.id === targetId) ||
