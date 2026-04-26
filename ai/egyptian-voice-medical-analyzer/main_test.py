@@ -14,7 +14,7 @@ def clear_gpu():
 def main():
     # Path to the input audio file
     audio_path = "test_audio/test5.wav"
-    
+
     if not os.path.exists(audio_path):
         print(f"❌ Error: Audio file '{audio_path}' not found!")
         return
@@ -29,7 +29,7 @@ def main():
     start_time_stt = time.time()
     patient_text = stt.transcribe(audio_path)
     stt_latency = time.time() - start_time_stt
-    
+
     print(f"[STT Output]: {patient_text}")
     print(f"⏱️ STT Latency: {stt_latency:.2f}s")
 
@@ -50,7 +50,7 @@ def main():
         print("\n" + "="*60)
         print("🏥 FINAL MEDICAL REPORT")
         print("="*60)
-        
+
         try:
             # Locate the JSON structure within the model's raw output
             json_start = report_raw.find('{')
@@ -59,7 +59,7 @@ def main():
                 report_data = json.loads(report_raw[json_start:json_end])
                 # Print formatted JSON with Arabic support
                 print(json.dumps(report_data, indent=4, ensure_ascii=False))
-            
+
             # Print performance analytics
             print("\n" + "-"*60)
             print(f"📊 PERFORMANCE SUMMARY:")
@@ -70,7 +70,7 @@ def main():
 
         except Exception as e:
             print(f"❌ Analysis Parsing Error: {report_raw}")
-        
+
         # Clear the NLU model from GPU after completion
         del analyzer
         clear_gpu()
