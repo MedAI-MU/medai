@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
@@ -75,7 +75,7 @@ class BookingScreen(val doctorId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<BookingViewModel> { parametersOf(doctorId) }
+        val viewModel = koinScreenModel<BookingViewModel> { parametersOf(doctorId) }
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
 

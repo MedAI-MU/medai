@@ -18,10 +18,11 @@ export class SameIdGuard implements CanActivate {
     if (!user) return false;
 
     let targetId: number | null = null;
-    if (typeof request.params.id === 'string') {
-        targetId = parseInt(request.params.id, 10);
-    } else if (Array.isArray(request.params.id) && request.params.id.length > 0) {
-        targetId = parseInt(request.params.id[0], 10);
+    const paramId = request.params.id;
+    if (typeof paramId === 'string') {
+        targetId = parseInt(paramId, 10);
+    } else if (Array.isArray(paramId) && paramId.length > 0) {
+        targetId = parseInt(paramId[0], 10);
     }
 
     return (

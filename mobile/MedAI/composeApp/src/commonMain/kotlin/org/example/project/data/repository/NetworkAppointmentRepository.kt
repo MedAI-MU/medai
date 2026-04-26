@@ -103,6 +103,8 @@ class NetworkAppointmentRepository(
         // Parse date and time if available
         var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         try {
+            // First attempt to grab date from schedule day if your API returns it there,
+            // else use createdAt for testing or current time.
             val dateStr = this.createdAt.take(10)
             val timeStr = this.slot?.startTime ?: "00:00:00"
             dateValue = LocalDateTime.parse("${dateStr}T${timeStr}")

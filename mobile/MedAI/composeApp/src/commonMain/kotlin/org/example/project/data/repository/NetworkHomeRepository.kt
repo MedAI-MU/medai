@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
 import org.example.project.data.remote.dto.AppointmentDto
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.SpecialtyDto
@@ -114,7 +115,9 @@ private fun parseDate(dateString: String): LocalDate {
         LocalDate.parse(dateString)
     } catch (e: Exception) {
         e.printStackTrace()
-        // Returning a dummy date (e.g. today or epoch) to prevent crash
-        LocalDate(2025, 11, 11)
+        // Default to a safe date but normally this should be fully handled by the backend schema returning correct dates
+        val now = kotlinx.datetime.Clock.System.now()
+        val localNow = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
+        LocalDate(localNow.year, localNow.monthNumber, localNow.dayOfMonth)
     }
 }
