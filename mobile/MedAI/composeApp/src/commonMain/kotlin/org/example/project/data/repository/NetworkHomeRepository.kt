@@ -56,22 +56,24 @@ class NetworkHomeRepository(
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET /appointments/upcoming -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("/appointments/upcoming").body()
+            // GET /appointments/my-appointments -> returns List<AppointmentDto>
+            val response: List<AppointmentDto> = client.get("/appointments/my-appointments").body()
+
+            val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
 
             // Map DTO -> Domain
-            val domainList = response.map { dto ->
+            val domainList = upcoming.map { dto ->
                 Appointment(
-                    id = dto.id,
+                    id = dto.id.toString(),
                     doctor = Doctor(
-                        id = dto.doctor.id,
-                        name = dto.doctor.name,
-                        specialty = dto.doctor.specialty,
-                        rating = dto.doctor.rating,
-                        imageUrl = dto.doctor.imageUrl
+                        id = dto.doctor?.id ?: "0",
+                        name = dto.doctor?.name ?: "Unknown Doctor",
+                        specialty = dto.doctor?.specialty ?: "General",
+                        rating = dto.doctor?.rating ?: 0.0,
+                        imageUrl = dto.doctor?.imageUrl
                     ),
-                    date = parseDate(dto.date),
-                    time = dto.time, // e.g. "10:00 AM"
+                    date = parseDate(dto.createdAt.take(10)),
+                    time = dto.slot?.startTime ?: "00:00", // using slot start time
                     status = mapStatus(dto.status)
                 )
             }

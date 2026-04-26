@@ -5,17 +5,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BookingRequestDto(
-    @SerialName("doctor_id") val doctorId: String,
-    @SerialName("slot_id") val slotId: String,
-    val date: String,
-    @SerialName("patient_name") val patientName: String,
-    @SerialName("patient_age") val patientAge: String,
-    @SerialName("patient_gender") val patientGender: String,
-    val problem: String
+    val doctorId: Int,
+    val slotId: Int,
+    val bookedForName: String? = null,
+    val bookedForAge: String? = null,
+    val bookedForGender: String? = null,
+    val problemDescription: String? = null
 )
 
 @Serializable
 data class BookingResponseDto(
-    @SerialName("booking_id") val bookingId: String,
+    val id: Int,
     val status: String
 )
