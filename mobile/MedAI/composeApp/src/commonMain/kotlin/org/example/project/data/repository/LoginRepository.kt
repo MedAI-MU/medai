@@ -25,16 +25,10 @@ class NetworkLoginRepository(
                  throw Exception("Login failed: ${loginResponse.status}")
             }
 
-            // 2. Extract JWT from Set-Cookie Header
-            val setCookieHeader = loginResponse.headers["Set-Cookie"]
-                ?: throw Exception("No Set-Cookie header found")
-
-            // Simple parsing to find "Authentication=..."
-            val authToken = setCookieHeader.split(";")
-                .find { it.trim().startsWith("Authentication=") }
-                ?.substringAfter("Authentication=")
-                ?.substringBefore(";")
-                ?: throw Exception("Authentication cookie not found")
+            // 2. Extract JWT from Set-Cookie Header (using Ktor's cookie extension)
+            val cookies = loginResponse.setCookie()
+            val authToken = cookies.find { it.name == "Authentication" }?.value
+                ?: throw Exception("Authentication cookie not found in response")
 
             // 4. Decode JWT Payload
             val parts = authToken.split(".")

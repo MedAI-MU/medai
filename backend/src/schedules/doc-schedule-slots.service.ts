@@ -44,7 +44,7 @@ export class DocScheduleSlotsService {
   ) {
     const doctor = await this.doctorsRepository.findOne({
       where: { userId: doctorId },
-      relations: ['user'],
+      relations: ['user', 'specialities', 'specialities.speciality'],
     });
     if (!doctor) throw new NotFoundException('Doctor not found');
 
@@ -94,7 +94,7 @@ export class DocScheduleSlotsService {
       doctorId: doctor.userId,
       name: doctor.user.name,
       // TODO: Update this when possible
-      speciality: doctor.specialities[0].speciality.name,
+      speciality: doctor.specialities?.[0]?.speciality?.name ?? 'General',
       days: pagedDays,
     });
   }

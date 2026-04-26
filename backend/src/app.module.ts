@@ -17,8 +17,8 @@ import { SharedModule } from './shared/shared.module';
     UsersModule,
     AuthModule,
     PatientsModule,
-    DoctorsModule,
     SchedulesModule,
+    DoctorsModule,
     SharedModule,
   ],
 })
