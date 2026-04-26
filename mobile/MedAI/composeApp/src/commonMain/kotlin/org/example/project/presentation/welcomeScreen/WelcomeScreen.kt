@@ -30,12 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.foundation.Image
-import androidx.compose.ui.layout.ContentScale
 import medai.composeapp.generated.resources.Res
-import medai.composeapp.generated.resources.app_logo
 import medai.composeapp.generated.resources.log_in
-import org.jetbrains.compose.resources.painterResource
 import medai.composeapp.generated.resources.sign_up
 import medai.composeapp.generated.resources.welcome_description
 import org.example.project.design_system.component.button.ButtonVariant
@@ -127,7 +123,7 @@ class WelcomeScreen : Screen {
 @Composable
 fun MedAILogo(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 150.dp,
+    iconSize: Dp = 100.dp,
     tint: Color,
     textColor: Color
 ) {
@@ -136,11 +132,11 @@ fun MedAILogo(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(Res.drawable.app_logo),
+        Icon(
+            imageVector = Icons.Default.Favorite,
             contentDescription = "MedAI Logo",
             modifier = Modifier.size(iconSize),
-            contentScale = ContentScale.Fit
+            tint = tint
         )
 
         Spacer(modifier = Modifier.height(16.dp))

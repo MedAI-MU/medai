@@ -3,18 +3,18 @@ import Button from "../ui/Button";
 
 function MobileMenu({ navLinks }) {
   return (
-    <div className="bg-surface absolute inset-x-0 top-[76px] mt-4 space-y-3 pb-4 lg:hidden">
+    <div className="mt-4 space-y-3 pb-4 md:hidden">
       {navLinks.map((link) => (
         <Link
           key={link.text}
           href={link.to}
-          className="text-text-base hover:text-primary block w-full py-2 text-left transition-colors"
+          className="text-primary-dark block w-full py-2 text-left"
         >
           {link.text}
         </Link>
       ))}
 
-      <div className="flex flex-col items-start gap-2 pt-3 text-center">
+      <div className="flex flex-col gap-2 pt-3 text-center">
         <Button variation="secondary" href="/auth/login">
           Login
         </Button>

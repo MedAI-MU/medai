@@ -1,4 +1,3 @@
-<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">MedIA</string>
 
@@ -116,16 +115,6 @@
     <string name="go_home">الذهاب للرئيسية</string>
 
     <!-- Record Screen -->
-    <!-- Profile Screen -->
-    <string name="my_profile_title">ملفي الشخصي</string>
-    <string name="menu_profile">الملف الشخصي</string>
-    <string name="menu_favorite">المفضلة</string>
-    <string name="menu_payment">طريقة الدفع</string>
-    <string name="menu_privacy">سياسة الخصوصية</string>
-    <string name="menu_settings">الإعدادات</string>
-    <string name="menu_help">مساعدة</string>
-    <string name="menu_logout">تسجيل الخروج</string>
-
     <string name="medical_record_title">السجل الطبي</string>
     <string name="history_label">السجل</string>
     <string name="view_details">عرض</string>

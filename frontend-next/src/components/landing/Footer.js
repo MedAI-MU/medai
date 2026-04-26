@@ -25,16 +25,15 @@ const ContactInfo = [
   "Email: contact@medai.com",
 ];
 
-// Footer is always dark — pinned colors, not remapping tokens
 function Footer() {
   return (
-    <footer className="bg-[#1e293b] px-6 py-12">
+    <footer className="bg-primary-dark px-6 py-12">
       <Container>
-        <div className="mb-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid gap-8 md:grid-cols-4">
           {/* Logo & About */}
           <div className="space-y-4">
             <Logo />
-            <p className="text-sm text-slate-400">
+            <p className="text-secondary-gray text-sm">
               Revolutionizing healthcare through AI-powered solutions and expert
               medical care.
             </p>
@@ -48,7 +47,7 @@ function Footer() {
                 <Link
                   key={link.text}
                   href={link.to}
-                  className="block text-sm text-slate-400 transition-colors hover:text-white"
+                  className="text-secondary-gray block text-sm transition-opacity hover:opacity-70"
                 >
                   {link.text}
                 </Link>
@@ -61,7 +60,7 @@ function Footer() {
             <h4 className="mb-4 font-semibold text-white">Services</h4>
             <div className="space-y-2">
               {Services.map((service) => (
-                <p key={service} className="text-sm text-slate-400">
+                <p key={service} className="text-secondary-gray text-sm">
                   {service}
                 </p>
               ))}
@@ -73,7 +72,7 @@ function Footer() {
             <h4 className="mb-4 font-semibold text-white">Contact Info</h4>
             <div className="space-y-2">
               {ContactInfo.map((info) => (
-                <p key={info} className="text-sm text-slate-400">
+                <p key={info} className="text-secondary-gray text-sm">
                   {info}
                 </p>
               ))}
@@ -81,8 +80,8 @@ function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-600 pt-8 text-center">
-          <Copyright className="text-slate-400" />
+        <div className="border-t border-[#4a5568] pt-8 text-center">
+          <Copyright className="text-secondary-gray" />
         </div>
       </Container>
     </footer>

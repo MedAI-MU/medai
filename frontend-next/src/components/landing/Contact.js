@@ -19,7 +19,7 @@ function Contact() {
         <div className="grid gap-8 md:grid-cols-3">
           {/* Contact Form */}
           <div className="md:col-span-2">
-            <div className="rounded-xl border border-border bg-surface p-8 shadow-md transition-colors duration-300">
+            <div className="shadow-primary border-border-gray rounded-xl border bg-white p-8">
               <form className="space-y-6">
                 <FormInput
                   label="Name"
@@ -38,6 +38,7 @@ function Contact() {
                   rows={5}
                   placeholder="How can we help you?"
                 />
+
                 <Button type="submit" className="w-full">
                   Send Message
                 </Button>
@@ -47,19 +48,19 @@ function Contact() {
 
           {/* Contact Info */}
           <div className="space-y-6">
-            <div className="rounded-xl border border-border bg-surface p-6 shadow-md transition-colors duration-300">
+            <div className="border-border-gray rounded-xl border bg-white p-6 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
               <ContactInfo
-                icon={<Phone size={24} className="text-primary" />}
+                icon={<Phone size={24} className="text-primary-blue" />}
                 label="Phone"
                 value="+1 (555) 123-4567"
               />
               <ContactInfo
-                icon={<Mail size={24} className="text-primary" />}
+                icon={<Mail size={24} className="text-primary-blue" />}
                 label="Email"
                 value="contact@medai.com"
               />
               <ContactInfo
-                icon={<MapPin size={24} className="text-primary" />}
+                icon={<MapPin size={24} className="text-primary-blue" />}
                 label="Location"
                 value="123 Healthcare Ave, Medical District, NY 10001"
               />

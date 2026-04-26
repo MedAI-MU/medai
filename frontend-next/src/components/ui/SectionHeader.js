@@ -1,11 +1,11 @@
 const Title = {
   hero: "text-5xl font-extrabold leading-tight mb-6",
-  form: "text-3xl font-bold text-text-base mb-2",
+  form: "text-3xl font-bold text-gray-900 mb-2",
 };
 
 const SubTitle = {
   hero: "text-xl text-white/90 max-w-md leading-relaxed",
-  form: "text-text-muted",
+  form: "text-gray-500",
 };
 
 function SectionHeader({

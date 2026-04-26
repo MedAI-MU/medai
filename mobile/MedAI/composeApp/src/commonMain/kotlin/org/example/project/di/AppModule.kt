@@ -8,11 +8,8 @@ import org.example.project.data.repository.InMemoryUserSessionManager
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkPatientRepository
-import org.example.project.data.repository.NetworkScheduleRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.NetworkAppointmentRepository
-import org.example.project.data.repository.NetworkDoctorRepository
-import org.example.project.data.repository.NetworkSpecialtiesRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
 import org.example.project.data.repository.mock.MockDoctorRepository
@@ -34,8 +31,6 @@ import org.example.project.domain.repository.SecretaryRepository
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.repository.SpecialtiesRepository
 import org.example.project.domain.repository.UserSessionManager
-import org.example.project.domain.repository.ScheduleRepository
-import org.example.project.data.repository.mock.MockScheduleRepository
 import org.example.project.domain.usecase.BookAppointmentUseCase
 import org.example.project.domain.usecase.CancelAppointmentUseCase
 import org.example.project.domain.usecase.GetAllergiesUseCase
@@ -128,9 +123,10 @@ val appModule = module {
     single<LoginRepository> { NetworkLoginRepository(get()) }
     single<SignUpRepository> { NetworkSignUpRepository(client = get()) }
     single<HomeRepository> { MockHomeRepository() }
-    single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
-    single<DoctorRepository> { NetworkDoctorRepository(get()) }
+    single<SpecialtiesRepository> { MockSpecialtiesRepository() }
+    single<DoctorRepository> { MockDoctorRepository() }
     single<ProfileRepository> { MockProfileRepository() }
+    //single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     //single<LoginRepository> { MockLoginRepository() }
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
@@ -315,24 +311,6 @@ val appModule = module {
             get(),
             get(),
             get()
-        )
-    }
-
-    // Schedule
-//    single<ScheduleRepository> { MockScheduleRepository() }
-    single<ScheduleRepository> { org.example.project.data.repository.NetworkScheduleRepository(client = get()) }
-    factory { org.example.project.domain.usecase.schedule.GetScheduleTemplatesUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.CreateScheduleTemplateUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.UpdateScheduleTemplateUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.DeleteScheduleTemplateUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.ApplyScheduleTemplateUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.GetScheduleSlotsUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.CreateScheduleSlotsUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.UpdateScheduleSlotUseCase(get()) }
-    factory { org.example.project.domain.usecase.schedule.DeleteScheduleSlotUseCase(get()) }
-    factory { (doctorId: Int) ->
-        org.example.project.presentation.schedule.ScheduleViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), doctorId
         )
     }
 }

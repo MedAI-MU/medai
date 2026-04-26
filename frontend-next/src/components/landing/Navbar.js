@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-function Navbar({ NAV_LINKS }) {
+function Navbar({ navLinks }) {
   return (
-    <div className="hidden items-center gap-8 lg:flex">
-      {NAV_LINKS.map((link) => (
+    <div className="hidden items-center gap-8 md:flex">
+      {navLinks.map((link) => (
         <Link
           key={link.text}
           href={link.to}

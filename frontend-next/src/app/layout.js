@@ -1,7 +1,6 @@
 import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,22 +14,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          enableSystem
-          disableTransitionOnChange
-          defaultTheme="system"
-        >
-          {children}
-          <Toaster
-            toastOptions={{
-              className:
-                "!bg-surface !text-text-base !border !border-border !shadow-md",
-            }}
-          />
-        </ThemeProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

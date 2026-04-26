@@ -137,7 +137,7 @@ describe('AuthService', () => {
   describe('validateRefreshToken', () => {
     beforeEach(() => {
       // Mock system time for consistent expiresAt checks
-      jest.useFakeTimers({ now: now.getTime() });
+      jest.useFakeTimers({ now: now });
     });
 
     afterEach(() => {
@@ -266,7 +266,7 @@ describe('AuthService', () => {
   describe('login', () => {
     beforeEach(() => {
       // Mock system time for consistent expiresAt checks
-      jest.useFakeTimers({ now: now.getTime() });
+      jest.useFakeTimers({ now: now });
     });
 
     afterEach(() => {

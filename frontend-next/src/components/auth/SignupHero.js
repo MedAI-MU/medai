@@ -7,7 +7,7 @@ import Copyright from "@/components/ui/Copyright";
 function SignupHero() {
   return (
     <>
-      <div className="relative z-10">
+      <div>
         <Logo />
         <SectionHeader
           className="mt-10"
@@ -18,11 +18,11 @@ function SignupHero() {
       </div>
       <Image
         src={SignupImage}
-        className="relative z-10 mx-auto w-full max-w-sm rounded-2xl border border-white/10 opacity-90 shadow-2xl"
+        className="mx-auto w-full max-w-sm rounded-xl opacity-80"
         alt="sign up hero image"
         placeholder="blur"
       />
-      <Copyright className="text-white/40 relative z-10 text-sm" />
+      <Copyright className="text-white/70" />
     </>
   );
 }

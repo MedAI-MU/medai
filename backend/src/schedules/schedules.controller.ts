@@ -36,21 +36,21 @@ export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,
     private readonly scheduleSlotsService: DocScheduleSlotsService,
-  ) { }
+  ) {}
 
-  @Get(':doctorId/schedule-templates')
+  @Get('schedule-templates')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'List of schedule templates' })
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
   @ApiQuery({ name: 'pageNo', required: false, type: Number })
   @ApiQuery({ name: 'pageSize', required: false, type: Number })
   @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'doctorId', required: false, type: Number })
   async getAllTemplates(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
     @Query('pageNo', new ParseIntPipe({ optional: true })) pageNo = 1,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize = 10,
     @Query('name') name?: string,
+    @Query('doctorId', new ParseIntPipe({ optional: true })) doctorId?: number,
   ) {
     const { data, total } = await this.scheduleTemplatesService.getAll(
       currentUser,
