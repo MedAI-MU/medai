@@ -4,6 +4,7 @@ jest.mock('argon2', () => ({
 
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { Doctor } from '../doctors/entities/doctor.entity';
 import { UsersService } from './users.service';
 import { Test } from '@nestjs/testing';
 import { RegisterDto } from './dtos/register.dto';
@@ -18,6 +19,10 @@ describe('users.service', () => {
     findOne: jest.fn(),
   };
 
+  const doctorsRepositoryMock = {
+    save: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
@@ -25,6 +30,10 @@ describe('users.service', () => {
         {
           provide: getRepositoryToken(User),
           useValue: usersRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(Doctor),
+          useValue: doctorsRepositoryMock,
         },
       ],
     }).compile();

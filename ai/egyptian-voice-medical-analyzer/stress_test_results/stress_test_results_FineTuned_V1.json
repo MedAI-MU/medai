@@ -1,0 +1,414 @@
+[
+    {
+        "id": 1,
+        "input": "يا دكتور عندي صداع شديد بس الحمد لله معنديش لا ترجيع ولا دوخة ولا حرارتي عالية.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "صداع شديد",
+                    "clinical_term": "Severe Headache"
+                },
+                {
+                    "description_ar": "لا ترجيع ولا دوخة",
+                    "clinical_term": "No Nausea or Dizziness"
+                },
+                {
+                    "description_ar": "حرارتي عالية",
+                    "clinical_term": "High Body Temperature"
+                }
+            ],
+            "systemic_summary": "Patient reports severe headache, no nausea or dizziness, and high body temperature."
+        },
+        "latency_seconds": 8.84,
+        "status": "✅ Success"
+    },
+    {
+        "id": 2,
+        "input": "صدري واجعني شوية بس مفيش نهجان خالص ولا في وجع بيسمع في كتفي.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "شوية بس مفيش نهجان خالص",
+                    "clinical_term": "Mild Abdominal Pain"
+                },
+                {
+                    "description_ar": "وجع بيسمع في كتفي",
+                    "clinical_term": "Musculoskeletal Chest Pain"
+                }
+            ],
+            "systemic_summary": "Patient reports mild abdominal pain and musculoskeletal chest pain."
+        },
+        "latency_seconds": 6.79,
+        "status": "✅ Success"
+    },
+    {
+        "id": 3,
+        "input": "رجلي ورمت فجأة بس مش زرقاء ومقدرش أقول إن في ألم، هي مجرد تقيلة.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "تقيلة",
+                    "clinical_term": "Abdominal Fullness"
+                }
+            ],
+            "systemic_summary": "Patient reports abdominal fullness without associated pain or discoloration."
+        },
+        "latency_seconds": 3.88,
+        "status": "✅ Success"
+    },
+    {
+        "id": 4,
+        "input": "حاسس بزغللة بس مفيش صداع نصفي ولا عيني حمراء ولا في غيامة عليها.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "حاسس بزغللة",
+                    "clinical_term": "Headache"
+                }
+            ],
+            "systemic_summary": "Patient reports headache with no associated nausea, photophobia, or visual changes."
+        },
+        "latency_seconds": 4.19,
+        "status": "✅ Success"
+    },
+    {
+        "id": 5,
+        "input": "حاسس إن روحي بتطلع ومبقتش قادر أصلب طولي وضربات قلبي سريعة جداً.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "حاسس إن روحي بتطلع",
+                    "clinical_term": "Abnormal Mood"
+                },
+                {
+                    "description_ar": "مبقتش قادر أصلب طولي",
+                    "clinical_term": "Muscle Weakness"
+                },
+                {
+                    "description_ar": "ضربات قلبي سريعة جداً",
+                    "clinical_term": "Tachycardia"
+                }
+            ],
+            "systemic_summary": "Patient reports abnormal mood, muscle weakness, and tachycardia."
+        },
+        "latency_seconds": 8.97,
+        "status": "✅ Success"
+    },
+    {
+        "id": 6,
+        "input": "عيني عليها غيامة ومبقتش أشوف كويس بالليل وكأني ماشي في شبورة.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "مبقتش أشوف كويس بالليل",
+                    "clinical_term": "Night Vision Impairment"
+                },
+                {
+                    "description_ar": "كأني ماشي في شبورة",
+                    "clinical_term": "Floaters"
+                }
+            ],
+            "systemic_summary": "Patient reports night vision impairment and floaters; both are concerning for retinal pathology."
+        },
+        "latency_seconds": 6.85,
+        "status": "✅ Success"
+    },
+    {
+        "id": 7,
+        "input": "جسمي مهدود خالص ومفيش مجهود نهائي وأقل حركة بتخليني أقطع النفس.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "مهدود خالص",
+                    "clinical_term": "Severe Fatigue"
+                },
+                {
+                    "description_ar": "أقل حركة",
+                    "clinical_term": "Minimal Movement"
+                }
+            ],
+            "systemic_summary": "Patient reports severe fatigue and minimal movement, which cause dyspnea."
+        },
+        "latency_seconds": 5.66,
+        "status": "✅ Success"
+    },
+    {
+        "id": 8,
+        "input": "ودني بتصفر وبحس إن راسي بتلف بيا أول ما أقوم من على السرير.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "تصفر",
+                    "clinical_term": "Chills"
+                },
+                {
+                    "description_ar": "راسي بتلف بيا",
+                    "clinical_term": "Headache"
+                }
+            ],
+            "systemic_summary": "Patient reports chills and headache upon awakening."
+        },
+        "latency_seconds": 5.27,
+        "status": "✅ Success"
+    },
+    {
+        "id": 9,
+        "input": "الوجع عامل زي السكاكين في بطني وبحس بمرارة فظيعة في زوري بعد الأكل.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "الوجع عامل زي السكاكين في بطني",
+                    "clinical_term": "Abdominal Pain"
+                },
+                {
+                    "description_ar": "بحس بمرارة فظيعة في زوري بعد الأكل",
+                    "clinical_term": "Gastric Nausea"
+                }
+            ],
+            "systemic_summary": "Patient reports abdominal pain and nausea with a sour taste in the mouth after eating."
+        },
+        "latency_seconds": 8.49,
+        "status": "✅ Success"
+    },
+    {
+        "id": 10,
+        "input": "بقالي فترة بدخل الحمام كتير ووزني نزل النص وريقي ناشف وبحس بتنميل في صوابع إيدي.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "بدخل الحمام كتير",
+                    "clinical_term": "Frequent Urination"
+                },
+                {
+                    "description_ar": "وزني نزل النص",
+                    "clinical_term": "Nocturia"
+                },
+                {
+                    "description_ar": "ريقي ناشف",
+                    "clinical_term": "Urinary Incontinence"
+                },
+                {
+                    "description_ar": "بحس بتنميل في صوابع إيدي",
+                    "clinical_term": "Numbness in Fingers"
+                }
+            ],
+            "systemic_summary": "Patient reports frequent urination, nocturia, urinary incontinence, and numbness in fingers."
+        },
+        "latency_seconds": 12.01,
+        "status": "✅ Success"
+    },
+    {
+        "id": 11,
+        "input": "في نهجان فظيع ووجع في صدري بيسمع في فكي وضهري وحاسس إني عرقان بزيادة.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "في نهجان فظيع",
+                    "clinical_term": "Severe Palpitations"
+                },
+                {
+                    "description_ar": "وجع في صدري",
+                    "clinical_term": "Chest Pain"
+                },
+                {
+                    "description_ar": "سمع في فكي وضهري",
+                    "clinical_term": "Tinnitus"
+                },
+                {
+                    "description_ar": "حاسس إني عرقان بزيادة",
+                    "clinical_term": "Increased Sweating"
+                }
+            ],
+            "systemic_summary": "Patient reports severe palpitations, chest pain, tinnitus, and increased sweating."
+        },
+        "latency_seconds": 11.15,
+        "status": "✅ Success"
+    },
+    {
+        "id": 12,
+        "input": "ركبتي بتطقطق وورمة ومقدرش أتنيها وبحس إن عضمي كله ناشف الصبح.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "ركبتي بتطقطق وورمة",
+                    "clinical_term": "Patent Femoral Crepitus"
+                },
+                {
+                    "description_ar": "مقدرش أتنيها",
+                    "clinical_term": "Pain with Weight Bearing"
+                }
+            ],
+            "systemic_summary": "Patient reports bilateral knee pain with crepitus and difficulty ambulating."
+        },
+        "latency_seconds": 7.03,
+        "status": "✅ Success"
+    },
+    {
+        "id": 13,
+        "input": "عندي حرقان في البول ولونه غامق وبحس بوجع في جنبي بيسمع تحت في بطني.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "حرقان في البول",
+                    "clinical_term": "Urethral Burning"
+                },
+                {
+                    "description_ar": "لونه غامق",
+                    "clinical_term": "Dark Urine"
+                },
+                {
+                    "description_ar": "وجع في جنبي",
+                    "clinical_term": "Flank Pain"
+                }
+            ],
+            "systemic_summary": "Patient reports urethral burning and flank pain, with dark urine."
+        },
+        "latency_seconds": 7.64,
+        "status": "✅ Success"
+    },
+    {
+        "id": 14,
+        "input": "بطني بتوجعني.. لأ قصدي صدري هو اللي واجعني وحاسس بضيق تنفس.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "بطني بتوجعني",
+                    "clinical_term": "Abdominal Pain"
+                },
+                {
+                    "description_ar": "صدري هو اللي واجعني",
+                    "clinical_term": "Chest Pain"
+                }
+            ],
+            "systemic_summary": "Patient reports abdominal and chest pain with dyspnea."
+        },
+        "latency_seconds": 6.03,
+        "status": "✅ Success"
+    },
+    {
+        "id": 15,
+        "input": "عندي إسهال بقاله يومين.. أو تقدر تقول دخول الحمام كتير بس مفيش مغص.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "إسهال",
+                    "clinical_term": "Diarrhea"
+                },
+                {
+                    "description_ar": "دخول الحمام كتير",
+                    "clinical_term": "Frequent Urination"
+                }
+            ],
+            "systemic_summary": "Patient reports diarrhea and frequent urination."
+        },
+        "latency_seconds": 5.29,
+        "status": "✅ Success"
+    },
+    {
+        "id": 16,
+        "input": "الوجع في كتفي الشمال.. لا اليمين، وبحس إنه بيزيد لما ببدأ أتحرك.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "الوجع في كتفي الشمال",
+                    "clinical_term": "Left Shoulder Pain"
+                },
+                {
+                    "description_ar": "بحس إنه بيزيد لما ببدأ أتحرك",
+                    "clinical_term": "Worsening Pain with Movement"
+                }
+            ],
+            "systemic_summary": "Patient reports left shoulder pain and worsening pain with movement."
+        },
+        "latency_seconds": 6.91,
+        "status": "✅ Success"
+    },
+    {
+        "id": 17,
+        "input": "الوجع عامل زي الكهرباء في رجلي من ورا ونازل لحد كعب رجلي تحت.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "الوجع عامل زي الكهرباء في رجلي من ورا",
+                    "clinical_term": "Electric Shock-Like Pain, Left Leg, Posterior"
+                },
+                {
+                    "description_ar": "نازل لحد كعب رجلي تحت",
+                    "clinical_term": "Paresthesia, Left Foot, Medial Heel"
+                }
+            ],
+            "systemic_summary": "Patient reports electric shock-like pain in the posterior left leg and paresthesia in the medial left heel."
+        },
+        "latency_seconds": 9.11,
+        "status": "✅ Success"
+    },
+    {
+        "id": 18,
+        "input": "اتخبطت في راسي وأغمى عليا دقيقة ومن ساعتها برجع وعيني مزغللة خالص.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "اتخبطت في راسي",
+                    "clinical_term": "Head Strike"
+                },
+                {
+                    "description_ar": "أغمى عليا دقيقة",
+                    "clinical_term": "Brief Syncope"
+                },
+                {
+                    "description_ar": "برجع وعيني مزغللة خالص",
+                    "clinical_term": "Severe Diplopia"
+                }
+            ],
+            "systemic_summary": "Patient reports a head strike with brief syncope and severe diplopia."
+        },
+        "latency_seconds": 8.69,
+        "status": "✅ Success"
+    },
+    {
+        "id": 19,
+        "input": "نص وشي سقط فجأة ومش عارف أتكلم ولا أبلع ريقي وإيدي تقيلة مش قادر أرفعها.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "نص وشي سقط فجأة",
+                    "clinical_term": "Sudden Loss of Consciousness"
+                },
+                {
+                    "description_ar": "مش عارف أتكلم ولا أبلع ريقي",
+                    "clinical_term": "Inability to Speak and Swallow"
+                },
+                {
+                    "description_ar": "إيدي تقيلة مش قادر أرفعها",
+                    "clinical_term": "Arm Weakness"
+                }
+            ],
+            "systemic_summary": "Patient reports sudden loss of consciousness, inability to speak or swallow, and arm weakness."
+        },
+        "latency_seconds": 10.04,
+        "status": "✅ Success"
+    },
+    {
+        "id": 20,
+        "input": "عرقان بزيادة وجسمي بيلتش ومصدع وهفتان وعايز آكل حاجة مسكرة بسرعة.",
+        "output": {
+            "symptoms": [
+                {
+                    "description_ar": "عرقان بزيادة",
+                    "clinical_term": "Palpitations"
+                },
+                {
+                    "description_ar": "جسمي بيلتش",
+                    "clinical_term": "Sensation of Chest Heaviness"
+                },
+                {
+                    "description_ar": "مصدع",
+                    "clinical_term": "Dry Mouth"
+                }
+            ],
+            "clinical_impression": "Patient reports palpitations, sensation of chest heaviness, and dry mouth. Patient also reports craving for caffeinated beverages."
+        },
+        "latency_seconds": 8.42,
+        "status": "✅ Success"
+    }
+]

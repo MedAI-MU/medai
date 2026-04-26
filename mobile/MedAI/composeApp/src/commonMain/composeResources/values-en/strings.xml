@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+    <string name="app_name">MedAI</string>
+
+    <!-- General -->
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Onboarding Page 1 -->
+    <string name="onboarding_title_1">Choose Your Doctor</string>
+    <string name="onboarding_desc_1">Find the best specialist nearby to take care of your health needs.</string>
+
+    <!-- Onboarding Page 2 -->
+    <string name="onboarding_title_2">Schedule Appointments</string>
+    <string name="onboarding_desc_2">Book appointments with just a few clicks, anytime and anywhere.</string>
+
+    <!-- Onboarding Page 3 -->
+    <string name="onboarding_title_3">Check Medical History</string>
+    <string name="onboarding_desc_3">Access your complete medical history safely and securely on the go.</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_description">Find the best specialists nearby, manage your appointments, and track your medical history safely in one place.</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+
+
+    <!-- Login Screen -->
+    <string name="welcome_back">Welcome</string>
+    <string name="login_subtitle">Please enter your account details to login.</string>
+    <string name="email_or_mobile_label">Email or Mobile Number</string>
+    <string name="email_placeholder">example@example.com</string>
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">**************</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="or_sign_up_with">or sign up with</string>
+    <string name="dont_have_account" xml:space="preserve">Don\'t have an account? </string>
+    <string name="error_empty_fields">Email and Password cannot be empty</string>
+    <string name="error_invalid_credentials">Invalid credentials</string>
+
+
+    <!-- SignUp Screen -->
+    <string name="new_account">New Account</string>
+    <string name="full_name_label">Full name</string>
+    <string name="full_name_placeholder">Your full name</string>
+    <string name="mobile_number_label">Mobile Number</string>
+    <string name="mobile_number_placeholder">000 000 0000</string>
+    <string name="dob_label">Date Of Birth</string>
+    <string name="dob_placeholder">DD / MM / YYYY</string>
+    <string name="terms_agreement">By continuing, you agree to
+Terms of Use and Privacy Policy.</string>
+    <string name="already_have_account" xml:space="preserve">already have an account? </string>
+    <string name="email_label">Email</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">Hi, Welcome Back</string>
+    <string name="categories">Categories</string>
+    <string name="see_all">See all</string>
+    <string name="upcoming_schedule">Upcoming Schedule</string>
+    <string name="month">Month</string>
+    <string name="specialties">Specialties</string>
+
+    <!-- Categories -->
+    <string name="cat_favorite">Favorite</string>
+    <string name="cat_doctors">Doctors</string>
+    <string name="cat_pharmacy">Pharmacy</string>
+    <string name="cat_specialties">Specialties</string>
+    <string name="cat_record">Record</string>
+
+    <!-- Specialties -->
+    <string name="spec_cardiology">Cardiology</string>
+    <string name="spec_dermatology">Dermatology</string>
+    <string name="spec_general">General
+Medicine</string>
+    <string name="spec_gynecology">Gynecology</string>
+    <string name="spec_odontology">Odontology</string>
+    <string name="spec_oncology">Oncology</string>
+
+    <!-- Specialties Screen -->
+    <string name="find_your_doctor">Find Your Doctor</string>
+    <string name="search_placeholder">Search...</string>
+    <string name="sort_by" xml:space="preserve">Sort By </string>
+    <string name="sort_az">A → Z</string>
+    <string name="filter">Filter</string>
+    <string name="doctors_label">Doctors</string>
+
+    <!-- Doctors Screen -->
+    <string name="find_your_doctor_subtitle">Find Your Doctor</string>
+    <string name="info_button">Info</string>
+    <string name="cardiology_label">Cardiology</string>
+
+    <!-- Doctor Details Screen -->
+    <string name="doctor_details_title">Doctor Details</string>
+    <string name="reviews_count">%d Reviews</string>
+    <string name="about_doctor">About Doctor</string>
+    <string name="book_appointment_action">Book Appointment</string>
+
+    <!-- Booking Screen -->
+    <string name="booking_screen_title">Booking</string>
+    <string name="upcoming_schedule_title">Upcoming Schedule</string>
+    <string name="available_time_title">Available Time</string>
+    <string name="patient_details_title">Patient Details</string>
+    <string name="yourself_label">Yourself</string>
+    <string name="another_person_label">Another Person</string>
+    <string name="age_label">Age</string>
+    <string name="gender_label">Gender</string>
+    <string name="describe_problem_label">Describe your problem</string>
+    <string name="describe_problem_placeholder">Enter Your Problem Here...</string>
+    <string name="book_appointment_button">Book Appointment</string>
+    <string name="no_slots_available">No slots available for this date</string>
+    <string name="select_time_slot_error">Please select a time slot</string>
+    <string name="enter_problem_error">Please describe your problem</string>
+    <string name="appointment_booked_success">Appointment Booked!</string>
+    <string name="failed_load_doctor">Failed to load doctor: %s</string>
+    <string name="failed_load_slots">Failed to load slots</string>
+
+    <!-- Booking Success Screen -->
+    <string name="success_title">Appointment Booked!</string>
+    <string name="success_message">Your appointment has been successfully scheduled. You will receive a notification shortly.</string>
+    <string name="go_home">Go to Home</string>
+
+    <!-- Profile Screen -->
+    <string name="my_profile_title">My Profile</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_favorite">Favorite</string>
+    <string name="menu_payment">Payment Method</string>
+    <string name="menu_privacy">Privacy Policy</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_help">Help</string>
+    <string name="menu_logout">Logout</string>
+
+    <!-- Record Screen -->
+    <string name="medical_record_title">Medical Record</string>
+    <string name="history_label">History</string>
+    <string name="view_details">View</string>
+    <string name="re_book">Re-book</string>
+    <string name="no_records_found">No medical records found</string>
+
+</resources>
