@@ -13,7 +13,7 @@ import databaseConfig from './database.config';
         username: dbConfig.username,
         password: dbConfig.password,
         database: dbConfig.name,
-        migrations: ['./src/database/migrations/**/*{.js,.ts}'],
+        migrations: [__dirname + '/migrations/*{.js,.ts}'],
         autoLoadEntities: true,
         synchronize: false,
         logging: true,
