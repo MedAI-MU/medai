@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Vaccines
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
@@ -84,6 +85,7 @@ import org.example.project.domain.model.EmergencyContactEntity
 import org.example.project.domain.model.EmergencyContactParams
 import org.example.project.domain.model.FamilyHistoryEntity
 import org.example.project.domain.model.FamilyHistoryParams
+import org.example.project.domain.model.FamilyRelation
 import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.Patient
 import org.example.project.domain.model.SurgeryEntity
@@ -609,7 +611,18 @@ fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
         Spacer(modifier = Modifier.height(16.dp))
         MedAiDateTextField(value = date, onValueChange = { date = it }, placeholder = "Diagnosis Date (DDMMYYYY)")
         Spacer(modifier = Modifier.height(24.dp))
-        MedAIButton(text = if (disease == null) "Add" else "Update", onClick = {
+        val isDateValid = date.isBlank() || date.filter { it.isDigit() }.length == 8
+        val isValid = name.isNotBlank() && isDateValid
+
+        if (!isValid) {
+            val errors = buildList {
+                if (name.isBlank()) add("Name is required.")
+                if (!isDateValid) add("Date must be exactly 8 digits (DDMMYYYY).")
+            }.joinToString("\n")
+            androidx.compose.material3.Text(text = errors, color = androidx.compose.material3.MaterialTheme.colorScheme.error, style = MedAITheme.textStyle.label.small, modifier = Modifier.padding(bottom = 8.dp))
+        }
+
+        MedAIButton(text = if (disease == null) "Add" else "Update", enabled = isValid, onClick = {
             val params = ChronicDiseaseParams(name = name, description = desc, diagnosisDate = date)
             if (disease == null) onEvent(MedicalRecordEvent.AddChronicDisease(params))
             else onEvent(MedicalRecordEvent.EditChronicDisease(disease.id, params))
@@ -690,7 +703,18 @@ fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
         Spacer(modifier = Modifier.height(16.dp))
         MedAiDateTextField(value = date, onValueChange = { date = it }, placeholder = "Date (DDMMYYYY)")
         Spacer(modifier = Modifier.height(24.dp))
-        MedAIButton(text = if (surgery == null) "Add" else "Update", onClick = {
+        val isDateValid = date.filter { it.isDigit() }.length == 8
+        val isValid = name.isNotBlank() && isDateValid
+
+        if (!isValid) {
+            val errors = buildList {
+                if (name.isBlank()) add("Name is required.")
+                if (!isDateValid) add("Date must be exactly 8 digits (DDMMYYYY).")
+            }.joinToString("\n")
+            androidx.compose.material3.Text(text = errors, color = androidx.compose.material3.MaterialTheme.colorScheme.error, style = MedAITheme.textStyle.label.small, modifier = Modifier.padding(bottom = 8.dp))
+        }
+
+        MedAIButton(text = if (surgery == null) "Add" else "Update", enabled = isValid, onClick = {
             val params = SurgeryParams(name = name, description = desc, date = date)
             if (surgery == null) onEvent(MedicalRecordEvent.AddSurgery(params))
             else onEvent(MedicalRecordEvent.EditSurgery(surgery.id, params))
@@ -727,7 +751,7 @@ class FamilyHistoryScreen : Screen {
                             Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface)) {
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
-                                        MedAIText("${history.relation}: ${history.condition}", style = MedAITheme.textStyle.title.medium)
+                                        MedAIText("${history.relation.label}: ${history.condition}", style = MedAITheme.textStyle.title.medium)
                                         MedAIText(history.notes.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
@@ -756,15 +780,46 @@ class FamilyHistoryScreen : Screen {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
     val history = (sheetType as? PatientSheetType.EditFamily)?.history
-    var relation by remember { mutableStateOf(history?.relation ?: "") }
+    var relation by remember { mutableStateOf(history?.relation ?: org.example.project.domain.model.FamilyRelation.Father) }
     var condition by remember { mutableStateOf(history?.condition ?: "") }
     var notes by remember { mutableStateOf(history?.notes ?: "") }
+    var relationExpanded by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
         MedAIText(if (history == null) "Add Family History" else "Edit Family History", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
-        MedAiTextField(value = relation, onValueChange = { relation = it }, placeholder = "Relation (e.g. Father)")
+
+        MedAIText("Relation", style = MedAITheme.textStyle.label.medium, modifier = Modifier.padding(bottom = 8.dp))
+        ExposedDropdownMenuBox(
+            expanded = relationExpanded,
+            onExpandedChange = { relationExpanded = it }
+        ) {
+            MedAiTextField(
+                value = relation.label,
+                onValueChange = {},
+                readOnly = true,
+                placeholder = "Select Relation",
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = relationExpanded,
+                onDismissRequest = { relationExpanded = false }
+            ) {
+                FamilyRelation.entries.filter { it != FamilyRelation.Unknown }.forEach { rel ->
+                    DropdownMenuItem(
+                        text = { Text(rel.label) },
+                        onClick = {
+                            relation = rel
+                            relationExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
         MedAiTextField(value = condition, onValueChange = { condition = it }, placeholder = "Condition")
         Spacer(modifier = Modifier.height(16.dp))
@@ -837,11 +892,19 @@ class EmergencyContactsScreen : Screen {
         }
     }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
     val contact = (sheetType as? PatientSheetType.EditEmergency)?.contact
     var name by remember { mutableStateOf(contact?.name ?: "") }
-    var relation by remember { mutableStateOf(contact?.relation ?: "") }
+    var relation by remember {
+        mutableStateOf(
+            FamilyRelation.entries.find {
+                it.label.equals(contact?.relation, ignoreCase = true) || it.name.equals(contact?.relation, ignoreCase = true)
+            } ?: FamilyRelation.Other
+        )
+    }
+    var relationExpanded by remember { mutableStateOf(false) }
     var phone by remember { mutableStateOf(contact?.phoneNumber ?: "") }
     var email by remember { mutableStateOf(contact?.email ?: "") }
     var address by remember { mutableStateOf(contact?.address ?: "") }
@@ -850,7 +913,33 @@ fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onE
         MedAIText(if (contact == null) "Add Emergency Contact" else "Edit Emergency Contact", style = MedAITheme.textStyle.headline.small, modifier = Modifier.padding(bottom = 24.dp))
         MedAiTextField(value = name, onValueChange = { name = it }, placeholder = "Full Name")
         Spacer(modifier = Modifier.height(16.dp))
-        MedAiTextField(value = relation, onValueChange = { relation = it }, placeholder = "Relation")
+        Text("Relation", style = MedAITheme.textStyle.label.medium, modifier = Modifier.padding(bottom = 8.dp))
+        ExposedDropdownMenuBox(
+            expanded = relationExpanded,
+            onExpandedChange = { relationExpanded = it }
+        ) {
+            MedAiTextField(
+                value = relation.label,
+                onValueChange = {},
+                readOnly = true,
+                placeholder = "Select Relation",
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = relationExpanded,
+                onDismissRequest = { relationExpanded = false }
+            ) {
+                FamilyRelation.entries.filter { it != FamilyRelation.Unknown }.forEach { rel ->
+                    DropdownMenuItem(
+                        text = { Text(rel.label) },
+                        onClick = {
+                            relation = rel
+                            relationExpanded = false
+                        }
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
         MedAiTextField(value = phone, onValueChange = { phone = it }, placeholder = "Phone Number")
         Spacer(modifier = Modifier.height(16.dp))
@@ -860,9 +949,25 @@ fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onE
         Spacer(modifier = Modifier.height(16.dp))
         MedAiTextArea(value = notes, onValueChange = { notes = it }, placeholder = "Notes")
         Spacer(modifier = Modifier.height(24.dp))
-        MedAIButton(text = if (contact == null) "Add" else "Update", onClick = {
+        val isPhoneValid = phone.matches(Regex("^(010|011|012|015)\\d{8}$"))
+        val isEmailValid = email.matches(Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$"))
+        val isValid = name.isNotBlank() && address.isNotBlank() && isPhoneValid && isEmailValid
+
+        if (!isValid) {
+            val errors = buildList {
+                if (name.isBlank()) add("Name is required.")
+                if (address.isBlank()) add("Address is required.")
+                if (phone.isNotBlank() && !isPhoneValid) add("Phone must start with 010/011/012/015 and be 11 digits.")
+                else if (phone.isBlank()) add("Phone is required.")
+                if (email.isNotBlank() && !isEmailValid) add("Invalid email format.")
+                else if (email.isBlank()) add("Email is required.")
+            }.joinToString("\n")
+            androidx.compose.material3.Text(text = errors, color = androidx.compose.material3.MaterialTheme.colorScheme.error, style = MedAITheme.textStyle.label.small, modifier = Modifier.padding(bottom = 8.dp))
+        }
+
+        MedAIButton(text = if (contact == null) "Add" else "Update", enabled = isValid, onClick = {
             val params = EmergencyContactParams(
-                name = name, relation = relation, phoneNumber = phone,
+                name = name, relation = relation.name.lowercase(), phoneNumber = phone,
                 email = email, address = address, notes = notes
             )
             if (contact == null) onEvent(MedicalRecordEvent.AddEmergencyContact(params))

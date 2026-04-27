@@ -53,6 +53,7 @@ import org.example.project.domain.model.ChatConversation
 import org.example.project.domain.model.ChronicDiseaseEntity
 import org.example.project.domain.model.EmergencyContactEntity
 import org.example.project.domain.model.FamilyHistoryEntity
+import org.example.project.domain.model.FamilyRelation
 import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.Message
@@ -231,16 +232,48 @@ fun AllergyDto.toEntity() = AllergyEntity(
     dateAdded ="N/A" // Or some default value if not provided by backend
 )
 
+// Helper to convert backend ISO date (YYYY-MM-DD...) to UI string (DDMMYYYY)
+private fun String?.toUiDateString(): String {
+    if (this == null) return ""
+    return try {
+        val datePart = this.take(10)
+        val localDate = LocalDate.parse(datePart)
+        val dd = localDate.dayOfMonth.toString().padStart(2, '0')
+        val mm = localDate.monthNumber.toString().padStart(2, '0')
+        val yyyy = localDate.year.toString().padStart(4, '0')
+        "$dd$mm$yyyy"
+    } catch (e: Exception) {
+        this.filter { it.isDigit() }.take(8)
+    }
+}
+
+// Helper to convert UI string (DDMMYYYY) to backend ISO date (YYYY-MM-DD)
+private fun String.toBackendDateString(): String {
+    val digits = this.filter { it.isDigit() }
+    if (digits.length == 8) {
+        val dd = digits.substring(0, 2)
+        val mm = digits.substring(2, 4)
+        val yyyy = digits.substring(4, 8)
+        return "$yyyy-$mm-$dd"
+    }
+    return this
+}
+
+private fun String?.toBackendDateStringOrNull(): String? {
+    if (this.isNullOrBlank()) return null
+    return this.toBackendDateString()
+}
+
 fun ChronicDiseaseDto.toEntity() = ChronicDiseaseEntity(
     id = id?.toString() ?: "-1",
     name = name ?: "Unknown Disease",
     description = description,
-    diagnosisDate = diagnosisDate
+    diagnosisDate = diagnosisDate?.toUiDateString()
 )
 
 fun FamilyHistoryDto.toEntity() = FamilyHistoryEntity(
     id = id?.toString() ?: "-1",
-    relation = relation ?: "Unknown",
+    relation = relation ?: FamilyRelation.Unknown,
     condition = condition ?: "Unknown",
     notes = notes
 )
@@ -249,7 +282,7 @@ fun SurgeryDto.toEntity() = SurgeryEntity(
     id = id?.toString() ?: "-1",
     name = name ?: "Unknown Surgery",
     description = description,
-    date = date ?: ""
+    date = date?.toUiDateString() ?: ""
 )
 
 fun EmergencyContactDto.toEntity() = EmergencyContactEntity(
@@ -293,13 +326,13 @@ fun AllergyParams.toUpdateDto() = UpdateAllergyDto(
 fun ChronicDiseaseParams.toDto() = ChronicDiseaseDto(
     name = name,
     description = description,
-    diagnosisDate = diagnosisDate
+    diagnosisDate = diagnosisDate?.toBackendDateStringOrNull()
 )
 
 fun ChronicDiseaseParams.toUpdateDto() = UpdateChronicDiseaseDto(
     name = name,
     description = description,
-    diagnosisDate = diagnosisDate
+    diagnosisDate = diagnosisDate?.toBackendDateStringOrNull()
 )
 
 fun FamilyHistoryParams.toDto() = FamilyHistoryDto(
@@ -317,13 +350,13 @@ fun FamilyHistoryParams.toUpdateDto() = UpdateFamilyHistoryDto(
 fun SurgeryParams.toDto() = SurgeryDto(
     name = name,
     description = description,
-    date = date
+    date = date.toBackendDateString()
 )
 
 fun SurgeryParams.toUpdateDto() = UpdateSurgeryDto(
     name = name,
     description = description,
-    date = date
+    date = date.toBackendDateString()
 )
 
 fun EmergencyContactParams.toDto() = EmergencyContactDto(

@@ -44,7 +44,7 @@ data class ChronicDiseaseEntity(
 @Serializable
 data class FamilyHistoryEntity(
     val id: String,
-    val relation: String,
+    val relation: FamilyRelation,
     val condition: String,
     val notes: String? = null
 )
@@ -98,7 +98,7 @@ data class ChronicDiseaseParams(
 )
 
 data class FamilyHistoryParams(
-    val relation: String,
+    val relation: FamilyRelation,
     val condition: String,
     val notes: String? = null
 )
@@ -143,4 +143,15 @@ enum class MaritalStatus {
     @SerialName("married") Married,
     @SerialName("divorced") Divorced,
     @SerialName("widowed") Widowed
+}
+
+@Serializable
+enum class FamilyRelation(val label: String) {
+    @SerialName("father") Father("Father"),
+    @SerialName("mother") Mother("Mother"),
+    @SerialName("sibling") Sibling("Sibling"),
+    @SerialName("child") Child("Child"),
+    @SerialName("spouse") Spouse("Spouse"),
+    @SerialName("other") Other("Other"),
+    @SerialName("unknown") Unknown("Unknown")
 }
