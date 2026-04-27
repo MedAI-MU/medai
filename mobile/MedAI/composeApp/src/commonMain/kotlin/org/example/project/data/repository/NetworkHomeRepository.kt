@@ -27,7 +27,7 @@ class NetworkHomeRepository(
     // --- 1. Get User Name ---
     override suspend fun getUserName(userId: String): Result<String> {
         return try {
-            val response: UserResponseDto = client.get("/user/me").body()
+            val response: UserResponseDto = client.get("user/me").body()
             Result.success(response.name)
         } catch (e: CancellationException) {
             throw e
@@ -39,8 +39,8 @@ class NetworkHomeRepository(
     // --- 2. Get Categories ---
     override suspend fun getCategories(): Result<List<Category>> {
         return try {
-            // GET /categories -> returns List<CategoryDto>
-            val response: List<CategoryDto> = client.get("/categories").body()
+            // GET categories -> returns List<CategoryDto>
+            val response: List<CategoryDto> = client.get("categories").body()
 
             // Map DTO -> Domain
             val domainList = response.map { dto ->
@@ -57,8 +57,8 @@ class NetworkHomeRepository(
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET /appointments/my-appointments -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("/appointments/my-appointments").body()
+            // GET appointments/my-appointments -> returns List<AppointmentDto>
+            val response: List<AppointmentDto> = client.get("appointments/my-appointments").body()
 
             val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
 
@@ -89,8 +89,8 @@ class NetworkHomeRepository(
     // --- 4. Get Specialties ---
     override suspend fun getSpecialties(): Result<List<Specialty>> {
         return try {
-            // GET /specialties -> returns List<SpecialtyDto>
-            val response: List<SpecialtyDto> = client.get("/specialties").body()
+            // GET specialties -> returns List<SpecialtyDto>
+            val response: List<SpecialtyDto> = client.get("specialties").body()
 
             // Map DTO -> Domain
             val domainList = response.map { dto ->

@@ -24,8 +24,8 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctors(specialtyId: String?): Result<List<Doctor>> {
         return try {
-            // GET /doctors (optionally filtered by specialty_id query param)
-            val response: List<DoctorDto> = client.get("/doctors") {
+            // GET doctors (optionally filtered by specialty_id query param)
+            val response: List<DoctorDto> = client.get("doctors") {
                 if (specialtyId != null) {
                     parameter("specialty_id", specialtyId)
                 }
@@ -53,8 +53,8 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctorById(doctorId: String): Result<Doctor> {
         return try {
-            // GET /doctors/{id}
-            val dto: DoctorDto = client.get("/doctors/$doctorId").body()
+            // GET doctors/{id}
+            val dto: DoctorDto = client.get("doctors/$doctorId").body()
             Result.success(dto.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -66,7 +66,7 @@ class NetworkDoctorRepository(
             val fromDate = date.toString()
             val toDate = date.toString()
 
-            val dtoResult: org.example.project.data.remote.dto.schedule.DocScheduleResponseDto = client.get("/doctors/$doctorId/schedule-slots") {
+            val dtoResult: org.example.project.data.remote.dto.schedule.DocScheduleResponseDto = client.get("doctors/$doctorId/schedule-slots") {
                 parameter("fromDate", fromDate)
                 parameter("toDate", toDate)
             }.body()
@@ -101,8 +101,8 @@ class NetworkDoctorRepository(
                 problemDescription = problemDescription.ifBlank { null }
             )
 
-            // POST /appointments
-            val response: BookingResponseDto = client.post("/appointments") {
+            // POST appointments
+            val response: BookingResponseDto = client.post("appointments") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body()

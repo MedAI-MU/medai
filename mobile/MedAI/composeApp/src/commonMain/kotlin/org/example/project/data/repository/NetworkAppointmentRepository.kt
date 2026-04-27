@@ -24,7 +24,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("/appointments/my-appointments").body()
+            val response: List<AppointmentDto> = client.get("appointments/my-appointments").body()
 
             // Filter by requested status
             val filtered = response.filter { dto ->
@@ -43,7 +43,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("/appointments/doctor-appointments").body()
+            val response: List<AppointmentDto> = client.get("appointments/doctor-appointments").body()
             Result.success(response.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -52,7 +52,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun getAppointmentDetails(id: String): Result<AppointmentDetail> {
         return try {
-            val response: AppointmentDto = client.get("/appointments/$id").body()
+            val response: AppointmentDto = client.get("appointments/$id").body()
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -61,7 +61,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun cancelAppointment(id: String, reasonId: String, otherReason: String?): Result<Unit> {
         return try {
-            client.patch("/appointments/$id/status") {
+            client.patch("appointments/$id/status") {
                 contentType(ContentType.Application.Json)
                 setBody(UpdateAppointmentStatusRequestDto(
                     status = "cancelled",
