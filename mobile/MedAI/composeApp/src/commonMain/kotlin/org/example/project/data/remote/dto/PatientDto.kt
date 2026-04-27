@@ -3,6 +3,7 @@ package org.example.project.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.project.domain.model.BloodType
+import org.example.project.domain.model.FamilyRelation
 import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MaritalStatus
 
@@ -63,14 +64,14 @@ data class UpdateChronicDiseaseDto(
 @Serializable
 data class FamilyHistoryDto(
     val id: Int? = null,
-    val relation: String? = null,
+    val relation: FamilyRelation? = null,
     val condition: String? = null,
     val notes: String? = null
 )
 
 @Serializable
 data class UpdateFamilyHistoryDto(
-    val relation: String? = null,
+    val relation: FamilyRelation? = null,
     val condition: String? = null,
     val notes: String? = null
 )
