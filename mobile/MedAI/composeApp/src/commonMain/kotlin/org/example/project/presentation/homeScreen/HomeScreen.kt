@@ -95,7 +95,7 @@ class HomeScreen : Screen {
                                 val rootNavigator = navigator.parent ?: navigator
                                 rootNavigator.push(DoctorsScreen(
                                     specialtyId = null,
-                                    specialtyName = "Doctors"
+                                    specialtyName = null
                                 ))
                             }
                             CategoryType.PHARMACY -> snackbarHostState.showSnackbar(effect.category.id)

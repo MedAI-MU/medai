@@ -5,6 +5,7 @@ import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.core.presentation.util.ResourceProviderImpl
 import org.example.project.data.remote.KtorClientFactory
 import org.example.project.data.repository.InMemoryUserSessionManager
+import org.example.project.data.repository.NetworkAppointmentRepository
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkPatientRepository
@@ -134,7 +135,7 @@ val appModule = module {
     //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
-    single<AppointmentRepository> { MockAppointmentRepository() }
+    single<AppointmentRepository> { NetworkAppointmentRepository(get()) }
 
     // --- Patient ---
     single<PatientRepository> {

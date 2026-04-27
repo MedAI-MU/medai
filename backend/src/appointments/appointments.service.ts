@@ -15,7 +15,7 @@ export class AppointmentsService {
     @InjectRepository(DocScheduleSlot)
     private readonly slotRepository: Repository<DocScheduleSlot>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(createAppointmentDto: CreateAppointmentDto, user: TokenUser): Promise<Appointment> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -25,11 +25,14 @@ export class AppointmentsService {
 
     try {
       // 1. Lock the slot so no one else can book it concurrently
-      const slot = await queryRunner.manager.findOne(DocScheduleSlot, {
-        where: { id: createAppointmentDto.slotId, schedule: { doctor: { userId: createAppointmentDto.doctorId } } },
-        relations: ['schedule', 'schedule.doctor'],
-        lock: { mode: 'pessimistic_write' },
-      });
+      const slot = await queryRunner.manager
+        .createQueryBuilder(DocScheduleSlot, 'slot')
+        .innerJoinAndSelect('slot.schedule', 'schedule')
+        .innerJoinAndSelect('schedule.doctor', 'doctor')
+        .where('slot.id = :slotId', { slotId: createAppointmentDto.slotId })
+        .andWhere('doctor.userId = :doctorId', { doctorId: createAppointmentDto.doctorId })
+        .setLock('pessimistic_write')
+        .getOne();
 
       if (!slot) {
         throw new NotFoundException('Slot not found');
@@ -44,7 +47,7 @@ export class AppointmentsService {
       await queryRunner.manager.save(slot);
 
       // 3. Create the appointment
-      const appointment = this.appointmentRepository.create({
+      const appointment = queryRunner.manager.create(Appointment, {
         patientId: user.id,
         doctorId: createAppointmentDto.doctorId,
         slotId: createAppointmentDto.slotId,
@@ -103,11 +106,13 @@ export class AppointmentsService {
     await queryRunner.startTransaction();
 
     try {
-      const appointment = await queryRunner.manager.findOne(Appointment, {
-        where: { id },
-        relations: ['slot'],
-        lock: { mode: 'pessimistic_write' },
-      });
+      // ✅ Fixed: Use INNER JOIN instead of LEFT JOIN with FOR UPDATE
+      const appointment = await queryRunner.manager
+        .createQueryBuilder(Appointment, 'appointment')
+        .innerJoinAndSelect('appointment.slot', 'slot')
+        .where('appointment.id = :id', { id })
+        .setLock('pessimistic_write')
+        .getOne();
 
       if (!appointment) {
         throw new NotFoundException('Appointment not found');
@@ -128,7 +133,6 @@ export class AppointmentsService {
 
       await queryRunner.commitTransaction();
       return updatedAppointment;
-
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;

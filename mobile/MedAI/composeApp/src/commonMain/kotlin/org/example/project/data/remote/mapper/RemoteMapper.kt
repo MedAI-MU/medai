@@ -147,7 +147,7 @@ fun UserDto.toDomain(): User {
     return User(
         id = this.id,
         name = this.name,
-        email = this.email,
+        email = this.email ?: "unkown",
         role = this.role?.let {
             try {
                 UserRole.valueOf(it.uppercase())
