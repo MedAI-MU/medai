@@ -32,10 +32,15 @@ class NetworkDoctorRepository(
             }.body()
 
             val domainList = response.map { dto ->
+                val primarySpec = dto.specialities.find { it.isPrimary }?.speciality?.name
+                    ?: dto.specialities.firstOrNull()?.speciality?.name
+                    ?: dto.specialty
+                    ?: "General"
+
                 Doctor(
                     id = dto.id,
-                    name = dto.name,
-                    specialty = dto.specialty,
+                    name = dto.user?.name ?: dto.name ?: "Unknown",
+                    specialty = primarySpec,
                     rating = dto.rating,
                     imageUrl = dto.imageUrl
                 )

@@ -41,6 +41,14 @@ export class DoctorsController {
     private readonly specialityService: SpecialityService,
   ) {}
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'All doctors retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async findAll(): Promise<Doctor[]> {
+    return this.doctorsService.findAll();
+  }
+
   @Roles('secretary', 'patient')
   @UseGuards(RolesGuard)
   @Post('search/speciality')
