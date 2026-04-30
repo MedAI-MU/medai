@@ -42,6 +42,18 @@ jobs:
             REFRESH_TOKEN_EXPIRATION=${REFRESH_TOKEN_EXPIRATION}
             EOF
 
+      - name: Copy repository to EC2 via rsync
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='backend/.env*' \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/MedAI/
+          rm /tmp/deploy_key
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -52,7 +64,6 @@ jobs:
             set -e
 
             cd ~/MedAI
-            git pull origin staging
 
             docker compose --project-name medai-staging -f docker-compose/staging.yaml --env-file backend/.env.staging up --build --remove-orphans -d
 
