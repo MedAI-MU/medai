@@ -45,8 +45,8 @@ jobs:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
@@ -54,7 +54,9 @@ jobs:
             cd ~/MedAI
             git pull origin staging
 
-            docker compose -f docker-compose/staging.yaml up -d --build --remove-orphans
+            docker compose --project-name medai-staging -f docker-compose/staging.yaml --env-file backend/.env.staging up --build --remove-orphans -d
+
+            pnpm --prefix ./backend run migration:run
 
             docker image prune -f
 
