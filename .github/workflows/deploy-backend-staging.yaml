@@ -23,8 +23,8 @@ jobs:
           REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
           REFRESH_TOKEN_EXPIRATION: ${{ secrets.REFRESH_TOKEN_EXPIRATION }}
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           envs: DB_NAME,DB_USERNAME,DB_PASSWORD,JWT_SECRET,JWT_EXPIRATION,REFRESH_TOKEN_SECRET,REFRESH_TOKEN_EXPIRATION
           script: |
