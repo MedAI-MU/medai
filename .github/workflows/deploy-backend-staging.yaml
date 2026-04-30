@@ -1,0 +1,61 @@
+name: Deploy to AWS EC2 Staging
+
+on:
+  push:
+    branches: ["staging"]
+
+jobs:
+  deploy:
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Write .env.staging on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
+          REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
+          REFRESH_TOKEN_EXPIRATION: ${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: DB_NAME,DB_USERNAME,DB_PASSWORD,JWT_SECRET,JWT_EXPIRATION,REFRESH_TOKEN_SECRET,REFRESH_TOKEN_EXPIRATION
+          script: |
+            mkdir -p ~/MedAI/backend
+            cat > ~/MedAI/backend/.env.staging << EOF
+            APP_PORT=8000
+            DB_HOST=db
+            DB_PORT=5432
+            DB_NAME=${DB_NAME}
+            DB_USERNAME=${DB_USERNAME}
+            DB_PASSWORD=${DB_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            JWT_EXPIRATION=${JWT_EXPIRATION}
+            REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+            REFRESH_TOKEN_EXPIRATION=${REFRESH_TOKEN_EXPIRATION}
+            EOF
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+
+            cd ~/MedAI
+            git pull origin staging
+
+            docker compose -f docker-compose/staging.yaml up -d --build --remove-orphans
+
+            docker image prune -f
+
+            echo "Staging deployment complete!"

@@ -36,7 +36,7 @@ export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,
     private readonly scheduleSlotsService: DocScheduleSlotsService,
-  ) { }
+  ) {}
 
   @Get(':doctorId/schedule-templates')
   @HttpCode(HttpStatus.OK)
