@@ -2,7 +2,7 @@ import json
 import time
 import os
 import torch
-import re 
+import re
 from models.nlu_engine import MedicalAnalyzer
 
 def run_comprehensive_stress_test():
@@ -13,25 +13,25 @@ def run_comprehensive_stress_test():
         "صدري واجعني شوية بس مفيش نهجان خالص ولا في وجع بيسمع في كتفي.",
         "رجلي ورمت فجأة بس مش زرقاء ومقدرش أقول إن في ألم، هي مجرد تقيلة.",
         "حاسس بزغللة بس مفيش صداع نصفي ولا عيني حمراء ولا في غيامة عليها.",
-        
+
         # Deep Egyptian Slang & Metaphors
         "حاسس إن روحي بتطلع ومبقتش قادر أصلب طولي وضربات قلبي سريعة جداً.",
         "عيني عليها غيامة ومبقتش أشوف كويس بالليل وكأني ماشي في شبورة.",
         "جسمي مهدود خالص ومفيش مجهود نهائي وأقل حركة بتخليني أقطع النفس.",
         "ودني بتصفر وبحس إن راسي بتلف بيا أول ما أقوم من على السرير.",
         "الوجع عامل زي السكاكين في بطني وبحس بمرارة فظيعة في زوري بعد الأكل.",
-        
+
         # Overlapping & Multi-symptom cases
         "بقالي فترة بدخل الحمام كتير ووزني نزل النص وريقي ناشف وبحس بتنميل في صوابع إيدي.",
         "في نهجان فظيع ووجع في صدري بيسمع في فكي وضهري وحاسس إني عرقان بزيادة.",
         "ركبتي بتطقطق وورمة ومقدرش أتنيها وبحس إن عضمي كله ناشف الصبح.",
         "عندي حرقان في البول ولونه غامق وبحس بوجع في جنبي بيسمع تحت في بطني.",
-        
+
         # Self-correction and Contradiction logic
         "بطني بتوجعني.. لأ قصدي صدري هو اللي واجعني وحاسس بضيق تنفس.",
         "عندي إسهال بقاله يومين.. أو تقدر تقول دخول الحمام كتير بس مفيش مغص.",
         "الوجع في كتفي الشمال.. لا اليمين، وبحس إنه بيزيد لما ببدأ أتحرك.",
-        
+
         # Emergency Scenarios & Descriptive Qualifiers
         "الوجع عامل زي الكهرباء في رجلي من ورا ونازل لحد كعب رجلي تحت.",
         "اتخبطت في راسي وأغمى عليا دقيقة ومن ساعتها برجع وعيني مزغللة خالص.",
@@ -41,9 +41,9 @@ def run_comprehensive_stress_test():
 
     results = []
     total_latency = 0
-    
+
     print(f"\n{'='*30} STARTING STRESS TEST (Llama-3 Edition) {'='*30}")
-    
+
     # Initialize the model once to optimize memory and performance
     try:
         analyzer = MedicalAnalyzer()
@@ -53,14 +53,14 @@ def run_comprehensive_stress_test():
 
     for i, text in enumerate(test_cases, 1):
         print(f"\n[Case {i}/20] Testing: {text[:50]}...")
-        
+
         try:
             # 1. High-precision timing for performance profiling
-            start_time = time.perf_counter() 
+            start_time = time.perf_counter()
             raw_output = analyzer.analyze(text)
             latency = time.perf_counter() - start_time
             total_latency += latency
-            
+
             # 2. JSON Cleaning & Validation using Regex to ensure parsing stability
             try:
                 # Extract the JSON block between the first '{' and the last '}'
@@ -74,7 +74,7 @@ def run_comprehensive_stress_test():
             except Exception:
                 parsed_output = {"raw_error": raw_output}
                 status = "⚠️ JSON Format Issue"
-            
+
             # Store case metrics
             case_result = {
                 "id": i,
@@ -84,7 +84,7 @@ def run_comprehensive_stress_test():
                 "status": status
             }
             results.append(case_result)
-            
+
             # 3. Real-time console logging
             print(f"  Result: {status} | Latency: {latency:.2f}s")
             if status == "✅ Success":

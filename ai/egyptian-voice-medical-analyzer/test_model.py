@@ -5,7 +5,7 @@ from peft import PeftModel
 # 1. Configuration Paths
 # Ensure the adapter folder is located in the same directory as this script
 base_model_name = "unsloth/llama-3-8b-bnb-4bit"
-adapter_path = "./Llama3_Egyptian_Medic_Final" 
+adapter_path = "./Llama3_Egyptian_Medic_Final"
 
 # 2. Configure 4-bit Quantization for Local Inference
 # Optimized for high-performance hardware with 8GB VRAM
@@ -47,19 +47,19 @@ Extract medical symptoms from Egyptian Arabic slang.
 # 6. Inference Function
 def get_diagnosis(query):
     """
-    Tokenizes the input query, generates a response using the model, 
+    Tokenizes the input query, generates a response using the model,
     and extracts the final JSON response.
     """
     inputs = tokenizer(alpaca_prompt.format(query), return_tensors="pt").to("cuda")
     with torch.no_grad():
         outputs = model.generate(
-            **inputs, 
+            **inputs,
             max_new_tokens=256,
             pad_token_id=tokenizer.eos_token_id
         )
-    
+
     decoded_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    
+
     # Extract the response section from the full Alpaca output
     if "### Response:" in decoded_output:
         return decoded_output.split("### Response:")[1].strip()
@@ -68,11 +68,11 @@ def get_diagnosis(query):
 # 7. Execution Example (Live Inference)
 if __name__ == "__main__":
     print("\n--- Medic AI System Test Drive ---")
-    
+
     # Sample Egyptian medical complaint for testing
     user_input = "يا دكتور روحي بتتسحب مني وعظمي مكسر حتت، بس معنديش سخونية."
-    
+
     result = get_diagnosis(user_input)
-    
+
     print(f"\nUser Input: {user_input}")
     print(f"Extraction Results:\n{result}")
