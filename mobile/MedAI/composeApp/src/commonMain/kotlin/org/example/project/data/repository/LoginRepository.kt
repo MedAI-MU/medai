@@ -8,7 +8,9 @@ import org.example.project.data.remote.util.decodeBase64String
 import org.example.project.data.remote.dto.AuthResult
 import org.example.project.data.remote.dto.LoginRequest
 import org.example.project.data.remote.dto.LoginResponse
+import org.example.project.data.remote.dto.UserResponseDto
 import org.example.project.domain.repository.LoginRepository
+import io.ktor.client.call.body
 
 class NetworkLoginRepository(
     private val httpClient: HttpClient
@@ -30,17 +32,10 @@ class NetworkLoginRepository(
             val authToken = cookies.find { it.name == "Authentication" }?.value
                 ?: throw Exception("Authentication cookie not found in response")
 
-            // 4. Decode JWT Payload
-            val parts = authToken.split(".")
-            if (parts.size < 2) throw Exception("Invalid JWT format")
+            // 3. Extract the actual body
+            val responseBody = loginResponse.body<UserResponseDto>()
 
-            val payloadJson = parts[1].decodeBase64String()
-
-            // 5. Deserialize
-            val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val claims = json.decodeFromString<LoginResponse>(payloadJson)
-
-            Result.success(AuthResult(claims.userId, authToken, claims.name, claims.role ?: "patient"))
+            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient"))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")

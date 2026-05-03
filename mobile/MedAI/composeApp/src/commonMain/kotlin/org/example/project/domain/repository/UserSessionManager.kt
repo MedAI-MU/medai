@@ -7,6 +7,8 @@ import org.example.project.domain.model.UserRole
 interface UserSessionManager {
     suspend fun getUserId(): String?
 
+    suspend fun getUserName(): String?
+
     suspend fun getUserToken(): String?
 
     suspend fun getUserRole(): UserRole?
