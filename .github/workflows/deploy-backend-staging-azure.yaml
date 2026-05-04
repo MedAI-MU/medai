@@ -1,0 +1,109 @@
+name: Build and Deploy Container to Azure App Service
+
+on:
+  push:
+    branches: ["staging"]
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ${{ secrets.ACR_LOGIN_SERVER }}/medai-staging
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build & Push Image to ACR
+    runs-on: ubuntu-latest
+    environment: azure-staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          file: backend/docker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  migrate-and-deploy:
+    name: Migrate & Deploy to Azure App Service
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: azure-staging
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Pull image from ACR
+        run: docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Get GitHub runner public IP
+        id: ip
+        run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+      - name: Allow runner IP on database firewall
+        run: |
+          az postgres flexible-server firewall-rule create \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name ${{ secrets.DB_SERVER_NAME }} \
+            --rule-name github-actions-runner \
+            --start-ip-address ${{ steps.ip.outputs.ip }} \
+            --end-ip-address ${{ steps.ip.outputs.ip }}
+
+      - name: Run database migrations
+        run: |
+          docker run --rm \
+          -e DB_NAME=${{ secrets.DB_NAME}} \
+          -e DB_USERNAME=${{ secrets.DB_USERNAME}} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD}} \
+          -e DB_HOST=${{ secrets.DB_HOST }} \
+          -e DB_PORT=${{ secrets.DB_PORT }} \
+          ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          node_modules/.bin/typeorm migration:run -d dist/typeorm.data-source.js
+
+      - name: Remove runner IP from database firewall
+        if: always()
+        run: |
+          az postgres flexible-server firewall-rule delete \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name ${{ secrets.DB_SERVER_NAME }} \
+            --rule-name github-actions-runner \
+            --yes
+
+      - name: Deploy container to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          images: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Azure logout
+        if: always()
+        run: az logout
