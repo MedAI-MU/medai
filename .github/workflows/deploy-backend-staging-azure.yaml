@@ -2,7 +2,7 @@ name: Build and Deploy Container to Azure App Service
 
 on:
   push:
-    branches: ["staging", "feature/staging-workflow"]
+    branches: ["staging"]
   workflow_dispatch:
 
 env:
