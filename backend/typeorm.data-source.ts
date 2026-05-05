@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 
 const configService = new ConfigService();
 
+const sslEnabled = process.env.DB_SSL === 'true';
+
 export default new DataSource({
   type: 'postgres',
   host: configService.getOrThrow<string>('DB_HOST'),
@@ -13,8 +15,8 @@ export default new DataSource({
   database: configService.getOrThrow<string>('DB_NAME'),
   migrations: ['./src/database/migrations/**/*{.js,.ts}'],
   entities: ['./src/**/entities/*{.js,.ts}'],
-  ssl: { rejectUnauthorized: false },
+  ssl: sslEnabled ? { rejectUnauthorized: false } : false,
   extra: {
-    ssl: { rejectUnauthorized: false },
+    ssl: sslEnabled ? { rejectUnauthorized: false } : false,
   },
 });

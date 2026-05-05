@@ -136,6 +136,17 @@ export class DoctorsController {
     }
   }
 
+  @Roles('secretary', 'patient')
+  @UseGuards(RolesGuard)
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'All doctors retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async findAll(): Promise<Doctor[]> {
+    return this.doctorsService.findAll();
+  }
+
   @UseGuards(SameIdGuard)
   @Roles('secretary')
   @Get(':id')

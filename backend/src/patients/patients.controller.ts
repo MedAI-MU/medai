@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   Body,
@@ -58,8 +59,12 @@ export class PatientsController {
   @UseGuards(SameIdGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient' })
-  async getPatient(@Param('id') id: number): Promise<Patient | null> {
-    return await this.patientsService.findOne(id);
+  async getPatient(@Param('id') id: number): Promise<Patient> {
+    const patient = await this.patientsService.findOne(id);
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+    return patient;
   }
 
   @Patch(':id')

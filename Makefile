@@ -6,7 +6,7 @@ run:
 	@COMPOSE_BAKE=true DOCKER_BUILDKIT=1 \
 	docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env up --build --remove-orphans -d
 	@$(MAKE) migrate
-	@$(MAKE) seed 2> /dev/null
+	@$(MAKE) seed &> /dev/null
 	@echo "Showing logs..."
 	@docker compose --project-name medai-local -f docker-compose/local.yaml --env-file backend/.env logs -f backend
 
@@ -16,19 +16,19 @@ clean-db:
 
 migrate:
 	@echo "Running migrations..."
-	@pnpm --prefix ./backend run migration:run
+	@DB_HOST=localhost pnpm --prefix ./backend run migration:run
 
 generate-migration:
 	@echo "Generating new migration..."
-	@pnpm --prefix ./backend run migration:generate
+	@DB_HOST=localhost pnpm --prefix ./backend run migration:generate
 
 create-migration:
 	@echo "Creating migration..."
-	@pnpm --prefix ./backend run migration:create
+	@DB_HOST=localhost pnpm --prefix ./backend run migration:create
 
 seed:
 	@echo "Running seeders..."
-	@pnpm --prefix ./backend run seed
+	@DB_HOST=localhost pnpm --prefix ./backend run seed
 
 pre-commit:
 	@pre-commit run --all-files
