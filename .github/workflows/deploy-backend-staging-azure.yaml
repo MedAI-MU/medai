@@ -70,13 +70,16 @@ jobs:
         run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
       - name: Allow runner IP on database firewall
-        run: |
-          az postgres flexible-server firewall-rule create \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.DB_SERVER_NAME }} \
-            --rule-name github-actions-runner \
-            --start-ip-address ${{ steps.ip.outputs.ip }} \
-            --end-ip-address ${{ steps.ip.outputs.ip }}
+        uses: azure/cli@v2
+        with:
+          azcliversion: 2.85.0
+          inlineScript: |
+            az postgres flexible-server firewall-rule create \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --name ${{ secrets.DB_SERVER_NAME }} \
+              --rule-name github-actions-runner \
+              --start-ip-address ${{ steps.ip.outputs.ip }} \
+              --end-ip-address ${{ steps.ip.outputs.ip }}
 
       - name: Run database migrations
         run: |
@@ -91,12 +94,15 @@ jobs:
 
       - name: Remove runner IP from database firewall
         if: always()
-        run: |
-          az postgres flexible-server firewall-rule delete \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.DB_SERVER_NAME }} \
-            --rule-name github-actions-runner \
-            --yes
+        uses: azure/cli@v2
+        with:
+          azcliversion: 2.85.0
+          inlineScript: |
+            az postgres flexible-server firewall-rule delete \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --name ${{ secrets.DB_SERVER_NAME }} \
+              --rule-name github-actions-runner \
+              --yes
 
       - name: Deploy container to Azure App Service
         uses: azure/webapps-deploy@v3
