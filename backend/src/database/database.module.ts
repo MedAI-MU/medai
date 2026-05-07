@@ -17,10 +17,14 @@ import databaseConfig from './database.config';
         autoLoadEntities: true,
         synchronize: false,
         logging: true,
-        ssl: { rejectUnauthorized: false },
-        extra: {
-          ssl: { rejectUnauthorized: false },
-        },
+        ssl:
+          process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+        extra:
+          process.env.DB_SSL === 'true'
+            ? {
+                ssl: { rejectUnauthorized: false },
+              }
+            : {},
       }),
       inject: [databaseConfig.KEY],
     }),
