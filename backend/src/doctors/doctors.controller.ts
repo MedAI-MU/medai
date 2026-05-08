@@ -26,12 +26,13 @@ import { DoctorsService } from './doctors.service';
 import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Doctor } from './entities/doctor.entity';
 import { SpecialityDto } from './dtos/speciality.dto';
 import { Speciality } from './entities/speciality.entity';
 import { SpecialityService } from './speciality.service';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorDto } from './dtos/doctor.dto';
+import { DoctorResponseDto } from './dtos/doctor-response.dto';
+import { SpecialityResponseDto } from './dtos/speciality-response.dto';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Controller('doctors')
@@ -46,14 +47,20 @@ export class DoctorsController {
   @Post('search/speciality')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: SpecialityDto })
-  @ApiOkResponse({ description: 'Doctors matching the speciality' })
+  @ApiOkResponse({
+    description: 'Doctors matching the speciality',
+    type: [DoctorResponseDto],
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async searchBySpeciality(
     @Body() speciality: SpecialityDto,
-  ): Promise<Doctor[]> {
-    return this.doctorsService.findAllBySpeciality(speciality.name);
+  ): Promise<DoctorResponseDto[]> {
+    const doctors = await this.doctorsService.findAllBySpeciality(
+      speciality.name,
+    );
+    return doctors.map((d) => new DoctorResponseDto(d));
   }
 
   @Roles('secretary', 'patient')
@@ -61,23 +68,31 @@ export class DoctorsController {
   @Post('search/name')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: DoctorDto })
-  @ApiOkResponse({ description: 'Doctors matching the name' })
+  @ApiOkResponse({
+    description: 'Doctors matching the name',
+    type: [DoctorResponseDto],
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async searchByName(@Body() doctor: DoctorDto): Promise<Doctor[]> {
-    return this.doctorsService.findAllByName(doctor.name);
+  async searchByName(@Body() doctor: DoctorDto): Promise<DoctorResponseDto[]> {
+    const doctors = await this.doctorsService.findAllByName(doctor.name);
+    return doctors.map((d) => new DoctorResponseDto(d));
   }
 
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Get('specialities')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Specialities retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Specialities retrieved successfully',
+    type: [SpecialityResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getSpecialities(): Promise<Speciality[]> {
-    return await this.specialityService.findAll();
+  async getSpecialities(): Promise<SpecialityResponseDto[]> {
+    const specialities = await this.specialityService.findAll();
+    return specialities.map((s) => new SpecialityResponseDto(s));
   }
 
   @Roles('secretary')
@@ -85,14 +100,19 @@ export class DoctorsController {
   @Post('specialities')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: SpecialityDto })
-  @ApiCreatedResponse({ description: 'Speciality created successfully' })
+  @ApiCreatedResponse({
+    description: 'Speciality created successfully',
+    type: SpecialityResponseDto,
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async createSpeciality(
     @Body() specialityDto: SpecialityDto,
-  ): Promise<Speciality> {
-    return await this.specialityService.createSpeciality(specialityDto);
+  ): Promise<SpecialityResponseDto> {
+    const speciality =
+      await this.specialityService.createSpeciality(specialityDto);
+    return new SpecialityResponseDto(speciality);
   }
 
   @Roles('secretary')
@@ -101,7 +121,10 @@ export class DoctorsController {
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Speciality ID', type: Number })
   @ApiBody({ type: SpecialityDto })
-  @ApiOkResponse({ description: 'Speciality updated successfully' })
+  @ApiOkResponse({
+    description: 'Speciality updated successfully',
+    type: SpecialityResponseDto,
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -109,7 +132,7 @@ export class DoctorsController {
   async updateSpeciality(
     @Param('id') id: number,
     @Body() specialityDto: SpecialityDto,
-  ): Promise<Speciality> {
+  ): Promise<SpecialityResponseDto> {
     const speciality = await this.specialityService.updateSpeciality(
       id,
       specialityDto,
@@ -117,7 +140,7 @@ export class DoctorsController {
     if (!speciality) {
       throw new NotFoundException(`Speciality not found`);
     }
-    return speciality;
+    return new SpecialityResponseDto(speciality);
   }
 
   @Roles('secretary')
@@ -140,11 +163,15 @@ export class DoctorsController {
   @UseGuards(RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'All doctors retrieved successfully' })
+  @ApiOkResponse({
+    description: 'All doctors retrieved successfully',
+    type: [DoctorResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async findAll(): Promise<Doctor[]> {
-    return this.doctorsService.findAll();
+  async findAll(): Promise<DoctorResponseDto[]> {
+    const doctors = await this.doctorsService.findAll();
+    return doctors.map((d) => new DoctorResponseDto(d));
   }
 
   @UseGuards(SameIdGuard)
@@ -152,17 +179,20 @@ export class DoctorsController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
-  @ApiOkResponse({ description: 'Doctor details retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Doctor details retrieved successfully',
+    type: DoctorResponseDto,
+  })
   @ApiNotFoundResponse({ description: 'Doctor not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   // TODO: Retrieve doctor details for assigned patient
-  async findOne(@Param('id') id: number): Promise<Doctor> {
+  async findOne(@Param('id') id: number): Promise<DoctorResponseDto> {
     const doctor = await this.doctorsService.findOne(id);
     if (!doctor) {
       throw new NotFoundException(`Doctor not found`);
     }
-    return doctor;
+    return new DoctorResponseDto(doctor);
   }
 
   @Roles('secretary')
@@ -171,7 +201,10 @@ export class DoctorsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiBody({ type: CreateDoctorSpecialityDto })
-  @ApiCreatedResponse({ description: 'Doctor speciality added successfully' })
+  @ApiCreatedResponse({
+    description: 'Doctor speciality added successfully',
+    type: DoctorResponseDto,
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -179,7 +212,7 @@ export class DoctorsController {
   async addDoctorSpeciality(
     @Param('id') id: number,
     @Body() doctorSpeciality: CreateDoctorSpecialityDto,
-  ): Promise<Doctor> {
+  ): Promise<DoctorResponseDto> {
     const doctor = await this.doctorsService.findOne(id);
     if (!doctor) {
       throw new NotFoundException(`Doctor not found`);
@@ -192,11 +225,12 @@ export class DoctorsController {
         `Speciality with id ${doctorSpeciality.specialityId} not found`,
       );
     }
-    return await this.doctorsService.addSpeciality(
+    const updatedDoctor = await this.doctorsService.addSpeciality(
       doctor,
       doctorSpeciality,
       speciality,
     );
+    return new DoctorResponseDto(updatedDoctor);
   }
 
   @Roles('secretary')
@@ -210,7 +244,10 @@ export class DoctorsController {
     type: Number,
   })
   @ApiBody({ type: UpdateDoctorSpecialityDto })
-  @ApiOkResponse({ description: 'Doctor speciality updated successfully' })
+  @ApiOkResponse({
+    description: 'Doctor speciality updated successfully',
+    type: DoctorResponseDto,
+  })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiNotFoundResponse({ description: 'Doctor or speciality not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -219,7 +256,7 @@ export class DoctorsController {
     @Param('id') id: number,
     @Param('specialityId') doctorSpecialityId: number,
     @Body() doctorSpeciality: UpdateDoctorSpecialityDto,
-  ): Promise<Doctor> {
+  ): Promise<DoctorResponseDto> {
     const doctor = await this.doctorsService.findOne(id);
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
@@ -232,7 +269,7 @@ export class DoctorsController {
     if (!updatedDoctor) {
       throw new NotFoundException('Speciality not found');
     }
-    return updatedDoctor;
+    return new DoctorResponseDto(updatedDoctor);
   }
 
   @Roles('secretary')
