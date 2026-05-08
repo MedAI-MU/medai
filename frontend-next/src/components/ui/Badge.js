@@ -1,9 +1,14 @@
 import { THEMES } from "@/constants/badgeColors";
+import { cn } from "@/lib/utils";
 
-function Badge({ text, color = "red", className = "" }) {
+function Badge({ text, color = "red", isRounded = true, className = "" }) {
   return (
     <span
-      className={`${THEMES[color].text} ${THEMES[color].bg} rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${className}`}
+      className={cn(
+        "px-2 py-1 text-[10px] font-bold tracking-wider uppercase",
+        `${THEMES[color].text} ${THEMES[color].bg} ${isRounded ? "rounded-full" : "rounded-sm"}`,
+        className,
+      )}
     >
       {text}
     </span>
