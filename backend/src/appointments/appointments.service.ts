@@ -46,20 +46,15 @@ export class AppointmentsService {
       );
     }
 
-    // Use a transaction to ensure atomicity — if appointment creation fails,
-    // the slot status change is rolled back automatically.
-    return this.appointmentsRepository.manager.transaction(async (manager) => {
-      slot.status = 'booked';
-      await manager.save(slot);
+    slot.status = 'booked';
+    await this.slotsRepository.save(slot);
 
-      const appointment = manager.create(Appointment, {
-        patientUserId,
-        doctorUserId: dto.doctorId,
-        scheduleSlotId: dto.slotId,
-      });
-
-      return manager.save(appointment);
+    const appointment = this.appointmentsRepository.create({
+      patientUserId,
+      doctorUserId: dto.doctorId,
+      scheduleSlotId: dto.slotId,
     });
+    return await this.appointmentsRepository.save(appointment);
   }
 
   async findByPatient(patientUserId: number): Promise<Appointment[]> {
