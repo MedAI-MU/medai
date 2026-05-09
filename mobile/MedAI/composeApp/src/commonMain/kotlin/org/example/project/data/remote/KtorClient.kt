@@ -19,6 +19,10 @@ import org.example.project.domain.repository.UserSessionManager
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.request.url
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
+import io.ktor.http.encodedPath
+import io.ktor.http.path
+import io.ktor.http.takeFrom
 
 class KtorClientFactory(
     private val sessionManager: UserSessionManager
@@ -51,11 +55,20 @@ class KtorClientFactory(
             }
 
             defaultRequest {
-                url(BASE_URL)
+                url.protocol = URLProtocol.HTTP
+                url.host = "10.0.2.2"
+                url.port = 8000
                 contentType(ContentType.Application.Json)
             }
         }.apply {
              plugin(HttpSend).intercept { request ->
+
+                 val originalPath = request.url.encodedPath
+                 if (!originalPath.startsWith("/api/")) {
+                     val newPath = "/api" + if (originalPath.startsWith("/")) originalPath else "/$originalPath"
+                     request.url.encodedPath = newPath
+                 }
+
                 // Inject Token
                 try {
                     val token = sessionManager.getUserToken()

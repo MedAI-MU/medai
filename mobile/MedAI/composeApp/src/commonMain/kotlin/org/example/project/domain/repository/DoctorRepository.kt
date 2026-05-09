@@ -13,11 +13,6 @@ interface DoctorRepository {
 
     suspend fun bookAppointment(
         doctorId: String,
-        slotId: String,
-        date: LocalDate,
-        patientName: String,
-        patientAge: String,
-        patientGender: String,
-        problemDescription: String
+        slotId: String
     ): Result<String>
 }

@@ -33,7 +33,7 @@ import org.example.project.domain.model.CancelReason
 @Composable
 fun CancelAppointmentSheet(
     onDismiss: () -> Unit,
-    onConfirm: (reasonId: String, otherReason: String) -> Unit,
+    onConfirm: () -> Unit,
     reasons: List<CancelReason>
 ) {
     var selectedReasonId by remember { mutableStateOf(reasons.firstOrNull()?.id ?: "") }
@@ -98,7 +98,7 @@ fun CancelAppointmentSheet(
 
             MedAIButton(
                 text = "Confirm Cancellation",
-                onClick = { onConfirm(selectedReasonId, otherReasonText) },
+                onClick = { onConfirm() },
                 variant = ButtonVariant.Primary,
                 modifier = Modifier.fillMaxWidth()
             )

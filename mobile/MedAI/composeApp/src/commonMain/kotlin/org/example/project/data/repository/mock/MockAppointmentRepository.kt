@@ -6,7 +6,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.domain.model.AppointmentDetail
 import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.model.AppointmentStatus
 import org.example.project.domain.model.CancelReason
 import org.example.project.domain.repository.AppointmentRepository
 
@@ -23,9 +22,6 @@ class MockAppointmentRepository : AppointmentRepository {
             date = now, // Today
             status = AppointmentDetailStatus.UPCOMING,
             patientName = "Jane Doe",
-            patientAge = "24",
-            patientGender = "Female",
-            problemDescription = "Skin rash on left arm.",
             canRebook = false,
             canAddReview = false
         ),
@@ -35,11 +31,8 @@ class MockAppointmentRepository : AppointmentRepository {
             specialty = "Dermatologist",
             doctorRating = 4.5,
             date = now,
-            status = AppointmentDetailStatus.COMPLETED,
+            status = AppointmentDetailStatus.FINISHED,
             patientName = "Jane Doe",
-            patientAge = "24",
-            patientGender = "Female",
-            problemDescription = "Routine Checkup",
             canRebook = true,
             canAddReview = true
         ),
@@ -51,9 +44,6 @@ class MockAppointmentRepository : AppointmentRepository {
             date = now,
             status = AppointmentDetailStatus.CANCELLED,
             patientName = "Jane Doe",
-            patientAge = "24",
-            patientGender = "Female",
-            problemDescription = "Heart Palpitations",
             canRebook = true,
             canAddReview = false
         )
@@ -65,19 +55,17 @@ class MockAppointmentRepository : AppointmentRepository {
         return Result.success(mockAppointments.filter { it.status == status })
     }
 
-    override suspend fun getAppointmentDetails(id: String): Result<AppointmentDetail> {
-        delay(50)
-        val appointment = mockAppointments.find { it.id == id }
-        return if (appointment != null) Result.success(appointment)
-        else Result.failure(Exception("Not found"))
+    override suspend fun getMyAppointments(): Result<List<AppointmentDetail>> {
+        delay(100)
+        return Result.success(mockAppointments)
     }
 
-    override suspend fun cancelAppointment(id: String, reasonId: String, otherReason: String?): Result<Unit> {
+    override suspend fun cancelAppointment(id: String): Result<Unit> {
         delay(150)
         return Result.success(Unit)
     }
 
-    override suspend fun submitReview(appointmentId: String, rating: Int, comment: String): Result<Unit> {
+    override suspend fun submitReview(appointmentId: String, rating: Int, review: String?): Result<Unit> {
         delay(150)
         return Result.success(Unit)
     }
@@ -92,10 +80,5 @@ class MockAppointmentRepository : AppointmentRepository {
                 CancelReason("r4", "Others")
             )
         )
-    }
-    override suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> {
-        delay(100)
-        // For mock, just return all appointments as if they are for the doctor today
-        return Result.success(mockAppointments)
     }
 }
