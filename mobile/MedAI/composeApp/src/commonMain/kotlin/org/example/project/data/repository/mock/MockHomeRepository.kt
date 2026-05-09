@@ -25,12 +25,12 @@ import org.example.project.domain.repository.HomeRepository
 
 class MockHomeRepository : HomeRepository {
 
-    override suspend fun getUserName(
-        userId: String
-    ): Result<String> {
-        delay(500)
-        return Result.success("Jane Doe")
-    }
+//    override suspend fun getUserName(
+//        userId: String
+//    ): Result<String> {
+//        delay(500)
+//        return Result.success("Jane Doe")
+//    }
 
     override suspend fun getCategories(): Result<List<Category>> {
         // No delay, static data
