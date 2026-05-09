@@ -28,7 +28,7 @@ WORKDIR /medai/
 
 COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/pnpm/store,id=pnpm \
-    pnpm config set ignore-scripts true && pnpm install --no-frozen-lockfile
+    pnpm install --frozen-lockfile
 
 COPY src src
 COPY tests tests

@@ -3,8 +3,6 @@ package org.example.project.di
 import kotlinx.cinterop.ExperimentalForeignApi
 import org.example.project.data.local.DATA_STORE_FILE_NAME
 import org.example.project.data.local.createDataStore
-import org.example.project.domain.services.AudioRecorder
-import org.example.project.domain.services.IOSAudioRecorder
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
@@ -26,5 +24,4 @@ actual val platformModule= module {
             requireNotNull(documentDirectory).path + "/$DATA_STORE_FILE_NAME"
         }
     }
-    single<AudioRecorder> { IOSAudioRecorder() }
 }

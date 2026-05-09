@@ -17,7 +17,7 @@ export class SameIdGuard implements CanActivate {
     const user = request.user;
     if (!user) return false;
     return (
-      user.id === parseInt(request.params.id as string) ||
+      user.id === parseInt(request.params.id) ||
       (allowedRoles && allowedRoles.includes(user.role))
     );
   }

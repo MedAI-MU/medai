@@ -222,7 +222,6 @@ object ProfileTab : Tab {
     }
 }
 
-
 object AnalysisTab : Tab {
     override val options: TabOptions
         @Composable
