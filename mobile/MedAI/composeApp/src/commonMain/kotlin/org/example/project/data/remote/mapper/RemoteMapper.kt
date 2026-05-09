@@ -81,6 +81,7 @@ fun mapStatus(status: String?): AppointmentStatus {
         "pending" -> AppointmentStatus.Pending
         "confirmed" -> AppointmentStatus.Confirmed
         "finished" -> AppointmentStatus.Finished
+        "waiting" -> AppointmentStatus.Waiting
         "cancelled" -> AppointmentStatus.Cancelled
         else -> AppointmentStatus.Pending // Default fallback
     }
@@ -127,27 +128,21 @@ fun mapCategoryDtoToDomain(dto: CategoryDto): Category {
     )
 }
 
- fun DoctorDto.toDomain(): Doctor {
-    val primarySpec = this.specialities.find { it.isPrimary }?.speciality?.name
-        ?: this.specialities.firstOrNull()?.speciality?.name
-        ?: this.specialty
-        ?: "General"
-    return Doctor(
-        id = this.id,
-        name = this.user?.name ?: this.name ?: "Unknown",
-        specialty = primarySpec,
-        rating = this.rating,
-        imageUrl = this.imageUrl,
-        bio = this.bio ?: "No bio available...",
-        reviewCount = this.reviewCount ?: 0
-    )
- }
+ fun DoctorDto.toDomain() = Doctor(
+     id = id,
+     name = name,
+     specialty = specialty,
+     rating = rating,
+     imageUrl = imageUrl,
+     bio = bio ?: "No bio available...",
+     reviewCount = reviewCount ?: 0
+ )
 
 fun UserDto.toDomain(): User {
     return User(
         id = this.id,
         name = this.name,
-        email = this.email ?: "unkown",
+        email = this.email,
         role = this.role?.let {
             try {
                 UserRole.valueOf(it.uppercase())

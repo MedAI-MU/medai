@@ -1,6 +1,5 @@
 const GRID_SHAPE = {
   two: "md:grid-cols-2",
-  three: "md:grid-cols-2 lg:grid-cols-3",
   four: "md:grid-cols-2 lg:grid-cols-4",
 };
 

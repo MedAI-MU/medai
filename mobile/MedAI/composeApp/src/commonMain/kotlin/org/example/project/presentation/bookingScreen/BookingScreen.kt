@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
@@ -75,7 +75,7 @@ class BookingScreen(val doctorId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = koinScreenModel<BookingViewModel> { parametersOf(doctorId) }
+        val viewModel = getScreenModel<BookingViewModel> { parametersOf(doctorId) }
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
 
@@ -214,6 +214,32 @@ class BookingScreen(val doctorId: String) : Screen {
                         MedAIText(stringResource(Res.string.full_name_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
                         Spacer(modifier = Modifier.height(8.dp))
                         MedAiTextField(value = state.patientName, onValueChange = { viewModel.onEvent(BookingEvent.PatientNameChanges(it))}, placeholder = "Ahmed Gouda")
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                MedAIText(stringResource(Res.string.age_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                MedAiTextField(value = state.patientAge, onValueChange = {viewModel.onEvent(BookingEvent.PatientAgeChanged(it))})
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                MedAIText(stringResource(Res.string.gender_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                MedAiTextField(value = state.patientGender, onValueChange = { viewModel.onEvent(BookingEvent.PatientGenderChanged(it)) })
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        MedAIText(stringResource(Res.string.describe_problem_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MedAiTextArea(
+                            value = state.problemDescription,
+                            onValueChange = { viewModel.onEvent(BookingEvent.ProblemDescChanged(it)) },
+                            placeholder = stringResource(Res.string.describe_problem_placeholder)
+                        )
 
                         Spacer(modifier = Modifier.height(32.dp))
 

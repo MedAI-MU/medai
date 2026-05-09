@@ -24,25 +24,24 @@ class GetHomeDataUseCase(
             // Fetch all data in parallel
         val userId = sessionManager.getUserId()
             ?: return@coroutineScope Result.failure(Exception("User not logged in"))
+            val userDeferred = async { repository.getUserName(userId) }
+            val categoriesDeferred = async { repository.getCategories() }
+            val appointmentsDeferred = async { repository.getUpcomingAppointments() }
+            val specialtiesDeferred = async { repository.getSpecialties() }
 
-        val userName = sessionManager.getUserName() ?: "User"
+            val userResult = userDeferred.await()
+            val categoriesResult = categoriesDeferred.await()
+            val appointmentsResult = appointmentsDeferred.await()
+            val specialtiesResult = specialtiesDeferred.await()
 
-        val categoriesDeferred = async { repository.getCategories() }
-        val appointmentsDeferred = async { repository.getUpcomingAppointments() }
-        val specialtiesDeferred = async { repository.getSpecialties() }
+            val homeData = HomeData(
+                userName = userResult.getOrDefault("User"),
+                userId = userId,
+                categories = categoriesResult.getOrDefault(emptyList()),
+                upcomingAppointments = appointmentsResult.getOrDefault(emptyList()),
+                specialties = specialtiesResult.getOrDefault(emptyList())
+            )
 
-        val categoriesResult = categoriesDeferred.await()
-        val appointmentsResult = appointmentsDeferred.await()
-        val specialtiesResult = specialtiesDeferred.await()
-
-        val homeData = HomeData(
-            userName = userName,
-            userId = userId,
-            categories = categoriesResult.getOrDefault(emptyList()),
-            upcomingAppointments = appointmentsResult.getOrDefault(emptyList()),
-            specialties = specialtiesResult.getOrDefault(emptyList())
-        )
-
-        Result.success(homeData)
+            Result.success(homeData)
     }
 }

@@ -1,23 +1,21 @@
 package org.example.project.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BookingRequestDto(
-    val slotId: Int,
-    val doctorId: Int
+    @SerialName("doctor_id") val doctorId: String,
+    @SerialName("slot_id") val slotId: String,
+    val date: String,
+    @SerialName("patient_name") val patientName: String,
+    @SerialName("patient_age") val patientAge: String,
+    @SerialName("patient_gender") val patientGender: String,
+    val problem: String
 )
 
 @Serializable
 data class BookingResponseDto(
-    val id: Int,
-    val patientUserId: Int,
-    val doctorUserId: Int,
-    val scheduleSlotId: Int,
-    val status: String,
-    val confirmedByUserId: Int? = null,
-    val rating: Int? = null,
-    val review: String? = null,
-    val createdAt: String? = null,
-    val updatedAt: String? = null
+    @SerialName("booking_id") val bookingId: String,
+    val status: String
 )

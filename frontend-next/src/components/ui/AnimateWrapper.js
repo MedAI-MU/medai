@@ -23,7 +23,6 @@ export default function AnimateWrapper({
   type = "fade", // fade | scale | slide
   delay = 0,
   duration = 0.3,
-  transitionOptions = {},
   once = true,
 }) {
   const v = variants[type];
@@ -34,7 +33,6 @@ export default function AnimateWrapper({
       transition={{
         duration,
         delay,
-        ...transitionOptions,
       }}
       viewport={{ once }}
     >

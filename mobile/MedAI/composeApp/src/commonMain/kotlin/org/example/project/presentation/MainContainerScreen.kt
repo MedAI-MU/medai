@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -37,6 +38,8 @@ import org.example.project.presentation.schedule.ScheduleScreen
 import org.example.project.presentation.chatScreen.ChatListScreen
 import org.example.project.presentation.homeScreen.HomeScreen
 import org.example.project.presentation.profileScreen.ProfileScreen
+import org.example.project.presentation.analysis.AnalysisScreen
+import org.example.project.presentation.analysis.AnalysisViewModel
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.zIndex
@@ -65,6 +68,10 @@ class MainContainerScreen : Screen {
             navItems.add(BottomNavItem("Home", "home", Icons.Default.Home))
             navItems.add(BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline))
 
+            if (role == UserRole.PATIENT) {
+                 navItems.add(BottomNavItem("AI Diagnoses", "analysis", Icons.Default.Mic))
+            }
+
             if (role == UserRole.DOCTOR || role == UserRole.SECRETARY) {
                  navItems.add(BottomNavItem("Schedule", "schedule", Icons.Default.CalendarMonth))
             }
@@ -86,6 +93,7 @@ class MainContainerScreen : Screen {
                                 "home" -> tabNavigator.current = HomeTab
                                 "messages" -> tabNavigator.current = MessagesTab
                                 "schedule" -> if(role == UserRole.DOCTOR || role == UserRole.SECRETARY) tabNavigator.current = ScheduleTab
+                                "analysis" -> if(role == UserRole.PATIENT) tabNavigator.current = AnalysisTab
                                 "profile" -> tabNavigator.current = ProfileTab
                             }
                         },
@@ -102,6 +110,7 @@ class MainContainerScreen : Screen {
             MessagesTab -> "messages"
             ScheduleTab -> "schedule"
             ProfileTab -> "profile"
+            AnalysisTab -> "analysis"
             else -> ""
         }
     }
@@ -210,5 +219,21 @@ object ProfileTab : Tab {
     @Composable
     override fun Content() {
         ProfileScreen().Content()
+    }
+}
+
+
+object AnalysisTab : Tab {
+    override val options: TabOptions
+        @Composable
+        get() {
+            val icon = rememberVectorPainter(Icons.Default.Mic)
+            return remember { TabOptions(index = 4u, title = "AI Diagnoses", icon = icon) }
+        }
+
+    @Composable
+    override fun Content() {
+        val viewModel = koinInject<AnalysisViewModel>()
+        AnalysisScreen(viewModel = viewModel)
     }
 }

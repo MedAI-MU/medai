@@ -29,7 +29,7 @@ class NetworkScheduleRepository(
     ): Result<PagedTemplates> {
         return try {
             val response: PagedResponseDto<ScheduleTemplateResponseDto> =
-                client.get("doctors/$doctorId/schedule-templates") {
+                client.get("/api/doctors/$doctorId/schedule-templates") {
                     parameter("pageNo", pageNo)
                     parameter("pageSize", pageSize)
                     if (name != null) parameter("name", name)
@@ -56,7 +56,7 @@ class NetworkScheduleRepository(
         slots: List<ScheduleTemplateSlot>
     ): Result<Unit> {
         return try {
-            client.post("doctors/$doctorId/schedule-templates") {
+            client.post("/api/doctors/$doctorId/schedule-templates") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     CreateScheduleTemplateRequestDto(
@@ -84,7 +84,7 @@ class NetworkScheduleRepository(
         slots: List<ScheduleTemplateSlot>?
     ): Result<Unit> {
         return try {
-            client.patch("doctors/$doctorId/schedule-templates/$templateId") {
+            client.patch("/api/doctors/$doctorId/schedule-templates/$templateId") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     UpdateScheduleTemplateRequestDto(
@@ -110,7 +110,7 @@ class NetworkScheduleRepository(
         templateId: Int
     ): Result<Unit> {
         return try {
-            client.delete("doctors/$doctorId/schedule-templates/$templateId")
+            client.delete("/api/doctors/$doctorId/schedule-templates/$templateId")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -124,7 +124,7 @@ class NetworkScheduleRepository(
         endDate: String
     ): Result<Unit> {
         return try {
-            client.post("doctors/$doctorId/schedule-templates/$templateId/apply") {
+            client.post("/api/doctors/$doctorId/schedule-templates/$templateId/apply") {
                 contentType(ContentType.Application.Json)
                 setBody(ApplyTemplateRequestDto(startDate = startDate, endDate = endDate))
             }
@@ -145,7 +145,7 @@ class NetworkScheduleRepository(
     ): Result<DoctorSchedule> {
         return try {
             val response: DocScheduleResponseDto =
-                client.get("doctors/$doctorId/schedule-slots") {
+                client.get("/api/doctors/$doctorId/schedule-slots") {
                     if (fromDate != null) parameter("fromDate", fromDate)
                     if (toDate != null) parameter("toDate", toDate)
                     parameter("pageNo", pageNo)
@@ -163,7 +163,7 @@ class NetworkScheduleRepository(
         days: List<CreateScheduleDayInput>
     ): Result<Unit> {
         return try {
-            client.post("doctors/$doctorId/schedule-slots") {
+            client.post("/api/doctors/$doctorId/schedule-slots") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     CreateDocScheduleRequestDto(
@@ -195,7 +195,7 @@ class NetworkScheduleRepository(
         dayDate: String?
     ): Result<Unit> {
         return try {
-            client.patch("doctors/$doctorId/schedule-slots/$slotId") {
+            client.patch("/api/doctors/$doctorId/schedule-slots/$slotId") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     UpdateDocScheduleSlotRequestDto(
@@ -216,7 +216,7 @@ class NetworkScheduleRepository(
         slotId: Int
     ): Result<Unit> {
         return try {
-            client.delete("doctors/$doctorId/schedule-slots/$slotId")
+            client.delete("/api/doctors/$doctorId/schedule-slots/$slotId")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

@@ -21,11 +21,7 @@ import ButtonIcon from "./ButtonIcon";
 const LINKS = {
   patient: [
     { text: "dashboard", href: "/patient", icon: LayoutDashboard },
-    {
-      text: "book appointment",
-      href: "/patient/book-appointment",
-      icon: CalendarPlus,
-    },
+    { text: "book appointment", href: "/", icon: CalendarPlus },
     { text: "my appointments", href: "#", icon: CalendarCheck },
     {
       text: "medical records",

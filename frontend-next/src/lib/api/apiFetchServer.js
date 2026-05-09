@@ -22,9 +22,7 @@ export async function apiServerFetch({ endpoint, options = {} }) {
   });
 
   if (!response.ok) {
-    const error = new Error("Something went wrong during get data");
-    error.statusCode = response.status;
-    throw error;
+    throw new Error("Something went wrong during get data");
   }
 
   return response.json();

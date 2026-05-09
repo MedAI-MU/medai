@@ -12,7 +12,7 @@ function AllergyCard({ allergy, patientId }) {
   const { name, description, id: allergyId } = allergy || {};
 
   return (
-    <Card className="hover:border-primary flex flex-col items-center gap-4 text-center md:flex-row md:text-start">
+    <Card className="flex flex-col items-center gap-4 text-center md:flex-row md:text-start">
       {/* icon */}
       <IconBadge icon={<TriangleAlert size={20} />} isRounded color="orange" />
       <Heading

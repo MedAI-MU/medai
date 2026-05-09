@@ -50,8 +50,6 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.domain.model.AppointmentDetailStatus
 
-import androidx.compose.runtime.LaunchedEffect
-
 class DoctorDashboardScreen : Screen {
     @Composable
     override fun Content() {
@@ -59,11 +57,6 @@ class DoctorDashboardScreen : Screen {
         val state by viewModel.uiState.collectAsState()
         val selectedDate by viewModel.selectedDate.collectAsState()
         val dates = viewModel.dates
-
-        // Refresh data when screen enters composition (e.g. navigating back)
-        LaunchedEffect(Unit) {
-            viewModel.refresh()
-        }
 
         MedAIScaffold(
             topBar = {
@@ -129,7 +122,7 @@ fun DashboardContent(appointments: List<AppointmentDetail>) {
     val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     val total = appointments.size
     val pending = appointments.count { it.status == AppointmentDetailStatus.UPCOMING }
-    val finished = appointments.count { it.status == AppointmentDetailStatus.FINISHED }
+    val finished = appointments.count { it.status == AppointmentDetailStatus.COMPLETED }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Quick Actions
@@ -255,7 +248,7 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = appointment.doctorName,
+                text = appointment.problemDescription,
                 style = MedAITheme.textStyle.body.small,
                 maxLines = 2
             )

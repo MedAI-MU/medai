@@ -32,10 +32,6 @@ class InMemoryUserSessionManager(
         return dataStore.data.first()[KEY_USER_ID]
     }
 
-    override suspend fun getUserName(): String? {
-        return dataStore.data.first()[KEY_NAME]
-    }
-
     override suspend fun getUserToken(): String? {
         return dataStore.data.first()[KEY_TOKEN]
     }

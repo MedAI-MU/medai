@@ -22,6 +22,9 @@ data class BookingState(
     // Form
     val bookingForSelf: Boolean = true,
     val patientName: String = "", // Default
+    val patientAge: String = "",
+    val patientGender: String = "",
+    val problemDescription: String = "",
 
     val isBooking: Boolean = false,
     val error: String? = null
@@ -40,7 +43,10 @@ sealed class BookingEvent {
 
     // Form
     data class PatientTypeChanged(val isSelf: Boolean) : BookingEvent()
+    data class ProblemDescChanged(val text: String) : BookingEvent()
     data class PatientNameChanges(val name: String) : BookingEvent()
+    data class PatientAgeChanged(val age: String) : BookingEvent()
+    data class PatientGenderChanged(val gender: String) : BookingEvent()
     object BookClicked : BookingEvent()
 }
 

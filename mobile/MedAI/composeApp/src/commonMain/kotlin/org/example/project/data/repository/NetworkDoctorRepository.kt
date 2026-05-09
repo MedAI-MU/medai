@@ -24,23 +24,18 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctors(specialtyId: String?): Result<List<Doctor>> {
         return try {
-            // GET doctors (optionally filtered by specialty_id query param)
-            val response: List<DoctorDto> = client.get("doctors") {
+            // GET /doctors (optionally filtered by specialty_id query param)
+            val response: List<DoctorDto> = client.get("/doctors") {
                 if (specialtyId != null) {
                     parameter("specialty_id", specialtyId)
                 }
             }.body()
 
             val domainList = response.map { dto ->
-                val primarySpec = dto.specialities.find { it.isPrimary }?.speciality?.name
-                    ?: dto.specialities.firstOrNull()?.speciality?.name
-                    ?: dto.specialty
-                    ?: "General"
-
                 Doctor(
                     id = dto.id,
-                    name = dto.user?.name ?: dto.name ?: "Unknown",
-                    specialty = primarySpec,
+                    name = dto.name,
+                    specialty = dto.specialty,
                     rating = dto.rating,
                     imageUrl = dto.imageUrl
                 )
@@ -53,8 +48,8 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctorById(doctorId: String): Result<Doctor> {
         return try {
-            // GET doctors/{id}
-            val dto: DoctorDto = client.get("doctors/$doctorId").body()
+            // GET /doctors/{id}
+            val dto: DoctorDto = client.get("/doctors/$doctorId").body()
             Result.success(dto.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -63,20 +58,13 @@ class NetworkDoctorRepository(
 
     override suspend fun getAvailableSlots(doctorId: String, date: LocalDate): Result<List<TimeSlot>> {
         return try {
-            val fromDate = date.toString()
-            val toDate = date.toString()
-
-            val dtoResult: org.example.project.data.remote.dto.schedule.DocScheduleResponseDto = client.get("doctors/$doctorId/schedule-slots") {
-                parameter("fromDate", fromDate)
-                parameter("toDate", toDate)
+            val response: List<TimeSlotDto> = client.get("/doctors/$doctorId/slots") {
+                parameter("date", date.toString())
             }.body()
 
-            val timeSlots = mutableListOf<TimeSlot>()
-            dtoResult.days.data.firstOrNull()?.slots?.forEach { slot ->
-                timeSlots.add(TimeSlot(slot.id.toString(), slot.startTime, slot.status == "available"))
-            }
-
-            Result.success(timeSlots)
+            Result.success(response.map { dto ->
+                TimeSlot(dto.id, dto.time, dto.isAvailable)
+            })
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -84,21 +72,31 @@ class NetworkDoctorRepository(
 
     override suspend fun bookAppointment(
         doctorId: String,
-        slotId: String
+        slotId: String,
+        date: LocalDate,
+        patientName: String,
+        patientAge: String,
+        patientGender: String,
+        problemDescription: String
     ): Result<String> {
         return try {
             val request = BookingRequestDto(
-                doctorId = doctorId.toIntOrNull() ?: 0,
-                slotId = slotId.toIntOrNull() ?: 0
+                doctorId = doctorId,
+                slotId = slotId,
+                date = date.toString(),
+                patientName = patientName,
+                patientAge = patientAge,
+                patientGender = patientGender,
+                problem = problemDescription
             )
 
-            // POST appointments
-            val response: BookingResponseDto = client.post("appointments") {
+            // POST /bookings
+            val response: BookingResponseDto = client.post("/bookings") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body()
 
-            Result.success(response.id.toString())
+            Result.success(response.bookingId)
         } catch (e: Exception) {
             Result.failure(e)
         }

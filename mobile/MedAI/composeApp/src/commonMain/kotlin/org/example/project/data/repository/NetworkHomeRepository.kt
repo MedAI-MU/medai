@@ -4,30 +4,16 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toLocalDateTime
-import medai.composeapp.generated.resources.Res
-import medai.composeapp.generated.resources.cat_doctors
-import medai.composeapp.generated.resources.cat_favorite
-import medai.composeapp.generated.resources.cat_record
-import medai.composeapp.generated.resources.cat_specialties
-import medai.composeapp.generated.resources.spec_cardiology
-import medai.composeapp.generated.resources.spec_dermatology
-import medai.composeapp.generated.resources.spec_general
-import medai.composeapp.generated.resources.spec_gynecology
-import medai.composeapp.generated.resources.spec_odontology
-import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.AppointmentDto
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.SpecialtyDto
-
+import org.example.project.data.remote.dto.UserResponseDto
 import org.example.project.data.remote.mapper.mapCategoryDtoToDomain
 import org.example.project.data.remote.mapper.mapCategoryKeyToRes
 import org.example.project.data.remote.mapper.mapSpecialtyKeyToRes
 import org.example.project.data.remote.mapper.mapStatus
-import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.Appointment
 import org.example.project.domain.model.Category
-import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
 import org.example.project.domain.model.Specialty
 import org.example.project.domain.repository.HomeRepository
@@ -37,55 +23,55 @@ class NetworkHomeRepository(
     private val client: HttpClient
 ) : HomeRepository {
 
+    // --- 1. Get User Name ---
+    override suspend fun getUserName(userId: String): Result<String> {
+        return try {
+            val response: UserResponseDto = client.get("/user/me").body()
+            Result.success(response.name)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // --- 2. Get Categories ---
     override suspend fun getCategories(): Result<List<Category>> {
+        return try {
+            // GET /categories -> returns List<CategoryDto>
+            val response: List<CategoryDto> = client.get("/categories").body()
 
-        return Result.success(
-            listOf(
-                Category("1", Res.string.cat_favorite, CategoryType.FAVORITE, MedAIIcons.Favorites),
-                Category("2", Res.string.cat_doctors,CategoryType.DOCTORS,  MedAIIcons.Doctor),
-                Category("4", Res.string.cat_specialties,CategoryType.SPECIALTIES,  MedAIIcons.Specialties),
-                Category("5", Res.string.cat_record,CategoryType.RECORDS,  MedAIIcons.Record),
-            )
-        )
-
-//        return try {
-//            // GET /categories -> returns List<CategoryDto>
-//            val response: List<CategoryDto> = client.get("/categories").body()
-//
-//            // Map DTO -> Domain
-//            val domainList = response.map { dto ->
-//                mapCategoryDtoToDomain(dto)
-//            }
-//            Result.success(domainList)
-//        } catch (e: CancellationException) {
-//            throw e
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
+            // Map DTO -> Domain
+            val domainList = response.map { dto ->
+                mapCategoryDtoToDomain(dto)
+            }
+            Result.success(domainList)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET appointments/me -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("appointments/me").body()
-
-            val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
+            // GET /appointments/upcoming -> returns List<AppointmentDto>
+            val response: List<AppointmentDto> = client.get("/appointments/upcoming").body()
 
             // Map DTO -> Domain
-            val domainList = upcoming.map { dto ->
+            val domainList = response.map { dto ->
                 Appointment(
-                    id = dto.id.toString(),
+                    id = dto.id,
                     doctor = Doctor(
-                        id = dto.doctor?.id ?: "0",
-                        name = dto.doctor?.name ?: "Unknown Doctor",
-                        specialty = dto.doctor?.specialty ?: "General",
-                        rating = dto.doctor?.rating ?: 0.0,
-                        imageUrl = dto.doctor?.imageUrl
+                        id = dto.doctor.id,
+                        name = dto.doctor.name,
+                        specialty = dto.doctor.specialty,
+                        rating = dto.doctor.rating,
+                        imageUrl = dto.doctor.imageUrl
                     ),
-                    date = parseDate(dto.createdAt.take(10)),
-                    time = dto.scheduleSlot?.startTime ?: "00:00", // using slot start time
+                    date = parseDate(dto.date),
+                    time = dto.time, // e.g. "10:00 AM"
                     status = mapStatus(dto.status)
                 )
             }
@@ -99,36 +85,24 @@ class NetworkHomeRepository(
 
     // --- 4. Get Specialties ---
     override suspend fun getSpecialties(): Result<List<Specialty>> {
+        return try {
+            // GET /specialties -> returns List<SpecialtyDto>
+            val response: List<SpecialtyDto> = client.get("/specialties").body()
 
-        return Result.success(
-            listOf(
-                Specialty("1", Res.string.spec_cardiology, "cardiology"),
-                Specialty("2", Res.string.spec_dermatology, "dermatology"),
-                Specialty("3", Res.string.spec_general, "general"),
-                Specialty("4", Res.string.spec_gynecology, "gynecology"),
-                Specialty("5", Res.string.spec_odontology, "odontology"),
-                Specialty("6", Res.string.spec_oncology, "oncology"),
-            )
-        )
-
-//        return try {
-//            // GET /specialties -> returns List<SpecialtyDto>
-//            val response: List<SpecialtyDto> = client.get("/specialties").body()
-//
-//            // Map DTO -> Domain
-//            val domainList = response.map { dto ->
-//                Specialty(
-//                    id = dto.id,
-//                    title = mapSpecialtyKeyToRes(dto.iconKey), // Maps "cardiology" -> Res.string.spec_cardiology
-//                    iconName = dto.iconKey
-//                )
-//            }
-//            Result.success(domainList)
-//        } catch (e: CancellationException) {
-//            throw e
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
+            // Map DTO -> Domain
+            val domainList = response.map { dto ->
+                Specialty(
+                    id = dto.id,
+                    title = mapSpecialtyKeyToRes(dto.iconKey), // Maps "cardiology" -> Res.string.spec_cardiology
+                    iconName = dto.iconKey
+                )
+            }
+            Result.success(domainList)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
 
@@ -138,9 +112,7 @@ private fun parseDate(dateString: String): LocalDate {
         LocalDate.parse(dateString)
     } catch (e: Exception) {
         e.printStackTrace()
-        // Default to a safe date but normally this should be fully handled by the backend schema returning correct dates
-        val now = kotlinx.datetime.Clock.System.now()
-        val localNow = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
-        LocalDate(localNow.year, localNow.monthNumber, localNow.dayOfMonth)
+        // Returning a dummy date (e.g. today or epoch) to prevent crash
+        LocalDate(2025, 11, 11)
     }
 }

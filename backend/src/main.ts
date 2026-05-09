@@ -13,11 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // CORS CONFIGURATION
   app.enableCors({
-    origin:
-      process.env.NODE_ENV == 'production'
-        ? process.env.FRONTEND_URL
-        : 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    origin: 'http://localhost:3000', // frontend URL
     credentials: true,
     exposedHeaders: ['set-cookie'],
   });
