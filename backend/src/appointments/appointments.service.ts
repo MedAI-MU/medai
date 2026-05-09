@@ -54,8 +54,7 @@ export class AppointmentsService {
       doctorUserId: dto.doctorId,
       scheduleSlotId: dto.slotId,
     });
-
-    return this.appointmentsRepository.save(appointment);
+    return await this.appointmentsRepository.save(appointment);
   }
 
   async findByPatient(patientUserId: number): Promise<Appointment[]> {
