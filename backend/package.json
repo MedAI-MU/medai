@@ -96,14 +96,5 @@
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "argon2",
-      "better-sqlite3",
-      "sqlite3",
-      "unrs-resolver"
-    ]
   }
 }

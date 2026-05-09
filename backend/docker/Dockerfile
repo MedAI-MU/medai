@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
 
 WORKDIR /medai/
 
-COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
+COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml .npmrc ./
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
