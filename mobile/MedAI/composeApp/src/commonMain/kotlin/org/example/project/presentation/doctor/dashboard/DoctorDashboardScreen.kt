@@ -50,6 +50,8 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.domain.model.AppointmentDetailStatus
 
+import androidx.compose.runtime.LaunchedEffect
+
 class DoctorDashboardScreen : Screen {
     @Composable
     override fun Content() {
@@ -57,6 +59,11 @@ class DoctorDashboardScreen : Screen {
         val state by viewModel.uiState.collectAsState()
         val selectedDate by viewModel.selectedDate.collectAsState()
         val dates = viewModel.dates
+
+        // Refresh data when screen enters composition (e.g. navigating back)
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
 
         MedAIScaffold(
             topBar = {

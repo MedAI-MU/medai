@@ -38,6 +38,10 @@ class DoctorDashboardViewModel(
         fetchAppointments()
     }
 
+    fun refresh() {
+        fetchAppointments()
+    }
+
     private fun fetchAppointments() {
         screenModelScope.launch {
             _uiState.value = DoctorDashboardUiState.Loading
