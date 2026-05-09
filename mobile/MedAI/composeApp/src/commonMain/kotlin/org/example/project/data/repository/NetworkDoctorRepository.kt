@@ -24,12 +24,16 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctors(specialtyId: String?): Result<List<Doctor>> {
         return try {
-            // GET doctors (optionally filtered by specialty_id query param)
-            val response: List<DoctorDto> = client.get("doctors") {
-                if (specialtyId != null) {
-                    parameter("specialty_id", specialtyId)
-                }
-            }.body()
+            val response: List<DoctorDto> = if (specialtyId != null) {
+                // Fetch by specialty name using POST
+                client.post("doctors/search/speciality") {
+                    contentType(ContentType.Application.Json)
+                    setBody(org.example.project.data.remote.dto.SearchSpecialtyRequestDto(name = specialtyId))
+                }.body()
+            } else {
+                // Fetch all doctors
+                client.get("doctors").body()
+            }
 
             val domainList = response.map { dto ->
                 val primarySpec = dto.specialities.find { it.isPrimary }?.speciality?.name

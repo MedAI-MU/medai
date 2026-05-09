@@ -39,7 +39,10 @@ class BookingViewModel(
             val result = getDoctorDetailsUseCase(doctorId)
             result.fold(
                 onSuccess = { doc -> _state.update { it.copy(doctor = doc, isLoadingDoctor = false) } },
-                onFailure = { /* Handle error */ }
+                onFailure = { err ->
+                    _state.update { it.copy(isLoadingDoctor = false) }
+                    sendEffect(BookingEffect.ShowError(err.message ?: "Failed to load doctor profile"))
+                }
             )
         }
     }
