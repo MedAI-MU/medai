@@ -21,11 +21,11 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && chown -R medai:medai /medai
 
 RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm --cache ${NPM_CACHE_DIR}
+    npm install -g pnpm@9 --cache ${NPM_CACHE_DIR}
 
 WORKDIR /medai/
 
-COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml .npmrc ./
+COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
