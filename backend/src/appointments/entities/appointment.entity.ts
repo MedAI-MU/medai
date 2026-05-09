@@ -1,80 +1,62 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
-  Index,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import { Patient } from '../../patients/entities/patient.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import { DocScheduleSlot } from '../../schedules/entities/doc-schedule-slot.entity';
-
-export enum AppointmentStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-}
+import { User } from '../../users/entities/user.entity';
+import { AppointmentStatusEnum } from '../enums/appointment-status.enum';
+import type { AppointmentStatus } from '../types/appointment-status.type';
 
 @Entity()
 export class Appointment extends TimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Patient)
-  @JoinColumn({ name: 'patientId' })
-  @Index()
+  @ManyToOne(() => Patient, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'patientUserId' })
   patient: Patient;
 
-  @Column({ type: 'int' })
-  patientId: number;
+  @Column()
+  patientUserId: number;
 
-  @ManyToOne(() => Doctor)
-  @JoinColumn({ name: 'doctorId' })
-  @Index()
+  @ManyToOne(() => Doctor, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'doctorUserId' })
   doctor: Doctor;
 
-  @Column({ type: 'int' })
-  doctorId: number;
+  @Column()
+  doctorUserId: number;
 
-  @ManyToOne(() => DocScheduleSlot)
-  @JoinColumn({ name: 'slotId' })
-  @Index()
-  slot: DocScheduleSlot;
+  @OneToOne(() => DocScheduleSlot, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'scheduleSlotId' })
+  scheduleSlot: DocScheduleSlot;
 
-  @Column({ type: 'int' })
-  slotId: number;
+  @Column()
+  scheduleSlotId: number;
 
   @Column({
     type: 'enum',
-    enum: AppointmentStatus,
-    default: AppointmentStatus.PENDING,
+    enum: AppointmentStatusEnum,
+    default: AppointmentStatusEnum.PENDING,
   })
   status: AppointmentStatus;
 
-  // Allows booking for someone else (as seen in BookingScreen)
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  bookedForName: string;
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'confirmedByUserId' })
+  confirmedBy: User | null;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  bookedForAge: string;
+  @Column({ nullable: true })
+  confirmedByUserId: number | null;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  bookedForGender: string;
-
-  @Column({ type: 'text', nullable: true })
-  problemDescription: string;
-
-  // Cancellation Reason
-  @Column({ type: 'text', nullable: true })
-  cancellationReason: string;
-
-  // Reviews
   @Column({ type: 'int', nullable: true })
-  rating: number;
+  rating: number | null;
 
   @Column({ type: 'text', nullable: true })
-  reviewComment: string;
+  review: string | null;
 }

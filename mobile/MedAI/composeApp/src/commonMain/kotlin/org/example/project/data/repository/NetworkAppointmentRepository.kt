@@ -12,6 +12,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.data.remote.dto.AppointmentDto
+import org.example.project.data.remote.dto.ReviewAppointmentRequestDto
 import org.example.project.data.remote.dto.UpdateAppointmentStatusRequestDto
 import org.example.project.domain.model.AppointmentDetail
 import org.example.project.domain.model.AppointmentDetailStatus
@@ -24,13 +25,12 @@ class NetworkAppointmentRepository(
 
     override suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("appointments/my-appointments").body()
+            val response: List<AppointmentDto> = client.get("appointments/me").body()
 
-            // Filter by requested status
             val filtered = response.filter { dto ->
                 when (status) {
                     AppointmentDetailStatus.UPCOMING -> dto.status == "pending" || dto.status == "confirmed"
-                    AppointmentDetailStatus.COMPLETED -> dto.status == "completed"
+                    AppointmentDetailStatus.FINISHED -> dto.status == "finished"
                     AppointmentDetailStatus.CANCELLED -> dto.status == "cancelled"
                 }
             }.map { it.toDomain() }
@@ -41,32 +41,20 @@ class NetworkAppointmentRepository(
         }
     }
 
-    override suspend fun getDoctorAppointments(date: Long): Result<List<AppointmentDetail>> {
+    override suspend fun getMyAppointments(): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("appointments/doctor-appointments").body()
+            val response: List<AppointmentDto> = client.get("appointments/me").body()
             Result.success(response.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun getAppointmentDetails(id: String): Result<AppointmentDetail> {
-        return try {
-            val response: AppointmentDto = client.get("appointments/$id").body()
-            Result.success(response.toDomain())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun cancelAppointment(id: String, reasonId: String, otherReason: String?): Result<Unit> {
+    override suspend fun cancelAppointment(id: String): Result<Unit> {
         return try {
             client.patch("appointments/$id/status") {
                 contentType(ContentType.Application.Json)
-                setBody(UpdateAppointmentStatusRequestDto(
-                    status = "cancelled",
-                    cancellationReason = otherReason ?: reasonId
-                ))
+                setBody(UpdateAppointmentStatusRequestDto(status = "cancelled"))
             }
             Result.success(Unit)
         } catch (e: Exception) {
@@ -74,10 +62,12 @@ class NetworkAppointmentRepository(
         }
     }
 
-    override suspend fun submitReview(appointmentId: String, rating: Int, comment: String): Result<Unit> {
+    override suspend fun submitReview(appointmentId: String, rating: Int, review: String?): Result<Unit> {
         return try {
-            // Note: If you implement a separate review endpoint, use it here.
-            // For now, this is a placeholder mimicking success.
+            client.patch("appointments/$appointmentId/review") {
+                contentType(ContentType.Application.Json)
+                setBody(ReviewAppointmentRequestDto(rating = rating, review = review))
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -95,18 +85,15 @@ class NetworkAppointmentRepository(
 
     private fun AppointmentDto.toDomain(): AppointmentDetail {
         val apptStatus = when (this.status) {
-            "completed" -> AppointmentDetailStatus.COMPLETED
+            "finished" -> AppointmentDetailStatus.FINISHED
             "cancelled" -> AppointmentDetailStatus.CANCELLED
             else -> AppointmentDetailStatus.UPCOMING
         }
 
-        // Parse date and time if available
         var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         try {
-            // First attempt to grab date from schedule day if your API returns it there,
-            // else use createdAt for testing or current time.
             val dateStr = this.createdAt.take(10)
-            val timeStr = this.slot?.startTime ?: "00:00:00"
+            val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
             dateValue = LocalDateTime.parse("${dateStr}T${timeStr}")
         } catch (e: Exception) {
             // fallback to current time
@@ -114,17 +101,18 @@ class NetworkAppointmentRepository(
 
         return AppointmentDetail(
             id = this.id.toString(),
-            doctorName = this.doctor?.name ?: "Unknown Doctor",
-            specialty = this.doctor?.specialty ?: "General",
+            doctorName = this.doctor?.name ?: this.doctor?.user?.name ?: "Unknown Doctor",
+            specialty = this.doctor?.specialty
+                ?: this.doctor?.specialities?.find { it.isPrimary }?.speciality?.name
+                ?: "General",
             doctorRating = this.doctor?.rating ?: 0.0,
             date = dateValue,
             status = apptStatus,
-            patientName = this.bookedForName ?: this.patient?.user?.name ?: "Patient",
-            patientAge = this.bookedForAge ?: "N/A",
-            patientGender = this.bookedForGender ?: this.patient?.user?.gender?.name ?: "N/A",
-            problemDescription = this.problemDescription ?: "No description provided",
-            canRebook = apptStatus == AppointmentDetailStatus.CANCELLED || apptStatus == AppointmentDetailStatus.COMPLETED,
-            canAddReview = apptStatus == AppointmentDetailStatus.COMPLETED && this.rating == null
+            patientName = this.patient?.user?.name ?: this.patient?.name ?: "Patient",
+            canRebook = apptStatus == AppointmentDetailStatus.CANCELLED || apptStatus == AppointmentDetailStatus.FINISHED,
+            canAddReview = apptStatus == AppointmentDetailStatus.FINISHED && this.rating == null,
+            rating = this.rating,
+            review = this.review
         )
     }
 }

@@ -81,7 +81,6 @@ fun mapStatus(status: String?): AppointmentStatus {
         "pending" -> AppointmentStatus.Pending
         "confirmed" -> AppointmentStatus.Confirmed
         "finished" -> AppointmentStatus.Finished
-        "waiting" -> AppointmentStatus.Waiting
         "cancelled" -> AppointmentStatus.Cancelled
         else -> AppointmentStatus.Pending // Default fallback
     }

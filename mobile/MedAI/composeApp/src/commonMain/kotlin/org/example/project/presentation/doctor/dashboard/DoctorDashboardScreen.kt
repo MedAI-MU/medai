@@ -122,7 +122,7 @@ fun DashboardContent(appointments: List<AppointmentDetail>) {
     val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     val total = appointments.size
     val pending = appointments.count { it.status == AppointmentDetailStatus.UPCOMING }
-    val finished = appointments.count { it.status == AppointmentDetailStatus.COMPLETED }
+    val finished = appointments.count { it.status == AppointmentDetailStatus.FINISHED }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Quick Actions
@@ -248,7 +248,7 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = appointment.problemDescription,
+                text = appointment.doctorName,
                 style = MedAITheme.textStyle.body.small,
                 maxLines = 2
             )

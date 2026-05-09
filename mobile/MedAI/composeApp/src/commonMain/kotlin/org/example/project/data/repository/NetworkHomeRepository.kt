@@ -57,8 +57,8 @@ class NetworkHomeRepository(
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET appointments/my-appointments -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("appointments/my-appointments").body()
+            // GET appointments/me -> returns List<AppointmentDto>
+            val response: List<AppointmentDto> = client.get("appointments/me").body()
 
             val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
 
@@ -74,7 +74,7 @@ class NetworkHomeRepository(
                         imageUrl = dto.doctor?.imageUrl
                     ),
                     date = parseDate(dto.createdAt.take(10)),
-                    time = dto.slot?.startTime ?: "00:00", // using slot start time
+                    time = dto.scheduleSlot?.startTime ?: "00:00", // using slot start time
                     status = mapStatus(dto.status)
                 )
             }

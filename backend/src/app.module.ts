@@ -8,8 +8,8 @@ import { DoctorsModule } from './doctors/doctors.module';
 import databaseConfig from './database/database.config';
 import jwtConfig from './auth/jwt.config';
 import { SchedulesModule } from './schedules/schedules.module';
-import { AppointmentsModule } from './appointments/appointments.module';
 import { SharedModule } from './shared/shared.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { SharedModule } from './shared/shared.module';
     PatientsModule,
     SchedulesModule,
     DoctorsModule,
-    AppointmentsModule,
     SharedModule,
+    AppointmentsModule,
   ],
 })
 export class AppModule {}

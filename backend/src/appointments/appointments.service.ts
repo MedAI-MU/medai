@@ -1,143 +1,179 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { Appointment, AppointmentStatus } from './entities/appointment.entity';
+import { Repository } from 'typeorm';
+import { Appointment } from './entities/appointment.entity';
 import { CreateAppointmentDto } from './dtos/create-appointment.dto';
 import { UpdateAppointmentStatusDto } from './dtos/update-appointment-status.dto';
-import { DocScheduleSlot } from '../schedules/entities/doc-schedule-slot.entity';
+import { ReviewAppointmentDto } from './dtos/review-appointment.dto';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
+import { DocScheduleSlot } from '../schedules/entities/doc-schedule-slot.entity';
+import { Doctor } from '../doctors/entities/doctor.entity';
+import { AppointmentStatusEnum } from './enums/appointment-status.enum';
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
-    private readonly appointmentRepository: Repository<Appointment>,
+    private readonly appointmentsRepository: Repository<Appointment>,
     @InjectRepository(DocScheduleSlot)
-    private readonly slotRepository: Repository<DocScheduleSlot>,
-    private readonly dataSource: DataSource,
-  ) { }
+    private readonly slotsRepository: Repository<DocScheduleSlot>,
+    @InjectRepository(Doctor)
+    private readonly doctorsRepository: Repository<Doctor>,
+  ) {}
 
-  async create(createAppointmentDto: CreateAppointmentDto, user: TokenUser): Promise<Appointment> {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async create(
+    patientUserId: number,
+    dto: CreateAppointmentDto,
+  ): Promise<Appointment | null> {
+    const slot = await this.slotsRepository.findOne({
+      where: { id: dto.slotId },
+      relations: { schedule: { doctor: true } },
+    });
 
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    if (!slot) {
+      return null;
+    }
+    if (slot.status !== 'available') {
+      throw new BadRequestException('Schedule slot is not available');
+    }
+    if (slot.schedule.doctor.userId !== dto.doctorId) {
+      throw new BadRequestException(
+        'Schedule slot does not belong to the specified doctor',
+      );
+    }
 
-    try {
-      // 1. Lock the slot so no one else can book it concurrently
-      const slot = await queryRunner.manager
-        .createQueryBuilder(DocScheduleSlot, 'slot')
-        .innerJoinAndSelect('slot.schedule', 'schedule')
-        .innerJoinAndSelect('schedule.doctor', 'doctor')
-        .where('slot.id = :slotId', { slotId: createAppointmentDto.slotId })
-        .andWhere('doctor.userId = :doctorId', { doctorId: createAppointmentDto.doctorId })
-        .setLock('pessimistic_write')
-        .getOne();
-
-      if (!slot) {
-        throw new NotFoundException('Slot not found');
-      }
-
-      if (slot.status !== 'available') {
-        throw new BadRequestException('Slot is not available');
-      }
-
-      // 2. Mark the slot as booked
+    // Use a transaction to ensure atomicity — if appointment creation fails,
+    // the slot status change is rolled back automatically.
+    return this.appointmentsRepository.manager.transaction(async (manager) => {
       slot.status = 'booked';
-      await queryRunner.manager.save(slot);
+      await manager.save(slot);
 
-      // 3. Create the appointment
-      const appointment = queryRunner.manager.create(Appointment, {
-        patientId: user.id,
-        doctorId: createAppointmentDto.doctorId,
-        slotId: createAppointmentDto.slotId,
-        status: AppointmentStatus.PENDING,
-        bookedForName: createAppointmentDto.bookedForName,
-        bookedForAge: createAppointmentDto.bookedForAge,
-        bookedForGender: createAppointmentDto.bookedForGender,
-        problemDescription: createAppointmentDto.problemDescription,
+      const appointment = manager.create(Appointment, {
+        patientUserId,
+        doctorUserId: dto.doctorId,
+        scheduleSlotId: dto.slotId,
       });
 
-      const savedAppointment = await queryRunner.manager.save(appointment);
+      return manager.save(appointment);
+    });
+  }
 
-      await queryRunner.commitTransaction();
-      return savedAppointment;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+  async findByPatient(patientUserId: number): Promise<Appointment[]> {
+    return this.appointmentsRepository.find({
+      where: { patientUserId },
+      relations: {
+        doctor: { user: true, specialities: { speciality: true } },
+        scheduleSlot: { schedule: true },
+        confirmedBy: true,
+      },
+    });
+  }
+
+  async findByDoctor(doctorUserId: number): Promise<Appointment[] | null> {
+    const doctor = await this.doctorsRepository.findOne({
+      where: { userId: doctorUserId },
+    });
+    if (!doctor) {
+      return null;
     }
-  }
-
-  async getForPatient(patientId: number): Promise<Appointment[]> {
-    return this.appointmentRepository.find({
-      where: { patientId },
-      relations: ['doctor', 'doctor.user', 'slot', 'slot.schedule'],
-      order: { createdAt: 'DESC' },
+    return this.appointmentsRepository.find({
+      where: { doctorUserId },
+      relations: {
+        patient: { user: true },
+        scheduleSlot: { schedule: true },
+      },
     });
   }
 
-  async getForDoctor(doctorId: number): Promise<Appointment[]> {
-    return this.appointmentRepository.find({
-      where: { doctorId },
-      relations: ['patient', 'patient.user', 'slot', 'slot.schedule'],
-      order: { createdAt: 'DESC' },
+  async findAll(): Promise<Appointment[]> {
+    return this.appointmentsRepository.find({
+      relations: {
+        patient: { user: true },
+        doctor: { user: true },
+        scheduleSlot: { schedule: true },
+        confirmedBy: true,
+      },
     });
   }
 
-  async getById(id: number): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.findOne({
+  async addReview(
+    id: number,
+    dto: ReviewAppointmentDto,
+    patientUserId: number,
+  ): Promise<Appointment | null> {
+    const appointment = await this.appointmentsRepository.findOne({
       where: { id },
-      relations: ['doctor', 'doctor.user', 'patient', 'patient.user', 'slot', 'slot.schedule'],
     });
 
     if (!appointment) {
-      throw new NotFoundException('Appointment not found');
+      return null;
     }
 
-    return appointment;
+    if (appointment.patientUserId !== patientUserId) {
+      throw new ForbiddenException('You can only review your own appointments');
+    }
+
+    if (appointment.status !== 'finished') {
+      throw new BadRequestException(
+        'Only finished appointments can be reviewed',
+      );
+    }
+
+    appointment.rating = dto.rating;
+    appointment.review = dto.review ?? null;
+    return this.appointmentsRepository.save(appointment);
   }
 
-  async updateStatus(id: number, updateDto: UpdateAppointmentStatusDto): Promise<Appointment> {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async delete(id: number): Promise<boolean> {
+    const result = await this.appointmentsRepository.delete(id);
+    return (result.affected ?? 0) > 0;
+  }
 
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async updateStatus(
+    id: number,
+    dto: UpdateAppointmentStatusDto,
+    currentUser: TokenUser,
+  ): Promise<Appointment | null> {
+    const appointment = await this.appointmentsRepository.findOne({
+      where: { id },
+      relations: { scheduleSlot: true },
+    });
 
-    try {
-      // ✅ Fixed: Use INNER JOIN instead of LEFT JOIN with FOR UPDATE
-      const appointment = await queryRunner.manager
-        .createQueryBuilder(Appointment, 'appointment')
-        .innerJoinAndSelect('appointment.slot', 'slot')
-        .where('appointment.id = :id', { id })
-        .setLock('pessimistic_write')
-        .getOne();
-
-      if (!appointment) {
-        throw new NotFoundException('Appointment not found');
-      }
-
-      appointment.status = updateDto.status;
-      if (updateDto.cancellationReason) {
-        appointment.cancellationReason = updateDto.cancellationReason;
-      }
-
-      if (updateDto.status === AppointmentStatus.CANCELLED) {
-        // Free up the slot
-        appointment.slot.status = 'available';
-        await queryRunner.manager.save(appointment.slot);
-      }
-
-      const updatedAppointment = await queryRunner.manager.save(appointment);
-
-      await queryRunner.commitTransaction();
-      return updatedAppointment;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+    if (!appointment) {
+      return null;
     }
+
+    if (currentUser.role === 'patient') {
+      if (appointment.patientUserId !== currentUser.id) {
+        throw new ForbiddenException(
+          'You can only update your own appointments',
+        );
+      }
+      if (dto.status !== AppointmentStatusEnum.CANCELLED) {
+        throw new ForbiddenException('Patients can only cancel appointments');
+      }
+    }
+
+    if (
+      dto.status === AppointmentStatusEnum.CANCELLED &&
+      appointment.status !== 'cancelled'
+    ) {
+      appointment.scheduleSlot.status = 'available';
+      await this.slotsRepository.save(appointment.scheduleSlot);
+    }
+
+    if (
+      currentUser.role === 'secretary' &&
+      dto.status === AppointmentStatusEnum.CONFIRMED
+    ) {
+      appointment.confirmedByUserId = currentUser.id;
+    }
+
+    appointment.status = dto.status;
+    return this.appointmentsRepository.save(appointment);
   }
 }

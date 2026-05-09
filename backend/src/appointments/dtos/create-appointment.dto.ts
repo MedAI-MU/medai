@@ -1,27 +1,20 @@
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsPositive } from 'class-validator';
 
 export class CreateAppointmentDto {
+  @ApiProperty({
+    description: 'The ID of the schedule slot to book',
+    example: 1,
+  })
   @IsInt()
-  @IsNotEmpty()
-  doctorId: number;
-
-  @IsInt()
-  @IsNotEmpty()
+  @IsPositive()
   slotId: number;
 
-  @IsOptional()
-  @IsString()
-  bookedForName?: string;
-
-  @IsOptional()
-  @IsString()
-  bookedForAge?: string;
-
-  @IsOptional()
-  @IsString()
-  bookedForGender?: string;
-
-  @IsOptional()
-  @IsString()
-  problemDescription?: string;
+  @ApiProperty({
+    description: 'The user ID of the doctor to book with',
+    example: 2,
+  })
+  @IsInt()
+  @IsPositive()
+  doctorId: number;
 }

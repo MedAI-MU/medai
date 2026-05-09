@@ -84,21 +84,12 @@ class NetworkDoctorRepository(
 
     override suspend fun bookAppointment(
         doctorId: String,
-        slotId: String,
-        date: LocalDate,
-        patientName: String,
-        patientAge: String,
-        patientGender: String,
-        problemDescription: String
+        slotId: String
     ): Result<String> {
         return try {
             val request = BookingRequestDto(
                 doctorId = doctorId.toIntOrNull() ?: 0,
-                slotId = slotId.toIntOrNull() ?: 0,
-                bookedForName = patientName.ifBlank { null },
-                bookedForAge = patientAge.ifBlank { null },
-                bookedForGender = patientGender.ifBlank { null },
-                problemDescription = problemDescription.ifBlank { null }
+                slotId = slotId.toIntOrNull() ?: 0
             )
 
             // POST appointments
