@@ -28,7 +28,7 @@ WORKDIR /medai/
 
 COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/pnpm/store,id=pnpm \
-    pnpm install --frozen-lockfile
+    pnpm install --no-frozen-lockfile
 
 COPY src src
 COPY tests tests
