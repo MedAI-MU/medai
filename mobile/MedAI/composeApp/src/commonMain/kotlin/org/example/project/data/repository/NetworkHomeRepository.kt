@@ -5,16 +5,29 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
+import medai.composeapp.generated.resources.Res
+import medai.composeapp.generated.resources.cat_doctors
+import medai.composeapp.generated.resources.cat_favorite
+import medai.composeapp.generated.resources.cat_record
+import medai.composeapp.generated.resources.cat_specialties
+import medai.composeapp.generated.resources.spec_cardiology
+import medai.composeapp.generated.resources.spec_dermatology
+import medai.composeapp.generated.resources.spec_general
+import medai.composeapp.generated.resources.spec_gynecology
+import medai.composeapp.generated.resources.spec_odontology
+import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.AppointmentDto
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.SpecialtyDto
-import org.example.project.data.remote.dto.UserResponseDto
+
 import org.example.project.data.remote.mapper.mapCategoryDtoToDomain
 import org.example.project.data.remote.mapper.mapCategoryKeyToRes
 import org.example.project.data.remote.mapper.mapSpecialtyKeyToRes
 import org.example.project.data.remote.mapper.mapStatus
+import org.example.project.design_system.icons.MedAIIcons
 import org.example.project.domain.model.Appointment
 import org.example.project.domain.model.Category
+import org.example.project.domain.model.CategoryType
 import org.example.project.domain.model.Doctor
 import org.example.project.domain.model.Specialty
 import org.example.project.domain.repository.HomeRepository
@@ -24,34 +37,32 @@ class NetworkHomeRepository(
     private val client: HttpClient
 ) : HomeRepository {
 
-    // --- 1. Get User Name ---
-    override suspend fun getUserName(userId: String): Result<String> {
-        return try {
-            val response: UserResponseDto = client.get("user/me").body()
-            Result.success(response.name)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     // --- 2. Get Categories ---
     override suspend fun getCategories(): Result<List<Category>> {
-        return try {
-            // GET categories -> returns List<CategoryDto>
-            val response: List<CategoryDto> = client.get("categories").body()
 
-            // Map DTO -> Domain
-            val domainList = response.map { dto ->
-                mapCategoryDtoToDomain(dto)
-            }
-            Result.success(domainList)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return Result.success(
+            listOf(
+                Category("1", Res.string.cat_favorite, CategoryType.FAVORITE, MedAIIcons.Favorites),
+                Category("2", Res.string.cat_doctors,CategoryType.DOCTORS,  MedAIIcons.Doctor),
+                Category("4", Res.string.cat_specialties,CategoryType.SPECIALTIES,  MedAIIcons.Specialties),
+                Category("5", Res.string.cat_record,CategoryType.RECORDS,  MedAIIcons.Record),
+            )
+        )
+
+//        return try {
+//            // GET /categories -> returns List<CategoryDto>
+//            val response: List<CategoryDto> = client.get("/categories").body()
+//
+//            // Map DTO -> Domain
+//            val domainList = response.map { dto ->
+//                mapCategoryDtoToDomain(dto)
+//            }
+//            Result.success(domainList)
+//        } catch (e: CancellationException) {
+//            throw e
+//        } catch (e: Exception) {
+//            Result.failure(e)
+//        }
     }
 
     // --- 3. Get Upcoming Appointments ---
@@ -88,24 +99,36 @@ class NetworkHomeRepository(
 
     // --- 4. Get Specialties ---
     override suspend fun getSpecialties(): Result<List<Specialty>> {
-        return try {
-            // GET specialties -> returns List<SpecialtyDto>
-            val response: List<SpecialtyDto> = client.get("specialties").body()
 
-            // Map DTO -> Domain
-            val domainList = response.map { dto ->
-                Specialty(
-                    id = dto.id,
-                    title = mapSpecialtyKeyToRes(dto.iconKey), // Maps "cardiology" -> Res.string.spec_cardiology
-                    iconName = dto.iconKey
-                )
-            }
-            Result.success(domainList)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return Result.success(
+            listOf(
+                Specialty("1", Res.string.spec_cardiology, "cardiology"),
+                Specialty("2", Res.string.spec_dermatology, "dermatology"),
+                Specialty("3", Res.string.spec_general, "general"),
+                Specialty("4", Res.string.spec_gynecology, "gynecology"),
+                Specialty("5", Res.string.spec_odontology, "odontology"),
+                Specialty("6", Res.string.spec_oncology, "oncology"),
+            )
+        )
+
+//        return try {
+//            // GET /specialties -> returns List<SpecialtyDto>
+//            val response: List<SpecialtyDto> = client.get("/specialties").body()
+//
+//            // Map DTO -> Domain
+//            val domainList = response.map { dto ->
+//                Specialty(
+//                    id = dto.id,
+//                    title = mapSpecialtyKeyToRes(dto.iconKey), // Maps "cardiology" -> Res.string.spec_cardiology
+//                    iconName = dto.iconKey
+//                )
+//            }
+//            Result.success(domainList)
+//        } catch (e: CancellationException) {
+//            throw e
+//        } catch (e: Exception) {
+//            Result.failure(e)
+//        }
     }
 }
 
