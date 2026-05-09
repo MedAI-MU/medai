@@ -27,7 +27,6 @@ import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SpecialityDto } from './dtos/speciality.dto';
-import { Speciality } from './entities/speciality.entity';
 import { SpecialityService } from './speciality.service';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorDto } from './dtos/doctor.dto';
@@ -95,7 +94,7 @@ export class DoctorsController {
     return specialities.map((s) => new SpecialityResponseDto(s));
   }
 
-  @Roles('secretary')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Post('specialities')
   @HttpCode(HttpStatus.CREATED)
@@ -115,7 +114,7 @@ export class DoctorsController {
     return new SpecialityResponseDto(speciality);
   }
 
-  @Roles('secretary')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Patch('specialities/:id')
   @HttpCode(HttpStatus.OK)
@@ -143,7 +142,7 @@ export class DoctorsController {
     return new SpecialityResponseDto(speciality);
   }
 
-  @Roles('secretary')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Delete('specialities/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -196,7 +195,7 @@ export class DoctorsController {
   }
 
   @Roles('secretary')
-  @UseGuards(RolesGuard)
+  @UseGuards(SameIdGuard)
   @Post(':id/specialities')
   @HttpCode(HttpStatus.CREATED)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
@@ -234,7 +233,7 @@ export class DoctorsController {
   }
 
   @Roles('secretary')
-  @UseGuards(RolesGuard)
+  @UseGuards(SameIdGuard)
   @Patch(':id/specialities/:specialityId')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
@@ -273,7 +272,7 @@ export class DoctorsController {
   }
 
   @Roles('secretary')
-  @UseGuards(RolesGuard)
+  @UseGuards(SameIdGuard)
   @Delete(':id/specialities/:specialityId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
