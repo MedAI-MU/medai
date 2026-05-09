@@ -8,6 +8,7 @@ __pycache__/
 # compiled output
 dist/
 node_modules/
+.npm/
 /build
 
 # Logs

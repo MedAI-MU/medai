@@ -48,12 +48,15 @@ export class PatientsController {
   @Get()
   @Roles('secretary')
   @UseGuards(RolesGuard)
-  @ApiOkResponse({ description: 'Returns an array of patients', type: [PatientResponseDto] })
+  @ApiOkResponse({
+    description: 'Returns an array of patients',
+    type: [PatientResponseDto],
+  })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getPatients(): Promise<PatientResponseDto[]> {
     const patients = await this.patientsService.findAll();
-    return patients.map(p => new PatientResponseDto(p));
+    return patients.map((p) => new PatientResponseDto(p));
   }
 
   @Get(':id')
@@ -84,7 +87,10 @@ export class PatientsController {
 
   @Post(':id/allergies')
   @UseGuards(SameIdGuard)
-  @ApiCreatedResponse({ description: 'Added allergy', type: PatientResponseDto })
+  @ApiCreatedResponse({
+    description: 'Added allergy',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: AllergyDto })
   async addAllergy(
@@ -140,7 +146,10 @@ export class PatientsController {
   }
   @Post(':id/chronic-diseases')
   @UseGuards(SameIdGuard)
-  @ApiCreatedResponse({ description: 'Added chronic disease', type: PatientResponseDto })
+  @ApiCreatedResponse({
+    description: 'Added chronic disease',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: ChronicDiseaseDto })
   async addChronicDisease(
@@ -148,11 +157,12 @@ export class PatientsController {
     @Body() data: ChronicDiseaseDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.addRelation<ChronicDisease>(
-      patient,
-      'chronicDiseases',
-      data as ChronicDisease,
-    );
+    const updatedPatient =
+      await this.patientsService.addRelation<ChronicDisease>(
+        patient,
+        'chronicDiseases',
+        data as ChronicDisease,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -163,7 +173,10 @@ export class PatientsController {
     description: 'Chronic Disease ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Updated chronic disease', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Updated chronic disease',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: UpdateChronicDiseaseDto })
   async updateChronicDisease(
@@ -172,12 +185,13 @@ export class PatientsController {
     @Body() data: UpdateChronicDiseaseDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.updateRelation<ChronicDisease>(
-      patient,
-      'chronicDiseases',
-      chronicDiseaseId,
-      data as ChronicDisease,
-    );
+    const updatedPatient =
+      await this.patientsService.updateRelation<ChronicDisease>(
+        patient,
+        'chronicDiseases',
+        chronicDiseaseId,
+        data as ChronicDisease,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -188,23 +202,30 @@ export class PatientsController {
     description: 'Chronic Disease ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Removed chronic disease', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Removed chronic disease',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   async removeChronicDisease(
     @Param('id') id: number,
     @Param('chronicDiseaseId') chronicDiseaseId: number,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.removeRelation<ChronicDisease>(
-      patient,
-      'chronicDiseases',
-      chronicDiseaseId,
-    );
+    const updatedPatient =
+      await this.patientsService.removeRelation<ChronicDisease>(
+        patient,
+        'chronicDiseases',
+        chronicDiseaseId,
+      );
     return new PatientResponseDto(updatedPatient);
   }
   @Post(':id/family-histories')
   @UseGuards(SameIdGuard)
-  @ApiCreatedResponse({ description: 'Added family history', type: PatientResponseDto })
+  @ApiCreatedResponse({
+    description: 'Added family history',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: FamilyHistoryDto })
   async addFamilyHistory(
@@ -212,11 +233,12 @@ export class PatientsController {
     @Body() data: FamilyHistoryDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.addRelation<FamilyHistory>(
-      patient,
-      'familyHistories',
-      data as FamilyHistory,
-    );
+    const updatedPatient =
+      await this.patientsService.addRelation<FamilyHistory>(
+        patient,
+        'familyHistories',
+        data as FamilyHistory,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -227,7 +249,10 @@ export class PatientsController {
     description: 'Family History ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Updated family history', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Updated family history',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: UpdateFamilyHistoryDto })
   async updateFamilyHistory(
@@ -236,12 +261,13 @@ export class PatientsController {
     @Body() data: UpdateFamilyHistoryDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.updateRelation<FamilyHistory>(
-      patient,
-      'familyHistories',
-      familyHistoryId,
-      data as FamilyHistory,
-    );
+    const updatedPatient =
+      await this.patientsService.updateRelation<FamilyHistory>(
+        patient,
+        'familyHistories',
+        familyHistoryId,
+        data as FamilyHistory,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -252,23 +278,30 @@ export class PatientsController {
     description: 'Family History ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Removed family history', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Removed family history',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   async removeFamilyHistory(
     @Param('id') id: number,
     @Param('familyHistoryId') familyHistoryId: number,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.removeRelation<FamilyHistory>(
-      patient,
-      'familyHistories',
-      familyHistoryId,
-    );
+    const updatedPatient =
+      await this.patientsService.removeRelation<FamilyHistory>(
+        patient,
+        'familyHistories',
+        familyHistoryId,
+      );
     return new PatientResponseDto(updatedPatient);
   }
   @Post(':id/surgeries')
   @UseGuards(SameIdGuard)
-  @ApiCreatedResponse({ description: 'Added surgery', type: PatientResponseDto })
+  @ApiCreatedResponse({
+    description: 'Added surgery',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: SurgeryDto })
   async addSurgery(
@@ -324,7 +357,10 @@ export class PatientsController {
   }
   @Post(':id/emergency-contacts')
   @UseGuards(SameIdGuard)
-  @ApiCreatedResponse({ description: 'Added Emergency Contact', type: PatientResponseDto })
+  @ApiCreatedResponse({
+    description: 'Added Emergency Contact',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: EmergencyContactDto })
   async addEmergencyContact(
@@ -332,11 +368,12 @@ export class PatientsController {
     @Body() data: EmergencyContactDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.addRelation<EmergencyContact>(
-      patient,
-      'emergencyContacts',
-      data as EmergencyContact,
-    );
+    const updatedPatient =
+      await this.patientsService.addRelation<EmergencyContact>(
+        patient,
+        'emergencyContacts',
+        data as EmergencyContact,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -347,7 +384,10 @@ export class PatientsController {
     description: 'Emergency Contact ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Updated emergency contact', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Updated emergency contact',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   @ApiBody({ type: UpdateEmergencyContactDto })
   async updateEmergencyContact(
@@ -356,12 +396,13 @@ export class PatientsController {
     @Body() data: UpdateEmergencyContactDto,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.updateRelation<EmergencyContact>(
-      patient,
-      'emergencyContacts',
-      emergencyContactId,
-      data as EmergencyContact,
-    );
+    const updatedPatient =
+      await this.patientsService.updateRelation<EmergencyContact>(
+        patient,
+        'emergencyContacts',
+        emergencyContactId,
+        data as EmergencyContact,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 
@@ -372,18 +413,22 @@ export class PatientsController {
     description: 'Emergency Contact ID',
     type: Number,
   })
-  @ApiOkResponse({ description: 'Removed emergency contact', type: PatientResponseDto })
+  @ApiOkResponse({
+    description: 'Removed emergency contact',
+    type: PatientResponseDto,
+  })
   @ApiPatientGeneral()
   async removeEmergencyContact(
     @Param('id') id: number,
     @Param('emergencyContactId') emergencyContactId: number,
   ): Promise<PatientResponseDto> {
     const patient = (await this.patientsService.findOne(id)) as Patient;
-    const updatedPatient = await this.patientsService.removeRelation<EmergencyContact>(
-      patient,
-      'emergencyContacts',
-      emergencyContactId,
-    );
+    const updatedPatient =
+      await this.patientsService.removeRelation<EmergencyContact>(
+        patient,
+        'emergencyContacts',
+        emergencyContactId,
+      );
     return new PatientResponseDto(updatedPatient);
   }
 }
