@@ -46,7 +46,7 @@ class AppointmentViewModel(
                 loadCancelReasons()
             }
             is AppointmentEvent.OnConfirmCancel -> {
-                cancelAppointment(event.appointmentId)
+                cancelAppointment(event.appointmentId, event.reasonId, event.otherReason)
             }
             is AppointmentEvent.OnReviewClicked -> {
                 _state.update { it.copy(isSubmittingReview = false) }
@@ -80,9 +80,8 @@ class AppointmentViewModel(
     private fun loadDetails(id: String) {
         screenModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            getAppointmentDetailsUseCase().fold(
-                onSuccess = { details ->
-                    val detail = details.find { it.id == id }
+            getAppointmentDetailsUseCase(id).fold(
+                onSuccess = { detail ->
                     _state.update { it.copy(isLoading = false, selectedAppointment = detail) }
                 },
                 onFailure = { err ->
@@ -102,10 +101,10 @@ class AppointmentViewModel(
         }
     }
 
-    private fun cancelAppointment(id: String) {
+    private fun cancelAppointment(id: String, reasonId: String, otherReason: String?) {
         screenModelScope.launch {
             _state.update { it.copy(isCancelling = true) }
-            cancelAppointmentUseCase(id).fold(
+            cancelAppointmentUseCase(id, reasonId, otherReason).fold(
                 onSuccess = {
                     _state.update { it.copy(isCancelling = false) }
                     _effect.send(AppointmentEffect.ShowToast("Appointment Cancelled"))
@@ -120,7 +119,7 @@ class AppointmentViewModel(
         }
     }
 
-    private fun submitReview(id: String, rating: Int, comment: String?) {
+    private fun submitReview(id: String, rating: Int, comment: String) {
         screenModelScope.launch {
             _state.update { it.copy(isSubmittingReview = true) }
             submitReviewUseCase(id, rating, comment).fold(

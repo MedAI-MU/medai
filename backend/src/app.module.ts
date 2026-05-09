@@ -10,7 +10,6 @@ import jwtConfig from './auth/jwt.config';
 import { SchedulesModule } from './schedules/schedules.module';
 import { SharedModule } from './shared/shared.module';
 import { AnalysisModule } from './analysis/analysis.module';
-import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { AppointmentsModule } from './appointments/appointments.module';
     DoctorsModule,
     SharedModule,
     AnalysisModule,
-    AppointmentsModule,
   ],
 })
 export class AppModule {}

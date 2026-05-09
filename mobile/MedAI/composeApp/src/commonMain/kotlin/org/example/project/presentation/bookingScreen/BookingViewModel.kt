@@ -104,10 +104,15 @@ class BookingViewModel(
             is BookingEvent.PatientTypeChanged -> {
                 _state.update { it.copy(bookingForSelf = event.isSelf) }
             }
+            is BookingEvent.ProblemDescChanged -> {
+                _state.update { it.copy(problemDescription = event.text) }
+            }
             BookingEvent.BookClicked -> {
                 performBooking()
             }
             is BookingEvent.PatientNameChanges -> { _state.update { it.copy(patientName = event.name) } }
+            is BookingEvent.PatientAgeChanged -> _state.update { it.copy(patientAge = event.age) }
+            is BookingEvent.PatientGenderChanged -> _state.update { it.copy(patientGender = event.gender) }
             BookingEvent.NextMonthClicked -> {
                 val current = _state.value.displayedMonth ?: return
                 val newMonth = calendarManager.getNextMonth(current)
@@ -129,13 +134,24 @@ class BookingViewModel(
             sendEffect(BookingEffect.ShowError("Please select a time slot"))
             return
         }
+        if (currentState.patientName.isBlank() || currentState.problemDescription.isBlank()) {
+            sendEffect(BookingEffect.ShowError("Please fill in all details"))
+            return
+        }
+        // Safety check for date
+        val date = currentState.selectedDate ?: return
 
         screenModelScope.launch {
             _state.update { it.copy(isBooking = true) }
 
             val result = bookAppointmentUseCase(
                 doctorId = doctorId,
-                slotId = currentState.selectedSlotId
+                slotId = currentState.selectedSlotId,
+                date = date,
+                patientName = currentState.patientName,
+                patientAge = currentState.patientAge,
+                patientGender = currentState.patientGender,
+                problemDescription = currentState.problemDescription
             )
 
             result.fold(

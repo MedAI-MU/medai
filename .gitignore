@@ -2,13 +2,12 @@
 __pycache__/
 .env
 .env.staging
-.idea/
+/.idea
 /.gradle
 .ruff_cache
 # compiled output
 dist/
 node_modules/
-.npm/
 /build
 
 # Logs
@@ -28,6 +27,7 @@ lerna-debug.log*
 /.nyc_output
 
 # IDEs and editors
+/.idea
 .project
 .classpath
 .c9/

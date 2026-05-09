@@ -5,14 +5,12 @@ import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.core.presentation.util.ResourceProviderImpl
 import org.example.project.data.remote.KtorClientFactory
 import org.example.project.data.repository.InMemoryUserSessionManager
-import org.example.project.data.repository.NetworkAppointmentRepository
 import org.example.project.data.repository.mock.MockHomeRepository
 import org.example.project.data.repository.NetworkLoginRepository
 import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.NetworkScheduleRepository
 import org.example.project.data.repository.NetworkSignUpRepository
 import org.example.project.data.repository.NetworkDoctorRepository
-import org.example.project.data.repository.NetworkHomeRepository
 import org.example.project.data.repository.NetworkSpecialtiesRepository
 import org.example.project.data.repository.mock.MockAppointmentRepository
 import org.example.project.data.repository.mock.MockChatRepository
@@ -128,15 +126,15 @@ val appModule = module {
     // --- Repositories ---
     single<LoginRepository> { NetworkLoginRepository(get()) }
     single<SignUpRepository> { NetworkSignUpRepository(client = get()) }
-    //single<HomeRepository> { MockHomeRepository() }
+    single<HomeRepository> { MockHomeRepository() }
     single<SpecialtiesRepository> { NetworkSpecialtiesRepository(client = get()) }
     single<DoctorRepository> { NetworkDoctorRepository(get()) }
     single<ProfileRepository> { MockProfileRepository() }
     //single<LoginRepository> { MockLoginRepository() }
-    single<HomeRepository> { NetworkHomeRepository(get()) }
+    //single<HomeRepository> { NetworkHomeRepository(get()) }
     single<NotificationRepository> { MockNotificationRepository() }
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
-    single<AppointmentRepository> { NetworkAppointmentRepository(get()) }
+    single<AppointmentRepository> { MockAppointmentRepository() }
 
     // --- Patient ---
     single<PatientRepository> {

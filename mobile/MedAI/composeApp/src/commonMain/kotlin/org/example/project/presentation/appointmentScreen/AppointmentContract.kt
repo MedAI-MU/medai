@@ -24,11 +24,11 @@ sealed interface AppointmentEvent {
 
     // Cancel Flow
     data class OnCancelClicked(val appointmentId: String) : AppointmentEvent
-    data class OnConfirmCancel(val appointmentId: String) : AppointmentEvent
+    data class OnConfirmCancel(val appointmentId: String, val reasonId: String, val otherReason: String?) : AppointmentEvent
 
     // Review Flow
     data class OnReviewClicked(val appointmentId: String) : AppointmentEvent
-    data class OnSubmitReview(val appointmentId: String, val rating: Int, val comment: String?) : AppointmentEvent
+    data class OnSubmitReview(val appointmentId: String, val rating: Int, val comment: String) : AppointmentEvent
 
     object Refresh : AppointmentEvent
     object ClearError : AppointmentEvent

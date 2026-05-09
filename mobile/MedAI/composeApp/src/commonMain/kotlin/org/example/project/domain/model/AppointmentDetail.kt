@@ -10,15 +10,16 @@ data class AppointmentDetail(
     val date: LocalDateTime,
     val status: AppointmentDetailStatus,
     val patientName: String,
+    val patientAge: String,
+    val patientGender: String,
+    val problemDescription: String,
     val canRebook: Boolean,
-    val canAddReview: Boolean,
-    val rating: Int? = null,
-    val review: String? = null
+    val canAddReview: Boolean
 )
 
 enum class AppointmentDetailStatus {
     UPCOMING,
-    FINISHED,
+    COMPLETED,
     CANCELLED
 }
 

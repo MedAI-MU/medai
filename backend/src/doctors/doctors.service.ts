@@ -21,14 +21,6 @@ export class DoctorsService {
     return this.doctorsRepository.save(doctor);
   }
 
-  async findAll(): Promise<Doctor[]> {
-    return this.doctorsRepository.find({
-      relations: {
-        specialities: { speciality: true },
-      },
-    });
-  }
-
   async findOne(userId: number): Promise<Doctor | null> {
     return this.doctorsRepository.findOne({
       where: { userId: userId },

@@ -108,16 +108,16 @@ class AppointmentListScreen : Screen {
                 // 1. Segmented Control (Pill Tabs)
                 Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
                     MedAISegmentedControl(
-                        items = listOf("Upcoming", "Finished", "Cancelled"),
+                        items = listOf("Upcoming", "Completed", "Cancelled"),
                         selectedIndex = when (state.selectedTab) {
                             AppointmentDetailStatus.UPCOMING -> 0
-                            AppointmentDetailStatus.FINISHED -> 1
+                            AppointmentDetailStatus.COMPLETED -> 1
                             AppointmentDetailStatus.CANCELLED -> 2
                         },
                         onIndexChanged = { index ->
                             val status = when (index) {
                                 0 -> AppointmentDetailStatus.UPCOMING
-                                1 -> AppointmentDetailStatus.FINISHED
+                                1 -> AppointmentDetailStatus.COMPLETED
                                 else -> AppointmentDetailStatus.CANCELLED
                             }
                             viewModel.onEvent(AppointmentEvent.OnTabSelected(status))
