@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { decodeToken } from "./lib/utils/decodeToken";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export async function proxy(request) {
   let accessToken = request.cookies.get("Authentication")?.value;
   let refreshToken = request.cookies.get("Refresh")?.value;
@@ -25,14 +23,13 @@ export async function proxy(request) {
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
     try {
-      const refreshResponse = await fetch(
-        `${API_BASE_URL}/api/auth/refresh-token`,
-        {
-          method: "POST",
-          headers: request.headers,
-          credentials: "include",
-        },
-      );
+      // Middleware fetch needs an absolute URL; derive it from the request.
+      const refreshUrl = new URL("/api/auth/refresh-token", request.url);
+      const refreshResponse = await fetch(refreshUrl, {
+        method: "POST",
+        headers: request.headers,
+        credentials: "include",
+      });
       if (!refreshResponse.ok) {
         throw new Error("Refresh token is not valid");
       }

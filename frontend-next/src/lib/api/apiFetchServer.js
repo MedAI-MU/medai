@@ -5,14 +5,29 @@
 */
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const normalizeEndpoint = (endpoint) =>
+  endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+const getOrigin = () => {
+  const headerStore = headers();
+  const host = headerStore.get("x-forwarded-host") || headerStore.get("host");
+  const proto = headerStore.get("x-forwarded-proto") || "http";
+  return host ? `${proto}://${host}` : "";
+};
+
+const buildUrl = (endpoint) => {
+  const normalized = normalizeEndpoint(endpoint);
+  const origin = getOrigin();
+  return origin ? `${origin}${normalized}` : normalized;
+};
 
 export async function apiServerFetch({ endpoint, options = {} }) {
   const cookieStore = await cookies();
+  const url = buildUrl(endpoint);
 
-  const response = await fetch(`${BASE_URL}/${endpoint}`, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       Cookie: cookieStore.toString(),

@@ -1,12 +1,14 @@
 import toast from "react-hot-toast";
 import { refreshToken } from "../actions/auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const normalizeEndpoint = (endpoint) =>
+  endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
 
 async function fetchWithOptions(endpoint, options) {
   const isFormData = options?.body instanceof FormData;
+  const url = normalizeEndpoint(endpoint);
 
-  return fetch(`${BASE_URL}/${endpoint}`, {
+  return fetch(url, {
     ...options,
     headers: {
       ...(!isFormData && { "Content-Type": "application/json" }),
