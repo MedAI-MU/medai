@@ -149,6 +149,6 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd /home/azureuser/medai
-            docker compose pull
-            docker-compose -f docker-compose/staging.yaml up -d
+            docker compose -f docker-compose/staging.yaml pull
+            docker compose -f docker-compose/staging.yaml up -d
             docker image prune -f
