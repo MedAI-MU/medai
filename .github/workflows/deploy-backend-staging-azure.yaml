@@ -141,7 +141,7 @@ jobs:
           target: /home/azureuser/medai/
 
       - name: SSH and deploy
-        uses: appleboy/ssh-action@1.2.5
+        uses: appleboy/ssh-action@1
         with:
           host: ${{ secrets.VM_HOST }}
           username: azureuser
