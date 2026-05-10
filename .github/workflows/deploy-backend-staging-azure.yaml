@@ -1,4 +1,4 @@
-name: Build and Deploy Container to Azure App Service
+name: Build, Migrate and Deploy to Azure VM - Staging
 
 on:
   push:
