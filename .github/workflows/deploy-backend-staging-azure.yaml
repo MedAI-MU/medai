@@ -49,6 +49,8 @@ jobs:
         with:
           context: frontend-next
           file: frontend-next/docker/Dockerfile
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
           push: true
           tags: |
             ${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}

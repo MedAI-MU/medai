@@ -28,7 +28,9 @@ RUN --mount=type=cache,id=npm,target=${NPM_CACHE_DIR} \
 
 COPY --chown=root:root . .
 
-RUN npm run build
+ARG NEXT_PUBLIC_API_BASE_URL
+
+RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL npm run build
 
 FROM node:24-alpine AS final
 
