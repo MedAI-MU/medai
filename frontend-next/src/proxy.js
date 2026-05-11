@@ -25,13 +25,7 @@ export async function proxy(request) {
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
     try {
-      const API_BASE_URL2 = process.env.NEXT_PUBLIC_API_BASE_URL;
       const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
-      console.log("api base url:", API_BASE_URL ? "undefined" : API_BASE_URL);
-      console.log(
-        "api base url2:",
-        API_BASE_URL2 ? "undefined" : API_BASE_URL2,
-      );
 
       console.log("Refresh URL:", refreshUrl.toString());
       console.log("Cookie header:", request.headers.get("cookie"));
@@ -41,11 +35,6 @@ export async function proxy(request) {
         headers: request.headers,
         credentials: "include",
       });
-      console.log("Refresh response status:", refreshResponse.status);
-      console.log(
-        "Refresh response headers:",
-        refreshResponse.headers.get("set-cookie"),
-      );
 
       if (!refreshResponse.ok) {
         throw new Error("Refresh token is not valid");
