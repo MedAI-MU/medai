@@ -27,8 +27,10 @@ export async function proxy(request) {
       const refreshUrl = new URL("/api/auth/refresh-token", request.url);
       const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
-        headers: request.headers,
-        credentials: "include",
+        headers: {
+          Cookie: request.headers.get("cookie") || "",
+          "Content-Type": "application/json",
+        },
       });
       if (!refreshResponse.ok) {
         throw new Error("Refresh token is not valid");
