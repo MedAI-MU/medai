@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { decodeToken } from "./lib/utils/decodeToken";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export async function proxy(request) {
   let accessToken = request.cookies.get("Authentication")?.value;
   let refreshToken = request.cookies.get("Refresh")?.value;
@@ -23,16 +25,14 @@ export async function proxy(request) {
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
     try {
-      const refreshUrl = new URL("/api/auth/refresh-token", request.url);
+      const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
       console.log("Refresh URL:", refreshUrl.toString());
       console.log("Cookie header:", request.headers.get("cookie"));
 
       const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
-        headers: {
-          Cookie: request.headers.get("cookie") || "",
-          "Content-Type": "application/json",
-        },
+        headers: request.headers,
+        credentials: "include",
       });
 
       console.log("Refresh response status:", refreshResponse.status);

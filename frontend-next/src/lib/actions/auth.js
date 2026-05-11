@@ -1,6 +1,8 @@
 import { validateSchema } from "../utils/validateSchema";
 import { loginSchema, signupSchema } from "../zod/schemas";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export async function signupAction(userData) {
   // 1) Validation to ensure integrity
   const validation = validateSchema(signupSchema, userData);
@@ -13,7 +15,7 @@ export async function signupAction(userData) {
 
   // 2) Send data to backend
   try {
-    const res = await fetch("/api/users", {
+    const res = await fetch(`${API_BASE_URL}/api/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -98,7 +100,7 @@ export async function loginAction(userData) {
 
   // 2) Send data to backend
   try {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +145,7 @@ export async function loginAction(userData) {
 
 export async function refreshToken() {
   try {
-    const res = await fetch("/api/auth/refresh-token", {
+    const res = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
       method: "POST",
       credentials: "include",
     });
