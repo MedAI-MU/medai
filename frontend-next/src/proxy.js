@@ -23,8 +23,10 @@ export async function proxy(request) {
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
     try {
-      // Middleware fetch needs an absolute URL; derive it from the request.
       const refreshUrl = new URL("/api/auth/refresh-token", request.url);
+      console.log("Refresh URL:", refreshUrl.toString());
+      console.log("Cookie header:", request.headers.get("cookie"));
+
       const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
         headers: {
@@ -32,11 +34,19 @@ export async function proxy(request) {
           "Content-Type": "application/json",
         },
       });
+
+      console.log("Refresh response status:", refreshResponse.status);
+      console.log(
+        "Refresh response headers:",
+        refreshResponse.headers.get("set-cookie"),
+      );
+
       if (!refreshResponse.ok) {
         throw new Error("Refresh token is not valid");
       }
       refreshedTokensInCookies = refreshResponse.headers.get("set-cookie");
-    } catch {
+    } catch (error) {
+      console.log("Refresh error:", error);
       if (isProtectedRoute)
         return NextResponse.redirect(new URL("/auth/login", request.url));
     }
