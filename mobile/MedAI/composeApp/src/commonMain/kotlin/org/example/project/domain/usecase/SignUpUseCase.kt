@@ -49,6 +49,7 @@ class SignUpUseCase(
                 userId = signUpData.userId,
                 token = signUpData.token,
                 name = fullName, // We can use the requested name as fallback or from response if available
+                email = email,
                 role = userRole
             )
             signUpData
