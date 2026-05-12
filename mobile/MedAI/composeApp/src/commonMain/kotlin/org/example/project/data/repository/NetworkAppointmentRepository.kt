@@ -92,7 +92,7 @@ class NetworkAppointmentRepository(
 
         var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         try {
-            val dateStr = this.createdAt.take(10)
+            val dateStr = this.scheduleSlot?.schedule?.dayDate ?: this.createdAt.take(10)
             val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
             dateValue = LocalDateTime.parse("${dateStr}T${timeStr}")
         } catch (e: Exception) {

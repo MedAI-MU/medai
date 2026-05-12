@@ -84,7 +84,7 @@ class NetworkHomeRepository(
                         rating = dto.doctor?.rating ?: 0.0,
                         imageUrl = dto.doctor?.imageUrl
                     ),
-                    date = parseDate(dto.createdAt.take(10)),
+                    date = parseDate(dto.scheduleSlot?.schedule?.dayDate ?: dto.createdAt.take(10)),
                     time = dto.scheduleSlot?.startTime ?: "00:00", // using slot start time
                     status = mapStatus(dto.status)
                 )
