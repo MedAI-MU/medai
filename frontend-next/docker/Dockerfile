@@ -47,13 +47,13 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && addgroup -S medai \
     && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
-    
+
 WORKDIR /medai/
 
 COPY --from=builder /medai/public ./public
 COPY --from=builder --chown=medai:medai /medai/.next/standalone ./
 COPY --from=builder --chown=medai:medai /medai/.next/static    ./.next/static
-    
+
 USER medai
 EXPOSE 3000
 
