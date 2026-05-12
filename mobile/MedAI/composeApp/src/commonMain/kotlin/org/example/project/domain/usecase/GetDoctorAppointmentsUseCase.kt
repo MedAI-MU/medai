@@ -6,7 +6,7 @@ import org.example.project.domain.repository.AppointmentRepository
 class GetDoctorAppointmentsUseCase(
     private val repository: AppointmentRepository
 ) {
-    suspend operator fun invoke(date: Long): Result<List<AppointmentDetail>> {
-        return repository.getDoctorAppointments(date)
+    suspend operator fun invoke(): Result<List<AppointmentDetail>> {
+        return repository.getMyAppointments()
     }
 }

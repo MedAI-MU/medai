@@ -27,9 +27,9 @@ import { EmergencyContact } from 'src/patients/entities/emergency_contact.entity
 import { PatientDto } from 'src/patients/dtos/patient.dto';
 import type {
   BloodType,
-  Gender,
   MaritalStatus,
 } from 'src/patients/types/patient.types';
+import type { Gender } from 'src/shared/types/gender.type';
 
 interface PatientResponse {
   userId: number;

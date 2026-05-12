@@ -27,7 +27,7 @@ import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dtos/create-appointment.dto';
 import { UpdateAppointmentStatusDto } from './dtos/update-appointment-status.dto';
 import { ReviewAppointmentDto } from './dtos/review-appointment.dto';
-import { Appointment } from './entities/appointment.entity';
+import { AppointmentDto } from './dtos/appointment.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -42,14 +42,17 @@ export class AppointmentsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateAppointmentDto })
-  @ApiCreatedResponse({ description: 'Appointment scheduled successfully' })
+  @ApiCreatedResponse({
+    description: 'Appointment scheduled successfully',
+    type: AppointmentDto,
+  })
   @ApiBadRequestResponse({ description: 'Slot unavailable or invalid input' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async scheduleAppointment(
     @CurrentUser() currentUser: TokenUser,
     @Body() dto: CreateAppointmentDto,
-  ): Promise<Appointment> {
+  ): Promise<AppointmentDto> {
     const appointment = await this.appointmentsService.create(
       currentUser.id,
       dto,
@@ -57,18 +60,22 @@ export class AppointmentsController {
     if (!appointment) {
       throw new NotFoundException('Schedule slot not found');
     }
-    return appointment;
+    return new AppointmentDto(appointment);
   }
 
   @Roles('secretary')
   @UseGuards(RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'All patient appointments retrieved' })
+  @ApiOkResponse({
+    description: 'All patient appointments retrieved',
+    type: [AppointmentDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getAllAppointments(): Promise<Appointment[]> {
-    return this.appointmentsService.findAll();
+  async getAllAppointments(): Promise<AppointmentDto[]> {
+    const appointments = await this.appointmentsService.findAll();
+    return appointments.map((a) => new AppointmentDto(a));
   }
 
   @Roles('patient', 'doctor')
@@ -77,12 +84,13 @@ export class AppointmentsController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Own appointments retrieved (patient or doctor)',
+    type: [AppointmentDto],
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async getMyAppointments(
     @CurrentUser() currentUser: TokenUser,
-  ): Promise<Appointment[]> {
+  ): Promise<AppointmentDto[]> {
     if (currentUser.role === 'doctor') {
       const appointments = await this.appointmentsService.findByDoctor(
         currentUser.id,
@@ -90,9 +98,12 @@ export class AppointmentsController {
       if (!appointments) {
         throw new NotFoundException('Doctor not found');
       }
-      return appointments;
+      return appointments.map((a) => new AppointmentDto(a));
     }
-    return this.appointmentsService.findByPatient(currentUser.id);
+    const patientAppointments = await this.appointmentsService.findByPatient(
+      currentUser.id,
+    );
+    return patientAppointments.map((a) => new AppointmentDto(a));
   }
 
   @Roles('secretary')
@@ -100,17 +111,20 @@ export class AppointmentsController {
   @Get('doctor/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor user ID', type: Number })
-  @ApiOkResponse({ description: "Doctor's appointments retrieved" })
+  @ApiOkResponse({
+    description: "Doctor's appointments retrieved",
+    type: [AppointmentDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async getDoctorAppointments(
     @Param('id', ParseIntPipe) doctorId: number,
-  ): Promise<Appointment[]> {
+  ): Promise<AppointmentDto[]> {
     const appointments = await this.appointmentsService.findByDoctor(doctorId);
     if (!appointments) {
       throw new NotFoundException('Doctor not found');
     }
-    return appointments;
+    return appointments.map((a) => new AppointmentDto(a));
   }
 
   @Roles('secretary')
@@ -137,7 +151,10 @@ export class AppointmentsController {
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Appointment ID', type: Number })
   @ApiBody({ type: ReviewAppointmentDto })
-  @ApiOkResponse({ description: 'Review submitted successfully' })
+  @ApiOkResponse({
+    description: 'Review submitted successfully',
+    type: AppointmentDto,
+  })
   @ApiBadRequestResponse({
     description: 'Appointment is not confirmed or invalid input',
   })
@@ -150,7 +167,7 @@ export class AppointmentsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ReviewAppointmentDto,
     @CurrentUser() currentUser: TokenUser,
-  ): Promise<Appointment> {
+  ): Promise<AppointmentDto> {
     const appointment = await this.appointmentsService.addReview(
       id,
       dto,
@@ -159,7 +176,7 @@ export class AppointmentsController {
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    return appointment;
+    return new AppointmentDto(appointment);
   }
 
   @Roles('secretary', 'patient')
@@ -168,7 +185,10 @@ export class AppointmentsController {
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Appointment ID', type: Number })
   @ApiBody({ type: UpdateAppointmentStatusDto })
-  @ApiOkResponse({ description: 'Appointment status updated' })
+  @ApiOkResponse({
+    description: 'Appointment status updated',
+    type: AppointmentDto,
+  })
   @ApiBadRequestResponse({ description: 'Invalid status' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({
@@ -178,7 +198,7 @@ export class AppointmentsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateAppointmentStatusDto,
     @CurrentUser() currentUser: TokenUser,
-  ): Promise<Appointment> {
+  ): Promise<AppointmentDto> {
     const appointment = await this.appointmentsService.updateStatus(
       id,
       dto,
@@ -187,6 +207,6 @@ export class AppointmentsController {
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    return appointment;
+    return new AppointmentDto(appointment);
   }
 }

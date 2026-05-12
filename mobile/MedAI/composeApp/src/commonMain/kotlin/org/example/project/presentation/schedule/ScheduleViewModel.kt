@@ -61,8 +61,14 @@ class ScheduleViewModel(
         loadSlots()
     }
 
+    fun refreshCurrentTab() {
+        if (_selectedTab.value == 0) loadTemplates() else loadSlots()
+    }
+
     fun onTabSelected(tab: Int) {
         _selectedTab.value = tab
+        // Refresh data when switching tabs so external changes (e.g. patient bookings) are reflected
+        if (tab == 0) loadTemplates() else loadSlots()
     }
 
     // --- Templates ---
