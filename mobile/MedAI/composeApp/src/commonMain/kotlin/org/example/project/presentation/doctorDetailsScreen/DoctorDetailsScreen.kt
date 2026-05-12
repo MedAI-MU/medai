@@ -203,12 +203,14 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                         Spacer(modifier = Modifier.height(24.dp))
 
                         // Book Button
-                        MedAIButton(
-                            text = stringResource(Res.string.book_appointment_button),
-                            onClick = { viewModel.onEvent(DoctorDetailsEvent.BookClicked) },
-                            variant = ButtonVariant.Primary,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        if (state.doctor != null) {
+                            MedAIButton(
+                                text = stringResource(Res.string.book_appointment_button),
+                                onClick = { viewModel.onEvent(DoctorDetailsEvent.BookClicked) },
+                                variant = ButtonVariant.Primary,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }

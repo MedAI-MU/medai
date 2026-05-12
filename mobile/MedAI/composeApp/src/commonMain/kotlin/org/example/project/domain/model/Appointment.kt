@@ -12,7 +12,7 @@ data class Appointment(
 )
 
 enum class AppointmentStatus {
-    Pending, Confirmed, Finished, Waiting, Cancelled
+    Pending, Confirmed, Finished, Cancelled
 }
 
 enum class AppointmentType {

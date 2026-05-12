@@ -80,7 +80,7 @@ class HomeViewModel(
                     screenModelScope.launch {
                         // Resolve string resource to actual string
                         val title = resourceProvider.getString(specialty.title)
-                        sendEffect(HomeEffect.NavigateToSpecialty(event.specialtyId, title))
+                        sendEffect(HomeEffect.NavigateToSpecialty(specialty.iconName, title))
                     }
                 }
             }

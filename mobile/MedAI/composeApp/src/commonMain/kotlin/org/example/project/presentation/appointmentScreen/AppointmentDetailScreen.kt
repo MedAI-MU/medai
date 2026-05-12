@@ -84,8 +84,8 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
         if (showCancelSheet) {
             CancelAppointmentSheet(
                 onDismiss = { showCancelSheet = false },
-                onConfirm = { reasonId, text ->
-                    viewModel.onEvent(AppointmentEvent.OnConfirmCancel(appointmentId, reasonId, text))
+                onConfirm = {
+                    viewModel.onEvent(AppointmentEvent.OnConfirmCancel(appointmentId))
                 },
                 reasons = state.cancelReasons
             )
@@ -122,9 +122,6 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                         SectionTitle("Patient Information")
                         Spacer(modifier = Modifier.height(8.dp))
                         InfoRow("Full Name", appointment.patientName)
-                        InfoRow("Age", "${appointment.patientAge} Years")
-                        InfoRow("Gender", appointment.patientGender)
-                        InfoRow("Problem", appointment.problemDescription)
 
                         Spacer(modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.height(32.dp))

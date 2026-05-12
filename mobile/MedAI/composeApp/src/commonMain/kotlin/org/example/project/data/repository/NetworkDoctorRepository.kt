@@ -24,18 +24,27 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctors(specialtyId: String?): Result<List<Doctor>> {
         return try {
-            // GET /doctors (optionally filtered by specialty_id query param)
-            val response: List<DoctorDto> = client.get("/doctors") {
-                if (specialtyId != null) {
-                    parameter("specialty_id", specialtyId)
-                }
-            }.body()
+            val response: List<DoctorDto> = if (specialtyId != null) {
+                // Fetch by specialty name using POST
+                client.post("doctors/search/speciality") {
+                    contentType(ContentType.Application.Json)
+                    setBody(org.example.project.data.remote.dto.SearchSpecialtyRequestDto(name = specialtyId))
+                }.body()
+            } else {
+                // Fetch all doctors
+                client.get("doctors").body()
+            }
 
             val domainList = response.map { dto ->
+                val primarySpec = dto.specialities.find { it.isPrimary }?.speciality?.name
+                    ?: dto.specialities.firstOrNull()?.speciality?.name
+                    ?: dto.specialty
+                    ?: "General"
+
                 Doctor(
                     id = dto.id,
-                    name = dto.name,
-                    specialty = dto.specialty,
+                    name = dto.user?.name ?: dto.name ?: "Unknown",
+                    specialty = primarySpec,
                     rating = dto.rating,
                     imageUrl = dto.imageUrl
                 )
@@ -48,8 +57,8 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctorById(doctorId: String): Result<Doctor> {
         return try {
-            // GET /doctors/{id}
-            val dto: DoctorDto = client.get("/doctors/$doctorId").body()
+            // GET doctors/{id}
+            val dto: DoctorDto = client.get("doctors/$doctorId").body()
             Result.success(dto.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -58,13 +67,20 @@ class NetworkDoctorRepository(
 
     override suspend fun getAvailableSlots(doctorId: String, date: LocalDate): Result<List<TimeSlot>> {
         return try {
-            val response: List<TimeSlotDto> = client.get("/doctors/$doctorId/slots") {
-                parameter("date", date.toString())
+            val fromDate = date.toString()
+            val toDate = date.toString()
+
+            val dtoResult: org.example.project.data.remote.dto.schedule.DocScheduleResponseDto = client.get("doctors/$doctorId/schedule-slots") {
+                parameter("fromDate", fromDate)
+                parameter("toDate", toDate)
             }.body()
 
-            Result.success(response.map { dto ->
-                TimeSlot(dto.id, dto.time, dto.isAvailable)
-            })
+            val timeSlots = mutableListOf<TimeSlot>()
+            dtoResult.days.data.firstOrNull()?.slots?.forEach { slot ->
+                timeSlots.add(TimeSlot(slot.id.toString(), slot.startTime, slot.status == "available"))
+            }
+
+            Result.success(timeSlots)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -72,31 +88,21 @@ class NetworkDoctorRepository(
 
     override suspend fun bookAppointment(
         doctorId: String,
-        slotId: String,
-        date: LocalDate,
-        patientName: String,
-        patientAge: String,
-        patientGender: String,
-        problemDescription: String
+        slotId: String
     ): Result<String> {
         return try {
             val request = BookingRequestDto(
-                doctorId = doctorId,
-                slotId = slotId,
-                date = date.toString(),
-                patientName = patientName,
-                patientAge = patientAge,
-                patientGender = patientGender,
-                problem = problemDescription
+                doctorId = doctorId.toIntOrNull() ?: 0,
+                slotId = slotId.toIntOrNull() ?: 0
             )
 
-            // POST /bookings
-            val response: BookingResponseDto = client.post("/bookings") {
+            // POST appointments
+            val response: BookingResponseDto = client.post("appointments") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body()
 
-            Result.success(response.bookingId)
+            Result.success(response.id.toString())
         } catch (e: Exception) {
             Result.failure(e)
         }
