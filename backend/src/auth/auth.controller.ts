@@ -40,7 +40,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
       expires: credentials.accessTokenExpiresAt,
-      sameSite: 'none',
+      sameSite: 'strict',
     });
 
     res.cookie('Refresh', credentials.refreshToken, {
@@ -48,7 +48,7 @@ export class AuthController {
       secure: this.configService.get('NODE_ENV') === 'production',
       expires: credentials.refreshTokenExpiresAt,
       path: '/',
-      sameSite: 'none',
+      sameSite: 'strict',
     });
 
     return credentials;

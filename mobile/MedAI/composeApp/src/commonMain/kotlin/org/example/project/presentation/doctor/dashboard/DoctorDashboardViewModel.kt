@@ -30,18 +30,22 @@ class DoctorDashboardViewModel(
     val dates = calendarManager.getDaysForMonth(calendarManager.getToday())
 
     init {
-        fetchAppointments(_selectedDate.value)
+        fetchAppointments()
     }
 
     fun onDateSelected(date: Long) {
         _selectedDate.value = date
-        fetchAppointments(date)
+        fetchAppointments()
     }
 
-    private fun fetchAppointments(date: Long) {
+    fun refresh() {
+        fetchAppointments()
+    }
+
+    private fun fetchAppointments() {
         screenModelScope.launch {
             _uiState.value = DoctorDashboardUiState.Loading
-            getDoctorAppointmentsUseCase(date)
+            getDoctorAppointmentsUseCase()
                 .onSuccess { appointments ->
                     _uiState.value = DoctorDashboardUiState.Success(appointments)
                 }

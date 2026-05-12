@@ -11,18 +11,18 @@ class GetAppointmentsUseCase(private val repository: AppointmentRepository) {
 }
 
 class GetAppointmentDetailsUseCase(private val repository: AppointmentRepository) {
-    suspend operator fun invoke(id: String): Result<AppointmentDetail> =
-        repository.getAppointmentDetails(id)
+    suspend operator fun invoke(): Result<List<AppointmentDetail>> =
+        repository.getMyAppointments()
 }
 
 class CancelAppointmentUseCase(private val repository: AppointmentRepository) {
-    suspend operator fun invoke(id: String, reasonId: String, otherReason: String?): Result<Unit> =
-        repository.cancelAppointment(id, reasonId, otherReason)
+    suspend operator fun invoke(id: String): Result<Unit> =
+        repository.cancelAppointment(id)
 }
 
 class SubmitReviewUseCase(private val repository: AppointmentRepository) {
-    suspend operator fun invoke(appointmentId: String, rating: Int, comment: String): Result<Unit> =
-        repository.submitReview(appointmentId, rating, comment)
+    suspend operator fun invoke(appointmentId: String, rating: Int, review: String?): Result<Unit> =
+        repository.submitReview(appointmentId, rating, review)
 }
 
 class GetCancelReasonsUseCase(private val repository: AppointmentRepository) {

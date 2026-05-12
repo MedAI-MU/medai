@@ -25,19 +25,23 @@ export async function proxy(request) {
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
     try {
-      const refreshResponse = await fetch(
-        `${API_BASE_URL}/api/auth/refresh-token`,
-        {
-          method: "POST",
-          headers: request.headers,
-          credentials: "include",
-        },
-      );
+      const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
+
+      console.log("Refresh URL:", refreshUrl.toString());
+      console.log("Cookie header:", request.headers.get("cookie"));
+
+      const refreshResponse = await fetch(refreshUrl, {
+        method: "POST",
+        headers: request.headers,
+        credentials: "include",
+      });
+
       if (!refreshResponse.ok) {
         throw new Error("Refresh token is not valid");
       }
       refreshedTokensInCookies = refreshResponse.headers.get("set-cookie");
-    } catch {
+    } catch (error) {
+      console.log("Refresh error:", error);
       if (isProtectedRoute)
         return NextResponse.redirect(new URL("/auth/login", request.url));
     }

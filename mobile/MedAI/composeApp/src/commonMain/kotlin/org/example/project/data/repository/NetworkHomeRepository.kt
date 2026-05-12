@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.cat_doctors
 import medai.composeapp.generated.resources.cat_favorite
@@ -36,8 +37,6 @@ class NetworkHomeRepository(
     private val client: HttpClient
 ) : HomeRepository {
 
-
-
     // --- 2. Get Categories ---
     override suspend fun getCategories(): Result<List<Category>> {
 
@@ -69,22 +68,24 @@ class NetworkHomeRepository(
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET /appointments/upcoming -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("/appointments/upcoming").body()
+            // GET appointments/me -> returns List<AppointmentDto>
+            val response: List<AppointmentDto> = client.get("appointments/me").body()
+
+            val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
 
             // Map DTO -> Domain
-            val domainList = response.map { dto ->
+            val domainList = upcoming.map { dto ->
                 Appointment(
-                    id = dto.id,
+                    id = dto.id.toString(),
                     doctor = Doctor(
-                        id = dto.doctor.id,
-                        name = dto.doctor.name,
-                        specialty = dto.doctor.specialty,
-                        rating = dto.doctor.rating,
-                        imageUrl = dto.doctor.imageUrl
+                        id = dto.doctor?.id ?: "0",
+                        name = dto.doctor?.name ?: "Unknown Doctor",
+                        specialty = dto.doctor?.specialty ?: "General",
+                        rating = dto.doctor?.rating ?: 0.0,
+                        imageUrl = dto.doctor?.imageUrl
                     ),
-                    date = parseDate(dto.date),
-                    time = dto.time, // e.g. "10:00 AM"
+                    date = parseDate(dto.createdAt.take(10)),
+                    time = dto.scheduleSlot?.startTime ?: "00:00", // using slot start time
                     status = mapStatus(dto.status)
                 )
             }
@@ -137,7 +138,9 @@ private fun parseDate(dateString: String): LocalDate {
         LocalDate.parse(dateString)
     } catch (e: Exception) {
         e.printStackTrace()
-        // Returning a dummy date (e.g. today or epoch) to prevent crash
-        LocalDate(2025, 11, 11)
+        // Default to a safe date but normally this should be fully handled by the backend schema returning correct dates
+        val now = kotlinx.datetime.Clock.System.now()
+        val localNow = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
+        LocalDate(localNow.year, localNow.monthNumber, localNow.dayOfMonth)
     }
 }

@@ -42,6 +42,11 @@ class ScheduleScreen(private val doctorId: Int) : Screen {
         val editingTemplate by viewModel.editingTemplate.collectAsState()
         val searchQuery by viewModel.templateSearchQuery.collectAsState()
 
+        // Refresh data when screen enters composition (e.g. navigating back)
+        LaunchedEffect(Unit) {
+            viewModel.refreshCurrentTab()
+        }
+
         // Show snackbar for action results
         val snackbarHostState = remember { SnackbarHostState() }
         LaunchedEffect(actionState) {
