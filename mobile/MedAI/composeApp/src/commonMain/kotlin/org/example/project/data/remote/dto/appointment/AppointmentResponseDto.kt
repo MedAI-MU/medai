@@ -3,14 +3,6 @@ package org.example.project.data.remote.dto.appointment
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
-/**
- * Maps to backend AppointmentDto — the response from all appointment endpoints.
- * Merged from old AppointmentDto + BookingResponseDto (which were duplicates).
- *
- * The backend eagerly loads relations (doctor, patient, scheduleSlot) for some endpoints.
- * These come back as nested JSON objects. We capture them as optional JsonObject
- * so deserialization succeeds, even though we don't parse them into typed DTOs here.
- */
 @Serializable
 data class AppointmentResponseDto(
     val id: Int,

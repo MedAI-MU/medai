@@ -2,10 +2,6 @@ package org.example.project.data.remote.dto.doctor
 
 import kotlinx.serialization.Serializable
 
-/**
- * Maps to backend DoctorResponseDto.
- * Backend returns: userId (number), name (string, from user.name), specialities (array).
- */
 @Serializable
 data class DoctorResponseDto(
     val userId: Int,

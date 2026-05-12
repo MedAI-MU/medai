@@ -7,10 +7,7 @@ import org.example.project.domain.model.FamilyRelation
 import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MaritalStatus
 
-/**
- * Maps to backend PatientResponseDto — response from GET /patients and GET /patients/:id.
- * Backend flattens user.name → name. Does NOT return birthDate, gender, or nested user object.
- */
+
 @Serializable
 data class PatientResponseDto(
     @SerialName("userId") val userId: Int? = null,
