@@ -1,4 +1,4 @@
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
@@ -32,7 +32,7 @@ ARG NEXT_PUBLIC_API_BASE_URL
 
 RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL npm run build
 
-FROM node:24-alpine AS final
+FROM node:26-alpine AS final
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
