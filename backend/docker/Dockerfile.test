@@ -1,4 +1,4 @@
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
@@ -34,7 +34,7 @@ COPY src src
 COPY tests tests
 COPY tsconfig.json ./
 
-FROM node:24-alpine
+FROM node:26-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \

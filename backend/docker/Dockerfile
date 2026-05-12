@@ -1,4 +1,4 @@
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
@@ -35,7 +35,7 @@ COPY --chown=root:root nest-cli.json tsconfig.json tsconfig.build.json typeorm.d
 
 RUN pnpm run build
 
-FROM node:24-alpine AS staging
+FROM node:26-alpine AS staging
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
