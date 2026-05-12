@@ -35,7 +35,7 @@ class NetworkLoginRepository(
             // 3. Extract the actual body
             val responseBody = loginResponse.body<UserResponseDto>()
 
-            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient"))
+            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient", responseBody.email ?: ""))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")

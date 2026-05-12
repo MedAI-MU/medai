@@ -80,7 +80,7 @@ class SplashScreen : Screen {
                 when (role) {
                     UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
                     UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
-                    else -> navigator.replace(WelcomeScreen()) // Default to patient flow (Welcome -> Home)
+                    else -> navigator.replace(MainContainerScreen()) // Default to patient flow
                 }
             } else {
                 if (storage.isOnboardingCompleted()) {

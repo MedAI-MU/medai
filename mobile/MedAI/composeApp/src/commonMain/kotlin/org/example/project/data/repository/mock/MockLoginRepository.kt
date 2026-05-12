@@ -21,6 +21,7 @@ class MockLoginRepository : LoginRepository {
                     token = "mock_token_xyz",
                     userName = "Jane Doe",
                     role = "PATIENT",
+                    email = "janedoe@example.com"
                 )
             )
         }

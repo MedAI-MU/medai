@@ -9,11 +9,13 @@ interface UserSessionManager {
 
     suspend fun getUserName(): String?
 
+    suspend fun getUserEmail(): String?
+
     suspend fun getUserToken(): String?
 
     suspend fun getUserRole(): UserRole?
 
-    suspend fun saveSession(userId: String, token: String, name: String, role: UserRole)
+    suspend fun saveSession(userId: String, token: String, name: String, email: String, role: UserRole)
 
     suspend fun getCookies(): Set<String>
 
