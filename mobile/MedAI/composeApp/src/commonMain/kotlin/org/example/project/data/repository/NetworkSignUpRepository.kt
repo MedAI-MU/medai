@@ -3,21 +3,19 @@ package org.example.project.data.repository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
-import io.ktor.client.request.get
 import io.ktor.client.request.setBody
-import io.ktor.client.call.body
 import io.ktor.http.setCookie
-import org.example.project.data.remote.dto.LoginResponse
+import org.example.project.data.remote.dto.auth.AuthRegisterRequestDto
+import org.example.project.data.remote.dto.auth.AuthRegisterResponseDto
+import org.example.project.data.remote.dto.auth.JwtPayloadDto
 import org.example.project.data.remote.util.decodeBase64String
-import org.example.project.data.remote.dto.SignUpRequest
-import org.example.project.data.remote.dto.SignUpResponse
 import org.example.project.domain.repository.SignUpRepository
 
 class NetworkSignUpRepository(
     private val client: HttpClient
 ) : SignUpRepository {
 
-    override suspend fun register(request: SignUpRequest): Result<SignUpResponse> {
+    override suspend fun register(request: AuthRegisterRequestDto): Result<AuthRegisterResponseDto> {
         return try {
             // 1. Register User
             val registerResponse = client.post("users") {
@@ -52,9 +50,9 @@ class NetworkSignUpRepository(
 
             // 5. Deserialize
             val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val claims = json.decodeFromString<LoginResponse>(payloadJson)
+            val claims = json.decodeFromString<JwtPayloadDto>(payloadJson)
 
-            Result.success(SignUpResponse(
+            Result.success(AuthRegisterResponseDto(
                 token = authToken,
                 userId = claims.userId,
                 role = claims.role ?: "patient",

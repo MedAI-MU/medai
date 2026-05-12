@@ -1,75 +1,72 @@
 package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
-import org.example.project.data.remote.dto.AllergyDto
-import org.example.project.data.remote.dto.AnalysisDto
-import org.example.project.data.remote.dto.MedicalHistoryDto
-import org.example.project.data.remote.dto.PatientDto
-import org.example.project.data.remote.dto.VaccinationDto
-import org.example.project.data.remote.mapper.toEntity
+import kotlinx.datetime.LocalDate
 import org.example.project.domain.model.AllergyEntity
 import org.example.project.domain.model.AnalysisDetailEntity
 import org.example.project.domain.model.AnalysisEntity
+import org.example.project.domain.model.AnalysisStatus
 import org.example.project.domain.model.BloodType
 import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MaritalStatus
 import org.example.project.domain.model.MedicalHistoryEntity
 import org.example.project.domain.model.Patient
 import org.example.project.domain.model.VaccinationEntity
+import org.example.project.domain.model.VaccinationStatus
 import org.example.project.domain.repository.MedicalRecordRepository
-import kotlin.collections.map
 
 class MockMedicalRecordRepository : MedicalRecordRepository {
 
-    // --- Mock Data Store ---
+    // --- Mock Data Store (using domain entities directly, no DTOs) ---
 
-    private var patientDto = PatientDto(
-        //id = "p1",
-        name = "John Doe",
-        birthDate = "1990-05-15",
-        height = 17.9,
-        weight = 70.5,
+    private var mockPatient = Patient(
+        id = "p1",
+        fullName = "John Doe",
         gender = Gender.Male,
+        age = 35,
+        birthDate = "1990-05-15",
+        weight = 70.5,
+        height = 17.9,
         bloodType = BloodType.B_NEG,
         maritalStatus = MaritalStatus.Married,
     )
 
-    private val allergyDtos = listOf(
-        AllergyDto(1, "Insulin Allergy", "Skin rash, Itching", ),
-        AllergyDto(2, "Codeine Allergy", "Dizziness, Nausea", ),
-        AllergyDto(3, "Pollen Allergy", "Sneezing, Runny nose", ),
-        AllergyDto(4, "Latex Allergy", "Skin irritation", )
+    private val mockAllergies = listOf(
+        AllergyEntity("1", "Insulin Allergy", "Skin rash, Itching", "N/A"),
+        AllergyEntity("2", "Codeine Allergy", "Dizziness, Nausea", "N/A"),
+        AllergyEntity("3", "Pollen Allergy", "Sneezing, Runny nose", "N/A"),
+        AllergyEntity("4", "Latex Allergy", "Skin irritation", "N/A")
     )
 
-    private val analysisDtos = listOf(
-        AnalysisDto("an1", "Blood Test Analysis", "2023-10-01", 1),
-        AnalysisDto("an2", "Urine Analysis", "2023-09-15", 1),
-        AnalysisDto("an3", "Lipid Profile", "2023-08-20", 1),
-        AnalysisDto("an4", "Thyroid Function", "2023-07-10", 0)
+    private val mockAnalyses = listOf(
+        AnalysisEntity("an1", "Blood Test Analysis", LocalDate.parse("2023-10-01"), AnalysisStatus.Completed),
+        AnalysisEntity("an2", "Urine Analysis", LocalDate.parse("2023-09-15"), AnalysisStatus.Completed),
+        AnalysisEntity("an3", "Lipid Profile", LocalDate.parse("2023-08-20"), AnalysisStatus.Completed),
+        AnalysisEntity("an4", "Thyroid Function", LocalDate.parse("2023-07-10"), AnalysisStatus.Pending)
     )
 
-    private val vaccinationDtos = listOf(
-        VaccinationDto("v1", "Covid Vaccine", "2021-05-15", null, true),
-        VaccinationDto("v2", "Flu Shot", "2023-11-01", "2024-11-01", true),
-        VaccinationDto("v3", "Hepatitis B", "2020-01-10", null, true)
+    private val mockVaccinations = listOf(
+        VaccinationEntity("v1", "Covid Vaccine", LocalDate.parse("2021-05-15"), null, VaccinationStatus.Done),
+        VaccinationEntity("v2", "Flu Shot", LocalDate.parse("2023-11-01"), LocalDate.parse("2024-11-01"), VaccinationStatus.Done),
+        VaccinationEntity("v3", "Hepatitis B", LocalDate.parse("2020-01-10"), null, VaccinationStatus.Done)
     )
 
-    private val historyDtos = listOf(
-        MedicalHistoryDto(
+    private val mockHistory = listOf(
+        MedicalHistoryEntity(
             "mh1",
             "Diabetes Type 2",
             "In Control",
             "Diet control and regular exercise.",
             "Dr. Smith"
         ),
-        MedicalHistoryDto("mh2", "Hypertension", "Stable", "Daily medication (Lisinopril 10mg).", "Dr. Jones")
+        MedicalHistoryEntity("mh2", "Hypertension", "Stable", "Daily medication (Lisinopril 10mg).", "Dr. Jones")
     )
 
     // --- Implementation ---
 
     override suspend fun getPatientProfile(patientId: String): Result<Patient> {
         delay(1500) // Simulate network delay
-        return Result.success(patientDto.toEntity())
+        return Result.success(mockPatient)
     }
 
     override suspend fun updatePatientMetrics(
@@ -79,28 +76,28 @@ class MockMedicalRecordRepository : MedicalRecordRepository {
     ): Result<Patient> {
         delay(100)
         // Update local mock store
-        patientDto = patientDto.copy(weight = weight, height = height)
-        return Result.success(patientDto.toEntity())
+        mockPatient = mockPatient.copy(weight = weight, height = height)
+        return Result.success(mockPatient)
     }
 
     override suspend fun getAllergies(patientId: String): Result<List<AllergyEntity>> {
         delay(150)
-        return Result.success(allergyDtos.map { it.toEntity() })
+        return Result.success(mockAllergies)
     }
 
     override suspend fun getAnalyses(patientId: String): Result<List<AnalysisEntity>> {
         delay(150)
-        return Result.success(analysisDtos.map { it.toEntity() })
+        return Result.success(mockAnalyses)
     }
 
     override suspend fun getVaccinations(patientId: String): Result<List<VaccinationEntity>> {
         delay(150)
-        return Result.success(vaccinationDtos.map { it.toEntity() })
+        return Result.success(mockVaccinations)
     }
 
     override suspend fun getMedicalHistory(patientId: String): Result<List<MedicalHistoryEntity>> {
         delay(150)
-        return Result.success(historyDtos.map { it.toEntity() })
+        return Result.success(mockHistory)
     }
 
     override suspend fun getAnalysisDetails(analysisId: String): Result<List<AnalysisDetailEntity>> {

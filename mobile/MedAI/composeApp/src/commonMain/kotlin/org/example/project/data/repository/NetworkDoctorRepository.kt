@@ -9,10 +9,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.datetime.LocalDate
-import org.example.project.data.remote.dto.BookingRequestDto
-import org.example.project.data.remote.dto.BookingResponseDto
-import org.example.project.data.remote.dto.DoctorDto
-import org.example.project.data.remote.dto.TimeSlotDto
+import org.example.project.data.remote.dto.appointment.AppointmentResponseDto
+import org.example.project.data.remote.dto.appointment.BookingRequestDto
+import org.example.project.data.remote.dto.doctor.DoctorResponseDto
+import org.example.project.data.remote.dto.doctor.SearchSpecialityRequestDto
 import org.example.project.data.remote.mapper.toDomain
 import org.example.project.domain.model.Doctor
 import org.example.project.domain.model.TimeSlot
@@ -24,11 +24,11 @@ class NetworkDoctorRepository(
 
     override suspend fun getDoctors(specialtyId: String?): Result<List<Doctor>> {
         return try {
-            val response: List<DoctorDto> = if (specialtyId != null) {
+            val response: List<DoctorResponseDto> = if (specialtyId != null) {
                 // Fetch by specialty name using POST
                 client.post("doctors/search/speciality") {
                     contentType(ContentType.Application.Json)
-                    setBody(org.example.project.data.remote.dto.SearchSpecialtyRequestDto(name = specialtyId))
+                    setBody(SearchSpecialityRequestDto(name = specialtyId))
                 }.body()
             } else {
                 // Fetch all doctors
@@ -36,18 +36,7 @@ class NetworkDoctorRepository(
             }
 
             val domainList = response.map { dto ->
-                val primarySpec = dto.specialities.find { it.isPrimary }?.speciality?.name
-                    ?: dto.specialities.firstOrNull()?.speciality?.name
-                    ?: dto.specialty
-                    ?: "General"
-
-                Doctor(
-                    id = dto.id,
-                    name = dto.user?.name ?: dto.name ?: "Unknown",
-                    specialty = primarySpec,
-                    rating = dto.rating,
-                    imageUrl = dto.imageUrl
-                )
+                dto.toDomain()
             }
             Result.success(domainList)
         } catch (e: Exception) {
@@ -58,7 +47,7 @@ class NetworkDoctorRepository(
     override suspend fun getDoctorById(doctorId: String): Result<Doctor> {
         return try {
             // GET doctors/{id}
-            val dto: DoctorDto = client.get("doctors/$doctorId").body()
+            val dto: DoctorResponseDto = client.get("doctors/$doctorId").body()
             Result.success(dto.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
@@ -97,7 +86,7 @@ class NetworkDoctorRepository(
             )
 
             // POST appointments
-            val response: BookingResponseDto = client.post("appointments") {
+            val response: AppointmentResponseDto = client.post("appointments") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body()
