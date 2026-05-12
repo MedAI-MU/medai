@@ -4,12 +4,11 @@ SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend-builder" \
     APK_SYMLINK_DIR="/etc/apk/cache" \
-    NPM_CACHE_DIR="/medai/.cache/npm" \
-    PNPM_HOME="/pnpm"
+    NPM_CACHE_DIR="/medai/.cache/npm"
 
 ENV NPM_CONFIG_RETRY=5 \
     NPM_CONFIG_TIMEOUT=30000 \
-    PATH="$PNPM_HOME:$PATH"
+    NPM_CONFIG_CACHE="$NPM_CACHE_DIR"
 
 RUN mkdir -p ${APK_CACHE_DIR} \
     && ln -s ${APK_CACHE_DIR} ${APK_SYMLINK_DIR}
@@ -20,25 +19,22 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
 
-RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm@9 --cache ${NPM_CACHE_DIR}
-
 WORKDIR /medai/
 
-COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
+COPY --chmod=444 --chown=root:root package.json package-lock.json ./
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true
+RUN --mount=type=cache,id=npm,target=${NPM_CACHE_DIR} \
+    npm ci
 
-COPY --chown=root:root src src
-COPY --chown=root:root nest-cli.json tsconfig.json tsconfig.build.json typeorm.data-source.ts ./
+COPY --chown=root:root . .
 
-RUN pnpm run build
+ARG NEXT_PUBLIC_API_BASE_URL
 
-FROM node:24-alpine AS staging
+RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL npm run build
+
+FROM node:24-alpine AS final
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
-
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
     APK_SYMLINK_DIR="/etc/apk/cache" \
     NODE_ENV=production
@@ -48,19 +44,18 @@ RUN mkdir -p ${APK_CACHE_DIR} \
 
 RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     apk update && apk upgrade \
-    && apk add --no-cache dumb-init postgresql-client \
     && addgroup -S medai \
     && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
 
 WORKDIR /medai/
 
-COPY --from=builder --chown=medai:medai /medai/dist ./dist
-COPY --from=builder --chown=medai:medai /medai/node_modules ./node_modules
-COPY --chmod=444 --chown=medai:medai package.json ./
-
-EXPOSE 8000
+COPY --from=builder /medai/public ./public
+COPY --from=builder --chown=medai:medai /medai/.next/standalone ./
+COPY --from=builder --chown=medai:medai /medai/.next/static    ./.next/static
 
 USER medai
+EXPOSE 3000
 
-CMD ["node", "dist/src/main"]
+
+CMD [ "node", "server.js" ]

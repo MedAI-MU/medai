@@ -1,41 +1,18 @@
 services:
   backend:
     container_name: staging-medai-backend
-    build:
-      context: ../backend
-      dockerfile: ../backend/docker/Dockerfile
+    image: medairegistery.azurecr.io/medai-staging-backend:latest
     ports:
-      - 8000:8000
+      - "127.0.0.1:8000:8000"
     env_file:
-      - ../backend/.env.staging
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - medai-network
+      - .env.staging
+    restart: always
 
-  db:
-    container_name: staging-medai-db
-    image: postgres:16.10
-    environment:
-      POSTGRES_USER: ${DB_USER:-medai}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-medai_db}
+  frontend:
+    container_name: staging-medai-frontend
+    image: medairegistery.azurecr.io/medai-staging-frontend:latest
     ports:
-      - 5432:5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    healthcheck:
-      test:
-        ["CMD-SHELL", "pg_isready -U ${DB_USER:-medai} -d ${DB_NAME:-medai_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - medai-network
-
-volumes:
-  postgres_data:
-
-networks:
-  medai-network:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env.frontend.staging
+    restart: always
