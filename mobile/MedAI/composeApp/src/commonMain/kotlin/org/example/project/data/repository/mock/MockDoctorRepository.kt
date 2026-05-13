@@ -2,9 +2,9 @@ package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
-import org.example.project.domain.model.Doctor
-import org.example.project.domain.model.TimeSlot
-import org.example.project.domain.repository.DoctorRepository
+import org.example.project.domain.model.doctor.Doctor
+import org.example.project.domain.model.appointment.TimeSlot
+import org.example.project.domain.repository.doctor.DoctorRepository
 
 class MockDoctorRepository : DoctorRepository {
 

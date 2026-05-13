@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.usecase.GetChatMessagesUseCase
-import org.example.project.domain.usecase.ObserveTypingUseCase
-import org.example.project.domain.usecase.SendMessageUseCase
+import org.example.project.domain.usecase.chat.GetChatMessagesUseCase
+import org.example.project.domain.usecase.chat.ObserveTypingUseCase
+import org.example.project.domain.usecase.chat.SendMessageUseCase
 
 class ChatViewModel(
     private val doctorId: String,

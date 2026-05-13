@@ -5,9 +5,9 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
-import org.example.project.domain.model.Notification
-import org.example.project.domain.model.NotificationType
-import org.example.project.domain.repository.NotificationRepository
+import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.model.notification.NotificationType
+import org.example.project.domain.repository.notification.NotificationRepository
 import kotlin.time.Duration.Companion.hours
 
 class MockNotificationRepository : NotificationRepository {

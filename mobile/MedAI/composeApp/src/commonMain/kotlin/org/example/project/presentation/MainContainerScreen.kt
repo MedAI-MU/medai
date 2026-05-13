@@ -40,8 +40,8 @@ import org.example.project.presentation.profileScreen.ProfileScreen
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.zIndex
-import org.example.project.domain.repository.UserSessionManager
-import org.example.project.domain.model.UserRole
+import org.example.project.domain.repository.auth.UserSessionManager
+import org.example.project.domain.model.auth.UserRole
 import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 import org.koin.compose.koinInject

@@ -2,10 +2,10 @@ package org.example.project.data.remote.dto.patient
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.project.domain.model.BloodType
-import org.example.project.domain.model.FamilyRelation
-import org.example.project.domain.model.Gender
-import org.example.project.domain.model.MaritalStatus
+import org.example.project.domain.model.patient.BloodType
+import org.example.project.domain.model.patient.FamilyRelation
+import org.example.project.domain.model.patient.Gender
+import org.example.project.domain.model.patient.MaritalStatus
 
 
 @Serializable

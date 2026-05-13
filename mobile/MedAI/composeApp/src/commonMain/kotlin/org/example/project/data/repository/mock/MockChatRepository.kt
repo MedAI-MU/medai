@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
-import org.example.project.domain.model.ChatConversation
-import org.example.project.domain.model.Message
-import org.example.project.domain.model.MessageStatus
-import org.example.project.domain.repository.ChatRepository
+import org.example.project.domain.model.chat.ChatConversation
+import org.example.project.domain.model.chat.Message
+import org.example.project.domain.model.chat.MessageStatus
+import org.example.project.domain.repository.chat.ChatRepository
 import kotlin.time.Duration.Companion.seconds
 
 class MockChatRepository : ChatRepository {

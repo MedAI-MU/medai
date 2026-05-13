@@ -2,18 +2,18 @@ package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
-import org.example.project.domain.model.AllergyEntity
-import org.example.project.domain.model.AnalysisDetailEntity
-import org.example.project.domain.model.AnalysisEntity
-import org.example.project.domain.model.AnalysisStatus
-import org.example.project.domain.model.BloodType
-import org.example.project.domain.model.Gender
-import org.example.project.domain.model.MaritalStatus
-import org.example.project.domain.model.MedicalHistoryEntity
-import org.example.project.domain.model.Patient
-import org.example.project.domain.model.VaccinationEntity
-import org.example.project.domain.model.VaccinationStatus
-import org.example.project.domain.repository.MedicalRecordRepository
+import org.example.project.domain.model.patient.AllergyEntity
+import org.example.project.domain.model.medical_record.AnalysisDetailEntity
+import org.example.project.domain.model.medical_record.AnalysisEntity
+import org.example.project.domain.model.medical_record.AnalysisStatus
+import org.example.project.domain.model.patient.BloodType
+import org.example.project.domain.model.patient.Gender
+import org.example.project.domain.model.patient.MaritalStatus
+import org.example.project.domain.model.medical_record.MedicalHistoryEntity
+import org.example.project.domain.model.patient.Patient
+import org.example.project.domain.model.medical_record.VaccinationEntity
+import org.example.project.domain.model.medical_record.VaccinationStatus
+import org.example.project.domain.repository.medical_record.MedicalRecordRepository
 
 class MockMedicalRecordRepository : MedicalRecordRepository {
 

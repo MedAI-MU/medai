@@ -1,10 +1,10 @@
 package org.example.project.data.repository
 
 import kotlinx.coroutines.flow.first
-import org.example.project.domain.model.User
-import org.example.project.domain.model.UserRole
-import org.example.project.domain.repository.ProfileRepository
-import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.model.auth.User
+import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.repository.profile.ProfileRepository
+import org.example.project.domain.repository.auth.UserSessionManager
 
 class NetworkProfileRepository(
     private val sessionManager: UserSessionManager

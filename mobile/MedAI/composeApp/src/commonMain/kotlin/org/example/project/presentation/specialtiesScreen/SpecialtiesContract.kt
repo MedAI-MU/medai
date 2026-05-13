@@ -1,6 +1,6 @@
 package org.example.project.presentation.specialtiesScreen
 
-import org.example.project.domain.model.Specialty
+import org.example.project.domain.model.specialty.Specialty
 
 data class SpecialtiesState(
     val specialties: List<UiSpecialty> = emptyList(),

@@ -34,7 +34,7 @@ import kotlinx.coroutines.flow.collectLatest
 import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.design_system.component.scaffold.MedAIScaffold
-import org.example.project.domain.model.ChatConversation
+import org.example.project.domain.model.chat.ChatConversation
 import org.example.project.presentation.chatScreen.ChatScreen
 
 class DoctorChatListScreen : Screen {

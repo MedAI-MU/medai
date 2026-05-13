@@ -14,8 +14,8 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
-import org.example.project.domain.model.Notification
-import org.example.project.domain.usecase.GetNotificationsUseCase
+import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.usecase.notification.GetNotificationsUseCase
 
 class NotificationViewModel(
     private val getNotificationsUseCase: GetNotificationsUseCase

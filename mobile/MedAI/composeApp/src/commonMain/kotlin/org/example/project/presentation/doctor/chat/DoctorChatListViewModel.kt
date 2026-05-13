@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.model.ChatConversation
-import org.example.project.domain.usecase.GetPatientConversationsUseCase
+import org.example.project.domain.model.chat.ChatConversation
+import org.example.project.domain.usecase.chat.GetPatientConversationsUseCase
 
 data class DoctorChatListState(
     val isLoading: Boolean = false,

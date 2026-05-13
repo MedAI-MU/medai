@@ -13,8 +13,8 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.usecase.GetDoctorAppointmentsUseCase
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.usecase.appointment.GetDoctorAppointmentsUseCase
 import org.example.project.core.presentation.util.CalendarManager
 
 class DoctorDashboardViewModel(

@@ -12,8 +12,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import org.example.project.data.remote.dto.schedule.*
 import org.example.project.domain.model.schedule.*
-import org.example.project.domain.repository.CreateScheduleDayInput
-import org.example.project.domain.repository.ScheduleRepository
+import org.example.project.domain.repository.schedule.CreateScheduleDayInput
+import org.example.project.domain.repository.schedule.ScheduleRepository
 
 class NetworkScheduleRepository(
     private val client: HttpClient

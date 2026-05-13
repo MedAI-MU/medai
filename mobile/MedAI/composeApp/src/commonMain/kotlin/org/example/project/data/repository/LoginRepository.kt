@@ -6,14 +6,14 @@ import io.ktor.client.request.setBody
 import io.ktor.http.setCookie
 import org.example.project.data.remote.dto.auth.AuthLoginRequestDto
 import org.example.project.data.remote.dto.auth.AuthLoginResponseDto
-import org.example.project.data.remote.dto.auth.AuthResultDto
-import org.example.project.domain.repository.LoginRepository
+import org.example.project.domain.model.auth.AuthResult
+import org.example.project.domain.repository.auth.LoginRepository
 import io.ktor.client.call.body
 
 class NetworkLoginRepository(
     private val httpClient: HttpClient
 ) : LoginRepository {
-    override suspend fun login(email: String, password: String): Result<AuthResultDto> {
+    override suspend fun login(email: String, password: String): Result<AuthResult> {
         return try {
             // Example call - secure and serialized
             // 1. Perform Login
@@ -33,7 +33,7 @@ class NetworkLoginRepository(
             // 3. Extract the actual body
             val responseBody = loginResponse.body<AuthLoginResponseDto>()
 
-            Result.success(AuthResultDto(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient", responseBody.email ?: ""))
+            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.email ?: "", responseBody.role ?: "patient"))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")

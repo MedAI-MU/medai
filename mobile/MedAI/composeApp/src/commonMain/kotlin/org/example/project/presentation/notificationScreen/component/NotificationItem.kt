@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Notification
-import org.example.project.domain.model.NotificationType
+import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.model.notification.NotificationType
 
 @Composable
 fun NotificationItem(

@@ -1,7 +1,7 @@
 package org.example.project.domain.model.secretary
 
 import kotlinx.serialization.Serializable
-import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.doctor.Doctor
 
 enum class QueueStatus {
     WAITING,

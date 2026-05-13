@@ -34,7 +34,7 @@ import androidx.compose.material.icons.filled.Add
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.textFields.MedAISearchBar
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.Patient
 
 
 import cafe.adriel.voyager.core.screen.Screen

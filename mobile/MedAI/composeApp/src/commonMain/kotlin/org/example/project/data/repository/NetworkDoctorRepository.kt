@@ -14,9 +14,9 @@ import org.example.project.data.remote.dto.appointment.BookingRequestDto
 import org.example.project.data.remote.dto.doctor.DoctorResponseDto
 import org.example.project.data.remote.dto.doctor.SearchSpecialityRequestDto
 import org.example.project.data.remote.mapper.toDomain
-import org.example.project.domain.model.Doctor
-import org.example.project.domain.model.TimeSlot
-import org.example.project.domain.repository.DoctorRepository
+import org.example.project.domain.model.doctor.Doctor
+import org.example.project.domain.model.appointment.TimeSlot
+import org.example.project.domain.repository.doctor.DoctorRepository
 
 class NetworkDoctorRepository(
     private val client: HttpClient

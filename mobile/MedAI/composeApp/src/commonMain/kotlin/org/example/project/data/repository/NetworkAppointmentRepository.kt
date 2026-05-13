@@ -14,10 +14,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.example.project.data.remote.dto.appointment.AppointmentResponseDto
 import org.example.project.data.remote.dto.appointment.ReviewAppointmentRequestDto
 import org.example.project.data.remote.dto.appointment.UpdateAppointmentStatusRequestDto
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.model.CancelReason
-import org.example.project.domain.repository.AppointmentRepository
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.CancelReason
+import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class NetworkAppointmentRepository(
     private val client: HttpClient

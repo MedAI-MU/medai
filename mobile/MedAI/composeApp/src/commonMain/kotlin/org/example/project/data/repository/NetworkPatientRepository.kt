@@ -11,8 +11,16 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import org.example.project.data.remote.dto.patient.PatientResponseDto
 import org.example.project.data.remote.mapper.*
-import org.example.project.domain.model.*
-import org.example.project.domain.repository.PatientRepository
+import org.example.project.domain.model.auth.*
+import org.example.project.domain.model.appointment.*
+import org.example.project.domain.model.chat.*
+import org.example.project.domain.model.doctor.*
+import org.example.project.domain.model.home.*
+import org.example.project.domain.model.medical_record.*
+import org.example.project.domain.model.notification.*
+import org.example.project.domain.model.patient.*
+import org.example.project.domain.model.specialty.*
+import org.example.project.domain.repository.patient.PatientRepository
 
 class NetworkPatientRepository(
     private val client: HttpClient

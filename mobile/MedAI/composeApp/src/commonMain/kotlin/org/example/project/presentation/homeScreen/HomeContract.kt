@@ -1,9 +1,9 @@
 package org.example.project.presentation.homeScreen
 
 import kotlinx.datetime.LocalDate
-import org.example.project.domain.model.Appointment
-import org.example.project.domain.model.Category
-import org.example.project.domain.model.Specialty
+import org.example.project.domain.model.appointment.Appointment
+import org.example.project.domain.model.home.Category
+import org.example.project.domain.model.specialty.Specialty
 
 data class CalendarUiModel(
     val day: String,      // e.g. "9"

@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Appointment
+import org.example.project.domain.model.appointment.Appointment
 
 @Composable
 fun HomeAppointmentCard(

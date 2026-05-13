@@ -1,8 +1,8 @@
 package org.example.project.data.repository.mock
 
 import org.example.project.domain.model.schedule.*
-import org.example.project.domain.repository.CreateScheduleDayInput
-import org.example.project.domain.repository.ScheduleRepository
+import org.example.project.domain.repository.schedule.CreateScheduleDayInput
+import org.example.project.domain.repository.schedule.ScheduleRepository
 
 class MockScheduleRepository : ScheduleRepository {
 

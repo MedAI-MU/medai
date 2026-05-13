@@ -8,8 +8,8 @@ import medai.composeapp.generated.resources.spec_general
 import medai.composeapp.generated.resources.spec_gynecology
 import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
-import org.example.project.domain.model.Specialty
-import org.example.project.domain.repository.SpecialtiesRepository
+import org.example.project.domain.model.specialty.Specialty
+import org.example.project.domain.repository.specialty.SpecialtiesRepository
 
 class MockSpecialtiesRepository : SpecialtiesRepository {
 
