@@ -36,13 +36,13 @@ fun MedAIDateCard(
 ) {
 
     val containerColor = if (isSelected) {
-        MedAITheme.colors.surface
+        MedAITheme.colors.primary
     } else {
         Color.Transparent
     }
 
     val contentColor = if (isSelected) {
-        MedAITheme.colors.primary
+        MedAITheme.colors.text.onPrimary
     } else {
         MedAITheme.colors.text.primary
     }
@@ -91,9 +91,7 @@ fun MedAIDateCard(
                     modifier = Modifier
                         .size(6.dp)
                         .background(
-                            // If card is selected (white bg), dot is primary color.
-                            // If card is unselected (blue/transparent bg), dot is white.
-                            color = if (isSelected) MedAITheme.colors.primary else Color.White,
+                            color = MedAITheme.colors.primary,
                             shape = CircleShape
                         )
                 )

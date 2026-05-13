@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
@@ -41,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -80,7 +83,12 @@ class DoctorDashboardScreen : Screen {
                         title = "Doctor Dashboard",
                         centerTitle = false
                     )
-                    Column(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
+                    // PATIENT AESTHETIC: Tinted background for the calendar block
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                    ) {
                         // Month label row
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -214,7 +222,7 @@ fun DashboardContent(
             StatsCard(label = "Finished", count = finished, modifier = Modifier.weight(1f))
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Section header for the selected day's appointments
         Text(
@@ -227,7 +235,7 @@ fun DashboardContent(
         if (filteredAppointments.isNotEmpty()) {
             AppointmentList(filteredAppointments, modifier = Modifier.weight(1f))
         } else {
-            // Empty state — matches the patient home screen UX
+            // Empty state
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -299,7 +307,7 @@ fun StatsCard(label: String, count: Int, modifier: Modifier = Modifier) {
 fun AppointmentList(appointments: List<AppointmentDetail>, modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     LazyColumn(
-        contentPadding = PaddingValues(top = 16.dp),
+        contentPadding = PaddingValues(top = 8.dp),
         modifier = modifier.fillMaxSize()
     ) {
         items(appointments) { appointment ->
@@ -309,19 +317,41 @@ fun AppointmentList(appointments: List<AppointmentDetail>, modifier: Modifier = 
                     navigator.push(org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen(appointment.id))
                 }
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
 
 @Composable
 fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    // PATIENT AESTHETIC: Sleek row layout with status indicator dot
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MedAITheme.colors.surface)
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.Top
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        // Status Dot
+        Box(
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(
+                    when (appointment.status) {
+                        AppointmentDetailStatus.UPCOMING -> MedAITheme.colors.primary
+                        AppointmentDetailStatus.FINISHED -> Color(0xFF4CAF50) // Green
+                        AppointmentDetailStatus.CANCELLED -> Color(0xFFF44336) // Red
+                    }
+                )
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     text = appointment.patientName,
@@ -329,21 +359,16 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${appointment.date.time.hour}:${appointment.date.time.minute.toString().padStart(2, '0')}",
-                    style = MedAITheme.textStyle.body.medium,
-                    color = MedAITheme.colors.primary
+                    text = "${appointment.date.time.hour.toString().padStart(2, '0')}:${appointment.date.time.minute.toString().padStart(2, '0')}",
+                    style = MedAITheme.textStyle.body.large,
+                    color = MedAITheme.colors.primary,
+                    fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = appointment.doctorName,
-                style = MedAITheme.textStyle.body.small,
-                maxLines = 2
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = appointment.status.name,
-                style = MedAITheme.textStyle.label.small,
+                text = "Status: ${appointment.status.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                style = MedAITheme.textStyle.label.medium,
                 color = MedAITheme.colors.text.secondary
             )
         }
