@@ -23,6 +23,7 @@ function Heading({
   size = "xl",
   className = "",
   Tag = "h1",
+  capitalizeSubtitle = false,
   children,
 }) {
   const Header = (
@@ -34,7 +35,11 @@ function Heading({
       </Tag>
 
       {subtitle && (
-        <p className={`text-text-muted ${SIZES[size].subtitle}`}>{subtitle}</p>
+        <p
+          className={`text-text-muted ${SIZES[size].subtitle} ${capitalizeSubtitle ? "capitalize" : ""}`}
+        >
+          {subtitle}
+        </p>
       )}
     </div>
   );

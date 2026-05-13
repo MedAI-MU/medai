@@ -1,6 +1,6 @@
 import { Bell, Search, Sun } from "lucide-react";
 import ButtonIcon from "./ButtonIcon";
-import SidebarToggler from "./SidebarToggler";
+import SidebarToggler from "../sidebar/SidebarToggler";
 import DarkmodeToggler from "./DarkmodeToggler";
 import HeaderShell from "./HeaderShell";
 import Container from "./Container";

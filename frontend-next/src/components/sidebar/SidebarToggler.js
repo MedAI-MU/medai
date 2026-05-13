@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar } from "@/contexts/SidebarContext";
-import MenuToggler from "./MenuToggler";
+import MenuToggler from "@/components/ui/MenuToggler";
 
 function SidebarToggler() {
   const { toggleSidebar } = useSidebar();

@@ -27,9 +27,6 @@ export async function proxy(request) {
     try {
       const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
 
-      console.log("Refresh URL:", refreshUrl.toString());
-      console.log("Cookie header:", request.headers.get("cookie"));
-
       const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
         headers: request.headers,

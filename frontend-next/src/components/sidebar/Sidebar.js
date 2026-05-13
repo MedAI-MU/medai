@@ -1,22 +1,26 @@
 "use client";
 
+import { useSidebar } from "@/contexts/SidebarContext";
 import {
   CalendarCheck,
   CalendarPlus,
+  Clock,
   FileText,
   LayoutDashboard,
   LogOut,
   MessageCircle,
+  Plus,
   Settings,
   User,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import Logo from "./Logo";
-import { usePathname } from "next/navigation";
-import { useSidebar } from "@/contexts/SidebarContext";
-import Overlay from "./Overlay";
-import ButtonIcon from "./ButtonIcon";
+import Logo from "@/components/ui/Logo";
+import Overlay from "@/components/ui/Overlay";
+import ButtonIcon from "@/components/ui/ButtonIcon";
+import Heading from "@/components/ui/Heading";
+import SidebarNavItem from "@/components/sidebar/SidebarNavItem";
+import SidebarNavGroup from "@/components/sidebar/SidebarNavGroup";
 
 const LINKS = {
   patient: [
@@ -34,11 +38,34 @@ const LINKS = {
     },
     { text: "messages", href: "#", icon: MessageCircle },
   ],
+  doctor: [
+    { text: "dashboard", href: "/doctor", icon: LayoutDashboard },
+    {
+      text: "schedule",
+      icon: CalendarCheck,
+      items: [
+        {
+          text: "appointments",
+          href: "/doctor/appointments",
+          icon: CalendarPlus,
+        },
+        {
+          text: "availablitiy",
+          href: "/doctor/availablitiy",
+          icon: Plus,
+        },
+        {
+          text: "working hours",
+          href: "/doctor/working-hours",
+          icon: Clock,
+        },
+      ],
+    },
+  ],
 };
 
-function Sidebar() {
+function Sidebar({ role }) {
   const { isSidebarOpen, closeSidebar } = useSidebar();
-  const pathname = usePathname();
 
   return (
     <>
@@ -58,34 +85,36 @@ function Sidebar() {
         {/* Logo + App Name */}
         <div className="flex items-center gap-3 p-6">
           <Logo />
-          <div>
-            <h1 className="text-text-base text-lg leading-none font-bold">
-              MedAI
-            </h1>
-            <p className="text-text-subtle mt-1 text-xs">Patient Portal</p>
-          </div>
+          <Heading
+            Tag="h3"
+            size="sm"
+            title="MedAI"
+            subtitle={`${role} Portal`}
+            capitalizeSubtitle
+          />
         </div>
 
         {/* Navigation Links */}
         <nav className="flex-1 space-y-1 px-4 py-4">
-          {LINKS["patient"].map(({ text, href, icon: Icon }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
+          {LINKS[role].map(({ text, href, items, icon: Icon }) =>
+            !items ? (
+              <SidebarNavItem
                 key={text}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-text-muted hover:bg-surface-overlay"
-                }`}
+                text={text}
                 href={href}
+                icon={<Icon size={18} />}
                 onClick={closeSidebar}
-              >
-                <Icon size={18} />
-                <span className="text-sm capitalize">{text}</span>
-              </Link>
-            );
-          })}
+              />
+            ) : (
+              <SidebarNavGroup
+                key={text}
+                text={text}
+                icon={<Icon size={18} />}
+                items={items}
+                onClose={closeSidebar}
+              />
+            ),
+          )}
 
           {/* Account Section */}
           <div className="pt-4 pb-2">
