@@ -25,12 +25,12 @@ import org.example.project.data.remote.mapper.mapCategoryKeyToRes
 import org.example.project.data.remote.mapper.mapSpecialtyKeyToRes
 import org.example.project.data.remote.mapper.mapStatus
 import org.example.project.design_system.icons.MedAIIcons
-import org.example.project.domain.model.Appointment
-import org.example.project.domain.model.Category
-import org.example.project.domain.model.CategoryType
-import org.example.project.domain.model.Doctor
-import org.example.project.domain.model.Specialty
-import org.example.project.domain.repository.HomeRepository
+import org.example.project.domain.model.appointment.Appointment
+import org.example.project.domain.model.home.Category
+import org.example.project.domain.model.home.CategoryType
+import org.example.project.domain.model.doctor.Doctor
+import org.example.project.domain.model.specialty.Specialty
+import org.example.project.domain.repository.home.HomeRepository
 import kotlin.coroutines.cancellation.CancellationException
 
 class NetworkHomeRepository(

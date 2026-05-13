@@ -1,6 +1,6 @@
 package org.example.project.presentation.chatScreen
 
-import org.example.project.domain.model.ChatConversation
+import org.example.project.domain.model.chat.ChatConversation
 
 data class ChatListState(
     val conversations: List<ChatConversation> = emptyList(),

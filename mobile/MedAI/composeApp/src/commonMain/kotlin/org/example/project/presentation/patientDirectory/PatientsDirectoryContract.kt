@@ -1,6 +1,6 @@
 package org.example.project.presentation.patientDirectory
 
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.Patient
 
 data class PatientsDirectoryState(
     val isLoading: Boolean = false,

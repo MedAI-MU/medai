@@ -17,7 +17,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
-import org.example.project.domain.usecase.GetHomeDataUseCase
+import org.example.project.domain.usecase.home.GetHomeDataUseCase
 
 class HomeViewModel(
     private val getHomeDataUseCase: GetHomeDataUseCase,

@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.flow
 import org.example.project.data.remote.dto.ChatConversationDto
 import org.example.project.data.remote.dto.MessageDto
 import org.example.project.data.remote.mapper.toDomain
-import org.example.project.domain.model.ChatConversation
-import org.example.project.domain.model.Message
-import org.example.project.domain.repository.ChatRepository
+import org.example.project.domain.model.chat.ChatConversation
+import org.example.project.domain.model.chat.Message
+import org.example.project.domain.repository.chat.ChatRepository
 
 class NetworkChatRepository(
     private val client: HttpClient

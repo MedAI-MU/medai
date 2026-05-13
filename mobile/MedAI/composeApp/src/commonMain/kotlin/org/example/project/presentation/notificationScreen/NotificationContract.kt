@@ -1,6 +1,6 @@
 package org.example.project.presentation.notificationScreen
 
-import org.example.project.domain.model.Notification
+import org.example.project.domain.model.notification.Notification
 
 data class NotificationState(
     val notifications: List<NotificationUiModel> = emptyList(),

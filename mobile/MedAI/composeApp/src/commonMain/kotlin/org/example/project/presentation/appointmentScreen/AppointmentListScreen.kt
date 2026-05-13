@@ -46,8 +46,8 @@ import org.example.project.core.presentation.util.toUiString
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.presentation.appointmentScreen.component.MedAISegmentedControl
 import org.example.project.presentation.appointmentScreen.sheet.ReviewSheet
 
@@ -190,7 +190,7 @@ fun AppointmentCard(
                         .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                    MedAIText("â˜… ${appointment.doctorRating}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
                 }
             }
 
@@ -199,7 +199,7 @@ fun AppointmentCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MedAIText(text = "📅", style = MedAITheme.textStyle.body.medium)
+                MedAIText(text = "ðŸ“…", style = MedAITheme.textStyle.body.medium)
                 Spacer(modifier = Modifier.width(8.dp))
                 MedAIText(
                     text = appointment.date.toUiString(),

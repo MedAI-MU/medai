@@ -5,8 +5,8 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import org.example.project.data.remote.dto.SpecialtyDto
 import org.example.project.data.remote.mapper.mapSpecialtyKeyToRes
-import org.example.project.domain.model.Specialty
-import org.example.project.domain.repository.SpecialtiesRepository
+import org.example.project.domain.model.specialty.Specialty
+import org.example.project.domain.repository.specialty.SpecialtiesRepository
 
 class NetworkSpecialtiesRepository(
     private val client: HttpClient

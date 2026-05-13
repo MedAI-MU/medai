@@ -1,6 +1,6 @@
 package org.example.project.presentation.specialtiesScreen
 
-import org.example.project.domain.model.Specialty
+import org.example.project.domain.model.specialty.Specialty
 
 data class SpecialtiesState(
     val specialties: List<UiSpecialty> = emptyList(),
@@ -16,8 +16,8 @@ data class UiSpecialty(
 )
 
 enum class SortOption(val label: String) {
-    A_TO_Z("Name (A → Z)"),
-    Z_TO_A("Name (Z → A)")
+    A_TO_Z("Name (A â†’ Z)"),
+    Z_TO_A("Name (Z â†’ A)")
 }
 
 sealed class SpecialtiesEvent {

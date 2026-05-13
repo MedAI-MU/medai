@@ -28,7 +28,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.example.project.domain.model.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.design_system.component.dayPicker.MedAIDateCard
 import androidx.compose.foundation.lazy.LazyRow
@@ -48,7 +48,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.appBar.MedAiAppBar
-import org.example.project.domain.model.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
 
 import androidx.compose.runtime.LaunchedEffect
 

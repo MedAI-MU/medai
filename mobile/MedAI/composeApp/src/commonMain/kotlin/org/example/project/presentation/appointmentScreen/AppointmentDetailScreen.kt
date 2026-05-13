@@ -42,8 +42,8 @@ import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.presentation.appointmentScreen.sheet.CancelAppointmentSheet
 
 class AppointmentDetailScreen(val appointmentId: String) : Screen {
@@ -151,7 +151,7 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
             Column {
                 MedAIText(appointment.doctorName, style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold))
                 MedAIText(appointment.specialty, style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
-                MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.primary)
+                MedAIText("â˜… ${appointment.doctorRating}", style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.primary)
             }
         }
     }

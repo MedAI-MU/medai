@@ -1,8 +1,8 @@
 package org.example.project.presentation.appointmentScreen
 
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.model.CancelReason
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.CancelReason
 
 data class AppointmentState(
     val isLoading: Boolean = false,

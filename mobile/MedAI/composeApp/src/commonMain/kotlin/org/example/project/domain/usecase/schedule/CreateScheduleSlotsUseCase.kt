@@ -1,7 +1,7 @@
 package org.example.project.domain.usecase.schedule
 
-import org.example.project.domain.repository.CreateScheduleDayInput
-import org.example.project.domain.repository.ScheduleRepository
+import org.example.project.domain.repository.schedule.CreateScheduleDayInput
+import org.example.project.domain.repository.schedule.ScheduleRepository
 
 class CreateScheduleSlotsUseCase(
     private val repository: ScheduleRepository

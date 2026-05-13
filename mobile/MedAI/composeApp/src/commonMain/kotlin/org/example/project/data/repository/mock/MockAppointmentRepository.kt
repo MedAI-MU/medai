@@ -4,10 +4,10 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.model.CancelReason
-import org.example.project.domain.repository.AppointmentRepository
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.CancelReason
+import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class MockAppointmentRepository : AppointmentRepository {
 

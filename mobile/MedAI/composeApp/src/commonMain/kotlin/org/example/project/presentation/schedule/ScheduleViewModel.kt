@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.example.project.domain.model.schedule.*
-import org.example.project.domain.repository.CreateScheduleDayInput
-import org.example.project.domain.repository.CreateScheduleSlotInput
+import org.example.project.domain.repository.schedule.CreateScheduleDayInput
+import org.example.project.domain.repository.schedule.CreateScheduleSlotInput
 import org.example.project.domain.usecase.schedule.*
 
 class ScheduleViewModel(

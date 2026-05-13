@@ -8,8 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.example.project.domain.repository.UserSessionManager
-import org.example.project.domain.model.UserRole
+import org.example.project.domain.repository.auth.UserSessionManager
+import org.example.project.domain.model.auth.UserRole
 
 class InMemoryUserSessionManager(
     private val dataStore: DataStore<Preferences>

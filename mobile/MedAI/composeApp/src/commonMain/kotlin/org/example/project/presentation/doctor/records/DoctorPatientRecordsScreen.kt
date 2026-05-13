@@ -54,17 +54,17 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import org.example.project.design_system.component.button.MedAIButton
-import org.example.project.domain.model.AllergyEntity
-import org.example.project.domain.model.AllergyParams
-import org.example.project.domain.model.ChronicDiseaseEntity
-import org.example.project.domain.model.ChronicDiseaseParams
-import org.example.project.domain.model.EmergencyContactEntity
-import org.example.project.domain.model.EmergencyContactParams
-import org.example.project.domain.model.FamilyHistoryEntity
-import org.example.project.domain.model.FamilyHistoryParams
-import org.example.project.domain.model.FamilyRelation
-import org.example.project.domain.model.SurgeryEntity
-import org.example.project.domain.model.SurgeryParams
+import org.example.project.domain.model.patient.AllergyEntity
+import org.example.project.domain.model.patient.AllergyParams
+import org.example.project.domain.model.patient.ChronicDiseaseEntity
+import org.example.project.domain.model.patient.ChronicDiseaseParams
+import org.example.project.domain.model.patient.EmergencyContactEntity
+import org.example.project.domain.model.patient.EmergencyContactParams
+import org.example.project.domain.model.patient.FamilyHistoryEntity
+import org.example.project.domain.model.patient.FamilyHistoryParams
+import org.example.project.domain.model.patient.FamilyRelation
+import org.example.project.domain.model.patient.SurgeryEntity
+import org.example.project.domain.model.patient.SurgeryParams
 
 sealed class SheetType {
     object None : SheetType()
@@ -149,7 +149,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                     }
                                 }
                                 Text(
-                                    text = "Gender: ${profile.gender} • Birth Date: ${profile.birthDate ?: "N/A"}",
+                                    text = "Gender: ${profile.gender} Ã¢â‚¬Â¢ Birth Date: ${profile.birthDate ?: "N/A"}",
                                     style = MedAITheme.textStyle.body.medium,
                                     color = MedAITheme.colors.text.secondary
                                 )
@@ -328,7 +328,7 @@ fun MedicalRecordForm(
             }
             is SheetType.AddFamily, is SheetType.EditFamily -> {
                 val history = (sheetType as? SheetType.EditFamily)?.history
-                var relation by remember { mutableStateOf(history?.relation ?: org.example.project.domain.model.FamilyRelation.Father) }
+                var relation by remember { mutableStateOf(history?.relation ?: FamilyRelation.Father) }
                 var condition by remember { mutableStateOf(history?.condition ?: "") }
                 var notes by remember { mutableStateOf(history?.notes ?: "") }
                 var relationExpanded by remember { mutableStateOf(false) }
@@ -585,7 +585,7 @@ fun PatientEmergencyContacts(state: DoctorPatientRecordsState, viewModel: Doctor
         itemContent = { contact ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(contact.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
-                Text("${contact.relation} • ${contact.phoneNumber}", style = MedAITheme.textStyle.body.small)
+                Text("${contact.relation} Ã¢â‚¬Â¢ ${contact.phoneNumber}", style = MedAITheme.textStyle.body.small)
                 if (contact.email.isNotEmpty()) Text(contact.email, style = MedAITheme.textStyle.body.small)
                 Text(contact.address, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
             }

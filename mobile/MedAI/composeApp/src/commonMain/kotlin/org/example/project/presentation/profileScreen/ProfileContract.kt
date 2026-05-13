@@ -1,6 +1,6 @@
 package org.example.project.presentation.profileScreen
 
-import org.example.project.domain.model.User
+import org.example.project.domain.model.auth.User
 
 data class ProfileState(
     val user: User? = null,
