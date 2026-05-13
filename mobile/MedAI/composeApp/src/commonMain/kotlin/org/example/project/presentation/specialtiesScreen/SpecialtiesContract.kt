@@ -16,8 +16,8 @@ data class UiSpecialty(
 )
 
 enum class SortOption(val label: String) {
-    A_TO_Z("Name (A â†’ Z)"),
-    Z_TO_A("Name (Z â†’ A)")
+    A_TO_Z("Name (A → Z)"),
+    Z_TO_A("Name (Z → A)")
 }
 
 sealed class SpecialtiesEvent {

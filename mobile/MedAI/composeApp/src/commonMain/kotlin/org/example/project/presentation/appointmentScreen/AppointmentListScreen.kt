@@ -190,7 +190,7 @@ fun AppointmentCard(
                         .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    MedAIText("â˜… ${appointment.doctorRating}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                    MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
                 }
             }
 
@@ -199,7 +199,7 @@ fun AppointmentCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MedAIText(text = "ðŸ“…", style = MedAITheme.textStyle.body.medium)
+                MedAIText(text = "📅", style = MedAITheme.textStyle.body.medium)
                 Spacer(modifier = Modifier.width(8.dp))
                 MedAIText(
                     text = appointment.date.toUiString(),

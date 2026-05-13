@@ -151,7 +151,7 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
             Column {
                 MedAIText(appointment.doctorName, style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold))
                 MedAIText(appointment.specialty, style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
-                MedAIText("â˜… ${appointment.doctorRating}", style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.primary)
+                MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.primary)
             }
         }
     }

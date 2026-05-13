@@ -142,7 +142,7 @@ class PatientManagementScreen : Screen {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = patient.fullName, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
-                Text(text = "Age: ${patient.age} â€¢ ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                Text(text = "Age: ${patient.age} •  ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 Text(text = patient.contactNumber, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
             }
         }

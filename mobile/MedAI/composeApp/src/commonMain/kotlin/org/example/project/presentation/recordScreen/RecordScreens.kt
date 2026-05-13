@@ -331,7 +331,7 @@ fun PatientProfileForm(
                 onDismissRequest = { maritalStatusExpanded = false }
             ) {
                 MaritalStatus.entries.forEach { status ->
-                    androidx.compose.material3.DropdownMenuItem(
+                    DropdownMenuItem(
                         text = { Text(status.name) },
                         onClick = {
                             selectedMaritalStatus = status
@@ -863,7 +863,7 @@ class EmergencyContactsScreen : Screen {
                                     Box(modifier = Modifier.fillMaxWidth()) {
                                         Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
                                             MedAIText(contact.name, style = MedAITheme.textStyle.title.medium)
-                                            MedAIText("${contact.relation} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${contact.phoneNumber}", style = MedAITheme.textStyle.body.small)
+                                            MedAIText("${contact.relation} • ${contact.phoneNumber}", style = MedAITheme.textStyle.body.small)
                                             MedAIText(contact.address, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                                         }
                                         Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {

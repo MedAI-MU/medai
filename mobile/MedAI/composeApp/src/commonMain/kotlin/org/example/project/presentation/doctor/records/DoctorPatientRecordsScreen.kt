@@ -149,7 +149,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                     }
                                 }
                                 Text(
-                                    text = "Gender: ${profile.gender} Ã¢â‚¬Â¢ Birth Date: ${profile.birthDate ?: "N/A"}",
+                                    text = "Gender: ${profile.gender} • Birth Date: ${profile.birthDate ?: "N/A"}",
                                     style = MedAITheme.textStyle.body.medium,
                                     color = MedAITheme.colors.text.secondary
                                 )
