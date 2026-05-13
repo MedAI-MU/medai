@@ -90,13 +90,14 @@ class NetworkAppointmentRepository(
             else -> AppointmentDetailStatus.UPCOMING
         }
 
-        var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        try {
-            val dateStr = this.scheduleSlot?.schedule?.dayDate ?: this.createdAt.take(10)
-            val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
-            dateValue = LocalDateTime.parse("${dateStr}T${timeStr}")
+        val dateStr = this.scheduleSlot?.schedule?.dayDate ?: this.createdAt.take(10)
+
+        val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
+
+        val dateValue = try {
+            LocalDateTime.parse("${dateStr}T${timeStr}")
         } catch (e: Exception) {
-            // fallback to current time
+            LocalDateTime(2000, 1, 1, 0, 0)
         }
 
         return AppointmentDetail(
