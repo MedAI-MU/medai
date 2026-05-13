@@ -1,4 +1,4 @@
-package org.example.project.data.remote.dto
+package org.example.project.data.remote.dto.patient
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,47 +7,33 @@ import org.example.project.domain.model.FamilyRelation
 import org.example.project.domain.model.Gender
 import org.example.project.domain.model.MaritalStatus
 
-@Serializable
-data class PatientUserDto(
-    val id: Int? = null,
-    val name: String? = null,
-    val birthDate: String? = null,
-    val gender: Gender? = null
-)
 
 @Serializable
-data class PatientDto(
-    val name: String? = null,
+data class PatientResponseDto(
     @SerialName("userId") val userId: Int? = null,
-    val user: PatientUserDto? = null,
-    @SerialName("birthDate") val birthDate: String? = null,
+    val name: String? = null,
     val height: Double? = null,
     val weight: Double? = null,
-    val gender: Gender? = null,
     @SerialName("bloodType") val bloodType: BloodType? = null,
     @SerialName("maritalStatus") val maritalStatus: MaritalStatus? = null,
-    val allergies: List<AllergyDto> = emptyList(),
-    val chronicDiseases: List<ChronicDiseaseDto> = emptyList(),
-    val familyHistories: List<FamilyHistoryDto> = emptyList(),
-    val surgeries: List<SurgeryDto> = emptyList(),
-    val emergencyContacts: List<EmergencyContactDto> = emptyList(),
+    val allergies: List<AllergyResponseDto> = emptyList(),
+    val chronicDiseases: List<ChronicDiseaseResponseDto> = emptyList(),
+    val familyHistories: List<FamilyHistoryResponseDto> = emptyList(),
+    val surgeries: List<SurgeryResponseDto> = emptyList(),
+    val emergencyContacts: List<EmergencyContactResponseDto> = emptyList(),
 )
 
+// --- Response DTOs for sub-records ---
+
 @Serializable
-data class AllergyDto(
+data class AllergyResponseDto(
     val id: Int? = null,
     val name: String? = null,
     val description: String? = null
 )
 
 @Serializable
-data class UpdateAllergyDto(
-    val name: String? = null,
-    val description: String? = null
-)
-
-@Serializable
-data class ChronicDiseaseDto(
+data class ChronicDiseaseResponseDto(
     val id: Int? = null,
     val name: String? = null,
     val description: String? = null,
@@ -55,14 +41,7 @@ data class ChronicDiseaseDto(
 )
 
 @Serializable
-data class UpdateChronicDiseaseDto(
-    val name: String? = null,
-    val description: String? = null,
-    val diagnosisDate: String? = null
-)
-
-@Serializable
-data class FamilyHistoryDto(
+data class FamilyHistoryResponseDto(
     val id: Int? = null,
     val relation: FamilyRelation? = null,
     val condition: String? = null,
@@ -70,14 +49,7 @@ data class FamilyHistoryDto(
 )
 
 @Serializable
-data class UpdateFamilyHistoryDto(
-    val relation: FamilyRelation? = null,
-    val condition: String? = null,
-    val notes: String? = null
-)
-
-@Serializable
-data class SurgeryDto(
+data class SurgeryResponseDto(
     val id: Int? = null,
     val name: String? = null,
     val description: String? = null,
@@ -85,14 +57,7 @@ data class SurgeryDto(
 )
 
 @Serializable
-data class UpdateSurgeryDto(
-    val name: String? = null,
-    val description: String? = null,
-    val date: String? = null
-)
-
-@Serializable
-data class EmergencyContactDto(
+data class EmergencyContactResponseDto(
     val id: Int? = null,
     val name: String? = null,
     val relation: String? = null,
@@ -102,8 +67,64 @@ data class EmergencyContactDto(
     val notes: String? = null
 )
 
+// --- Request DTOs for creating sub-records ---
+
 @Serializable
-data class UpdateEmergencyContactDto(
+data class CreateAllergyRequestDto(
+    val name: String? = null,
+    val description: String? = null
+)
+
+@Serializable
+data class UpdateAllergyRequestDto(
+    val name: String? = null,
+    val description: String? = null
+)
+
+@Serializable
+data class CreateChronicDiseaseRequestDto(
+    val name: String? = null,
+    val description: String? = null,
+    val diagnosisDate: String? = null
+)
+
+@Serializable
+data class UpdateChronicDiseaseRequestDto(
+    val name: String? = null,
+    val description: String? = null,
+    val diagnosisDate: String? = null
+)
+
+@Serializable
+data class CreateFamilyHistoryRequestDto(
+    val relation: FamilyRelation? = null,
+    val condition: String? = null,
+    val notes: String? = null
+)
+
+@Serializable
+data class UpdateFamilyHistoryRequestDto(
+    val relation: FamilyRelation? = null,
+    val condition: String? = null,
+    val notes: String? = null
+)
+
+@Serializable
+data class CreateSurgeryRequestDto(
+    val name: String? = null,
+    val description: String? = null,
+    val date: String? = null
+)
+
+@Serializable
+data class UpdateSurgeryRequestDto(
+    val name: String? = null,
+    val description: String? = null,
+    val date: String? = null
+)
+
+@Serializable
+data class CreateEmergencyContactRequestDto(
     val name: String? = null,
     val relation: String? = null,
     val phoneNumber: String? = null,
@@ -113,33 +134,19 @@ data class UpdateEmergencyContactDto(
 )
 
 @Serializable
-data class AnalysisDto(
-    val analysis_id: String,
-    val type_name: String,
-    val date_performed: String,
-    val status_code: Int // 0: Pending, 1: Completed, 2: Cancelled
+data class UpdateEmergencyContactRequestDto(
+    val name: String? = null,
+    val relation: String? = null,
+    val phoneNumber: String? = null,
+    val email: String? = null,
+    val address: String? = null,
+    val notes: String? = null
 )
 
-@Serializable
-data class VaccinationDto(
-    val vaccine_id: String,
-    val vaccine_name: String,
-    val admin_date: String,
-    val next_dose: String?,
-    val is_completed: Boolean
-)
+// --- Create / Update Patient ---
 
 @Serializable
-data class MedicalHistoryDto(
-    val record_id: String,
-    val condition: String,
-    val current_status: String,
-    val plan: String,
-    val provider_name: String
-)
-
-@Serializable
-data class CreatePatientDto(
+data class CreatePatientRequestDto(
     @SerialName("birthDate") val birthDate: String,
     val height: Double? = null,
     val weight: Double? = null,
@@ -149,7 +156,7 @@ data class CreatePatientDto(
 )
 
 @Serializable
-data class UpdatePatientDto(
+data class UpdatePatientRequestDto(
     val height: Double? = null,
     val weight: Double? = null,
     @SerialName("bloodType") val bloodType: BloodType? = null,

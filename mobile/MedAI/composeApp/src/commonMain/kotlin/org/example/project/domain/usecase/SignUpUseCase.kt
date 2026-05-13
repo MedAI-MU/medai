@@ -1,7 +1,7 @@
 package org.example.project.domain.usecase
 
-import org.example.project.data.remote.dto.SignUpRequest
-import org.example.project.data.remote.dto.SignUpResponse
+import org.example.project.data.remote.dto.auth.AuthRegisterRequestDto
+import org.example.project.data.remote.dto.auth.AuthRegisterResponseDto
 import org.example.project.domain.repository.SignUpRepository
 import org.example.project.domain.model.UserRole
 import org.example.project.domain.repository.UserSessionManager
@@ -17,14 +17,14 @@ class SignUpUseCase(
         mobile: String,
         dob: String,
         role: UserRole
-    ): Result<SignUpResponse> {
+    ): Result<AuthRegisterResponseDto> {
         // 1. Business Logic Validation
         if (fullName.isBlank()) return Result.failure(Exception("Name is required"))
         if (email.isBlank() || !email.contains("@")) return Result.failure(Exception("Invalid Email"))
         if (pass.length < 6) return Result.failure(Exception("Password must be at least 6 chars"))
 
         // 2. Map to DTO
-        val request = SignUpRequest(
+        val request = AuthRegisterRequestDto(
             name = fullName,
             email = email,
             password = pass,

@@ -4,23 +4,21 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.setCookie
-import org.example.project.data.remote.util.decodeBase64String
-import org.example.project.data.remote.dto.AuthResult
-import org.example.project.data.remote.dto.LoginRequest
-import org.example.project.data.remote.dto.LoginResponse
-import org.example.project.data.remote.dto.UserResponseDto
+import org.example.project.data.remote.dto.auth.AuthLoginRequestDto
+import org.example.project.data.remote.dto.auth.AuthLoginResponseDto
+import org.example.project.data.remote.dto.auth.AuthResultDto
 import org.example.project.domain.repository.LoginRepository
 import io.ktor.client.call.body
 
 class NetworkLoginRepository(
     private val httpClient: HttpClient
 ) : LoginRepository {
-    override suspend fun login(email: String, password: String): Result<AuthResult> {
+    override suspend fun login(email: String, password: String): Result<AuthResultDto> {
         return try {
             // Example call - secure and serialized
             // 1. Perform Login
             val loginResponse = httpClient.post("auth/login") {
-                setBody(LoginRequest(email, password))
+                setBody(AuthLoginRequestDto(email, password))
             }
 
             if (loginResponse.status.value !in 200..299) {
@@ -33,9 +31,9 @@ class NetworkLoginRepository(
                 ?: throw Exception("Authentication cookie not found in response")
 
             // 3. Extract the actual body
-            val responseBody = loginResponse.body<UserResponseDto>()
+            val responseBody = loginResponse.body<AuthLoginResponseDto>()
 
-            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient", responseBody.email ?: ""))
+            Result.success(AuthResultDto(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient", responseBody.email ?: ""))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")
