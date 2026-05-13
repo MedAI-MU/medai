@@ -11,9 +11,9 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.example.project.data.remote.dto.AppointmentDto
-import org.example.project.data.remote.dto.ReviewAppointmentRequestDto
-import org.example.project.data.remote.dto.UpdateAppointmentStatusRequestDto
+import org.example.project.data.remote.dto.appointment.AppointmentResponseDto
+import org.example.project.data.remote.dto.appointment.ReviewAppointmentRequestDto
+import org.example.project.data.remote.dto.appointment.UpdateAppointmentStatusRequestDto
 import org.example.project.domain.model.AppointmentDetail
 import org.example.project.domain.model.AppointmentDetailStatus
 import org.example.project.domain.model.CancelReason
@@ -25,7 +25,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("appointments/me").body()
+            val response: List<AppointmentResponseDto> = client.get("appointments/me").body()
 
             val filtered = response.filter { dto ->
                 when (status) {
@@ -43,7 +43,7 @@ class NetworkAppointmentRepository(
 
     override suspend fun getMyAppointments(): Result<List<AppointmentDetail>> {
         return try {
-            val response: List<AppointmentDto> = client.get("appointments/me").body()
+            val response: List<AppointmentResponseDto> = client.get("appointments/me").body()
             Result.success(response.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -83,7 +83,7 @@ class NetworkAppointmentRepository(
         ))
     }
 
-    private fun AppointmentDto.toDomain(): AppointmentDetail {
+    private fun AppointmentResponseDto.toDomain(): AppointmentDetail {
         val apptStatus = when (this.status) {
             "finished" -> AppointmentDetailStatus.FINISHED
             "cancelled" -> AppointmentDetailStatus.CANCELLED
@@ -93,22 +93,19 @@ class NetworkAppointmentRepository(
         var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         try {
             val dateStr = this.createdAt.take(10)
-            val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
-            dateValue = LocalDateTime.parse("${dateStr}T${timeStr}")
+            dateValue = LocalDateTime.parse("${dateStr}T00:00:00")
         } catch (e: Exception) {
             // fallback to current time
         }
 
         return AppointmentDetail(
             id = this.id.toString(),
-            doctorName = this.doctor?.name ?: this.doctor?.user?.name ?: "Unknown Doctor",
-            specialty = this.doctor?.specialty
-                ?: this.doctor?.specialities?.find { it.isPrimary }?.speciality?.name
-                ?: "General",
-            doctorRating = this.doctor?.rating ?: 0.0,
+            doctorName = "Doctor #${this.doctorUserId}",
+            specialty = "General",
+            doctorRating = 0.0,
             date = dateValue,
             status = apptStatus,
-            patientName = this.patient?.user?.name ?: this.patient?.name ?: "Patient",
+            patientName = "Patient #${this.patientUserId}",
             canRebook = apptStatus == AppointmentDetailStatus.CANCELLED || apptStatus == AppointmentDetailStatus.FINISHED,
             canAddReview = apptStatus == AppointmentDetailStatus.FINISHED && this.rating == null,
             rating = this.rating,

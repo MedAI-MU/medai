@@ -16,7 +16,7 @@ import medai.composeapp.generated.resources.spec_general
 import medai.composeapp.generated.resources.spec_gynecology
 import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
-import org.example.project.data.remote.dto.AppointmentDto
+import org.example.project.data.remote.dto.appointment.AppointmentResponseDto
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.SpecialtyDto
 
@@ -68,24 +68,26 @@ class NetworkHomeRepository(
     // --- 3. Get Upcoming Appointments ---
     override suspend fun getUpcomingAppointments(): Result<List<Appointment>> {
         return try {
-            // GET appointments/me -> returns List<AppointmentDto>
-            val response: List<AppointmentDto> = client.get("appointments/me").body()
+            // GET appointments/me -> returns List<AppointmentResponseDto>
+            val response: List<AppointmentResponseDto> = client.get("appointments/me").body()
 
             val upcoming = response.filter { it.status == "pending" || it.status == "confirmed" }
 
             // Map DTO -> Domain
+            // Note: Backend AppointmentResponseDto doesn't include nested doctor/scheduleSlot objects.
+            // We use placeholder values here; the full doctor info would require a separate API call.
             val domainList = upcoming.map { dto ->
                 Appointment(
                     id = dto.id.toString(),
                     doctor = Doctor(
-                        id = dto.doctor?.id ?: "0",
-                        name = dto.doctor?.name ?: "Unknown Doctor",
-                        specialty = dto.doctor?.specialty ?: "General",
-                        rating = dto.doctor?.rating ?: 0.0,
-                        imageUrl = dto.doctor?.imageUrl
+                        id = dto.doctorUserId.toString(),
+                        name = "Doctor #${dto.doctorUserId}",
+                        specialty = "General",
+                        rating = 0.0,
+                        imageUrl = null
                     ),
                     date = parseDate(dto.createdAt.take(10)),
-                    time = dto.scheduleSlot?.startTime ?: "00:00", // using slot start time
+                    time = "00:00",
                     status = mapStatus(dto.status)
                 )
             }
