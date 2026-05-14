@@ -25,13 +25,11 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version: 24
-          cache: pnpm
-          cache-dependency-path: backend/pnpm-lock.yaml
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
         with:
-          version: 9
+          version: 10.33
 
       - name: Resolve pnpm store path
         id: pnpm-store
