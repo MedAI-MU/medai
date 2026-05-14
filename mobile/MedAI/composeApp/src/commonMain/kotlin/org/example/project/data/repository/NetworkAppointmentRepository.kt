@@ -14,10 +14,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.example.project.data.remote.dto.appointment.AppointmentResponseDto
 import org.example.project.data.remote.dto.appointment.ReviewAppointmentRequestDto
 import org.example.project.data.remote.dto.appointment.UpdateAppointmentStatusRequestDto
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.model.CancelReason
-import org.example.project.domain.repository.AppointmentRepository
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.CancelReason
+import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class NetworkAppointmentRepository(
     private val client: HttpClient
@@ -90,12 +90,14 @@ class NetworkAppointmentRepository(
             else -> AppointmentDetailStatus.UPCOMING
         }
 
-        var dateValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        try {
-            val dateStr = this.createdAt.take(10)
-            dateValue = LocalDateTime.parse("${dateStr}T00:00:00")
+        val dateStr = this.scheduleSlot?.schedule?.dayDate ?: this.createdAt.take(10)
+
+        val timeStr = this.scheduleSlot?.startTime ?: "00:00:00"
+
+        val dateValue = try {
+            LocalDateTime.parse("${dateStr}T${timeStr}")
         } catch (e: Exception) {
-            // fallback to current time
+            LocalDateTime(2000, 1, 1, 0, 0)
         }
 
         return AppointmentDetail(

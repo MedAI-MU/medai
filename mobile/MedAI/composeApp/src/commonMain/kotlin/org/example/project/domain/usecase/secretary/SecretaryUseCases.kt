@@ -1,11 +1,11 @@
 package org.example.project.domain.usecase.secretary
 
 import kotlinx.coroutines.flow.Flow
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.secretary.ClinicStats
 import org.example.project.domain.model.secretary.Invoice
 import org.example.project.domain.model.secretary.QueueEntry
-import org.example.project.domain.repository.SecretaryRepository
+import org.example.project.domain.repository.secretary.SecretaryRepository
 
 class GetDashboardStatsUseCase(
     private val repository: SecretaryRepository

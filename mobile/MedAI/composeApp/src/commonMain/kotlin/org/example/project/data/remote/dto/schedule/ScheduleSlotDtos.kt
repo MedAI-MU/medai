@@ -7,7 +7,14 @@ data class DocScheduleSlotResponseDto(
     val id: Int,
     val startTime: String,
     val endTime: String,
-    val status: String
+    val status: String,
+    val schedule: ScheduleDto? = null
+)
+
+@Serializable
+data class ScheduleDto(
+    val id: Int,
+    val dayDate: String
 )
 
 @Serializable

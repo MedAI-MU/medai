@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.model.AppointmentDetailStatus
-import org.example.project.domain.usecase.CancelAppointmentUseCase
-import org.example.project.domain.usecase.GetAppointmentDetailsUseCase
-import org.example.project.domain.usecase.GetAppointmentsUseCase
-import org.example.project.domain.usecase.GetCancelReasonsUseCase
-import org.example.project.domain.usecase.SubmitReviewUseCase
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.usecase.appointment.CancelAppointmentUseCase
+import org.example.project.domain.usecase.appointment.GetAppointmentDetailsUseCase
+import org.example.project.domain.usecase.appointment.GetAppointmentsUseCase
+import org.example.project.domain.usecase.appointment.GetCancelReasonsUseCase
+import org.example.project.domain.usecase.appointment.SubmitReviewUseCase
 
 class AppointmentViewModel(
     private val getAppointmentsUseCase: GetAppointmentsUseCase,

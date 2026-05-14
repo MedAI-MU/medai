@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.usecase.LoginUseCase
+import org.example.project.domain.usecase.auth.LoginUseCase
 
 class LoginViewModel(
     private val loginUseCase: LoginUseCase

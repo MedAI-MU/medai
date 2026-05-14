@@ -32,7 +32,7 @@ import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.info_button
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.doctor.Doctor
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

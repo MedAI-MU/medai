@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.usecase.GetConversationsUseCase
+import org.example.project.domain.usecase.chat.GetConversationsUseCase
 
 class ChatListViewModel(
     private val getConversationsUseCase: GetConversationsUseCase

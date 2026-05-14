@@ -14,7 +14,7 @@ import org.example.project.core.presentation.util.UiText
 import org.example.project.core.presentation.util.asString
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Category
+import org.example.project.domain.model.home.Category
 
 @Composable
 fun CategoryItem(

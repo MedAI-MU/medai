@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.example.project.core.presentation.util.CalendarManager
-import org.example.project.domain.usecase.BookAppointmentUseCase
-import org.example.project.domain.usecase.GetAvailableSlotsUseCase
-import org.example.project.domain.usecase.GetDoctorDetailsUseCase
+import org.example.project.domain.usecase.appointment.BookAppointmentUseCase
+import org.example.project.domain.usecase.appointment.GetAvailableSlotsUseCase
+import org.example.project.domain.usecase.doctor.GetDoctorDetailsUseCase
 import org.example.project.presentation.homeScreen.CalendarUiModel
 
 class BookingViewModel(

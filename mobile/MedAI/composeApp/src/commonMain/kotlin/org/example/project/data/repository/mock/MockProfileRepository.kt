@@ -1,9 +1,9 @@
 package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
-import org.example.project.domain.model.User
-import org.example.project.domain.model.UserRole
-import org.example.project.domain.repository.ProfileRepository
+import org.example.project.domain.model.auth.User
+import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.repository.profile.ProfileRepository
 
 class MockProfileRepository : ProfileRepository {
     override suspend fun getUserProfile(): Result<User> {

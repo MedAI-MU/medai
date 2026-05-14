@@ -75,22 +75,22 @@ import org.example.project.design_system.component.textFields.MedAiDateTextField
 import org.example.project.design_system.component.textFields.MedAiTextArea
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.AllergyEntity
-import org.example.project.domain.model.AllergyParams
-import org.example.project.domain.model.AnalysisStatus
-import org.example.project.domain.model.BloodType
-import org.example.project.domain.model.ChronicDiseaseEntity
-import org.example.project.domain.model.ChronicDiseaseParams
-import org.example.project.domain.model.EmergencyContactEntity
-import org.example.project.domain.model.EmergencyContactParams
-import org.example.project.domain.model.FamilyHistoryEntity
-import org.example.project.domain.model.FamilyHistoryParams
-import org.example.project.domain.model.FamilyRelation
-import org.example.project.domain.model.MaritalStatus
-import org.example.project.domain.model.Patient
-import org.example.project.domain.model.SurgeryEntity
-import org.example.project.domain.model.SurgeryParams
-import org.example.project.domain.model.UpdatePatientParams
+import org.example.project.domain.model.patient.AllergyEntity
+import org.example.project.domain.model.patient.AllergyParams
+import org.example.project.domain.model.medical_record.AnalysisStatus
+import org.example.project.domain.model.patient.BloodType
+import org.example.project.domain.model.patient.ChronicDiseaseEntity
+import org.example.project.domain.model.patient.ChronicDiseaseParams
+import org.example.project.domain.model.patient.EmergencyContactEntity
+import org.example.project.domain.model.patient.EmergencyContactParams
+import org.example.project.domain.model.patient.FamilyHistoryEntity
+import org.example.project.domain.model.patient.FamilyHistoryParams
+import org.example.project.domain.model.patient.FamilyRelation
+import org.example.project.domain.model.patient.MaritalStatus
+import org.example.project.domain.model.patient.Patient
+import org.example.project.domain.model.patient.SurgeryEntity
+import org.example.project.domain.model.patient.SurgeryParams
+import org.example.project.domain.model.patient.UpdatePatientParams
 
 // --- Sheet Type Sealed Class (patient-specific) ---
 sealed class PatientSheetType {
@@ -331,7 +331,7 @@ fun PatientProfileForm(
                 onDismissRequest = { maritalStatusExpanded = false }
             ) {
                 MaritalStatus.entries.forEach { status ->
-                    androidx.compose.material3.DropdownMenuItem(
+                    DropdownMenuItem(
                         text = { Text(status.name) },
                         onClick = {
                             selectedMaritalStatus = status
@@ -784,7 +784,7 @@ class FamilyHistoryScreen : Screen {
 @Composable
 fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
     val history = (sheetType as? PatientSheetType.EditFamily)?.history
-    var relation by remember { mutableStateOf(history?.relation ?: org.example.project.domain.model.FamilyRelation.Father) }
+    var relation by remember { mutableStateOf(history?.relation ?: FamilyRelation.Father) }
     var condition by remember { mutableStateOf(history?.condition ?: "") }
     var notes by remember { mutableStateOf(history?.notes ?: "") }
     var relationExpanded by remember { mutableStateOf(false) }

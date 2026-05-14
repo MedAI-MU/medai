@@ -18,16 +18,11 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.Image
@@ -72,10 +67,7 @@ class WelcomeScreen : Screen {
                     visible = visible,
                     enter = slideInVertically(initialOffsetY = { 100 }, animationSpec = tween(600)) + fadeIn()
                 ) {
-                    MedAILogo(
-                        tint = Color(0xFF00E5FF),
-                        textColor = Color(0xFF00E5FF)
-                    )
+                    MedAILogo()
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -127,9 +119,7 @@ class WelcomeScreen : Screen {
 @Composable
 fun MedAILogo(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 150.dp,
-    tint: Color,
-    textColor: Color
+    iconSize: Dp = 150.dp
 ) {
     Column(
         modifier = modifier,
@@ -141,16 +131,6 @@ fun MedAILogo(
             contentDescription = "MedAI Logo",
             modifier = Modifier.size(iconSize),
             contentScale = ContentScale.Fit
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        MedAIText(
-            text = "MedAI",
-            style = MedAITheme.textStyle.headline.large.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            color = textColor
         )
     }
 }

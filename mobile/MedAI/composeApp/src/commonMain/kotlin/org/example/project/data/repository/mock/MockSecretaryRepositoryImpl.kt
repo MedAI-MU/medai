@@ -3,15 +3,15 @@ package org.example.project.data.repository.mock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import org.example.project.domain.model.BloodType
-import org.example.project.domain.model.Gender
-import org.example.project.domain.model.MaritalStatus
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.BloodType
+import org.example.project.domain.model.patient.Gender
+import org.example.project.domain.model.patient.MaritalStatus
+import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.secretary.ClinicStats
 import org.example.project.domain.model.secretary.Invoice
 import org.example.project.domain.model.secretary.QueueEntry
 import org.example.project.domain.model.secretary.QueueStatus
-import org.example.project.domain.repository.SecretaryRepository
+import org.example.project.domain.repository.secretary.SecretaryRepository
 
 class MockSecretaryRepositoryImpl : SecretaryRepository {
 

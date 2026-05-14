@@ -1,12 +1,12 @@
 package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
-import org.example.project.data.remote.dto.auth.AuthResultDto
-import org.example.project.domain.model.UserRole
-import org.example.project.domain.repository.LoginRepository
+import org.example.project.domain.model.auth.AuthResult
+import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.repository.auth.LoginRepository
 
 class MockLoginRepository : LoginRepository {
-    override suspend fun login(email: String, password: String): Result<AuthResultDto> {
+    override suspend fun login(email: String, password: String): Result<AuthResult> {
         // Simulate network delay (2 seconds)
         delay(2000)
 
@@ -16,7 +16,7 @@ class MockLoginRepository : LoginRepository {
         } else {
             // Simulate success
             Result.success(
-                AuthResultDto(
+                AuthResult(
                     userId = "patient_123_jane",
                     token = "mock_token_xyz",
                     userName = "Jane Doe",

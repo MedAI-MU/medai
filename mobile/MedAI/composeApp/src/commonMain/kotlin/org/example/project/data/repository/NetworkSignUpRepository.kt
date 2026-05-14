@@ -6,20 +6,28 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.setCookie
 import org.example.project.data.remote.dto.auth.AuthRegisterRequestDto
-import org.example.project.data.remote.dto.auth.AuthRegisterResponseDto
 import org.example.project.data.remote.dto.auth.JwtPayloadDto
 import org.example.project.data.remote.util.decodeBase64String
-import org.example.project.domain.repository.SignUpRepository
+import org.example.project.domain.repository.auth.SignUpRepository
+import org.example.project.domain.model.auth.AuthResult
+import org.example.project.domain.model.auth.RegisterRequest
 
 class NetworkSignUpRepository(
     private val client: HttpClient
 ) : SignUpRepository {
 
-    override suspend fun register(request: AuthRegisterRequestDto): Result<AuthRegisterResponseDto> {
+    override suspend fun register(request: RegisterRequest): Result<AuthResult> {
         return try {
+            val requestDto = AuthRegisterRequestDto(
+                name = request.name,
+                email = request.email,
+                password = request.password,
+                phone = request.phone,
+                role = request.role
+            )
             // 1. Register User
             val registerResponse = client.post("users") {
-                setBody(request)
+                setBody(requestDto)
             }
 
             if (registerResponse.status.value !in 200..299) {
@@ -52,11 +60,12 @@ class NetworkSignUpRepository(
             val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
             val claims = json.decodeFromString<JwtPayloadDto>(payloadJson)
 
-            Result.success(AuthRegisterResponseDto(
-                token = authToken,
+            Result.success(AuthResult(
                 userId = claims.userId,
-                role = claims.role ?: "patient",
-                message = "User registered and logged in successfully"
+                token = authToken,
+                userName = request.name,
+                email = request.email,
+                role = claims.role ?: "patient"
             ))
         } catch (e: Exception) {
             e.printStackTrace()

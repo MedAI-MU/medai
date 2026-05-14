@@ -48,7 +48,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GetAllPatientsUseCase
 import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
@@ -142,7 +142,7 @@ class PatientManagementScreen : Screen {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = patient.fullName, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
-                Text(text = "Age: ${patient.age} • ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                Text(text = "Age: ${patient.age} •  ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 Text(text = patient.contactNumber, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
             }
         }
