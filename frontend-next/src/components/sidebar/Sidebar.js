@@ -3,6 +3,7 @@
 import { useSidebar } from "@/contexts/SidebarContext";
 import {
   CalendarCheck,
+  CalendarDays,
   CalendarPlus,
   Clock,
   FileText,
@@ -47,7 +48,7 @@ const LINKS = {
         {
           text: "appointments",
           href: "/doctor/appointments",
-          icon: CalendarPlus,
+          icon: CalendarDays,
         },
         {
           text: "availablitiy",

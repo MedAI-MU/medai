@@ -23,7 +23,8 @@ function FormDialog({ title, description, form, children }) {
         </DialogHeader>
 
         {/* Inject close modal in form */}
-        {cloneElement(form, { closeModal: () => setModalOpen(false) })}
+        {modalOpen &&
+          cloneElement(form, { closeModal: () => setModalOpen(false) })}
       </DialogContent>
     </Dialog>
   );

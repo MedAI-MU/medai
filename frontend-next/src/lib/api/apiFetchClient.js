@@ -44,7 +44,7 @@ async function apiClientFetch({ endpoint, options = {} }) {
     throw error;
   }
 
-  return response.json();
+  return response.json().catch(() => null);
 }
 
 const apiClient = {

@@ -8,7 +8,7 @@ async function Page({ searchParams }) {
   const query = (await searchParams)?.search || "";
 
   return (
-    <div>
+    <>
       <Heading
         className="mb-10"
         title="All Doctors"
@@ -18,7 +18,7 @@ async function Page({ searchParams }) {
       <Suspense key={query} fallback={<DoctorsListSkeleton />}>
         <DoctorsList query={query} />
       </Suspense>
-    </div>
+    </>
   );
 }
 
