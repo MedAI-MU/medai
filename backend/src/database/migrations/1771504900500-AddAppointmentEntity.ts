@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddAppointmentEntity1746460967000 implements MigrationInterface {
-  name = 'AddAppointmentEntity1746460967000';
+export class AddAppointmentEntity1771504900500 implements MigrationInterface {
+  name = 'AddAppointmentEntity1771504900500';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(

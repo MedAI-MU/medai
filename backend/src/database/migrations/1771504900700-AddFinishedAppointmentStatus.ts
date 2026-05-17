@@ -1,9 +1,9 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddFinishedAppointmentStatus1746461200000
+export class AddFinishedAppointmentStatus1771504900700
   implements MigrationInterface
 {
-  name = 'AddFinishedAppointmentStatus1746461200000';
+  name = 'AddFinishedAppointmentStatus1771504900700';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
