@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -19,6 +21,7 @@ const Button = forwardRef(
       className = "",
       disabled,
       children,
+      startIcon,
       type,
       href,
       ...props
@@ -26,7 +29,7 @@ const Button = forwardRef(
     ref,
   ) => {
     const Style = cn(
-      "rounded-lg px-5 flex justify-center font-medium gap-4 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
+      "rounded-lg px-5 flex justify-center font-medium gap-2 shrink-0 items-center py-2 min-h-10 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed",
       Variations[variation],
       className,
     );
@@ -47,6 +50,7 @@ const Button = forwardRef(
         ref={ref}
         {...props}
       >
+        {startIcon && startIcon}
         {children}
       </button>
     );

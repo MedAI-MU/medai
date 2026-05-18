@@ -1,18 +1,23 @@
 import AddEditTemplate from "@/components/schedule/AddEditTemplate";
-import Button from "@/components/ui/Button";
+import ScheduleTemplateList from "@/components/schedule/ScheduleTemplateList";
 import Heading from "@/components/ui/Heading";
+import SearchBar from "@/components/ui/SearchBar";
 
-function WorkingHoursPage() {
+async function WorkingHoursPage({ searchParams }) {
+  const { templateName } = (await searchParams) || {};
+
   return (
     <>
       <Heading
         title="Working Hours"
         subtitle="Define your recurring weekly patterns, then apply them to generate bookable slots."
+        hideSubtitleOnMobile
+        rowOnMobile
       >
-        <AddEditTemplate>
-          <Button className="shrink-0">New Template</Button>
-        </AddEditTemplate>
+        <AddEditTemplate />
       </Heading>
+      <SearchBar queryKey="templateName" className="mt-10" />
+      <ScheduleTemplateList name={templateName} />
     </>
   );
 }

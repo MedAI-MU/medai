@@ -17,7 +17,7 @@ function DeleteAction({
       successMessage={successMessage}
       failMessage={failMessage}
     >
-      <ButtonIcon className="hover:text-danger">
+      <ButtonIcon className="hover:bg-danger-muted text-danger">
         <Trash2 size={16} />
       </ButtonIcon>
     </DeleteDialog>

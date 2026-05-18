@@ -21,6 +21,8 @@ function SurgeriesTab({ data }) {
         size="lg"
         title="Surgeries"
         subtitle="Timeline of your past surgical procedures"
+        hideSubtitleOnMobile
+        rowOnMobile
       >
         <AddItemDialog
           title="Add surgery"

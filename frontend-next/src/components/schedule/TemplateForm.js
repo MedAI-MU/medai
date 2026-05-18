@@ -6,7 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useState } from "react";
 
-import { createScheduleTemplate } from "@/services/client/schedule";
+import {
+  createScheduleTemplate,
+  updateScheduleTemplate,
+} from "@/services/client/schedule";
 import { useAuth } from "@/contexts/AuthContext";
 import { SheetClose, SheetFooter } from "@/components/shadcn/sheet";
 import FormInput from "@/components/ui/FormInput";
@@ -16,11 +19,15 @@ import Checkbox from "@/components/ui/Checkbox";
 import TemplateTimeInterval from "./TemplateTimeInterval";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SpinnerMini from "@/components/ui/SpinnerMini";
-
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+import { DAYS_OF_WEEK } from "@/constants/schedules";
+import { stripSeconds } from "@/lib/utils/DateTimeHelpers";
+import { useRouter } from "next/navigation";
 
 function TemplateForm({ templateToEdit = {}, closeSheet }) {
+  const router = useRouter();
   const { user } = useAuth();
+  const { name, slots, id: templateId } = templateToEdit;
+  const isEdit = Boolean(templateId);
   const {
     register,
     control,
@@ -29,10 +36,20 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
     getValues,
     trigger,
     setError,
+    reset,
     formState: { errors, isSubmitting, isSubmitted },
   } = useForm({
     resolver: zodResolver(ScheduleTemplateSchema),
-    defaultValues: { name: "", slots: [] },
+    defaultValues: isEdit
+      ? {
+          name,
+          slots: slots.map((slot) => ({
+            weekDay: slot.weekDay,
+            startTime: stripSeconds(slot.startTime),
+            endTime: stripSeconds(slot.endTime),
+          })),
+        }
+      : { name: "", slots: [] },
     reValidateMode: "onChange",
   });
 
@@ -78,9 +95,13 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
   async function onSubmit(data) {
     setError("root", { message: null });
     try {
-      await createScheduleTemplate(data, user?.sub);
+      console.log(data);
+      if (isEdit) await updateScheduleTemplate(data, user?.sub, templateId);
+      else await createScheduleTemplate(data, user?.sub);
+
       closeSheet?.();
-      toast.success("Schedule Template Created");
+      router.refresh();
+      toast.success(`Template ${isEdit ? "Updated" : "Created"} successfully`);
     } catch (err) {
       console.error(err);
       setError("root", { message: "Something went wrong, Try again" });
@@ -204,7 +225,13 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
       <SheetFooter className="border-border shrink-0 border-t pt-4">
         <div>
           <Button className="w-full" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <SpinnerMini /> : "Create Template"}
+            {isSubmitting ? (
+              <SpinnerMini />
+            ) : isEdit ? (
+              "Edit Template"
+            ) : (
+              "Create Template"
+            )}
           </Button>
           {errors?.root?.message && (
             <ErrorMessage
@@ -214,16 +241,15 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
           )}
         </div>
 
-        <SheetClose asChild>
-          <Button
-            variation="ghost"
-            type="button"
-            className="border border-slate-300"
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-        </SheetClose>
+        <Button
+          variation="ghost"
+          type="button"
+          className="border border-slate-300"
+          onClick={isEdit ? () => reset({ name, slots }) : closeSheet}
+          disabled={isSubmitting}
+        >
+          {isEdit ? "Reset" : "Cancel"}
+        </Button>
       </SheetFooter>
     </form>
   );

@@ -8,3 +8,8 @@ export function toMinutes(time) {
 export function isEndAfterStart(startTime, endTime) {
   return toMinutes(endTime) > toMinutes(startTime);
 }
+
+export function stripSeconds(time) {
+  if (!time) return "";
+  return time.slice(0, 5);
+}
