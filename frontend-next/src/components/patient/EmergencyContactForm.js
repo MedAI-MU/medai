@@ -54,9 +54,7 @@ function EmergencyContactForm({ patientId, closeModal, contactToEdit = {} }) {
       router.refresh();
     } catch (err) {
       console.error(err?.message);
-      toast.error(
-        `Failed to ${isEdit ? "update" : "add"} emergency contact`,
-      );
+      toast.error(`Failed to ${isEdit ? "update" : "add"} emergency contact`);
     }
   }
 

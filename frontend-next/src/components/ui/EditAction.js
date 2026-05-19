@@ -1,13 +1,10 @@
-import { Pencil } from "lucide-react";
-import ButtonIcon from "./ButtonIcon";
 import FormDialog from "./FormDialog";
+import EditButton from "./EditButton";
 
 function EditAction({ title, description, form }) {
   return (
     <FormDialog title={title} description={description} form={form}>
-      <ButtonIcon className="hover:text-primary">
-        <Pencil size={16} />
-      </ButtonIcon>
+      <EditButton />
     </FormDialog>
   );
 }

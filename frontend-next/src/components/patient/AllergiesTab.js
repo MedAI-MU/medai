@@ -15,7 +15,9 @@ function AllergiesTab({ data }) {
         size="lg"
         title="Allergies"
         Tag="h2"
-        subtitle="Total of 6 recorded sensitivities"
+        subtitle={`Total of ${allergies?.length} recorded sensitivities`}
+        hideSubtitleOnMobile
+        rowOnMobile
       >
         <AddItemDialog
           title="Add new allergy"

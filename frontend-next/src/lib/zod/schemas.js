@@ -1,5 +1,6 @@
 import { ROLES } from "@/constants/roles";
 import { z } from "zod";
+import { isEndAfterStart } from "../utils/DateTimeHelpers";
 
 const signupSchema = z.object({
   role: z.enum(ROLES, "Please select a valid role."),
@@ -31,4 +32,25 @@ const loginSchema = z.object({
     .nonempty("Password is required"),
 });
 
-export { signupSchema, loginSchema };
+const ScheduleTemplateSchema = z.object({
+  name: z
+    .string()
+    .min(5, "Name must be between 5 and 100 characters")
+    .max(100, "Name must be between 5 and 100 characters"),
+  slots: z
+    .array(
+      z
+        .object({
+          weekDay: z.number().min(0).max(6),
+          startTime: z.string().min(1, "Start time is required"),
+          endTime: z.string().min(1, "End time is required"),
+        })
+        .refine((data) => isEndAfterStart(data.startTime, data.endTime), {
+          message: "End time must be after start time",
+          path: ["endTime"],
+        }),
+    )
+    .min(1, "Pick at least one day"),
+});
+
+export { signupSchema, loginSchema, ScheduleTemplateSchema };

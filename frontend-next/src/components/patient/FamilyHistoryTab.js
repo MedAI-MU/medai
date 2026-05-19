@@ -17,6 +17,8 @@ function FamilyHistoryTab({ data }) {
         title="Family History"
         Tag="h2"
         subtitle="Track health conditions present in your family"
+        hideSubtitleOnMobile
+        rowOnMobile
       >
         <AddItemDialog
           title="Add family history"
