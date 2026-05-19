@@ -1,16 +1,16 @@
 "use client";
 
-import { Clock, Trash2, Pencil, CalendarDays, Zap } from "lucide-react";
-import Button from "@/components/ui/Button";
-import ButtonIcon from "@/components/ui/ButtonIcon";
-import Card from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
-import AddEditTemplate from "./AddEditTemplate";
-import DeleteAction from "@/components/ui/DeleteAction";
+import { Clock, CalendarDays, Zap } from "lucide-react";
 import { deleteScheduleTemplate } from "@/services/client/schedule";
 import { useAuth } from "@/contexts/AuthContext";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
-import FormDialog from "../ui/FormDialog";
+
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
+import DeleteAction from "@/components/ui/DeleteAction";
+import FormDialog from "@/components/ui/FormDialog";
+import AddEditTemplate from "./AddEditTemplate";
 import ApplyTemplateForm from "./ApplyTemplateForm";
 
 function formatTime(time) {
@@ -23,7 +23,7 @@ function formatTime(time) {
 }
 
 function ScheduleTemplateCard({ template }) {
-  const { user } = useAuth() || {};
+  const { user } = useAuth();
   const { id: templateId, name, slots = [] } = template;
 
   const startTime = slots[0]?.startTime;
