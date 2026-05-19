@@ -95,7 +95,6 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
   async function onSubmit(data) {
     setError("root", { message: null });
     try {
-      console.log(data);
       if (isEdit) await updateScheduleTemplate(data, user?.sub, templateId);
       else await createScheduleTemplate(data, user?.sub);
 

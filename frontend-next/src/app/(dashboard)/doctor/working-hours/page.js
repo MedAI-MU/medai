@@ -1,15 +1,15 @@
+import { Suspense } from "react";
 import AddEditTemplate from "@/components/schedule/AddEditTemplate";
 import ScheduleTemplateList from "@/components/schedule/ScheduleTemplateList";
 import ScheduleTemplateListSkeleton from "@/components/schedule/ScheduleTemplateListSkeleton";
 import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
-import { Suspense } from "react";
 
 async function WorkingHoursPage({ searchParams }) {
   const { templateName, pageNo } = (await searchParams) || {};
 
   return (
-    <>
+    <div className="space-y-8">
       <Heading
         title="Working Hours"
         subtitle="Define your recurring weekly patterns, then apply them to generate bookable slots."
@@ -19,7 +19,7 @@ async function WorkingHoursPage({ searchParams }) {
         <AddEditTemplate />
       </Heading>
 
-      <SearchBar queryKey="templateName" className="mt-10" />
+      <SearchBar queryKey="templateName" />
 
       <Suspense
         key={JSON.stringify({ templateName, pageNo })}
@@ -27,7 +27,7 @@ async function WorkingHoursPage({ searchParams }) {
       >
         <ScheduleTemplateList name={templateName} pageNo={pageNo} />
       </Suspense>
-    </>
+    </div>
   );
 }
 

@@ -28,7 +28,7 @@ function Pagination({ totalCount, pageSize = 10, className }) {
   return (
     <div
       className={cn(
-        "border-border bg-surface flex w-full items-center justify-center border-t px-6 py-4 sm:justify-between",
+        "border-border bg-surface flex w-full items-center justify-center rounded-xl border-t px-6 py-4 sm:justify-between",
         className,
       )}
     >

@@ -4,7 +4,7 @@ import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
 import { Suspense } from "react";
 
-async function Page({ searchParams }) {
+async function BookAppointmentPage({ searchParams }) {
   const query = (await searchParams)?.search || "";
 
   return (
@@ -22,4 +22,4 @@ async function Page({ searchParams }) {
   );
 }
 
-export default Page;
+export default BookAppointmentPage;

@@ -5,7 +5,7 @@ import SidebarProvider from "@/contexts/SidebarContext";
 import { getUserFromToken } from "@/lib/session";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-export default async function Layout({ children }) {
+export default async function DashboardLayout({ children }) {
   const user = await getUserFromToken();
 
   return (
