@@ -1,10 +1,12 @@
 import AddEditTemplate from "@/components/schedule/AddEditTemplate";
 import ScheduleTemplateList from "@/components/schedule/ScheduleTemplateList";
+import ScheduleTemplateListSkeleton from "@/components/schedule/ScheduleTemplateListSkeleton";
 import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
+import { Suspense } from "react";
 
 async function WorkingHoursPage({ searchParams }) {
-  const { templateName } = (await searchParams) || {};
+  const { templateName, pageNo } = (await searchParams) || {};
 
   return (
     <>
@@ -16,8 +18,15 @@ async function WorkingHoursPage({ searchParams }) {
       >
         <AddEditTemplate />
       </Heading>
+
       <SearchBar queryKey="templateName" className="mt-10" />
-      <ScheduleTemplateList name={templateName} />
+
+      <Suspense
+        key={JSON.stringify({ templateName, pageNo })}
+        fallback={<ScheduleTemplateListSkeleton />}
+      >
+        <ScheduleTemplateList name={templateName} pageNo={pageNo} />
+      </Suspense>
     </>
   );
 }

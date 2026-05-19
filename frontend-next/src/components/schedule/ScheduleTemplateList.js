@@ -1,25 +1,36 @@
 import ScheduleTemplateCard from "@/components/schedule/ScheduleTemplateCard";
 import { getScheduleTemplates } from "@/services/server/schedule";
+import Pagination from "@/components/ui/Pagination";
+import { PAGE_SIZE } from "@/constants/pagination";
+import AnimateWrapper from "../ui/AnimateWrapper";
 
-async function ScheduleTemplateList({ name }) {
-  const {
-    data: templates = [],
-    totalCount,
-    hasNext,
-    hasPrevious,
-  } = await getScheduleTemplates(name);
-  console.log(templates);
-  //     "currentPage": 1,
-  //     "pageSize": 10,
-  //     "hasNext": true,
-  //     "hasPrevious": false
+async function ScheduleTemplateList({ name, pageNo = 1 }) {
+  const { data: templates = [], totalCount } = await getScheduleTemplates(
+    name,
+    PAGE_SIZE,
+    pageNo,
+  );
 
   return (
-    <div className="mt-8 flex flex-col gap-6">
-      {templates.map((template = {}) => (
-        <ScheduleTemplateCard key={template.id} template={template} />
-      ))}
-    </div>
+    <>
+      <div className="mt-10 flex flex-col gap-6">
+        {templates.map((template = {}, i) => (
+          <AnimateWrapper
+            key={template.id}
+            type="slideUp"
+            delay={i * 0.1}
+            transitionOptions={{ type: "spring", damping: 15, stiffness: 500 }}
+          >
+            <ScheduleTemplateCard template={template} />
+          </AnimateWrapper>
+        ))}
+      </div>
+      <Pagination
+        totalCount={totalCount}
+        pageSize={PAGE_SIZE}
+        className="mt-14"
+      />
+    </>
   );
 }
 

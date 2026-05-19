@@ -25,6 +25,7 @@ function SearchBar({ queryKey, className = "" }) {
       } else {
         params.delete(queryKey);
       }
+      params.delete("pageNo");
       router.replace(`${pathname}?${params}`);
     }, 300);
   }
