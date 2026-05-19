@@ -10,6 +10,8 @@ import DeleteAction from "@/components/ui/DeleteAction";
 import { deleteScheduleTemplate } from "@/services/client/schedule";
 import { useAuth } from "@/contexts/AuthContext";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
+import FormDialog from "../ui/FormDialog";
+import ApplyTemplateForm from "./ApplyTemplateForm";
 
 function formatTime(time) {
   if (!time) return "--:--";
@@ -20,7 +22,7 @@ function formatTime(time) {
   return `${formattedHour}:${minute} ${ampm}`;
 }
 
-function ScheduleTemplateCard({ template, onApply }) {
+function ScheduleTemplateCard({ template }) {
   const { user } = useAuth() || {};
   const { id: templateId, name, slots = [] } = template;
 
@@ -73,13 +75,15 @@ function ScheduleTemplateCard({ template, onApply }) {
 
       {/* Right — Actions */}
       <div className="border-border flex shrink-0 items-center justify-end gap-2 border-t pt-4 sm:border-none sm:pt-0">
-        <Button
-          className="mr-auto sm:mr-0"
-          onClick={() => onApply?.(template)}
-          startIcon={<Zap size={14} />}
+        <FormDialog
+          title="Apply Schedule Template"
+          description="Define the start and end dates to apply this template to patient scheduling records."
+          form={<ApplyTemplateForm templateId={templateId} />}
         >
-          Apply
-        </Button>
+          <Button className="mr-auto sm:mr-0" startIcon={<Zap size={14} />}>
+            Apply
+          </Button>
+        </FormDialog>
 
         <AddEditTemplate template={template} />
 
