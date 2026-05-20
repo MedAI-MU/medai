@@ -99,6 +99,7 @@
   },
   "pnpm": {
     "overrides": {
+      "flatted": "3.4.2",
       "handlebars": "4.7.9"
     }
   }
