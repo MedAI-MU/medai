@@ -1,6 +1,6 @@
 package org.example.project.presentation.doctorDetailsScreen
 
-import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.doctor.Doctor
 
 data class DoctorDetailsState(
     val doctor: Doctor? = null,

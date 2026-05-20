@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.example.project.domain.model.Patient
+import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.secretary.ClinicStats
 import org.example.project.domain.model.secretary.QueueEntry
 import org.example.project.domain.model.secretary.QueueStatus

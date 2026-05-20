@@ -1,6 +1,6 @@
 package org.example.project.presentation.doctorsScreen
 
-import org.example.project.domain.model.Doctor
+import org.example.project.domain.model.doctor.Doctor
 
 data class DoctorsListState(
     val doctors: List<Doctor> = emptyList(),

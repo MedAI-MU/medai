@@ -4,11 +4,11 @@ import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
 import { Suspense } from "react";
 
-async function Page({ searchParams }) {
+async function BookAppointmentPage({ searchParams }) {
   const query = (await searchParams)?.search || "";
 
   return (
-    <div>
+    <>
       <Heading
         className="mb-10"
         title="All Doctors"
@@ -18,8 +18,8 @@ async function Page({ searchParams }) {
       <Suspense key={query} fallback={<DoctorsListSkeleton />}>
         <DoctorsList query={query} />
       </Suspense>
-    </div>
+    </>
   );
 }
 
-export default Page;
+export default BookAppointmentPage;

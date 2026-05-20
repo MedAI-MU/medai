@@ -15,7 +15,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.repository.auth.UserSessionManager
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.request.url
 import io.ktor.http.HttpStatusCode

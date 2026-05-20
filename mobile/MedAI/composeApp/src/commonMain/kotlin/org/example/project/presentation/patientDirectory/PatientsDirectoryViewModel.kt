@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.usecase.GetPatientsUseCase
+import org.example.project.domain.usecase.patient.GetPatientsUseCase
 
 class PatientsDirectoryViewModel(
     private val getPatientsUseCase: GetPatientsUseCase

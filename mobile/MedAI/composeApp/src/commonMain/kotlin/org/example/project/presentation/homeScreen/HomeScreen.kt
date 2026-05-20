@@ -62,7 +62,7 @@ import org.example.project.design_system.component.dayPicker.MedAIDateCard
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.CategoryType
+import org.example.project.domain.model.home.CategoryType
 import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard

@@ -5,7 +5,7 @@ import io.ktor.http.Cookie
 import io.ktor.http.Url
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.example.project.domain.repository.UserSessionManager
+import org.example.project.domain.repository.auth.UserSessionManager
 
 class PersistentCookiesStorage(
     private val sessionManager: UserSessionManager

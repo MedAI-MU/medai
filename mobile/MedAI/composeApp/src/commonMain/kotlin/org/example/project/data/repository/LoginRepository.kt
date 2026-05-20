@@ -4,12 +4,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.setCookie
-import org.example.project.data.remote.util.decodeBase64String
-import org.example.project.data.remote.dto.AuthResult
-import org.example.project.data.remote.dto.LoginRequest
-import org.example.project.data.remote.dto.LoginResponse
-import org.example.project.data.remote.dto.UserResponseDto
-import org.example.project.domain.repository.LoginRepository
+import org.example.project.data.remote.dto.auth.AuthLoginRequestDto
+import org.example.project.data.remote.dto.auth.AuthLoginResponseDto
+import org.example.project.domain.model.auth.AuthResult
+import org.example.project.domain.repository.auth.LoginRepository
 import io.ktor.client.call.body
 
 class NetworkLoginRepository(
@@ -20,7 +18,7 @@ class NetworkLoginRepository(
             // Example call - secure and serialized
             // 1. Perform Login
             val loginResponse = httpClient.post("auth/login") {
-                setBody(LoginRequest(email, password))
+                setBody(AuthLoginRequestDto(email, password))
             }
 
             if (loginResponse.status.value !in 200..299) {
@@ -33,9 +31,9 @@ class NetworkLoginRepository(
                 ?: throw Exception("Authentication cookie not found in response")
 
             // 3. Extract the actual body
-            val responseBody = loginResponse.body<UserResponseDto>()
+            val responseBody = loginResponse.body<AuthLoginResponseDto>()
 
-            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.role ?: "patient"))
+            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.email ?: "", responseBody.role ?: "patient"))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")
