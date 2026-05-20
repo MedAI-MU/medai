@@ -1,33 +1,18 @@
-// {
-//     "createdAt": "2026-04-08T18:19:57.229Z",
-//     "updatedAt": "2026-04-08T18:19:57.229Z",
-//     "userId": 4,
-//     "user": {
-//         "createdAt": "2026-04-08T18:19:57.157Z",
-//         "updatedAt": "2026-04-08T18:19:57.157Z",
-//         "id": 4,
-//         "name": "Abdol",
-//         "gender": null,
-//         "role": "patient"
-//     },
-//     "height": null,
-//     "weight": null,
-//     "bloodType": null,
-//     "maritalStatus": null,
-//     "allergies": [],
-//     "chronicDiseases": [],
-//     "surgeries": [],
-//     "familyHistories": [],
-//     "emergencyContacts": []
-// }
-
 import Heading from "@/components/ui/Heading";
 import MedicalStates from "@/components/patient/MedicalStates";
 import { getPatient } from "@/services/server/patient";
 import MedicalTabs from "@/components/patient/MedicalTabs";
+import ErrorState from "@/components/ui/ErrorState";
 
-async function Page() {
-  const data = await getPatient();
+async function MedicalRecordsPage() {
+  let data = {};
+  try {
+    data = await getPatient();
+  } catch {
+    return (
+      <ErrorState description="Unable to load patient records at the moment. Please try again later." />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -42,4 +27,4 @@ async function Page() {
   );
 }
 
-export default Page;
+export default MedicalRecordsPage;

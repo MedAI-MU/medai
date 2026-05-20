@@ -20,23 +20,24 @@ const variants = {
 };
 export default function AnimateWrapper({
   children,
-  type = "fade", // fade | scale | slide
+  type = "fade", // fade | scale | slideUp
   delay = 0,
   duration = 0.3,
   transitionOptions = {},
   once = true,
+  triggerOnView = true,
 }) {
   const v = variants[type];
   return (
     <motion.div
       initial={v.initial}
-      whileInView={v.animate}
+      {...(triggerOnView ? { whileInView: v.animate } : { animate: v.animate })}
       transition={{
         duration,
         delay,
         ...transitionOptions,
       }}
-      viewport={{ once }}
+      {...(triggerOnView && { viewport: { once } })}
     >
       {children}
     </motion.div>

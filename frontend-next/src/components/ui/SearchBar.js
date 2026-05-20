@@ -5,9 +5,11 @@ import FormInput from "./FormInput";
 import { useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-function SearchBar({ queryKey }) {
+function SearchBar({ queryKey, className = "" }) {
   const searchParams = useSearchParams();
-  const [value, setValue] = useState(searchParams.get(queryKey)?.toString() || "");
+  const [value, setValue] = useState(
+    searchParams.get(queryKey)?.toString() || "",
+  );
   const router = useRouter();
   const pathname = usePathname();
   const timerId = useRef(null);
@@ -23,13 +25,14 @@ function SearchBar({ queryKey }) {
       } else {
         params.delete(queryKey);
       }
+      params.delete("pageNo");
       router.replace(`${pathname}?${params}`);
-    }, 500);
+    }, 300);
   }
 
   return (
     <FormInput
-      containerClassName="max-w-md"
+      containerClassName={`max-w-md ${className}`}
       placeholder="Search by name or speciality..."
       startIcon={<Search />}
       value={value}
