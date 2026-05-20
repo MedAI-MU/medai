@@ -6,8 +6,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import org.example.project.data.remote.dto.NotificationDto
 import org.example.project.data.remote.mapper.toDomain
-import org.example.project.domain.model.Notification
-import org.example.project.domain.repository.NotificationRepository
+import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.repository.notification.NotificationRepository
 
 
 class NetworkNotificationRepository(

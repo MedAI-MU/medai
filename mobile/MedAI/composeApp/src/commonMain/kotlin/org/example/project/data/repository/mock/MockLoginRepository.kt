@@ -1,9 +1,9 @@
 package org.example.project.data.repository.mock
 
 import kotlinx.coroutines.delay
-import org.example.project.data.remote.dto.AuthResult
-import org.example.project.domain.model.UserRole
-import org.example.project.domain.repository.LoginRepository
+import org.example.project.domain.model.auth.AuthResult
+import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.repository.auth.LoginRepository
 
 class MockLoginRepository : LoginRepository {
     override suspend fun login(email: String, password: String): Result<AuthResult> {
@@ -21,6 +21,7 @@ class MockLoginRepository : LoginRepository {
                     token = "mock_token_xyz",
                     userName = "Jane Doe",
                     role = "PATIENT",
+                    email = "janedoe@example.com"
                 )
             )
         }

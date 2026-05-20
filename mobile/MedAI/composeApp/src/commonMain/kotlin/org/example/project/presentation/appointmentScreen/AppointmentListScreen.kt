@@ -46,8 +46,8 @@ import org.example.project.core.presentation.util.toUiString
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.AppointmentDetail
-import org.example.project.domain.model.AppointmentDetailStatus
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.presentation.appointmentScreen.component.MedAISegmentedControl
 import org.example.project.presentation.appointmentScreen.sheet.ReviewSheet
 

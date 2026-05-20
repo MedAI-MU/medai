@@ -47,7 +47,7 @@ import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.secretary.Invoice
 import org.example.project.domain.usecase.secretary.GenerateInvoiceUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase // Reusing for stats, but better to have GetInvoicesUseCase
-import org.example.project.domain.repository.SecretaryRepository // Accessing directly for MVP specific query or add usecase
+import org.example.project.domain.repository.secretary.SecretaryRepository // Accessing directly for MVP specific query or add usecase
 
 class BillingScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)

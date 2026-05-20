@@ -1,14 +1,10 @@
-import { Plus } from "lucide-react";
-import Button from "./Button";
 import FormDialog from "./FormDialog";
+import AddButton from "./AddButton";
 
 function AddItemDialog({ title, description, form, children }) {
   return (
     <FormDialog title={title} description={description} form={form}>
-      <Button>
-        <Plus />
-        <span>{children}</span>
-      </Button>
+      <AddButton>{children}</AddButton>
     </FormDialog>
   );
 }

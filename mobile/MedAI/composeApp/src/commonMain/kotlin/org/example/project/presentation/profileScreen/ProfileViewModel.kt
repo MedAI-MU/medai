@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.domain.repository.ProfileRepository
+import org.example.project.domain.repository.profile.ProfileRepository
 
 class ProfileViewModel(
     private val repository: ProfileRepository

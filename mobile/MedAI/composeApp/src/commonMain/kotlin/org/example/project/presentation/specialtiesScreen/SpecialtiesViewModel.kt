@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.core.domain.ResourceProvider
-import org.example.project.domain.usecase.GetSpecialtiesUseCase
+import org.example.project.domain.usecase.specialty.GetSpecialtiesUseCase
 
 class SpecialtiesViewModel(
     private val getSpecialtiesUseCase: GetSpecialtiesUseCase,

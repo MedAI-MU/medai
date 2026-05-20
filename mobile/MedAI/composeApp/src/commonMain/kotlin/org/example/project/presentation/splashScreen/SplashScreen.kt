@@ -43,8 +43,8 @@ import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.onboardingScreen.OnboardingScreen
 import org.example.project.presentation.welcomeScreen.WelcomeScreen
 import org.koin.compose.koinInject
-import org.example.project.domain.repository.UserSessionManager
-import org.example.project.domain.model.UserRole
+import org.example.project.domain.repository.auth.UserSessionManager
+import org.example.project.domain.model.auth.UserRole
 import kotlinx.coroutines.flow.first
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 import org.example.project.presentation.MainContainerScreen
@@ -80,7 +80,7 @@ class SplashScreen : Screen {
                 when (role) {
                     UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
                     UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
-                    else -> navigator.replace(WelcomeScreen()) // Default to patient flow (Welcome -> Home)
+                    else -> navigator.replace(MainContainerScreen()) // Default to patient flow
                 }
             } else {
                 if (storage.isOnboardingCompleted()) {

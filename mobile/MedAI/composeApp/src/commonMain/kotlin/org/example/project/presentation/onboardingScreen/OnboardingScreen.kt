@@ -64,7 +64,7 @@ class OnboardingScreen : Screen {
 
         // 2. Define Navigation Logic
         fun onComplete() {
-            //storage.setOnboardingCompleted(true)
+            storage.setOnboardingCompleted(true)
             navigator.replace(WelcomeScreen())
         }
 

@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && chown -R medai:medai /medai
 
 RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm@9 --cache ${NPM_CACHE_DIR}
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
 
 WORKDIR /medai/
 
@@ -49,7 +49,7 @@ RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     && chown -R medai:medai /medai
 
 RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
-    npm install -g pnpm@9 --cache ${NPM_CACHE_DIR}
+    npm install -g pnpm --cache ${NPM_CACHE_DIR}
 
 EXPOSE 8000
 

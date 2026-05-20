@@ -1,8 +1,8 @@
 package org.example.project.presentation.bookingScreen
 
 import kotlinx.datetime.LocalDate
-import org.example.project.domain.model.Doctor
-import org.example.project.domain.model.TimeSlot
+import org.example.project.domain.model.doctor.Doctor
+import org.example.project.domain.model.appointment.TimeSlot
 import org.example.project.presentation.homeScreen.CalendarUiModel
 
 data class BookingState(

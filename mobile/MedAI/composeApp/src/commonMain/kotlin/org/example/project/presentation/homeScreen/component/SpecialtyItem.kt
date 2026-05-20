@@ -23,7 +23,7 @@ import org.example.project.core.presentation.util.asString
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.icons.IconMapper
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.Specialty
+import org.example.project.domain.model.specialty.Specialty
 
 @Composable
 fun SpecialtyItem(

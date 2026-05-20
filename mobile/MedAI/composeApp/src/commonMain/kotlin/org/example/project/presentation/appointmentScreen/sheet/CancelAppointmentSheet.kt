@@ -27,7 +27,7 @@ import org.example.project.design_system.component.button.radioButton.MedAIRadio
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiTextArea
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.CancelReason
+import org.example.project.domain.model.appointment.CancelReason
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

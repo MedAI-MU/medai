@@ -8,8 +8,24 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import org.example.project.domain.model.*
-import org.example.project.domain.usecase.*
+import org.example.project.domain.model.auth.*
+import org.example.project.domain.model.appointment.*
+import org.example.project.domain.model.chat.*
+import org.example.project.domain.model.doctor.*
+import org.example.project.domain.model.home.*
+import org.example.project.domain.model.medical_record.*
+import org.example.project.domain.model.notification.*
+import org.example.project.domain.model.patient.*
+import org.example.project.domain.model.specialty.*
+import org.example.project.domain.usecase.auth.*
+import org.example.project.domain.usecase.appointment.*
+import org.example.project.domain.usecase.chat.*
+import org.example.project.domain.usecase.doctor.*
+import org.example.project.domain.usecase.home.*
+import org.example.project.domain.usecase.medical_record.*
+import org.example.project.domain.usecase.notification.*
+import org.example.project.domain.usecase.patient.*
+import org.example.project.domain.usecase.specialty.*
 
 data class DoctorPatientRecordsState(
     val isLoading: Boolean = false,

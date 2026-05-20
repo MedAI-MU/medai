@@ -1,43 +1,46 @@
 package org.example.project.data.repository
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.http.HttpStatusCode
-import org.example.project.data.remote.dto.UserDto
-import org.example.project.data.remote.mapper.toDomain
-import org.example.project.domain.model.User
-import org.example.project.domain.repository.ProfileRepository
+import kotlinx.coroutines.flow.first
+import org.example.project.domain.model.auth.User
+import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.repository.profile.ProfileRepository
+import org.example.project.domain.repository.auth.UserSessionManager
 
 class NetworkProfileRepository(
-    private val client: HttpClient
+    private val sessionManager: UserSessionManager
 ) : ProfileRepository {
 
     override suspend fun getUserProfile(): Result<User> {
         return try {
-            // 1. Fetch DTO from API
-            val dto: UserDto = client.get("/user/profile").body()
+            val isLogged = sessionManager.isUserLoggedIn.first()
+            if (!isLogged) {
+                return Result.failure(Exception("User is not logged in"))
+            }
 
-            // 2. Map DTO to Domain Model
-            val user = dto.toDomain()
+            val userId = sessionManager.getUserId() ?: return Result.failure(Exception("User ID not found"))
+            val name = sessionManager.getUserName() ?: "Unknown User"
+            val email = sessionManager.getUserEmail() ?: ""
+            val role = sessionManager.getUserRole() ?: UserRole.PATIENT
 
+            val user = User(
+                id = userId,
+                name = name,
+                email = email,
+                role = role
+            )
             Result.success(user)
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure(e)
         }
     }
 
     override suspend fun logout(): Result<Unit> {
         return try {
-            val response = client.post("/auth/logout")
-            if (response.status == HttpStatusCode.OK) {
-                // Clear local session/tokens here if needed
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Logout failed"))
-            }
+            sessionManager.clearSession()
+            Result.success(Unit)
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure(e)
         }
     }

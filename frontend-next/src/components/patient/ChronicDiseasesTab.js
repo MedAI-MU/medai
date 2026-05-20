@@ -21,6 +21,8 @@ function ChronicDiseasesTab({ data }) {
         size="lg"
         title="Chronic Diseases"
         subtitle="Timeline of diagnosed long-term conditions"
+        hideSubtitleOnMobile
+        rowOnMobile
       >
         <AddItemDialog
           title="Add chronic disease"

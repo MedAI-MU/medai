@@ -9,22 +9,30 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import org.example.project.data.remote.dto.PatientDto
+import org.example.project.data.remote.dto.patient.PatientResponseDto
 import org.example.project.data.remote.mapper.*
-import org.example.project.domain.model.*
-import org.example.project.domain.repository.PatientRepository
+import org.example.project.domain.model.auth.*
+import org.example.project.domain.model.appointment.*
+import org.example.project.domain.model.chat.*
+import org.example.project.domain.model.doctor.*
+import org.example.project.domain.model.home.*
+import org.example.project.domain.model.medical_record.*
+import org.example.project.domain.model.notification.*
+import org.example.project.domain.model.patient.*
+import org.example.project.domain.model.specialty.*
+import org.example.project.domain.repository.patient.PatientRepository
 
 class NetworkPatientRepository(
     private val client: HttpClient
 ) : PatientRepository {
 
     override suspend fun getPatients(): Result<List<Patient>> = safeApiCallResult {
-        val response: List<PatientDto> = client.get("patients").body()
+        val response: List<PatientResponseDto> = client.get("patients").body()
         response.map { it.toEntity() }
     }
 
     override suspend fun getPatientById(id: String): Result<Patient> = safeApiCallResult {
-        val dto: PatientDto = client.get("patients/$id").body()
+        val dto: PatientResponseDto = client.get("patients/$id").body()
         dto.toEntity()
     }
 
