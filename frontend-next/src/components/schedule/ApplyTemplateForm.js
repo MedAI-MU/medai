@@ -47,7 +47,7 @@ function ApplyTemplateForm({ closeModal, templateId }) {
       setError("root", {
         message:
           err?.status === 400
-            ? err?.message
+            ? "Some time slots overlap. Please review your working hours before applying."
             : "Something went wrong, please try again.",
       });
     }
@@ -89,10 +89,7 @@ function ApplyTemplateForm({ closeModal, templateId }) {
         />
 
         {errors?.root?.message && (
-          <ErrorMessage
-            message={errors?.root?.message}
-            className="bg-danger-muted rounded-sm px-2 py-1"
-          />
+          <ErrorMessage message={errors?.root?.message} withBg />
         )}
       </DialogBody>
 

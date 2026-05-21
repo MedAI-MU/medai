@@ -82,7 +82,7 @@ function SheetFooter({ className, ...props }) {
     <div
       data-slot="sheet-footer"
       className={cn(
-        "bg-surface-overlay mt-auto flex flex-col gap-2 p-4",
+        "bg-surface-overlay mt-auto flex justify-end gap-2 p-4",
         className,
       )}
       {...props}

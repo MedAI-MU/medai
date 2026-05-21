@@ -1,6 +1,7 @@
 import { Trash2 } from "lucide-react";
 import ButtonIcon from "./ButtonIcon";
 import DeleteDialog from "./DeleteDialog";
+import DeleteButtonIcon from "./DeleteButtonIcon";
 
 function DeleteAction({
   title,
@@ -17,9 +18,7 @@ function DeleteAction({
       successMessage={successMessage}
       failMessage={failMessage}
     >
-      <ButtonIcon className="hover:bg-danger-muted text-danger">
-        <Trash2 size={16} />
-      </ButtonIcon>
+      <DeleteButtonIcon />
     </DeleteDialog>
   );
 }
