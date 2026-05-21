@@ -1,0 +1,9 @@
+overrides:
+  'flatted': '3.4.2'
+  'handlebars': '4.7.9'
+
+allowBuilds:
+  '@nestjs/core': true
+  '@scarf/scarf': true
+  argon2: true
+  unrs-resolver: true
