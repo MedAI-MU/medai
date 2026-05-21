@@ -4,7 +4,7 @@ import Button from "@/components/ui/Button";
 function AddButton({ children, ...props }) {
   return (
     <Button startIcon={<Plus />} {...props}>
-      <span className="hidden sm:inline">{children}</span>
+      {children && <span className="hidden sm:inline">{children}</span>}
     </Button>
   );
 }

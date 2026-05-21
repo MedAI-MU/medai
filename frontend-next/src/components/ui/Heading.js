@@ -15,6 +15,10 @@ const SIZES = {
     title: "text-base sm:text-lg font-bold",
     subtitle: "text-sm",
   },
+  xs: {
+    title: "text-base font-semibold",
+    subtitle: "text-sm",
+  },
 };
 
 function Heading({

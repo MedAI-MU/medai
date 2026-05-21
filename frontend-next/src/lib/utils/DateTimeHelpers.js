@@ -22,3 +22,12 @@ export function formatDate(date) {
 
   return format(d, "yyyy-MM-dd");
 }
+
+export function formatTime12h(time) {
+  if (!time) return "--:--";
+  const [hourStr, minute] = time.split(":");
+  const hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+  return `${formattedHour}:${minute} ${ampm}`;
+}
