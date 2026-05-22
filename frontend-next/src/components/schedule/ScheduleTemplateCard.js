@@ -12,15 +12,7 @@ import DeleteAction from "@/components/ui/DeleteAction";
 import FormDialog from "@/components/ui/FormDialog";
 import AddEditTemplate from "./AddEditTemplate";
 import ApplyTemplateForm from "./ApplyTemplateForm";
-
-function formatTime(time) {
-  if (!time) return "--:--";
-  const [hourStr, minute] = time.split(":");
-  const hour = parseInt(hourStr, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-  return `${formattedHour}:${minute} ${ampm}`;
-}
+import { formatTime12h } from "@/lib/utils/DateTimeHelpers";
 
 function ScheduleTemplateCard({ template }) {
   const { user } = useAuth();
@@ -49,7 +41,7 @@ function ScheduleTemplateCard({ template }) {
             <Clock size={14} className="text-primary shrink-0" />
             {hasDifferentTimes
               ? "Variable schedule"
-              : `${formatTime(startTime)} – ${formatTime(endTime)}`}
+              : `${formatTime12h(startTime)} – ${formatTime12h(endTime)}`}
           </span>
           <span className="flex items-center gap-1.5">
             <CalendarDays size={14} className="text-primary shrink-0" />
@@ -65,7 +57,7 @@ function ScheduleTemplateCard({ template }) {
               <Badge
                 key={day}
                 color={isSelected ? "blue" : "slate"}
-                text={day}
+                text={day.slice(0, 3)}
                 isRounded={false}
               />
             );

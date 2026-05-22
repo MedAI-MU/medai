@@ -45,12 +45,44 @@ const ScheduleTemplateSchema = z.object({
           startTime: z.string().min(1, "Start time is required"),
           endTime: z.string().min(1, "End time is required"),
         })
+        // Validate each time period
         .refine((data) => isEndAfterStart(data.startTime, data.endTime), {
           message: "End time must be after start time",
           path: ["endTime"],
         }),
     )
-    .min(1, "Pick at least one day"),
+    .min(1, "Pick at least one day")
+    // Validate Overlaping times
+    .superRefine((slots, ctx) => {
+      // Map slots to include their original index so we know where to attach the error
+      const slotsWithIndex = slots.map((slot, index) => ({
+        ...slot,
+        originalIndex: index,
+      }));
+
+      // Group by day to check for overlaps
+      const slotsByDay = {};
+      for (const slot of slotsWithIndex) {
+        if (!slotsByDay[slot.weekDay]) slotsByDay[slot.weekDay] = [];
+        slotsByDay[slot.weekDay].push(slot);
+      }
+
+      for (const day in slotsByDay) {
+        const sorted = [...slotsByDay[day]].sort((a, b) =>
+          a.startTime.localeCompare(b.startTime),
+        );
+        for (let i = 0; i < sorted.length - 1; i++) {
+          // If current slot's end time is strictly greater than the next slot's start time, they overlap
+          if (sorted[i].endTime > sorted[i + 1].startTime) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Time slots cannot overlap.",
+              path: [day],
+            });
+          }
+        }
+      }
+    }),
 });
 
 export { signupSchema, loginSchema, ScheduleTemplateSchema };
