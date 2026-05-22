@@ -114,7 +114,10 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
   }
 
   // 3) Elements to render
-  const renderGroups = applyToAll ? [groupedFields[0]] : groupedFields;
+  const renderGroups =
+    applyToAll && groupedFields?.length > 0
+      ? [groupedFields[0]]
+      : groupedFields;
 
   return (
     <form
@@ -173,11 +176,11 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
               />
               <div className="mt-5">
                 <div className="space-y-6">
-                  {renderGroups.map((group) => (
+                  {renderGroups?.map((group) => (
                     <DaySlotGroup
-                      key={`${applyToAll ? "all" : group.dayNum}`}
+                      key={`${applyToAll ? "all" : group?.dayNum}`}
                       group={group}
-                      title={applyToAll ? "All Selected Days" : group.dayName}
+                      title={applyToAll ? "All Selected Days" : group?.dayName}
                       register={register}
                       errors={errors}
                       isSubmitting={isSubmitting}

@@ -97,7 +97,7 @@ function Sidebar({ role }) {
 
         {/* Navigation Links */}
         <nav className="flex-1 space-y-1 px-4 py-4">
-          {LINKS[role].map(({ text, href, items, icon: Icon }) =>
+          {LINKS[role]?.map(({ text, href, items, icon: Icon }) =>
             !items ? (
               <SidebarNavItem
                 key={text}
