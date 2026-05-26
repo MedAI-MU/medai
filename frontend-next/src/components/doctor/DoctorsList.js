@@ -64,7 +64,7 @@ async function DoctorsList({ query }) {
     );
 
   return (
-    <Grid cols="three" className="mt-10">
+    <Grid cols="two" className="mt-10">
       {doctors.map((doctor, idx) => (
         <AnimateWrapper
           key={doctor.userId}
