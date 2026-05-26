@@ -31,3 +31,8 @@ export function formatTime12h(time) {
   const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
   return `${formattedHour}:${minute} ${ampm}`;
 }
+
+export function getUniqueDays(slots) {
+  if (!slots) return [];
+  return [...new Set(slots?.map((slot) => slot.weekDay))];
+}
