@@ -53,7 +53,7 @@
    ───────────────────────────────────────────── */
 @layer base {
   :root {
-    --sidebar-width: 240px;
+    --sidebar-width: 320px;
     --header-height: 76px;
   }
 

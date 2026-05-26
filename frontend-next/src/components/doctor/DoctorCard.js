@@ -1,4 +1,3 @@
-import { HelpCircle, Mars, Venus } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -14,10 +13,9 @@ function getInitials(name = "") {
 }
 
 function DoctorCard({ doctor }) {
-  const { specialities = [], user: { name, gender } = {} } = doctor || {};
+  const { specialities = [], name, userId } = doctor || {};
 
   const initial = getInitials(name);
-  const GenderIcon = gender ? (gender === "male" ? Mars : Venus) : HelpCircle;
 
   return (
     <Card>
@@ -30,12 +28,7 @@ function DoctorCard({ doctor }) {
           <Badge color="blue" text="Doctor" />
         </div>
       </div>
-      <div className="text-text-muted mb-4 flex items-center gap-2">
-        <GenderIcon size={16} />
-        <span className={`${gender ? "capitalize" : ""}`}>
-          {gender || "Not specified"}
-        </span>
-      </div>
+
       <div className="flex flex-wrap gap-2">
         {specialities?.length === 0 ? (
           <span className="text-text-muted">

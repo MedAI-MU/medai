@@ -12,18 +12,20 @@ import DeleteAction from "@/components/ui/DeleteAction";
 import FormDialog from "@/components/ui/FormDialog";
 import AddEditTemplate from "./AddEditTemplate";
 import ApplyTemplateForm from "./ApplyTemplateForm";
-import { formatTime12h } from "@/lib/utils/DateTimeHelpers";
+import { formatTime12h, getUniqueDays } from "@/lib/utils/DateTimeHelpers";
 
 function ScheduleTemplateCard({ template }) {
   const { user } = useAuth();
   const { id: templateId, name, slots = [] } = template;
 
+  const uniqueDays = getUniqueDays(slots);
+
   const startTime = slots[0]?.startTime;
   const endTime = slots[0]?.endTime;
-  const dayCount = slots.length;
+  const dayCount = uniqueDays?.length;
 
   // all 7 days, highlight selected ones
-  const selectedDays = slots.map((s) => s.weekDay);
+  const selectedDays = uniqueDays;
   const uniqueTimeRanges = new Set(
     slots.map((slot) => `${slot.startTime}-${slot.endTime}`),
   );

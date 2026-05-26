@@ -61,7 +61,7 @@ function LoginForm() {
       <FormInput
         type={showPassword ? "text" : "password"}
         label="Password"
-        autoComplete="new-password"
+        autoComplete="current-password"
         placeholder="••••••••"
         startIcon={<Lock />}
         endIcon={

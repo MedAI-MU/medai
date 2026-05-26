@@ -63,7 +63,7 @@ function SignupForm() {
         label="Role"
         options={ROLES}
         startIcon={<UsersRound />}
-        defaultValue={ROLES[0]}
+        defaultValue="Select role..."
         {...register("role")}
         error={errors?.role?.message}
       />

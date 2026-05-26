@@ -34,7 +34,13 @@ function MedicalStates({ data }) {
   return (
     <Grid>
       {CardsData.map(({ title, color, icon, value }, i) => (
-        <AnimateWrapper key={title} type="slideUp" delay={i * 0.1}>
+        <AnimateWrapper
+          key={title}
+          type="slideUp"
+          delay={i * 0.1}
+          transitionOptions={{ type: "spring", damping: 20, stiffness: 900 }}
+          triggerOnView={false}
+        >
           <MedicalStateCard
             title={title}
             color={color}

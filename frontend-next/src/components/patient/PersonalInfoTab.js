@@ -53,6 +53,7 @@ function PersonalInfoTab({ data }) {
           <FormInput
             label="Full Name"
             defaultValue={data?.user?.name || ""}
+            placeholder="Enter your full name"
             disabled={true}
           />
           <FormInput

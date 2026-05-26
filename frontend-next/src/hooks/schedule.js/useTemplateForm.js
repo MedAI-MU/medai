@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ScheduleTemplateSchema } from "@/lib/zod/schemas";
-import { stripSeconds } from "@/lib/utils/DateTimeHelpers";
+import { getUniqueDays, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 
 function useTemplateForm({ template }) {
@@ -42,9 +42,7 @@ function useTemplateForm({ template }) {
 
   // 3) Derived data for slots
   const currentSlots = fields.map((f, i) => ({ ...f, originalIndex: i }));
-  const uniqueSelectedDays = [
-    ...new Set(currentSlots.map((f) => f.weekDay)),
-  ].sort((a, b) => a - b);
+  const uniqueSelectedDays = getUniqueDays(currentSlots).sort((a, b) => a - b);
   const firstDay = uniqueSelectedDays.length > 0 ? uniqueSelectedDays[0] : null;
   const groupedFields = uniqueSelectedDays.map((dayNum) => ({
     dayNum,
