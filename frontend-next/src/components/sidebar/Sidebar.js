@@ -75,7 +75,7 @@ function Sidebar({ role }) {
       )}
 
       <aside
-        className={`border-border bg-surface fixed inset-y-0 z-50 row-span-2 flex w-(--sidebar-width) flex-col border-r transition-all duration-300 lg:relative lg:translate-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`border-border bg-surface fixed inset-y-0 z-50 row-span-2 flex w-(--sidebar-width) max-w-[90%] flex-col border-r transition-all duration-300 lg:relative lg:translate-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <ButtonIcon
           className="absolute top-[20px] right-[15px] lg:hidden"
