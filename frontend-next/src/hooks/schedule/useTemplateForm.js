@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScheduleTemplateSchema } from "@/lib/zod/schemas";
+import { ScheduleTemplateSchema } from "@/lib/zod/scheduleSchemas";
 import { getUniqueDays, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 

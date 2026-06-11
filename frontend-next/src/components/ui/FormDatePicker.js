@@ -16,9 +16,10 @@ function FormDatePicker({
   control,
   label,
   placeholder = "Select date",
-  rules,
+  required = false,
   disabled,
   disabledRange = null,
+  ...props
 }) {
   const [openPopover, setOpenPopover] = useState(false);
 
@@ -26,7 +27,6 @@ function FormDatePicker({
     <Controller
       name={name}
       control={control}
-      rules={rules}
       render={({ field, fieldState }) => (
         <div className="flex flex-col gap-2">
           {label && <label>{label}</label>}
@@ -47,11 +47,16 @@ function FormDatePicker({
             <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
+                // if required, disables deselecting.
+                required={required}
                 captionLayout="dropdown"
+                defaultMonth={field.value ?? new Date()}
                 selected={field.value}
                 onSelect={(date) => {
-                  field.onChange(date);
-                  setOpenPopover(false);
+                  if (date || !rules?.required) {
+                    field.onChange(date);
+                    setOpenPopover(false);
+                  }
                 }}
                 disabled={disabledRange}
               />
@@ -63,6 +68,7 @@ function FormDatePicker({
           )}
         </div>
       )}
+      {...props}
     />
   );
 }

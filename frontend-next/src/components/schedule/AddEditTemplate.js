@@ -8,7 +8,7 @@ import EditButton from "@/components/ui/EditButton";
 function AddEditTemplate({ template }) {
   return (
     <FormSheet
-      title="New Schedule Template"
+      title={`${template ? "Edit" : "New"} Schedule Template`}
       form={<TemplateForm templateToEdit={template} />}
     >
       {template ? (

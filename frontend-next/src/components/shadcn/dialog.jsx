@@ -90,7 +90,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "bg-surface-overlay border-border -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 border-t p-4 sm:rounded-b-xl",
+        "bg-surface-overlay border-border relative z-10 -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 border-t p-4 sm:rounded-b-xl",
         className,
       )}
       {...props}

@@ -7,7 +7,7 @@ import {
 } from "@/services/client/schedule";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useTemplateForm } from "@/hooks/schedule.js/useTemplateForm";
+import { useTemplateForm } from "@/hooks/schedule/useTemplateForm";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 
 import { SheetFooter } from "@/components/shadcn/sheet";

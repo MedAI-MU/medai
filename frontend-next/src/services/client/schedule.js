@@ -23,3 +23,14 @@ export async function applyScheduleTemplate(data, userId, templateId) {
     data,
   );
 }
+
+export async function updateScheduleSlot(data, doctorId, slotId) {
+  return apiClient.patch(
+    `api/doctors/${doctorId}/schedule-slots/${slotId}`,
+    data,
+  );
+}
+
+export async function deleteScheduleSlot(doctorId, slotId) {
+  return apiClient.delete(`api/doctors/${doctorId}/schedule-slots/${slotId}`);
+}

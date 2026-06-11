@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 export function toMinutes(time) {
   return time
@@ -35,4 +35,9 @@ export function formatTime12h(time) {
 export function getUniqueDays(slots) {
   if (!slots) return [];
   return [...new Set(slots?.map((slot) => slot.weekDay))];
+}
+
+export function parseDate(strDate) {
+  if (!strDate) return new Date();
+  return parse(strDate, "yyyy-MM-dd", new Date());
 }
