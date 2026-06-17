@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getUserFromToken } from "@/lib/session";
 
 import Heading from "@/components/ui/Heading";
-import AddSlots from "@/components/schedule/AddSlots";
+import CreateScheduleSlots from "@/components/schedule/CreateScheduleSlots";
 import ScheduleControls from "@/components/schedule/ScheduleControls";
 import ScheduleSlots from "@/components/schedule/ScheduleSlots";
 import ScheduleGridSkeleton from "@/components/schedule/ScheduleGridSkeleton";
@@ -13,25 +13,24 @@ async function AvailabilityPage({ searchParams }) {
   const { startDate } = (await searchParams) || {};
 
   return (
-    <div className="space-y-8">
-      <Heading
-        title="Schedule"
-        subtitle="Manage your weekly appointments"
-        hideSubtitleOnMobile
-        rowOnMobile
-      >
-        <AddSlots />
-      </Heading>
+    <DoctorInfoProvider doctorInfo={{ doctorId, email }}>
+      <div className="space-y-8">
+        <Heading
+          title="Schedule"
+          subtitle="Manage your weekly appointments"
+          hideSubtitleOnMobile
+          rowOnMobile
+        >
+          <CreateScheduleSlots />
+        </Heading>
 
-      <ScheduleControls />
+        <ScheduleControls />
 
-      {/* Context to reuse ScheduleSlots in more than one role-page as doctor info is needed */}
-      <DoctorInfoProvider doctorInfo={{ doctorId, email }}>
         <Suspense key={startDate} fallback={<ScheduleGridSkeleton />}>
           <ScheduleSlots doctorId={doctorId} startDate={startDate} />
         </Suspense>
-      </DoctorInfoProvider>
-    </div>
+      </div>
+    </DoctorInfoProvider>
   );
 }
 

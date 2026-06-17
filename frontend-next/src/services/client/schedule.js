@@ -24,6 +24,10 @@ export async function applyScheduleTemplate(data, userId, templateId) {
   );
 }
 
+export function createScheduleSlots(data, doctorId) {
+  return apiClient.post(`api/doctors/${doctorId}/schedule-slots`, data);
+}
+
 export async function updateScheduleSlot(data, doctorId, slotId) {
   return apiClient.patch(
     `api/doctors/${doctorId}/schedule-slots/${slotId}`,

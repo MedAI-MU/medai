@@ -77,6 +77,14 @@ function SheetHeader({ className, ...props }) {
   );
 }
 
+function SheetBody({ children }) {
+  return (
+    <div className="no-scrollbar flex-1 overflow-y-auto py-4">
+      <div className="space-y-6 p-4">{children}</div>
+    </div>
+  );
+}
+
 function SheetFooter({ className, ...props }) {
   return (
     <div
@@ -116,6 +124,7 @@ export {
   SheetClose,
   SheetContent,
   SheetHeader,
+  SheetBody,
   SheetFooter,
   SheetTitle,
   SheetDescription,

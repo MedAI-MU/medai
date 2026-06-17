@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { isBefore, startOfDay } from "date-fns";
-import { isEndAfterStart } from "@/lib/utils/DateTimeHelpers";
+import {
+  formatDate,
+  hasOverlappingSlots,
+  isEndAfterStart,
+} from "@/lib/utils/DateTimeHelpers";
 
 // private — base fields shared by all time-range schemas
 const timeBase = z.object({
@@ -53,20 +57,52 @@ export const ScheduleTemplateSchema = z.object({
         slotsByDay[slot.weekDay].push(slot);
       }
 
-      for (const day in slotsByDay) {
-        const sorted = [...slotsByDay[day]].sort((a, b) =>
-          a.startTime.localeCompare(b.startTime),
-        );
-        for (let i = 0; i < sorted.length - 1; i++) {
-          // If current slot's end time is strictly greater than the next slot's start time, they overlap
-          if (sorted[i].endTime > sorted[i + 1].startTime) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "Time slots cannot overlap.",
-              path: [day],
-            });
-          }
+      for (const day in slotsByDay)
+        if (hasOverlappingSlots(slotsByDay[day]))
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Time slots cannot overlap.",
+            path: [day],
+          });
+    }),
+});
+
+export const ScheduleSlotsSchema = z.object({
+  days: z
+    .array(
+      z.object({
+        date: z
+          .date({ required_error: "Please select a slot date." })
+          .refine((date) => !isBefore(date, startOfDay(new Date())), {
+            message: "Date must be greater than or equal today",
+          }),
+        slots: z.array(timeRefine(timeBase)).min(1, "Pick at least one slot"),
+      }),
+    )
+    .min(1, "Pick at least one day")
+    .superRefine((data, ctx) => {
+      // 1) Validate unique days
+      const uniqueDates = new Set();
+
+      data.forEach(({ date, slots }, dayIndex) => {
+        const dateKey = formatDate(date);
+        if (uniqueDates.has(dateKey)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "This date has already been added.",
+            path: [dayIndex, "date"],
+          });
         }
-      }
+        uniqueDates.add(dateKey);
+
+        // 2) Validate overlapping slots for each day
+        if (hasOverlappingSlots(slots)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Time slots cannot overlap.",
+            path: [dayIndex],
+          });
+        }
+      });
     }),
 });

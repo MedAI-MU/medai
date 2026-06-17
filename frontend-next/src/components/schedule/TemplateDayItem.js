@@ -2,8 +2,10 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import FormInput from "@/components/ui/FormInput";
 import TemplateTimeInterval from "./TemplateTimeInterval";
 import Heading from "../ui/Heading";
+import DayBox from "./DayBox";
+import SlotsBox from "./SlotsBox";
 
-function DaySlotGroup({
+function TemplateDayItem({
   group,
   title,
   register,
@@ -16,11 +18,9 @@ function DaySlotGroup({
   const dayError = errors?.slots?.[group.dayNum]?.message;
 
   return (
-    <div
-      className={`bg-surface-overlay/30 space-y-4 rounded-xl border p-4 ${dayError ? "border-danger" : "border-border"}`}
-    >
+    <DayBox className={`${dayError ? "border-danger" : "border-border"}`}>
       <Heading title={title} size="xs" Tag="h3" />
-      <div className="space-y-3">
+      <SlotsBox>
         {group.slots.map((slot, periodIndex) => (
           <TemplateTimeInterval
             key={slot.id}
@@ -48,7 +48,7 @@ function DaySlotGroup({
             isSubmitting={isSubmitting}
           />
         ))}
-      </div>
+      </SlotsBox>
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
@@ -60,7 +60,7 @@ function DaySlotGroup({
         </button>
         {dayError && <ErrorMessage message={dayError} withBg />}
       </div>
-    </div>
+    </DayBox>
   );
 }
-export default DaySlotGroup;
+export default TemplateDayItem;

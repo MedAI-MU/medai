@@ -19,6 +19,7 @@ function TemplateTimeInterval({
           onClick={onDelete}
           aria-label="Remove time interval"
           disabled={isSubmitting}
+          className="cursor-pointer"
         />
       </div>
     </div>

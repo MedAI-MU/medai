@@ -11,6 +11,19 @@ export function isEndAfterStart(startTime, endTime) {
   return toMinutes(endTime) > toMinutes(startTime);
 }
 
+export function hasOverlappingSlots(slots = []) {
+  const validSlots = slots.filter((slot) => slot?.startTime && slot?.endTime);
+  const sorted = [...validSlots].sort((a, b) =>
+    a.startTime.localeCompare(b.startTime),
+  );
+
+  for (let i = 0; i < sorted.length - 1; i++)
+    // If current slot's end time is strictly greater than the next slot's start time, they overlap
+    if (sorted[i].endTime > sorted[i + 1].startTime) return true;
+
+  return false;
+}
+
 export function stripSeconds(time) {
   if (!time) return "";
   return time.slice(0, 5);

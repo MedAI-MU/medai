@@ -10,10 +10,12 @@ import {
 } from "@/components/shadcn/popover";
 import { Calendar } from "@/components/shadcn/calendar";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import FormLabel from "./FormLabel";
 
 function FormDatePicker({
   name,
   control,
+  rules,
   label,
   placeholder = "Select date",
   required = false,
@@ -27,9 +29,10 @@ function FormDatePicker({
     <Controller
       name={name}
       control={control}
+      {...(!!rules && { rules })}
       render={({ field, fieldState }) => (
-        <div className="flex flex-col gap-2">
-          {label && <label>{label}</label>}
+        <div className="flex flex-col">
+          {label && <FormLabel label={label} required={required} />}
 
           <Popover open={openPopover} onOpenChange={setOpenPopover}>
             <PopoverTrigger asChild>
