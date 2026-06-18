@@ -72,7 +72,29 @@ export async function proxy(request) {
     return response;
   }
   // 4) Normal request + Set cookies if refreshed
-  const response = NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+
+  if (refreshedTokensInCookies) {
+    const authMatch = refreshedTokensInCookies.match(/Authentication=([^;]+)/);
+    const refreshMatch = refreshedTokensInCookies.match(/Refresh=([^;]+)/);
+
+    if (authMatch) request.cookies.set("Authentication", authMatch[1]);
+    if (refreshMatch) request.cookies.set("Refresh", refreshMatch[1]);
+
+    const newCookieHeader = request.cookies
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
+    requestHeaders.set("cookie", newCookieHeader);
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
   if (refreshedTokensInCookies)
     response.headers.set("set-cookie", refreshedTokensInCookies);
   return response;
