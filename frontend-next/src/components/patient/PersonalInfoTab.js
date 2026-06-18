@@ -10,6 +10,7 @@ import SpinnerMini from "@/components/ui/SpinnerMini";
 import Heading from "@/components/ui/Heading";
 import Grid from "@/components/ui/Grid";
 import { BLOOD_TYPES, MARITAL_STATUSES } from "@/constants/patient";
+import { useRouter } from "next/navigation";
 
 function PersonalInfoTab({ data }) {
   const {
@@ -25,6 +26,7 @@ function PersonalInfoTab({ data }) {
       maritalStatus: data?.maritalStatus || "",
     },
   });
+  const router = useRouter();
 
   async function onSubmit(formData) {
     if (!isDirty) return;
@@ -33,6 +35,7 @@ function PersonalInfoTab({ data }) {
       const response = await updatePatientPersonalInfo(formData, data?.userId);
       const { userId, updatedAt, createdAt, ...newData } = response;
       reset(newData);
+      router.refresh();
       toast.success("Personal Info updated successfully");
     } catch (err) {
       toast.error("Something went wrong");
@@ -50,6 +53,7 @@ function PersonalInfoTab({ data }) {
           <FormInput
             label="Full Name"
             defaultValue={data?.user?.name || ""}
+            placeholder="Enter your full name"
             disabled={true}
           />
           <FormInput

@@ -16,6 +16,8 @@ function EmergencyContactsTab({ data }) {
         title="Emergency Contacts"
         Tag="h2"
         subtitle="Trusted individuals to call in case of emergencies"
+        hideSubtitleOnMobile
+        rowOnMobile
       >
         <AddItemDialog
           title="Add emergency contact"

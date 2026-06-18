@@ -25,10 +25,10 @@ RUN --mount=type=cache,target=${NPM_CACHE_DIR} \
 
 WORKDIR /medai/
 
-COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml ./
+COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --config.dangerously-allow-all-builds=true
+    pnpm install --frozen-lockfile
 
 COPY --chown=root:root src src
 COPY --chown=root:root nest-cli.json tsconfig.json tsconfig.build.json typeorm.data-source.ts ./

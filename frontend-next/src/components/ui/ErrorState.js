@@ -10,6 +10,7 @@ function ErrorState({
   title = "Something went wrong",
   description,
   icon: Icon = TriangleAlert,
+  onRetry,
 }) {
   const router = useRouter();
   return (
@@ -26,7 +27,7 @@ function ErrorState({
           {description}
         </p>
         <div className="flex flex-col items-center gap-4">
-          <Button onClick={() => router.refresh()}>
+          <Button onClick={onRetry || (() => router.refresh())}>
             <RefreshCcw />
             Try Again
           </Button>

@@ -4,15 +4,19 @@
 
 const SIZES = {
   xl: {
-    title: "text-3xl font-extrabold",
+    title: "text-2xl sm:text-3xl font-extrabold",
     subtitle: "text-lg",
   },
   lg: {
-    title: "text-2xl font-bold",
+    title: "text-xl sm:text-2xl font-bold",
     subtitle: "text-sm",
   },
   sm: {
-    title: "text-lg font-bold",
+    title: "text-base sm:text-lg font-bold",
+    subtitle: "text-sm",
+  },
+  xs: {
+    title: "text-base font-semibold",
     subtitle: "text-sm",
   },
 };
@@ -23,6 +27,9 @@ function Heading({
   size = "xl",
   className = "",
   Tag = "h1",
+  capitalizeSubtitle = false,
+  hideSubtitleOnMobile = false,
+  rowOnMobile = false,
   children,
 }) {
   const Header = (
@@ -34,7 +41,13 @@ function Heading({
       </Tag>
 
       {subtitle && (
-        <p className={`text-text-muted ${SIZES[size].subtitle}`}>{subtitle}</p>
+        <p
+          className={`text-text-muted ${SIZES[size].subtitle} ${
+            capitalizeSubtitle ? "capitalize" : ""
+          } ${hideSubtitleOnMobile ? "hidden md:block" : ""}`}
+        >
+          {subtitle}
+        </p>
       )}
     </div>
   );
@@ -42,7 +55,11 @@ function Heading({
   if (!children) return Header;
 
   return (
-    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div
+      className={`flex justify-between gap-4 sm:flex-row sm:items-center ${
+        rowOnMobile ? "flex-row items-center" : "flex-col"
+      }`}
+    >
       {Header}
       {children}
     </div>

@@ -1,7 +1,7 @@
 import { ROLES } from "@/constants/roles";
 import { z } from "zod";
 
-const signupSchema = z.object({
+export const signupSchema = z.object({
   role: z.enum(ROLES, "Please select a valid role."),
   name: z
     .string("Invalid name format")
@@ -24,11 +24,9 @@ const signupSchema = z.object({
     .max(100, "Password must not exceeds 100 characters"),
 });
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   email: z.email("Email must be in a valid format"),
   password: z
     .string("Invalid password format")
     .nonempty("Password is required"),
 });
-
-export { signupSchema, loginSchema };

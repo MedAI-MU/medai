@@ -1,7 +1,16 @@
 import { cookies } from "next/headers";
 
 export async function getUserFromToken() {
-  const cookieStore = await cookies();
-  const payload = cookieStore.get("Authentication")?.value.split(".")[1] || null;
-  return payload ? JSON.parse(atob(payload)): null;
+  try {
+    const cookieStore = await cookies();
+    const token =
+      cookieStore.get("Refresh")?.value ||
+      cookieStore.get("Authentication")?.value;
+
+    const payload = token?.split(".")[1] || null;
+    return payload ? JSON.parse(atob(payload)) : null;
+  } catch (err) {
+    console.error(err?.message);
+    return null;
+  }
 }

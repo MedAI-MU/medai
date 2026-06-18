@@ -4,22 +4,25 @@ import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
 import { Suspense } from "react";
 
-async function Page({ searchParams }) {
+async function BookAppointmentPage({ searchParams }) {
   const query = (await searchParams)?.search || "";
 
   return (
-    <div>
+    <>
       <Heading
         className="mb-10"
         title="All Doctors"
         subtitle="Browse and manage all registered physicians in the network"
       />
-      <SearchBar queryKey="search" />
+      <SearchBar
+        queryKey="search"
+        placeholder="Search by name or speciality..."
+      />
       <Suspense key={query} fallback={<DoctorsListSkeleton />}>
         <DoctorsList query={query} />
       </Suspense>
-    </div>
+    </>
   );
 }
 
-export default Page;
+export default BookAppointmentPage;

@@ -27,7 +27,7 @@ export async function apiServerFetch({ endpoint, options = {} }) {
     throw error;
   }
 
-  return response.json();
+  return response.json().catch(() => null);
 }
 
 const apiServer = {
