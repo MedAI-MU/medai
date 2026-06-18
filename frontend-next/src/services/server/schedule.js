@@ -19,3 +19,17 @@ export async function getScheduleTemplates(name, pageSize, pageNo) {
   );
   return response;
 }
+
+export async function getScheduleSlots(doctorId, fromDate, toDate) {
+  if (!doctorId) redirect("/auth/login");
+
+  const params = new URLSearchParams();
+
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
+
+  const response = await apiServer.get(
+    `api/doctors/${doctorId}/schedule-slots${params.toString() ? `?${params.toString()}` : ""}`,
+  );
+  return response;
+}

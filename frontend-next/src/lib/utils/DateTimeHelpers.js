@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 export function toMinutes(time) {
   return time
@@ -9,6 +9,19 @@ export function toMinutes(time) {
 
 export function isEndAfterStart(startTime, endTime) {
   return toMinutes(endTime) > toMinutes(startTime);
+}
+
+export function hasOverlappingSlots(slots = []) {
+  const validSlots = slots.filter((slot) => slot?.startTime && slot?.endTime);
+  const sorted = [...validSlots].sort((a, b) =>
+    a.startTime.localeCompare(b.startTime),
+  );
+
+  for (let i = 0; i < sorted.length - 1; i++)
+    // If current slot's end time is strictly greater than the next slot's start time, they overlap
+    if (sorted[i].endTime > sorted[i + 1].startTime) return true;
+
+  return false;
 }
 
 export function stripSeconds(time) {
@@ -35,4 +48,9 @@ export function formatTime12h(time) {
 export function getUniqueDays(slots) {
   if (!slots) return [];
   return [...new Set(slots?.map((slot) => slot.weekDay))];
+}
+
+export function parseDate(strDate) {
+  if (!strDate) return new Date();
+  return parse(strDate, "yyyy-MM-dd", new Date());
 }

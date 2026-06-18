@@ -19,7 +19,10 @@ async function WorkingHoursPage({ searchParams }) {
         <AddEditTemplate />
       </Heading>
 
-      <SearchBar queryKey="templateName" />
+      <SearchBar
+        queryKey="templateName"
+        placeholder="Search by template name"
+      />
 
       <Suspense
         key={JSON.stringify({ templateName, pageNo })}

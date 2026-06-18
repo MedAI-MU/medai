@@ -5,7 +5,7 @@ import FormInput from "./FormInput";
 import { useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-function SearchBar({ queryKey, className = "" }) {
+function SearchBar({ queryKey, placeholder = "", className = "" }) {
   const searchParams = useSearchParams();
   const [value, setValue] = useState(
     searchParams.get(queryKey)?.toString() || "",
@@ -33,7 +33,7 @@ function SearchBar({ queryKey, className = "" }) {
   return (
     <FormInput
       containerClassName={`max-w-md ${className}`}
-      placeholder="Search by name or speciality..."
+      placeholder={placeholder}
       startIcon={<Search />}
       value={value}
       onChange={(e) => handleChange(e.target.value)}

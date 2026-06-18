@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScheduleTemplateSchema } from "@/lib/zod/schemas";
+import { ScheduleTemplateSchema } from "@/lib/zod/scheduleSchemas";
 import { getUniqueDays, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 
@@ -57,11 +57,11 @@ function useTemplateForm({ template }) {
       const newSlots = uniqueSelectedDays.map((day) => ({
         weekDay: day,
         startTime: "09:00",
-        endTime: "17:00",
+        endTime: "10:00",
       }));
       append(newSlots);
     } else {
-      append({ weekDay: dayNum, startTime: "09:00", endTime: "17:00" });
+      append({ weekDay: dayNum, startTime: "09:00", endTime: "10:00" });
     }
     if (isSubmitted) await trigger("slots");
   }
@@ -99,7 +99,7 @@ function useTemplateForm({ template }) {
       selectedIndices.reverse().forEach((i) => remove(i));
     } else {
       let newSlotsToAdd = [
-        { weekDay: dayNum, startTime: "09:00", endTime: "17:00" },
+        { weekDay: dayNum, startTime: "09:00", endTime: "10:00" },
       ];
 
       if (applyToAll && firstDay !== null) {
