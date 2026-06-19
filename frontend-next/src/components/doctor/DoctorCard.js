@@ -2,18 +2,10 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Heading from "@/components/ui/Heading";
-
-function getInitials(name = "") {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() || "")
-    .join("");
-}
+import { getInitials } from "@/lib/utils/stringHelpers";
 
 function DoctorCard({ doctor }) {
-  const { specialities = [], name, userId } = doctor || {};
+  const { specialities = [], name, userId: doctorId } = doctor || {};
 
   const initial = getInitials(name);
 
@@ -41,7 +33,9 @@ function DoctorCard({ doctor }) {
         )}
       </div>
       <footer className="border-border mt-4 flex flex-col gap-3 border-t pt-4">
-        <Button>Book Appointment</Button>
+        <Button href={`/patient/book-appointment/${doctorId}`}>
+          Book Appointment
+        </Button>
         <Button variation="secondary">View Profile</Button>
       </footer>
     </Card>

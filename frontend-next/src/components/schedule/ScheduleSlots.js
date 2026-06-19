@@ -15,7 +15,11 @@ async function ScheduleSlots({ doctorId, startDate }) {
   let data = {};
 
   try {
-    data = await getScheduleSlots(doctorId, baseStartDate, baseEndDate);
+    data = await getScheduleSlots({
+      doctorId,
+      fromDate: baseStartDate,
+      toDate: baseEndDate,
+    });
   } catch (err) {
     console.error("Error loading schedule slots:", err);
     return (

@@ -33,7 +33,7 @@ function Button({
   ...props
 }) {
   const Style = cn(
-    "rounded-lg flex justify-center font-medium gap-2 shrink-0 items-center transition-all cursor-pointer data-[disabled=true]:opacity-70 data-[disabled=true]:cursor-not-allowed disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none",
+    "rounded-lg flex justify-center font-medium gap-2 shrink-0 items-center transition-all cursor-pointer data-[disabled=true]:opacity-70 data-[disabled=true]:cursor-not-allowed disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-95 transition-all",
     Variations[variation],
     Sizes[size],
     className,

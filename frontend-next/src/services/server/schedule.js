@@ -20,13 +20,21 @@ export async function getScheduleTemplates(name, pageSize, pageNo) {
   return response;
 }
 
-export async function getScheduleSlots(doctorId, fromDate, toDate) {
+export async function getScheduleSlots({
+  doctorId,
+  fromDate,
+  toDate,
+  pageNo,
+  pageSize,
+}) {
   if (!doctorId) redirect("/auth/login");
 
   const params = new URLSearchParams();
 
   if (fromDate) params.set("fromDate", fromDate);
   if (toDate) params.set("toDate", toDate);
+  if (pageNo) params.set("pageNo", pageNo);
+  if (pageSize) params.set("pageSize", pageSize);
 
   const response = await apiServer.get(
     `api/doctors/${doctorId}/schedule-slots${params.toString() ? `?${params.toString()}` : ""}`,

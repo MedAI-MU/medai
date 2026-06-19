@@ -28,6 +28,8 @@ export default function RootLayout({ children }) {
             toastOptions={{
               className:
                 "!bg-surface !text-text-base !border !border-border !shadow-md",
+              success: { duration: 3000 },
+              error: { duration: 5000 },
             }}
           />
         </ThemeProvider>
