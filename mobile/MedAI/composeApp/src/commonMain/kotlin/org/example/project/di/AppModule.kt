@@ -112,10 +112,12 @@ import org.example.project.domain.usecase.medical_record.UpdateFamilyHistoryUseC
 import org.example.project.domain.usecase.medical_record.UpdateSurgeryUseCase
 import org.example.project.domain.usecase.medical_record.UpdateChronicDiseaseUseCase
 import org.example.project.presentation.doctor.records.DoctorPatientRecordsViewModel
+import org.example.project.presentation.doctor.services.xray.XRayAnalysisViewModel
 
 import org.koin.dsl.module
 
 val appModule = module {
+
 
     // Utils
     single { CalendarManager() }
@@ -240,9 +242,9 @@ val appModule = module {
     }
     factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
 
-    // Doctor
     factory { GetDoctorAppointmentsUseCase(get()) }
     factory { DoctorDashboardViewModel(get(), get()) }
+    factory { XRayAnalysisViewModel(get()) }
     factory { (patientId: String) ->
         DoctorPatientRecordsViewModel(
             patientId = patientId,

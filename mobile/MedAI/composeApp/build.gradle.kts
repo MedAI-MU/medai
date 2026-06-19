@@ -36,6 +36,10 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.ktor.client.okhttp)
+
+            // TensorFlow Lite for on-device ML
+            implementation("org.tensorflow:tensorflow-lite:2.14.0")
+            implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
         }
         commonMain.dependencies {
             implementation(compose.runtime)

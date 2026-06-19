@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -155,24 +156,13 @@ class DoctorDashboardScreen : Screen {
             contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         ) { padding ->
             Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-                when (val uiState = state) {
-                    is DoctorDashboardUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                    is DoctorDashboardUiState.Success -> {
-                        DashboardContent(
-                            allAppointments = uiState.appointments,
-                            filteredAppointments = filteredAppointments
-                        )
-                    }
-                    is DoctorDashboardUiState.Error -> {
-                        Text(
-                            text = uiState.message,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
+                val uiState = state
+                DashboardContent(
+                    allAppointments = if (uiState is DoctorDashboardUiState.Success) uiState.appointments else emptyList(),
+                    filteredAppointments = if (uiState is DoctorDashboardUiState.Success) filteredAppointments else emptyList(),
+                    isLoading = uiState is DoctorDashboardUiState.Loading,
+                    errorMessage = if (uiState is DoctorDashboardUiState.Error) uiState.message else null
+                )
             }
         }
     }
@@ -181,7 +171,9 @@ class DoctorDashboardScreen : Screen {
 @Composable
 fun DashboardContent(
     allAppointments: List<AppointmentDetail>,
-    filteredAppointments: List<AppointmentDetail>
+    filteredAppointments: List<AppointmentDetail>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null
 ) {
     val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     val total = allAppointments.size
@@ -192,25 +184,35 @@ fun DashboardContent(
         // Quick Actions
         Text("Quick Actions", style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ActionButton(
-                text = "Consultations",
-                icon = Icons.Default.Chat,
-                onClick = { navigator.push(org.example.project.presentation.doctor.chat.DoctorChatListScreen()) },
-                modifier = Modifier.weight(1f)
-            )
-            ActionButton(
-                text = "Prescriptions",
-                icon = Icons.Default.Description,
-                onClick = { navigator.push(org.example.project.presentation.doctor.prescription.EPrescriptionScreen()) },
-                modifier = Modifier.weight(1f)
-            )
-            ActionButton(
-                text = "Patients",
-                icon = Icons.Default.Person,
-                onClick = { navigator.push(org.example.project.presentation.patientDirectory.PatientsDirectoryScreen()) },
-                modifier = Modifier.weight(1f)
-            )
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton(
+                    text = "Consultations",
+                    icon = Icons.Default.Chat,
+                    onClick = { navigator.push(org.example.project.presentation.doctor.chat.DoctorChatListScreen()) },
+                    modifier = Modifier.weight(1f)
+                )
+                ActionButton(
+                    text = "Prescriptions",
+                    icon = Icons.Default.Description,
+                    onClick = { navigator.push(org.example.project.presentation.doctor.prescription.EPrescriptionScreen()) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton(
+                    text = "Patients",
+                    icon = Icons.Default.Person,
+                    onClick = { navigator.push(org.example.project.presentation.patientDirectory.PatientsDirectoryScreen()) },
+                    modifier = Modifier.weight(1f)
+                )
+                ActionButton(
+                    text = "Services",
+                    icon = Icons.Default.MedicalServices,
+                    onClick = { navigator.push(org.example.project.presentation.doctor.services.DoctorServicesScreen()) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -232,31 +234,67 @@ fun DashboardContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (filteredAppointments.isNotEmpty()) {
-            AppointmentList(filteredAppointments, modifier = Modifier.weight(1f))
-        } else {
-            // Empty state
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MedAITheme.colors.primary.copy(alpha = 0.06f))
-                    .padding(vertical = 32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    MedAIText(
-                        text = "No appointments for this date",
-                        style = MedAITheme.textStyle.title.medium,
-                        color = MedAITheme.colors.text.secondary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    MedAIText(
-                        text = "Select a different date to view appointments",
-                        style = MedAITheme.textStyle.body.small,
-                        color = MedAITheme.colors.text.secondary.copy(alpha = 0.7f)
-                    )
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MedAITheme.colors.primary)
+                }
+            }
+            errorMessage != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        MedAIText(
+                            text = errorMessage,
+                            style = MedAITheme.textStyle.title.medium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        MedAIText(
+                            text = "Please check your server connection",
+                            style = MedAITheme.textStyle.body.small,
+                            color = MedAITheme.colors.text.secondary
+                        )
+                    }
+                }
+            }
+            filteredAppointments.isNotEmpty() -> {
+                AppointmentList(filteredAppointments, modifier = Modifier.weight(1f))
+            }
+            else -> {
+                // Empty state
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MedAITheme.colors.primary.copy(alpha = 0.06f))
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        MedAIText(
+                            text = "No appointments for this date",
+                            style = MedAITheme.textStyle.title.medium,
+                            color = MedAITheme.colors.text.secondary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        MedAIText(
+                            text = "Select a different date to view appointments",
+                            style = MedAITheme.textStyle.body.small,
+                            color = MedAITheme.colors.text.secondary.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
         }
