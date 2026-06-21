@@ -1,5 +1,5 @@
-import { validateSchema } from "../utils/validateSchema";
-import { loginSchema, signupSchema } from "../zod/authSchemas";
+import { validateSchema } from "../../lib/utils/validateSchema";
+import { loginSchema, signupSchema } from "../../lib/zod/authSchemas";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

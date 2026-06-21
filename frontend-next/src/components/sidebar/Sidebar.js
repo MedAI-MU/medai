@@ -22,6 +22,7 @@ import ButtonIcon from "@/components/ui/ButtonIcon";
 import Heading from "@/components/ui/Heading";
 import SidebarNavItem from "@/components/sidebar/SidebarNavItem";
 import SidebarNavGroup from "@/components/sidebar/SidebarNavGroup";
+import LogoutButton from "../ui/LogoutButton";
 
 const LINKS = {
   patient: [
@@ -141,10 +142,7 @@ function Sidebar({ role }) {
 
         {/* Logout */}
         <div className="border-border border-t p-4">
-          <button className="text-danger hover:bg-danger-muted flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors">
-            <LogOut size={18} />
-            <span className="text-sm font-medium">Log out</span>
-          </button>
+          <LogoutButton />
         </div>
       </aside>
     </>

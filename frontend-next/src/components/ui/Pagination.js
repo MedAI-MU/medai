@@ -5,16 +5,19 @@ import Button from "./Button";
 import { cn } from "@/lib/utils";
 import { usePaginationNav } from "@/hooks/usePaginationNav";
 
-function Pagination({ totalCount, pageSize = 10, className }) {
+function Pagination({
+  currentPage,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  pageSize = 10,
+  className,
+}) {
   const navigateTo = usePaginationNav();
 
-  const currentPage = Number(searchParams.get("pageNo") ?? 1);
   const totalPages = Math.ceil(totalCount / pageSize);
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalCount);
-
-  const hasPrevious = currentPage > 1;
-  const hasNext = currentPage < totalPages;
 
   if (totalPages <= 1) return null;
 

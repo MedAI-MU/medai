@@ -14,7 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "@/lib/zod/authSchemas";
-import { signupAction } from "@/lib/actions/auth";
+import { signupAction } from "@/services/client/auth";
 import { ROLES } from "@/constants/roles";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";

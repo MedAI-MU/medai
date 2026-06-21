@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { refreshToken } from "../actions/auth";
+import { refreshToken } from "../../services/client/auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
