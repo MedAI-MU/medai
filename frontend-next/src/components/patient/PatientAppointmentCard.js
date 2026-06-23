@@ -41,7 +41,7 @@ function PatientAppointmentCard({ appointment }) {
             </em>
           )}
 
-          <div className="text-text-muted flex items-center gap-2">
+          <div className="text-text-muted flex items-center gap-2 text-sm">
             <Clock size={16} />
             {formatedStartTime} - {formatedEndTime}
           </div>
@@ -54,26 +54,31 @@ function PatientAppointmentCard({ appointment }) {
             color={statusColor[status]}
             className="text-xs font-normal capitalize"
           />
-          <div className="flex w-full gap-3 md:w-auto">
-            {status === "finished" && (
-              <FormDialog
-                title="Rate Your Appointment"
-                form={<AppointmentReivewForm appointment={appointment} />}
-              >
-                <Button variation="outline">Review</Button>
-              </FormDialog>
-            )}
-            {isCancellable && (
-              <DeleteDialog
-                title="Delete appointment?"
-                successMessage="Appointment deleted successfully"
-                failMessage="Failed to deleted Appointments"
-                onConfirm={() => updateAppointmentStatus(id, "cancelled")}
-              >
-                <Button variation="dangerGhost">Cancel Booking</Button>
-              </DeleteDialog>
-            )}
-          </div>
+          {(isCancellable || status === "finished") && (
+            <div className="flex w-full gap-3 max-md:justify-end md:w-auto">
+              {status === "finished" && (
+                <FormDialog
+                  title="Rate Your Appointment"
+                  form={<AppointmentReivewForm appointment={appointment} />}
+                >
+                  <Button variation="outline">Review</Button>
+                </FormDialog>
+              )}
+              {isCancellable && (
+                <DeleteDialog
+                  title="Cancel appointment?"
+                  description={`You are about to cancel your appointment with Dr. ${doctor?.user?.name}. This action cannot be undone.`}
+                  confirmLabel="Yes, Cancel Appointment"
+                  cancelLabel="No, Keep It"
+                  successMessage="Appointment cancelled successfully"
+                  failMessage="Failed to cancel Appointments"
+                  onConfirm={() => updateAppointmentStatus(id, "cancelled")}
+                >
+                  <Button variation="dangerGhost">Cancel Booking</Button>
+                </DeleteDialog>
+              )}
+            </div>
+          )}
         </>
       }
     />

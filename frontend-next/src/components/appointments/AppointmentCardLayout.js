@@ -3,7 +3,7 @@ import DayCard from "./DayCard";
 
 function AppointmentCardLayout({ date, infoSection, isCompleted, actions }) {
   return (
-    <Card className="flex flex-col items-start gap-6 md:flex-row md:items-center">
+    <Card className="flex flex-col items-center gap-6 text-center md:flex-row md:text-start">
       {/* <!-- Date Badge --> */}
       <DayCard date={date} isCompleted={isCompleted} />
       {/* <!-- Info Section --> */}

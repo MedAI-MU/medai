@@ -1,4 +1,4 @@
-import { FolderOpen, Share2, Users, HeartPulse, History } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import Heading from "./Heading";
 import IconBadge from "./IconBadge";
 

@@ -1,4 +1,5 @@
 import PatientAppointmentCard from "@/components/patient/PatientAppointmentCard";
+import PatientAppointments from "@/components/patient/PatientAppointments";
 import EmptyState from "@/components/ui/EmptyState";
 import Heading from "@/components/ui/Heading";
 import { getUserAppointments } from "@/services/server/appointments";
@@ -15,14 +16,7 @@ async function PatientAppointmentsPage() {
         title="My Appointments"
         subtitle="Track and manage your scheduled healthcare visits."
       />
-      <div className="space-y-6">
-        {data?.map((appointment) => (
-          <PatientAppointmentCard
-            key={appointment?.id}
-            appointment={appointment}
-          />
-        ))}
-      </div>
+      <PatientAppointments appointments={data} />
     </div>
   );
 }
