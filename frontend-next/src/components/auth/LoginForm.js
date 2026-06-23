@@ -6,7 +6,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/zod/authSchemas";
-import { loginAction } from "@/lib/actions/auth";
+import { loginAction } from "@/services/client/auth";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import ErrorMessage from "@/components/ui/ErrorMessage";

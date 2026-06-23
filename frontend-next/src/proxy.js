@@ -30,6 +30,7 @@ export async function proxy(request) {
 
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
+    console.log("tried to refresh token");
     try {
       const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
 
@@ -41,13 +42,27 @@ export async function proxy(request) {
       });
 
       if (!refreshResponse.ok) {
-        throw new Error("Refresh token is not valid");
+        console.log(refreshResponse);
+        const error = new Error("Refresh token is not valid");
+        error.status = refreshResponse.status;
+        throw error;
       }
       refreshedTokensInCookies = refreshResponse.headers.get("set-cookie");
     } catch (error) {
       console.log("Refresh error:", error);
-      if (isProtectedRoute)
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+      if (error.status === 401) {
+        let response;
+        if (isProtectedRoute) {
+          response = NextResponse.redirect(new URL("/auth/login", request.url));
+          response.cookies.delete("Authentication");
+          response.cookies.delete("Refresh");
+        } else {
+          response = NextResponse.next();
+          response.cookies.delete("Authentication");
+          response.cookies.delete("Refresh");
+        }
+        return response;
+      }
     }
   }
 

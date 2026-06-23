@@ -20,6 +20,8 @@ function DeleteDialog({
   onConfirm,
   successMessage,
   failMessage,
+  confirmLabel = "Delete",
+  cancelLabel = "Cancel",
   children,
 }) {
   const router = useRouter();
@@ -50,7 +52,9 @@ function DeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>
+            {cancelLabel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -58,7 +62,7 @@ function DeleteDialog({
             }}
             disabled={isDeleting}
           >
-            {isDeleting ? <SpinnerMini /> : "Delete"}
+            {isDeleting ? <SpinnerMini /> : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

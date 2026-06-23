@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { refreshToken } from "../actions/auth";
+import { refreshToken } from "../../services/client/auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -37,6 +37,7 @@ async function apiClientFetch({ endpoint, options = {} }) {
   // 4) handle general fails
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.error(errorData?.message);
     const error = new Error(
       errorData?.message || `API Error: ${response.status}`,
     );

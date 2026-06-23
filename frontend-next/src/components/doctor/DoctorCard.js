@@ -2,27 +2,15 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Heading from "@/components/ui/Heading";
-
-function getInitials(name = "") {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() || "")
-    .join("");
-}
+import UserFallback from "../ui/UserFallback";
 
 function DoctorCard({ doctor }) {
-  const { specialities = [], name, userId } = doctor || {};
-
-  const initial = getInitials(name);
+  const { specialities = [], name, userId: doctorId } = doctor || {};
 
   return (
     <Card>
       <div className="mb-4 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-start">
-        <div className="bg-primary flex size-16 shrink-0 items-center justify-center rounded-full text-white">
-          {initial}
-        </div>
+        <UserFallback name={name} />
         <div>
           <Heading size="sm" Tag="h3" title={`Dr. ${name}`} />
           <Badge color="blue" text="Doctor" />
@@ -41,7 +29,9 @@ function DoctorCard({ doctor }) {
         )}
       </div>
       <footer className="border-border mt-4 flex flex-col gap-3 border-t pt-4">
-        <Button>Book Appointment</Button>
+        <Button href={`/patient/book-appointment/${doctorId}`}>
+          Book Appointment
+        </Button>
         <Button variation="secondary">View Profile</Button>
       </footer>
     </Card>
