@@ -30,6 +30,7 @@ export async function proxy(request) {
 
   // 2b) Try to refresh tokens
   if (!accessToken && refreshToken) {
+    console.log("tried to refresh token");
     try {
       const refreshUrl = `${API_BASE_URL}/api/auth/refresh-token`;
 

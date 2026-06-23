@@ -1,33 +1,23 @@
 "use client";
+
+import { cn } from "@/lib/utils";
 import { useState } from "react";
-
-const containerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-};
-
-const starsStyle = {
-  display: "flex",
-  gap: "1px",
-  listStyle: "none",
-  padding: "0",
-};
 
 export default function StarRating({
   maxLength = 5,
-  size = 30,
   defualtRate = 0,
   onSetRating,
-  isReadOnly = false,
   color = "#fcc419",
+  containerClassName = "",
+  starClassName = "",
+  disabled = false,
 }) {
   const [rating, setRating] = useState(defualtRate);
   const [tempRating, setTempRating] = useState(0);
 
   function handleRating(num) {
     setRating((_) => num);
-    onSetRating((_) => num);
+    onSetRating?.(num);
   }
 
   function handleHoverIn(num) {
@@ -39,28 +29,24 @@ export default function StarRating({
   }
 
   return (
-    <div style={containerStyle}>
-      <ul className="stars" style={starsStyle}>
+    <div className={cn("flex items-center gap-4", containerClassName)}>
+      <ul className="flex list-none gap-0.5 p-0">
         {Array.from({ length: maxLength }, (_, i) => (
           <Star
             key={i}
             onRate={() => handleRating(i + 1)}
             onHoverIn={() => handleHoverIn(i + 1)}
             onHoverOut={() => handleHoverOut()}
-            full={
-              isReadOnly
-                ? defualtRate >= i + 1
-                : (tempRating || rating) >= i + 1
-            }
-            size={size}
+            full={(tempRating || rating) >= i + 1}
+            starClassName={starClassName}
             color={color}
-            isReadOnly={isReadOnly}
+            disabled={disabled}
           />
         ))}
       </ul>
-      {/* <div className="star-num" style={{ color }}>
-        {tempRating || rating || ""}
-      </div> */}
+      <div className="text-text-subtle">
+        {tempRating || rating || "0"}.0 out of 5 stars
+      </div>
     </div>
   );
 }
@@ -69,27 +55,20 @@ function Star({
   onRate,
   onHoverIn,
   onHoverOut,
+  disabled,
   full,
-  size,
   color,
-  isReadOnly,
+  starClassName,
 }) {
-  const starStyle = {
-    width: `${size}px`,
-    height: `${size}px`,
-    cursor: `${isReadOnly ? "default" : "pointer"}`,
-    background: "none",
-    color,
-  };
-
   return (
     <li style={{ lineHeight: 0 }}>
       <button
-        style={starStyle}
+        type="button"
+        className={cn("size-5 cursor-pointer bg-none", starClassName)}
         onClick={onRate}
         onMouseEnter={onHoverIn}
         onMouseLeave={onHoverOut}
-        disabled={isReadOnly}
+        disabled={disabled}
       >
         {full ? (
           <svg

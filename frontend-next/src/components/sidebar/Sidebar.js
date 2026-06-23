@@ -32,7 +32,11 @@ const LINKS = {
       href: "/patient/book-appointment",
       icon: CalendarPlus,
     },
-    { text: "my appointments", href: "#", icon: CalendarCheck },
+    {
+      text: "my appointments",
+      href: "/patient/appointments",
+      icon: CalendarCheck,
+    },
     {
       text: "medical records",
       href: "/patient/medical-records",

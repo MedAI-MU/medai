@@ -3,12 +3,37 @@
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
-function DayCard({ date, hasSlots, isSelected, onClick }) {
+function DayCard({ date, hasSlots, isSelected, isCompleted, onClick }) {
   const parsed = parseISO(date);
   const dayName = format(parsed, "EEE"); // "Tue"
   const dayNum = format(parsed, "dd"); // "19"
   const month = format(parsed, "MMM"); // "May"
 
+  // 1) Non clickable day card
+  if (!onClick)
+    return (
+      <div
+        className={cn(
+          "border-border bg-surface-overlay text-text-base z-10 flex h-28 w-24 shrink-0 flex-col items-center justify-center rounded-xl border-2",
+          isCompleted && "text-text-subtle opacity-70",
+        )}
+      >
+        <span className="mb-0.5 text-[11px] font-semibold tracking-wider uppercase opacity-80">
+          {dayName}
+        </span>
+        <span
+          className={cn(
+            "text-text-base text-3xl leading-none font-bold",
+            isCompleted && "text-text-subtle",
+          )}
+        >
+          {dayNum}
+        </span>
+        <span className="mt-0.5 text-[11px] opacity-80">{month}</span>
+      </div>
+    );
+
+  // 2) Clickable day card
   const isDisabled = !hasSlots;
 
   return (
