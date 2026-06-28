@@ -153,12 +153,12 @@ export class AppointmentsService {
       }
     }
 
-    if (
-      dto.status === AppointmentStatusEnum.CANCELLED &&
-      appointment.status !== 'cancelled'
-    ) {
+    if (dto.status === AppointmentStatusEnum.CANCELLED) {
       appointment.scheduleSlot.status = 'available';
       await this.slotsRepository.save(appointment.scheduleSlot);
+      await this.appointmentsRepository.remove(appointment);
+      appointment.status = AppointmentStatusEnum.CANCELLED;
+      return appointment;
     }
 
     if (
