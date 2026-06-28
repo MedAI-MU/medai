@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class ChangeSecretaryIdToCreatedByUserId1769902572531
-  implements MigrationInterface
-{
+export class ChangeSecretaryIdToCreatedByUserId1769902572531 implements MigrationInterface {
   name = 'ChangeSecretaryIdToCreatedByUserId1769902572531';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
