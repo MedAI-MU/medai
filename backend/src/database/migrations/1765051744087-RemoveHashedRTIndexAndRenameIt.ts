@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class RemoveHashedRTIndexAndRenameIt1765051744087
-  implements MigrationInterface
-{
+export class RemoveHashedRTIndexAndRenameIt1765051744087 implements MigrationInterface {
   name = 'RemoveHashedRTIndexAndRenameIt1765051744087';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

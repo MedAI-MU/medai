@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class RemoveNameUniqueConstrainAndMakePhoneUnique1765430106318
-  implements MigrationInterface
-{
+export class RemoveNameUniqueConstrainAndMakePhoneUnique1765430106318 implements MigrationInterface {
   name = 'RemoveNameUniqueConstrainAndMakePhoneUnique1765430106318';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

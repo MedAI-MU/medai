@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class SeperateDocScheduleSlotIntoTwoTables1769912997976
-  implements MigrationInterface
-{
+export class SeperateDocScheduleSlotIntoTwoTables1769912997976 implements MigrationInterface {
   name = 'SeperateDocScheduleSlotIntoTwoTables1769912997976';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
