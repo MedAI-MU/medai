@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 
 data class AppointmentDetail(
     val id: String,
+    val patientId: String,
     val doctorName: String,
     val specialty: String,
     val doctorRating: Double,

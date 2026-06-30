@@ -352,7 +352,7 @@ fun AppointmentList(appointments: List<AppointmentDetail>, modifier: Modifier = 
             AppointmentCard(
                 appointment = appointment,
                 onClick = {
-                    navigator.push(org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen(appointment.id))
+                    navigator.push(org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen(appointment.patientId))
                 }
             )
             Spacer(modifier = Modifier.height(12.dp))

@@ -60,7 +60,7 @@ export class PatientsController {
   }
 
   @Get(':id')
-  @Roles('secretary')
+  @Roles('secretary', 'doctor')
   @UseGuards(SameIdGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient', type: PatientResponseDto })
