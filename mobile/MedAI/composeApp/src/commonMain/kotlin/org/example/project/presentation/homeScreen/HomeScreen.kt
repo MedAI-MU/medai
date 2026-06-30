@@ -71,6 +71,7 @@ import org.example.project.presentation.notificationScreen.NotificationScreen
 import org.example.project.presentation.recordScreen.RecordsDashboardScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
 import org.jetbrains.compose.resources.stringResource
+import org.example.project.presentation.appointmentScreen.AppointmentDetailScreen
 
 class HomeScreen : Screen {
     @Composable
@@ -84,8 +85,8 @@ class HomeScreen : Screen {
             viewModel.effect.collectLatest { effect ->
                 when(effect) {
                     is HomeEffect.NavigateToAppointmentDetails -> {
-                        // navigator.push(AppointmentDetailScreen(effect.appointmentId))
-                        println("Navigating to Appointment: ${effect.appointmentId}")
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(AppointmentDetailScreen(effect.appointmentId))
                     }
                     is HomeEffect.NavigateToCategory -> {
                         println("Navigating to Category: ${effect.category.id}")
