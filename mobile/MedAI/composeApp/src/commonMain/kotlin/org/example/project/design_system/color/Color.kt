@@ -62,3 +62,13 @@ val error = Color(0xFFEF4444)
 val error100 = Color(0xFFFEE2E2)
 val error200 = Color(0xFFFECACA)
 val error300 = Color(0xFFFCA5A5)
+
+// --- Accent (Cyan) ---
+val accent = Color(0xFF00E5FF)
+val accent100 = Color(0xFFE0FFFF)
+
+// --- Additional Semantics ---
+val gold = Color(0xFFFFD700)
+val warningAlt = Color(0xFFFFCC00) // Alternate warning (e.g., Pending, Waiting)
+val successAlt = Color(0xFF00C853) // Alternate success (e.g., Completed, Paid)
+val errorAlt = Color(0xFFFF5252)   // Alternate error (e.g., Cancelled)

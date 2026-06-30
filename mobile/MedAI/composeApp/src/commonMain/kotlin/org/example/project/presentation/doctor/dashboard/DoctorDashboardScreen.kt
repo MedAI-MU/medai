@@ -48,7 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.example.project.domain.model.appointment.AppointmentDetail
@@ -64,17 +64,12 @@ import org.example.project.domain.model.appointment.AppointmentDetailStatus
 class DoctorDashboardScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<DoctorDashboardViewModel>()
-        val state by viewModel.uiState.collectAsState()
-        val selectedDate by viewModel.selectedDate.collectAsState()
-        val dates by viewModel.dates.collectAsState()
-        val displayedMonth by viewModel.displayedMonth.collectAsState()
-        val appointmentDates by viewModel.appointmentDates.collectAsState()
-        val filteredAppointments by viewModel.filteredAppointments.collectAsState()
+        val viewModel = koinScreenModel<DoctorDashboardViewModel>()
+        val state by viewModel.state.collectAsState()
 
         // Refresh data when screen enters composition
         LaunchedEffect(Unit) {
-            viewModel.refresh()
+            viewModel.onEvent(DoctorDashboardEvent.Refresh)
         }
 
         MedAIScaffold(
@@ -102,7 +97,7 @@ class DoctorDashboardScreen : Screen {
                                 color = MedAITheme.colors.text.secondary
                             )
                             Text(
-                                text = "${displayedMonth.month.name.take(3)} ${displayedMonth.year}",
+                                text = "${(state.displayedMonth?.month?.name ?: "").take(3)} ${(state.displayedMonth?.year ?: 0)}",
                                 style = MedAITheme.textStyle.label.medium,
                                 color = MedAITheme.colors.primary,
                                 fontWeight = FontWeight.SemiBold
@@ -114,7 +109,7 @@ class DoctorDashboardScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { viewModel.onPreviousMonthClicked() }) {
+                            IconButton(onClick = { viewModel.onEvent(DoctorDashboardEvent.OnPreviousMonthClicked) }) {
                                 Icon(
                                     Icons.Default.ChevronLeft,
                                     contentDescription = "Previous Month",
@@ -128,20 +123,20 @@ class DoctorDashboardScreen : Screen {
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(horizontal = 4.dp)
                             ) {
-                                items(dates) { date ->
+                                items(state.dates) { date ->
                                     val dateEpoch = date.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
                                     MedAIDateCard(
                                         day = date.dayOfMonth.toString(),
                                         weekday = date.dayOfWeek.name.take(3),
-                                        isSelected = dateEpoch == selectedDate,
-                                        hasAppointment = date in appointmentDates,
-                                        onClick = { viewModel.onDateSelected(dateEpoch) }
+                                        isSelected = dateEpoch == state.selectedDate,
+                                        hasAppointment = date in state.appointmentDates,
+                                        onClick = { viewModel.onEvent(DoctorDashboardEvent.OnDateSelected(dateEpoch)) }
                                     )
                                 }
                             }
 
-                            IconButton(onClick = { viewModel.onNextMonthClicked() }) {
+                            IconButton(onClick = { viewModel.onEvent(DoctorDashboardEvent.OnNextMonthClicked) }) {
                                 Icon(
                                     Icons.Default.ChevronRight,
                                     contentDescription = "Next Month",
@@ -156,10 +151,10 @@ class DoctorDashboardScreen : Screen {
             contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         ) { padding ->
             Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-                val uiState = state
+                val uiState = state.uiState
                 DashboardContent(
                     allAppointments = if (uiState is DoctorDashboardUiState.Success) uiState.appointments else emptyList(),
-                    filteredAppointments = if (uiState is DoctorDashboardUiState.Success) filteredAppointments else emptyList(),
+                    filteredAppointments = state.filteredAppointments,
                     isLoading = uiState is DoctorDashboardUiState.Loading,
                     errorMessage = if (uiState is DoctorDashboardUiState.Error) uiState.message else null
                 )
@@ -381,8 +376,8 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
                 .background(
                     when (appointment.status) {
                         AppointmentDetailStatus.UPCOMING -> MedAITheme.colors.primary
-                        AppointmentDetailStatus.FINISHED -> Color(0xFF4CAF50) // Green
-                        AppointmentDetailStatus.CANCELLED -> Color(0xFFF44336) // Red
+                        AppointmentDetailStatus.FINISHED -> MedAITheme.colors.status.success // Green
+                        AppointmentDetailStatus.CANCELLED -> MedAITheme.colors.status.error // Red
                     }
                 )
         )

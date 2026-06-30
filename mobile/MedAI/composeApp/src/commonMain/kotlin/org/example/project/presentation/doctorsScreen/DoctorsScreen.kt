@@ -32,10 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.filter
 import medai.composeapp.generated.resources.find_your_doctor_subtitle
@@ -46,6 +45,7 @@ import medai.composeapp.generated.resources.sort_by
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiTextField
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsScreen
 import org.example.project.presentation.doctorsScreen.component.DoctorCard
@@ -59,12 +59,13 @@ class DoctorsScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<DoctorsListViewModel> { parametersOf(specialtyId) }
+        val viewModel = koinScreenModel<DoctorsListViewModel> { parametersOf(specialtyId) }
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when(effect) {
                     DoctorsListEffect.NavigateBack -> navigator.pop()
                     is DoctorsListEffect.NavigateToDoctorDetails -> {
@@ -84,32 +85,32 @@ class DoctorsScreen(
 
                 // Header Content
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = dimensions.extraLarge)
                 ) {
                     MedAIText(
                         text = stringResource(Res.string.find_your_doctor_subtitle),
                         style = MedAITheme.textStyle.body.large,
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = Color.White.copy(alpha = 0.9f), // Keep white on gradient
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                     MedAiTextField(
                         value = state.searchQuery,
                         onValueChange = { viewModel.onEvent(DoctorsListEvent.SearchQueryChanged(it)) },
                         placeholder = stringResource(Res.string.search_placeholder)
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions.extraLarge))
                 }
 
                 // White Body with Rounded Top
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
                         .background(MedAITheme.colors.background)
-                        .padding(24.dp)
+                        .padding(dimensions.extraLarge)
                 ) {
                     Column {
                         // Filters
@@ -122,31 +123,31 @@ class DoctorsScreen(
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
-                                    .background(Color(0xFF00E5FF))
+                                    .clip(RoundedCornerShape(dimensions.radiusRound))
+                                    .background(MedAITheme.colors.primary)
                                     .clickable { viewModel.onEvent(DoctorsListEvent.SortClicked) }
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    .padding(horizontal = dimensions.medium, vertical = dimensions.small)
                             ) {
-                                MedAIText(text = stringResource(Res.string.sort_az), color = Color.White, style = MedAITheme.textStyle.label.small)
+                                MedAIText(text = stringResource(Res.string.sort_az), color = MedAITheme.colors.onPrimary, style = MedAITheme.textStyle.label.small)
                             }
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(dimensions.small))
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
-                                    .border(1.dp, Color(0xFF00E5FF), RoundedCornerShape(50))
+                                    .clip(RoundedCornerShape(dimensions.radiusRound))
+                                    .border(1.dp, MedAITheme.colors.primary, RoundedCornerShape(dimensions.radiusRound))
                                     .clickable { viewModel.onEvent(DoctorsListEvent.FilterClicked) }
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    .padding(horizontal = dimensions.medium, vertical = dimensions.small)
                             ) {
-                                MedAIText(text = stringResource(Res.string.filter), color = Color(0xFF00E5FF), style = MedAITheme.textStyle.label.small)
+                                MedAIText(text = stringResource(Res.string.filter), color = MedAITheme.colors.primary, style = MedAITheme.textStyle.label.small)
                             }
 
                             Spacer(modifier = Modifier.weight(1f))
-                            MedAIText(text = stringResource(Res.string.see_all), color = Color(0xFF00E5FF), style = MedAITheme.textStyle.label.medium)
+                            MedAIText(text = stringResource(Res.string.see_all), color = MedAITheme.colors.primary, style = MedAITheme.textStyle.label.medium)
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensions.large))
 
                         if (state.isLoading) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -154,8 +155,8 @@ class DoctorsScreen(
                             }
                         } else {
                             LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(bottom = 24.dp)
+                                verticalArrangement = Arrangement.spacedBy(dimensions.large),
+                                contentPadding = PaddingValues(bottom = dimensions.extraLarge)
                             ) {
                                 items(state.filteredDoctors) { doctor ->
                                     DoctorCard(

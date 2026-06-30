@@ -65,6 +65,7 @@ import org.example.project.domain.model.patient.FamilyHistoryParams
 import org.example.project.domain.model.patient.FamilyRelation
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
+import org.example.project.presentation.shared.records.*
 
 sealed class SheetType {
     object None : SheetType()
@@ -96,7 +97,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = getScreenModel<DoctorPatientRecordsViewModel> { parametersOf(patientId) }
+        val viewModel = getScreenModel<SharedMedicalRecordViewModel> { parametersOf(patientId) }
         val state by viewModel.state.collectAsState()
 
         val snackbarHostState = remember { SnackbarHostState() }
@@ -106,9 +107,10 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
         LaunchedEffect(viewModel) {
             viewModel.effect.collect { effect ->
                 when (effect) {
-                    is DoctorPatientRecordsEffect.ShowSnackbar -> {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> {
                         snackbarHostState.showSnackbar(effect.message)
                     }
+                    else -> {}
                 }
             }
         }
@@ -212,7 +214,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
 fun MedicalRecordForm(
     sheetType: SheetType,
     onDismiss: () -> Unit,
-    onEvent: (DoctorPatientRecordsEvent) -> Unit
+    onEvent: (SharedMedicalRecordEvent) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState())) {
         Text(
@@ -245,7 +247,7 @@ fun MedicalRecordForm(
                 MedAiTextField(value = height, onValueChange = { height = it }, placeholder = "Height (cm)")
                 Spacer(modifier = Modifier.height(24.dp))
                 MedAIButton(text = "Update", onClick = {
-                    onEvent(DoctorPatientRecordsEvent.UpdateBasicInfo(weight.toDoubleOrNull() ?: 0.0, height.toDoubleOrNull() ?: 0.0))
+                    onEvent(SharedMedicalRecordEvent.UpdateBasicInfo(weight.toDoubleOrNull() ?: 0.0, height.toDoubleOrNull() ?: 0.0))
                     onDismiss()
                 })
             }
@@ -260,8 +262,8 @@ fun MedicalRecordForm(
                 Spacer(modifier = Modifier.height(24.dp))
                 MedAIButton(text = if (allergy == null) "Add" else "Update", onClick = {
                     val params = AllergyParams(name = name, symptoms = desc)
-                    if (allergy == null) onEvent(DoctorPatientRecordsEvent.AddAllergy(params))
-                    else onEvent(DoctorPatientRecordsEvent.EditAllergy(allergy.id, params))
+                    if (allergy == null) onEvent(SharedMedicalRecordEvent.AddAllergy(params))
+                    else onEvent(SharedMedicalRecordEvent.EditAllergy(allergy.id, params))
                     onDismiss()
                 })
             }
@@ -291,8 +293,8 @@ fun MedicalRecordForm(
                 MedAIButton(text = if (disease == null) "Add" else "Update", enabled = isValid, onClick = {
                     val params =
                         ChronicDiseaseParams(name = name, description = desc, diagnosisDate = date)
-                    if (disease == null) onEvent(DoctorPatientRecordsEvent.AddChronicDisease(params))
-                    else onEvent(DoctorPatientRecordsEvent.EditChronicDisease(disease.id, params))
+                    if (disease == null) onEvent(SharedMedicalRecordEvent.AddChronicDisease(params))
+                    else onEvent(SharedMedicalRecordEvent.EditChronicDisease(disease.id, params))
                     onDismiss()
                 })
             }
@@ -321,8 +323,8 @@ fun MedicalRecordForm(
 
                 MedAIButton(text = if (surgery == null) "Add" else "Update", enabled = isValid, onClick = {
                     val params = SurgeryParams(name = name, description = desc, date = date)
-                    if (surgery == null) onEvent(DoctorPatientRecordsEvent.AddSurgery(params))
-                    else onEvent(DoctorPatientRecordsEvent.EditSurgery(surgery.id, params))
+                    if (surgery == null) onEvent(SharedMedicalRecordEvent.AddSurgery(params))
+                    else onEvent(SharedMedicalRecordEvent.EditSurgery(surgery.id, params))
                     onDismiss()
                 })
             }
@@ -371,8 +373,8 @@ fun MedicalRecordForm(
                         condition = condition,
                         notes = notes
                     )
-                    if (history == null) onEvent(DoctorPatientRecordsEvent.AddFamilyHistory(params))
-                    else onEvent(DoctorPatientRecordsEvent.EditFamilyHistory(history.id, params))
+                    if (history == null) onEvent(SharedMedicalRecordEvent.AddFamilyHistory(params))
+                    else onEvent(SharedMedicalRecordEvent.EditFamilyHistory(history.id, params))
                     onDismiss()
                 })
             }
@@ -455,8 +457,8 @@ fun MedicalRecordForm(
                         address = address,
                         notes = notes
                     )
-                    if (contact == null) onEvent(DoctorPatientRecordsEvent.AddEmergencyContact(params))
-                    else onEvent(DoctorPatientRecordsEvent.EditEmergencyContact(contact.id, params))
+                    if (contact == null) onEvent(SharedMedicalRecordEvent.AddEmergencyContact(params))
+                    else onEvent(SharedMedicalRecordEvent.EditEmergencyContact(contact.id, params))
                     onDismiss()
                 })
             }
@@ -467,7 +469,7 @@ fun MedicalRecordForm(
 }
 
 @Composable
-fun PatientBasicInfo(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel) {
+fun PatientBasicInfo(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel) {
     val profile = state.patientProfile ?: return
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         SectionHeader("Physical Metrics")
@@ -505,13 +507,13 @@ fun PatientBasicInfo(state: DoctorPatientRecordsState, viewModel: DoctorPatientR
 }
 
 @Composable
-fun PatientAllergies(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel, onShowSheet: (SheetType) -> Unit) {
+fun PatientAllergies(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel, onShowSheet: (SheetType) -> Unit) {
     MedicalListContent(
         items = state.patientProfile?.allergies ?: emptyList(),
         title = "Allergies",
         onAddClick = { onShowSheet(SheetType.AddAllergy) },
         onEditClick = { onShowSheet(SheetType.EditAllergy(it)) },
-        onDeleteClick = { viewModel.onEvent(DoctorPatientRecordsEvent.DeleteAllergy(it.id)) },
+        onDeleteClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteAllergy(it.id)) },
         itemContent = { allergy ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(allergy.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
@@ -522,13 +524,13 @@ fun PatientAllergies(state: DoctorPatientRecordsState, viewModel: DoctorPatientR
 }
 
 @Composable
-fun PatientDiseases(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel, onShowSheet: (SheetType) -> Unit) {
+fun PatientDiseases(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel, onShowSheet: (SheetType) -> Unit) {
     MedicalListContent(
         items = state.patientProfile?.chronicDiseases ?: emptyList(),
         title = "Chronic Diseases",
         onAddClick = { onShowSheet(SheetType.AddDisease) },
         onEditClick = { onShowSheet(SheetType.EditDisease(it)) },
-        onDeleteClick = { viewModel.onEvent(DoctorPatientRecordsEvent.DeleteChronicDisease(it.id)) },
+        onDeleteClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteChronicDisease(it.id)) },
         itemContent = { disease ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(disease.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
@@ -540,13 +542,13 @@ fun PatientDiseases(state: DoctorPatientRecordsState, viewModel: DoctorPatientRe
 }
 
 @Composable
-fun PatientSurgeries(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel, onShowSheet: (SheetType) -> Unit) {
+fun PatientSurgeries(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel, onShowSheet: (SheetType) -> Unit) {
     MedicalListContent(
         items = state.patientProfile?.surgeries ?: emptyList(),
         title = "Surgeries",
         onAddClick = { onShowSheet(SheetType.AddSurgery) },
         onEditClick = { onShowSheet(SheetType.EditSurgery(it)) },
-        onDeleteClick = { viewModel.onEvent(DoctorPatientRecordsEvent.DeleteSurgery(it.id)) },
+        onDeleteClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteSurgery(it.id)) },
         itemContent = { surgery ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(surgery.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
@@ -558,13 +560,13 @@ fun PatientSurgeries(state: DoctorPatientRecordsState, viewModel: DoctorPatientR
 }
 
 @Composable
-fun PatientFamilyHistory(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel, onShowSheet: (SheetType) -> Unit) {
+fun PatientFamilyHistory(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel, onShowSheet: (SheetType) -> Unit) {
     MedicalListContent(
         items = state.patientProfile?.familyHistories ?: emptyList(),
         title = "Family History",
         onAddClick = { onShowSheet(SheetType.AddFamily) },
         onEditClick = { onShowSheet(SheetType.EditFamily(it)) },
-        onDeleteClick = { viewModel.onEvent(DoctorPatientRecordsEvent.DeleteFamilyHistory(it.id)) },
+        onDeleteClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteFamilyHistory(it.id)) },
         itemContent = { history ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("${history.relation.label}: ${history.condition}", style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
@@ -575,13 +577,13 @@ fun PatientFamilyHistory(state: DoctorPatientRecordsState, viewModel: DoctorPati
 }
 
 @Composable
-fun PatientEmergencyContacts(state: DoctorPatientRecordsState, viewModel: DoctorPatientRecordsViewModel, onShowSheet: (SheetType) -> Unit) {
+fun PatientEmergencyContacts(state: SharedMedicalRecordState, viewModel: SharedMedicalRecordViewModel, onShowSheet: (SheetType) -> Unit) {
     MedicalListContent(
         items = state.patientProfile?.emergencyContacts ?: emptyList(),
         title = "Emergency Contacts",
         onAddClick = { onShowSheet(SheetType.AddEmergency) },
         onEditClick = { onShowSheet(SheetType.EditEmergency(it)) },
-        onDeleteClick = { viewModel.onEvent(DoctorPatientRecordsEvent.DeleteEmergencyContact(it.id)) },
+        onDeleteClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteEmergencyContact(it.id)) },
         itemContent = { contact ->
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(contact.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)

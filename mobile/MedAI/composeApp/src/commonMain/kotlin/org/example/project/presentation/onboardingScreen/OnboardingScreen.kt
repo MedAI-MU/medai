@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -50,6 +49,7 @@ import org.example.project.core.presentation.util.asString
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.welcomeScreen.WelcomeScreen
 import org.jetbrains.compose.resources.painterResource
@@ -61,6 +61,7 @@ class OnboardingScreen : Screen {
 
         val navigator = LocalNavigator.currentOrThrow
         val storage = remember { OnboardingStorage() }
+        val dimensions = LocalDimensions.current
 
         // 2. Define Navigation Logic
         fun onComplete() {
@@ -91,24 +92,18 @@ class OnboardingScreen : Screen {
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val scope = rememberCoroutineScope()
 
-//        val brandGradient = Brush.verticalGradient(
-//            colors = listOf(
-//                Color(0xFF00E5FF),
-//                MedAITheme.colors.background
-//            )
-//        )
 
         MedAIScaffold{
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp)
-                    .padding(vertical = 24.dp)
+                    .padding(horizontal = dimensions.extraLarge) // 24.dp originally
+                    .padding(vertical = dimensions.extraLarge)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = dimensions.extraLarge),
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     MedAIText(
@@ -119,7 +114,7 @@ class OnboardingScreen : Screen {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
 
                 HorizontalPager(
@@ -135,7 +130,7 @@ class OnboardingScreen : Screen {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = dimensions.extraLarge),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Page Indicators
@@ -151,15 +146,15 @@ class OnboardingScreen : Screen {
 
                             Box(
                                 modifier = Modifier
-                                    .padding(4.dp)
+                                    .padding(dimensions.extraSmall) // 4.dp
                                     .clip(shape = CircleShape)
                                     .background(color)
-                                    .size(10.dp)
+                                    .size(dimensions.small) // 10.dp mapping approximated to small (8dp usually, but good enough for indicator)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(dimensions.extraExtraLarge)) // 32.dp
 
                     // Main Action Button
                     val isLastPage = pagerState.currentPage == pages.size - 1
@@ -179,7 +174,7 @@ class OnboardingScreen : Screen {
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensions.medium))
                 }
             }
         }
@@ -187,11 +182,12 @@ class OnboardingScreen : Screen {
 
     @Composable
     fun OnBoardingPageContent(page: OnboardingPage) {
+        val dimensions = LocalDimensions.current
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = dimensions.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -205,7 +201,7 @@ class OnboardingScreen : Screen {
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(dimensions.extraExtraLarge)) // 32.dp
 
             Column(
                 modifier = Modifier
@@ -221,7 +217,7 @@ class OnboardingScreen : Screen {
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensions.medium))
 
                 MedAIText(
                     text = page.description.asString(),
@@ -229,7 +225,7 @@ class OnboardingScreen : Screen {
                         color = MedAITheme.colors.text.secondary
                     ),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = dimensions.medium)
                 )
             }
         }

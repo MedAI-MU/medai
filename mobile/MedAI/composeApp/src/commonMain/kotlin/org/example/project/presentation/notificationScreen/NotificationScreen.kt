@@ -16,15 +16,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.notificationScreen.component.NotificationItem
 
@@ -33,12 +32,13 @@ class NotificationScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<NotificationViewModel>()
+        val viewModel = koinScreenModel<NotificationViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when (effect) {
                     NotificationEffect.NavigateBack -> navigator.pop()
                 }
@@ -68,7 +68,7 @@ class NotificationScreen : Screen {
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        contentPadding = PaddingValues(bottom = dimensions.medium)
                     ) {
 
                         items(state.notifications,
@@ -92,7 +92,7 @@ class NotificationScreen : Screen {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .padding(horizontal = dimensions.medium, vertical = dimensions.small)
                                     ) {
                                         MedAIText(
                                             text = uiModel.title,
@@ -105,8 +105,8 @@ class NotificationScreen : Screen {
                                     NotificationItem(
                                         notification = uiModel.notification,
                                         modifier = Modifier
-                                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                                            .clip(RoundedCornerShape(12.dp))
+                                            .padding(horizontal = dimensions.medium, vertical = dimensions.extraSmall)
+                                            .clip(RoundedCornerShape(dimensions.medium))
                                     )
                                 }
                             }

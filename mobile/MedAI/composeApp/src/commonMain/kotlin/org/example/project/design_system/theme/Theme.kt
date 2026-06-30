@@ -17,4 +17,9 @@ object MedAITheme{
         @Composable
         @ReadOnlyComposable
         get() = LocalMedAiTextStyle.current
+
+    val dimensions: Dimensions
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalDimensions.current
 }

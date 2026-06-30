@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collectLatest
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -57,16 +57,13 @@ class LoginScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
 
         // Handle Side Effects (Navigation & Errors)
-        LaunchedEffect(state.isSuccess) {
-            if (state.isSuccess) {
-                navigator.replaceAll(MainContainerScreen())
-            }
-        }
-
-        LaunchedEffect(state.error) {
-            state.error?.let { error ->
-                snackbarHostState.showSnackbar(error)
-                viewModel.onEvent(LoginEvent.ErrorShown)
+        LaunchedEffect(Unit) {
+            viewModel.effect.collectLatest { effect ->
+                when (effect) {
+                    is LoginEffect.NavigateToHome -> navigator.replaceAll(MainContainerScreen())
+                    is LoginEffect.NavigateToSignUp -> navigator.push(SignUpScreen())
+                    is LoginEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                }
             }
         }
 
@@ -78,10 +75,10 @@ class LoginScreen : Screen {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = MedAITheme.dimensions.extraLarge),
                 horizontalAlignment = Alignment.Start
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                 // Header
                 MedAIText(
@@ -91,14 +88,14 @@ class LoginScreen : Screen {
                         fontWeight = FontWeight.Bold
                     )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
                 MedAIText(
                     text = stringResource(Res.string.login_subtitle),
                     style = MedAITheme.textStyle.body.medium,
                     color = MedAITheme.colors.text.secondary
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))
 
                 // Email Input
                 InputLabel(text = stringResource(Res.string.email_or_mobile_label))
@@ -108,7 +105,7 @@ class LoginScreen : Screen {
                     placeholder = stringResource(Res.string.email_placeholder)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                 // Password Input
                 InputLabel(text = stringResource(Res.string.password_label))
@@ -119,7 +116,7 @@ class LoginScreen : Screen {
                 )
 
                 // Forgot Password
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -132,7 +129,7 @@ class LoginScreen : Screen {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))
 
                 // Login Button
                 if (state.isLoading) {
@@ -150,7 +147,7 @@ class LoginScreen : Screen {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                 // Social Login
                 SocialLoginSection()
@@ -161,7 +158,7 @@ class LoginScreen : Screen {
                 SignUpLink(
                     onSignUpClick = { navigator.push(SignUpScreen()) }
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
             }
         }
     }

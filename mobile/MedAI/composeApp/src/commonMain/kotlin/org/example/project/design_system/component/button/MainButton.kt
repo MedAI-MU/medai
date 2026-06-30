@@ -37,7 +37,7 @@ fun MedAIButton(
 ) {
     val primaryGradient = Brush.horizontalGradient(
         colors = listOf(
-            Color(0xFF00E5FF),
+            MedAITheme.colors.accent,
             MedAITheme.colors.primary
         )
     )
@@ -53,7 +53,7 @@ fun MedAIButton(
         ButtonVariant.Secondary -> MedAITheme.colors.primary
     }
 
-    val shape = RoundedCornerShape(50)
+    val shape = RoundedCornerShape(MedAITheme.dimensions.radiusRound)
 
     Box(
         modifier = modifier
@@ -66,7 +66,7 @@ fun MedAIButton(
                 role = Role.Button,
                 onClick = onClick
             )
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = MedAITheme.dimensions.extraLarge),
         contentAlignment = Alignment.Center
     ) {
         Text(

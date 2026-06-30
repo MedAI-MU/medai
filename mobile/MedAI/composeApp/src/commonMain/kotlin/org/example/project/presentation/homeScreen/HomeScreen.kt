@@ -17,19 +17,14 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -54,8 +49,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.categories
-import medai.composeapp.generated.resources.home_greeting
-import medai.composeapp.generated.resources.see_all
 import medai.composeapp.generated.resources.specialties
 import medai.composeapp.generated.resources.upcoming_schedule
 import org.example.project.design_system.component.dayPicker.MedAIDateCard
@@ -67,6 +60,8 @@ import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.CategoryItem
 import org.example.project.presentation.homeScreen.component.HomeAppointmentCard
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
+import org.example.project.design_system.component.header.SectionHeader
+import org.example.project.design_system.component.topBar.HomeTopBar
 import org.example.project.presentation.notificationScreen.NotificationScreen
 import org.example.project.presentation.recordScreen.RecordsDashboardScreen
 import org.example.project.presentation.specialtiesScreen.SpecialtiesScreen
@@ -89,7 +84,6 @@ class HomeScreen : Screen {
                         rootNavigator.push(AppointmentDetailScreen(effect.appointmentId))
                     }
                     is HomeEffect.NavigateToCategory -> {
-                        println("Navigating to Category: ${effect.category.id}")
                         when (effect.category.type) {
                             CategoryType.FAVORITE -> snackbarHostState.showSnackbar(effect.category.id)
                             CategoryType.DOCTORS -> {
@@ -113,35 +107,28 @@ class HomeScreen : Screen {
                     }
                     is HomeEffect.NavigateToDoctorDetails -> {
                         // navigator.push(DoctorDetailScreen(effect.doctorId))
-                        println("Navigating to Doctor: ${effect.doctorId}")
                     }
                     is HomeEffect.NavigateToSpecialty -> {
                         val screen = DoctorsScreen(specialtyId = effect.specialtyId, effect.title)
                         navigator.parent?.push(screen) ?: navigator.push(screen)
-                        println("Navigating to Specialty: ${effect.specialtyId}")
                     }
                     HomeEffect.NavigateToAllCategories -> {
                         // navigator.push(AllCategoriesScreen())
-                        println("Navigating to All Categories")
                     }
                     HomeEffect.NavigateToFullSchedule -> {
                         // navigator.push(ScheduleScreen())
-                        println("Navigating to Full Schedule")
                     }
                     HomeEffect.NavigateToAllSpecialties -> {
                         val rootNavigator = navigator.parent ?: navigator
                         rootNavigator.push(SpecialtiesScreen())
-                        println("Navigating to All Specialties")
                     }
                     HomeEffect.NavigateToNotifications -> {
                         val rootNavigator = navigator.parent ?: navigator
                         rootNavigator.push(NotificationScreen())
                     }
                     HomeEffect.NavigateToSearch -> {
-                        println("Navigating to Search")
                     }
                     HomeEffect.NavigateToSettings -> {
-                        println("Navigating to Settings")
                     }
                     is HomeEffect.ShowError -> {
                         snackbarHostState.showSnackbar(effect.message)
@@ -175,7 +162,7 @@ class HomeScreen : Screen {
                         .verticalScroll(rememberScrollState())
                         //.padding(bottom = 60.dp) // Space for bottom nav
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                     // 1. Categories Section
                     SectionHeader(
@@ -183,8 +170,8 @@ class HomeScreen : Screen {
                         onSeeAllClick = { viewModel.onEvent(HomeEvent.SeeAllCategoriesClicked) }
                     )
                     LazyRow(
-                        contentPadding = PaddingValues(horizontal = 24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                        contentPadding = PaddingValues(horizontal = MedAITheme.dimensions.extraLarge),
+                        horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.extraLarge)
                     ) {
                         items(state.categories) { category ->
                             CategoryItem(
@@ -194,18 +181,18 @@ class HomeScreen : Screen {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(MedAITheme.colors.primary.copy(alpha = 0.5f))
-                            .padding(vertical = 24.dp)
+                            .padding(vertical = MedAITheme.dimensions.extraLarge)
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                                .padding(horizontal = MedAITheme.dimensions.extraLarge, vertical = MedAITheme.dimensions.small),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -223,12 +210,12 @@ class HomeScreen : Screen {
                         }
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 24.dp),
+                            modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge),
                             color = Color.White.copy(alpha = 0.5f),
                             thickness = 1.dp
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         // Date Strip
                         Row(
@@ -236,13 +223,13 @@ class HomeScreen : Screen {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { viewModel.onEvent(HomeEvent.PreviousMonthClicked) }) {
-                                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous", tint = Color.White, modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous", tint = Color.White, modifier = Modifier.size(MedAITheme.dimensions.iconLarge))
                             }
 
                             LazyRow(
                                 modifier = Modifier.weight(1f),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.medium),
+                                contentPadding = PaddingValues(horizontal = MedAITheme.dimensions.small)
                             ) {
                                 items(state.calendarDays) { dateModel ->
                                     MedAIDateCard(
@@ -258,26 +245,26 @@ class HomeScreen : Screen {
                             }
 
                             IconButton(onClick = { viewModel.onEvent(HomeEvent.NextMonthClicked) }) {
-                                Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = Color.White, modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = Color.White, modifier = Modifier.size(MedAITheme.dimensions.iconLarge))
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         if (state.filteredAppointments.isNotEmpty()) {
                             HomeAppointmentCard(
                                 appointments = state.filteredAppointments,
                                 onItemClick = { id -> viewModel.onEvent(HomeEvent.AppointmentClicked(id)) },
-                                modifier = Modifier.padding(horizontal = 24.dp)
+                                modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge)
                             )
                         } else {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 24.dp)
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .padding(horizontal = MedAITheme.dimensions.extraLarge)
+                                    .clip(RoundedCornerShape(MedAITheme.dimensions.radiusExtraLarge))
                                     .background(Color.White.copy(alpha = 0.15f)) // Glass-like effect
-                                    .padding(vertical = 32.dp),
+                                    .padding(vertical = MedAITheme.dimensions.extraExtraLarge),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -291,7 +278,7 @@ class HomeScreen : Screen {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                     // 3. Specialties Section
                     SectionHeader(
@@ -300,12 +287,12 @@ class HomeScreen : Screen {
                     )
 
 
-                    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    Column(modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge)) {
                         val chunks = state.specialties.chunked(3)
                         chunks.forEach { rowItems ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.large)
                             ) {
                                 rowItems.forEach { specialty ->
                                     SpecialtyItem(
@@ -319,103 +306,11 @@ class HomeScreen : Screen {
                                     Spacer(modifier = Modifier.weight((3 - rowItems.size).toFloat()))
                                 }
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
                         }
                     }
                 }
             }
         }
-    }
-
-    private fun getWeekday(index: Int): String {
-        return when(index) {
-            0 -> "MON"
-            1 -> "TUE"
-            2 -> "WED"
-            3 -> "THU"
-            4 -> "FRI"
-            else -> "SAT"
-        }
-    }
-}
-
-@Composable
-fun HomeTopBar(
-    userName: String,
-    onNotificationClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onSearchClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Icons
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconButton(onClick = onNotificationClick) {
-                Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = MedAITheme.colors.text.primary)
-            }
-            IconButton(onClick = onSettingsClick) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MedAITheme.colors.text.primary)
-            }
-            IconButton(onClick = onSearchClick) {
-                Icon(Icons.Default.Search, contentDescription = "Search", tint = MedAITheme.colors.text.primary)
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Greeting & User
-        Column(horizontalAlignment = Alignment.End) {
-            MedAIText(
-                text = stringResource(Res.string.home_greeting),
-                style = MedAITheme.textStyle.label.small,
-                color = MedAITheme.colors.primary
-            )
-            MedAIText(
-                text = userName,
-                style = MedAITheme.textStyle.headline.small,
-                color = MedAITheme.colors.text.primary
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Profile Pic Placeholder
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-        )
-    }
-}
-
-@Composable
-fun SectionHeader(
-    title: String,
-    color: Color = MedAITheme.colors.text.primary,
-    onSeeAllClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        MedAIText(
-            text = title,
-            style = MedAITheme.textStyle.title.large.copy(fontWeight = FontWeight.Bold),
-            color = color
-        )
-        MedAIText(
-            text = stringResource(Res.string.see_all),
-            style = MedAITheme.textStyle.label.medium,
-            color = MedAITheme.colors.primary.copy(alpha = 0.8f),
-            modifier = Modifier.clickable { onSeeAllClick() }
-        )
     }
 }

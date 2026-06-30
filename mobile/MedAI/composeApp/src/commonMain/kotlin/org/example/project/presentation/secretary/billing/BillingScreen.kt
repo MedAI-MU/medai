@@ -21,41 +21,48 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.secretary.Invoice
-import org.example.project.domain.usecase.secretary.GenerateInvoiceUseCase
-import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase // Reusing for stats, but better to have GetInvoicesUseCase
-import org.example.project.domain.repository.secretary.SecretaryRepository // Accessing directly for MVP specific query or add usecase
+import org.example.project.design_system.theme.LocalDimensions
 
 class BillingScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<BillingViewModel>()
+        val viewModel = koinScreenModel<BillingViewModel>()
         val state by viewModel.state.collectAsState()
+        val dimensions = LocalDimensions.current
+
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is BillingEffect.ShowSnackbar -> {
+                        snackbarHostState.showSnackbar(effect.message)
+                    }
+                }
+            }
+        }
 
         Scaffold(
             topBar = {
@@ -81,13 +88,14 @@ class BillingScreen : Screen {
                     Icon(Icons.Default.Add, contentDescription = "New Invoice")
                 }
             },
-            containerColor = MedAITheme.colors.background
+            containerColor = MedAITheme.colors.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(dimensions.medium)
             ) {
                 if (state.isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -95,12 +103,12 @@ class BillingScreen : Screen {
                     }
                 } else {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(dimensions.small)
                     ) {
                         items(state.invoices) { invoice ->
                             InvoiceItem(
                                 invoice = invoice,
-                                onMarkPaid = { viewModel.markAsPaid(invoice.id) }
+                                onMarkPaid = { viewModel.onEvent(BillingEvent.MarkAsPaid(invoice.id)) }
                             )
                         }
                     }
@@ -111,11 +119,12 @@ class BillingScreen : Screen {
 
     @Composable
     fun InvoiceItem(invoice: Invoice, onMarkPaid: () -> Unit) {
+        val dimensions = LocalDimensions.current
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                .padding(16.dp)
+                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(dimensions.radiusMedium))
+                .padding(dimensions.medium)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -124,14 +133,14 @@ class BillingScreen : Screen {
             ) {
                 Column {
                     Text(text = invoice.patientName, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
-                    Text(text = "$${invoice.amount}", style = MedAITheme.textStyle.headline.small, color = MedAITheme.colors.primary, fontWeight = FontWeight.Bold)
+                    Text(text = "${invoice.amount}", style = MedAITheme.textStyle.headline.small, color = MedAITheme.colors.primary, fontWeight = FontWeight.Bold)
                     Text(text = invoice.items.joinToString(", "), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 }
 
                 StatusBadge(invoice.status)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(dimensions.small))
 
             if (invoice.status == "PENDING") {
                 MedAIButton(
@@ -145,65 +154,20 @@ class BillingScreen : Screen {
 
     @Composable
     fun StatusBadge(status: String) {
+        val dimensions = LocalDimensions.current
         val (color, text) = when (status) {
-            "PENDING" -> Color(0xFFFFCC00) to "Pending"
-            "PAID" -> Color(0xFF00C853) to "Paid"
-            "CANCELLED" -> Color(0xFFFF5252) to "Cancelled"
+            "PENDING" -> MedAITheme.colors.status.warning to "Pending"
+            "PAID" -> MedAITheme.colors.status.success to "Paid"
+            "CANCELLED" -> MedAITheme.colors.status.error to "Cancelled"
             else -> MedAITheme.colors.text.secondary to status
         }
 
         Box(
             modifier = Modifier
-                .background(color.copy(alpha = 0.2f), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .background(color.copy(alpha = 0.2f), shape = androidx.compose.foundation.shape.RoundedCornerShape(dimensions.radiusSmall))
+                .padding(horizontal = dimensions.small, vertical = dimensions.extraSmall)
         ) {
             Text(text = text, style = MedAITheme.textStyle.label.small, color = color, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-class BillingViewModel(
-    private val repository: SecretaryRepository // Using repo directly for MVP query simplicity (getPendingInvoices not wrapped in UC yet)
-) : ScreenModel {
-
-    data class State(
-        val invoices: List<Invoice> = emptyList(),
-        val isLoading: Boolean = false,
-        val error: String? = null
-    )
-
-    private val _state = MutableStateFlow(State())
-    val state: StateFlow<State> = _state.asStateFlow()
-
-    init {
-        loadInvoices()
-    }
-
-    private fun loadInvoices() {
-        screenModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            try {
-                // Fetching pending invoices. In real app, we might want all.
-                // Assuming repo has a method for this or we filter locally. The interface has `getPendingInvoices`.
-                // Let's assume we want ALL invoices for history? The repo interface only has `getPendingInvoices`.
-                // I'll stick to pending for now or check repo.
-                // Ah, MockSecretaryRepositoryImpl has `getPendingInvoices`.
-                val invoices = repository.getPendingInvoices()
-                _state.value = _state.value.copy(invoices = invoices, isLoading = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(error = e.message, isLoading = false)
-            }
-        }
-    }
-
-    fun markAsPaid(invoiceId: String) {
-        screenModelScope.launch {
-            try {
-                repository.markInvoiceAsPaid(invoiceId)
-                loadInvoices() // Refresh
-            } catch (e: Exception) {
-                // handle error
-            }
         }
     }
 }
