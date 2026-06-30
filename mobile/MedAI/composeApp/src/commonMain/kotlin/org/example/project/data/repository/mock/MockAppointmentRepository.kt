@@ -16,6 +16,7 @@ class MockAppointmentRepository : AppointmentRepository {
     private val mockAppointments = listOf(
         AppointmentDetail(
             id = "1",
+            patientId = "10",
             doctorName = "Dr. Olivia Turner",
             specialty = "Dermatologist",
             doctorRating = 4.8,
@@ -27,6 +28,7 @@ class MockAppointmentRepository : AppointmentRepository {
         ),
         AppointmentDetail(
             id = "2",
+            patientId = "11",
             doctorName = "Dr. Alexander Bennett",
             specialty = "Dermatologist",
             doctorRating = 4.5,
@@ -38,6 +40,7 @@ class MockAppointmentRepository : AppointmentRepository {
         ),
         AppointmentDetail(
             id = "3",
+            patientId = "12",
             doctorName = "Dr. Michael Chang",
             specialty = "Cardiologist",
             doctorRating = 4.9,
