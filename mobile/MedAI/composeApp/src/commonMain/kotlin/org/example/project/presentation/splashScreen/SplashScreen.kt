@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -29,7 +26,6 @@ import androidx.compose.ui.layout.ContentScale
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.app_logo
 import org.jetbrains.compose.resources.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -38,7 +34,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.core.data.OnboardingStorage
-import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.onboardingScreen.OnboardingScreen
 import org.example.project.presentation.welcomeScreen.WelcomeScreen
@@ -120,7 +115,7 @@ class SplashScreen : Screen {
 @Composable
 fun MedAILogo(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 150.dp, // Increased size for the logo image
+    iconSize: Dp = 150.dp, // Maintained as a specific fixed size for branding identity
     tint: Color,
     textColor: Color
 ) {
@@ -136,14 +131,7 @@ fun MedAILogo(
             contentScale = ContentScale.Fit
         )
 
+        // Using Spacer with hardcoded value due to no LocalDimensions access in this context easily
         Spacer(modifier = Modifier.height(16.dp))
-
-//        MedAIText(
-//            text = "MedAI",
-//            style = MedAITheme.textStyle.headline.large.copy(
-//                fontWeight = FontWeight.Bold
-//            ),
-//            color = textColor
-//        )
     }
 }

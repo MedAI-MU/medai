@@ -1,5 +1,7 @@
 package org.example.project.design_system.color
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * Defines the set of semantic colors for the Dark theme.
  */
@@ -12,24 +14,29 @@ val darkTextColors = MedAiTextColors(
 )
 
 val darkStatusColors = MedAiStatusColors(
-    success = success300,
-    warning = warning300,
-    error = error300,
-    successContainer = success100.copy(alpha = 0.1f),
-    warningContainer = warning100.copy(alpha = 0.1f),
-    errorContainer = error100.copy(alpha = 0.1f)
+    success = success,
+    warning = warning,
+    error = error,
+    successContainer = Color(0xFF064E3B),
+    warningContainer = Color(0xFF78350F),
+    errorContainer = Color(0xFF7F1D1D),
+    starRating = gold,
+    waiting = warningAlt,
+    completed = successAlt,
+    cancelled = errorAlt
 )
 
 val darkColors = MedAiColors(
-    primary = primary400, // Lighter blue for dark mode visibility
+    primary = primary500,
     secondary = secondary400,
-    background = baseBlack, // Slate 950
-    surface = secondary900, // Slate 900
-    onPrimary = baseBlack,
-    onSecondary = baseBlack,
-    onBackground = neutral100,
-    onSurface = neutral100,
-    neutral = neutral600,
+    accent = accent,
+    background = baseBlack,
+    surface = secondary900,
+    onPrimary = baseWhite,
+    onSecondary = baseWhite,
+    onBackground = baseWhite,
+    onSurface = baseWhite,
+    neutral = neutral400,
     status = darkStatusColors,
     text = darkTextColors
 )

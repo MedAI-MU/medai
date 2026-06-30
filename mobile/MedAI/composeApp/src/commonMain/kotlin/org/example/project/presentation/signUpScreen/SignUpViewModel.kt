@@ -1,44 +1,37 @@
 package org.example.project.presentation.signUpScreen
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.auth.SignUpUseCase
 
 class SignUpViewModel(
     private val signUpUseCase: SignUpUseCase
-) : ScreenModel {
+) : MviScreenModel<SignUpState, SignUpEvent, SignUpEffect>(SignUpState()) {
 
-    private val _state = MutableStateFlow(SignUpState())
-    val state = _state.asStateFlow()
-
-    fun onEvent(event: SignUpEvent) {
+    override fun onEvent(event: SignUpEvent) {
         when (event) {
-            is SignUpEvent.FullNameChanged -> _state.update { it.copy(fullName = event.value) }
-            is SignUpEvent.EmailChanged -> _state.update { it.copy(email = event.value) }
-            is SignUpEvent.PasswordChanged -> _state.update { it.copy(password = event.value) }
-            is SignUpEvent.MobileChanged -> _state.update { it.copy(mobile = event.value) }
-            is SignUpEvent.DateOfBirthChanged -> _state.update { it.copy(dob = event.value) }
-            is SignUpEvent.RoleChanged -> _state.update { it.copy(selectedRole = event.role) }
-            is SignUpEvent.ErrorShown -> _state.update { it.copy(error = null) }
+            is SignUpEvent.FullNameChanged -> setState { copy(fullName = event.value) }
+            is SignUpEvent.EmailChanged -> setState { copy(email = event.value) }
+            is SignUpEvent.PasswordChanged -> setState { copy(password = event.value) }
+            is SignUpEvent.MobileChanged -> setState { copy(mobile = event.value) }
+            is SignUpEvent.DateOfBirthChanged -> setState { copy(dob = event.value) }
+            is SignUpEvent.RoleChanged -> setState { copy(selectedRole = event.role) }
+            is SignUpEvent.ErrorShown -> setState { copy(error = null) }
             is SignUpEvent.SignUpClicked -> performSignUp()
             is SignUpEvent.ToggleDatePicker -> {
-                _state.update { it.copy(showDatePicker = event.show) }
+                setState { copy(showDatePicker = event.show) }
             }
         }
     }
 
     private fun performSignUp() {
-        val s = _state.value
+        val s = state.value
         if (s.isLoading) return
 
-        screenModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
+        setState { copy(isLoading = true, error = null) }
 
+        screenModelScope.launch {
             // Call the UseCase
             val result = signUpUseCase(
                 fullName = s.fullName,
@@ -50,12 +43,14 @@ class SignUpViewModel(
             )
 
             result.fold(
-                onSuccess = { response ->
+                onSuccess = {
                     // Success!
-                    _state.update { it.copy(isLoading = false, isSuccess = true) }
+                    setState { copy(isLoading = false) }
+                    sendEffect(SignUpEffect.NavigateToLogin) // Or NavigateToHome depending on requirements
                 },
                 onFailure = { error ->
-                    _state.update { it.copy(isLoading = false, error = error.message ?: "Unknown Error") }
+                    setState { copy(isLoading = false, error = error.message ?: "Unknown Error") }
+                    sendEffect(SignUpEffect.ShowError(error.message ?: "Unknown Error"))
                 }
             )
         }

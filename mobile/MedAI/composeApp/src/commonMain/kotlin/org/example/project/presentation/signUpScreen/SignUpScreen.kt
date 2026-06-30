@@ -16,7 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collectLatest
 import cafe.adriel.voyager.koin.getScreenModel
 import medai.composeapp.generated.resources.*
 import org.example.project.design_system.component.button.ButtonVariant
@@ -54,16 +54,13 @@ class SignUpScreen : Screen {
         }
 
         // Effect: Handle Success or Error
-        LaunchedEffect(state.isSuccess) {
-            if (state.isSuccess) {
-                // Navigate to home or login? Usually Login after registration
-                navigator.replaceAll(MainContainerScreen())
-            }
-        }
-        LaunchedEffect(state.error) {
-            state.error?.let {
-                snackbarHostState.showSnackbar(it)
-                viewModel.onEvent(SignUpEvent.ErrorShown)
+        LaunchedEffect(Unit) {
+            viewModel.effect.collectLatest { effect ->
+                when (effect) {
+                    is SignUpEffect.NavigateToHome -> navigator.replaceAll(MainContainerScreen())
+                    is SignUpEffect.NavigateToLogin -> navigator.pop()
+                    is SignUpEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                }
             }
         }
 
@@ -82,9 +79,9 @@ class SignUpScreen : Screen {
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = MedAITheme.dimensions.extraLarge),
                     horizontalAlignment = Alignment.Start,
-                    contentPadding = PaddingValues(top = 24.dp, bottom = 24.dp)
+                    contentPadding = PaddingValues(top = MedAITheme.dimensions.extraLarge, bottom = MedAITheme.dimensions.extraLarge)
                 ) {
                     item {
                         // --- Full Name ---
@@ -94,7 +91,7 @@ class SignUpScreen : Screen {
                             onValueChange = { viewModel.onEvent(SignUpEvent.FullNameChanged(it)) },
                             placeholder = stringResource(Res.string.full_name_placeholder)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         // --- Password ---
                         InputLabel(stringResource(Res.string.password_label))
@@ -103,7 +100,7 @@ class SignUpScreen : Screen {
                             onValueChange = { viewModel.onEvent(SignUpEvent.PasswordChanged(it)) },
                             placeholder = stringResource(Res.string.password_placeholder)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         // --- Email ---
                         InputLabel(stringResource(Res.string.email_label))
@@ -112,7 +109,7 @@ class SignUpScreen : Screen {
                             onValueChange = { viewModel.onEvent(SignUpEvent.EmailChanged(it)) },
                             placeholder = stringResource(Res.string.email_placeholder)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         // --- Mobile ---
                         InputLabel(stringResource(Res.string.mobile_number_label))
@@ -121,7 +118,7 @@ class SignUpScreen : Screen {
                             onValueChange = { viewModel.onEvent(SignUpEvent.MobileChanged(it)) },
                             placeholder = stringResource(Res.string.mobile_number_placeholder)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
                         // --- Date of Birth ---
                         InputLabel(stringResource(Res.string.dob_label))
@@ -152,13 +149,13 @@ class SignUpScreen : Screen {
                                     }
                             )
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraSmall))
 
                         // --- Role Selection ---
                         InputLabel("I am a:")
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.small)
                         ) {
                             UserRole.entries.forEach { role ->
                                 val isSelected = state.selectedRole == role
@@ -182,7 +179,7 @@ class SignUpScreen : Screen {
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // --- Terms Text ---
                         MedAIText(
@@ -190,9 +187,9 @@ class SignUpScreen : Screen {
                             style = MedAITheme.textStyle.label.small,
                             color = MedAITheme.colors.text.secondary,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = MedAITheme.dimensions.large)
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // --- Sign Up Button ---
                         if (state.isLoading) {
@@ -208,12 +205,12 @@ class SignUpScreen : Screen {
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // --- Social Login ---
                         SocialLoginSection()
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // --- Login Link ---
                         Row(

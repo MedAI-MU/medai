@@ -19,12 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.chatScreen.component.ChatListItem
 
@@ -32,12 +32,13 @@ class ChatListScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<ChatListViewModel>()
+        val viewModel = koinScreenModel<ChatListViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when (effect) {
                     is ChatListEffect.NavigateToChat -> {
                         navigator.parent?.push(ChatScreen(effect.doctorId, effect.doctorName)) ?: navigator.push(ChatScreen(effect.doctorId, effect.doctorName))
@@ -54,12 +55,12 @@ class ChatListScreen : Screen {
             contentWindowInsets = WindowInsets.statusBars
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensions.large))
                 Box(
                     modifier = Modifier.fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
                         .background(MedAITheme.colors.background)
-                        .padding(top = 16.dp)
+                        .padding(top = dimensions.large)
                 ) {
                     if (state.isLoading) {
                         CircularProgressIndicator(

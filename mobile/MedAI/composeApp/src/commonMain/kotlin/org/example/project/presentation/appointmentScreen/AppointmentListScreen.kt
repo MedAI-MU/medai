@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -106,7 +105,7 @@ class AppointmentListScreen : Screen {
             Column(modifier = Modifier.fillMaxSize()) {
 
                 // 1. Segmented Control (Pill Tabs)
-                Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                Box(modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge, vertical = MedAITheme.dimensions.large)) {
                     MedAISegmentedControl(
                         items = listOf("Upcoming", "Finished", "Cancelled"),
                         selectedIndex = when (state.selectedTab) {
@@ -139,8 +138,8 @@ class AppointmentListScreen : Screen {
                     }
                 } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        contentPadding = PaddingValues(start = MedAITheme.dimensions.extraLarge, end = MedAITheme.dimensions.extraLarge, bottom = MedAITheme.dimensions.extraLarge),
+                        verticalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.large)
                     ) {
                         items(state.appointments) { appointment ->
                             AppointmentCard(
@@ -168,11 +167,11 @@ fun AppointmentCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(MedAITheme.dimensions.elevationMedium, RoundedCornerShape(MedAITheme.dimensions.radiusExtraLarge))
+            .clip(RoundedCornerShape(MedAITheme.dimensions.radiusExtraLarge))
             .background(MedAITheme.colors.surface)
             .clickable { onClick() }
-            .padding(16.dp)
+            .padding(MedAITheme.dimensions.large)
     ) {
         Column {
             Row(
@@ -186,21 +185,21 @@ fun AppointmentCard(
                 }
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(MedAITheme.dimensions.radiusMedium))
                         .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = MedAITheme.dimensions.small, vertical = MedAITheme.dimensions.extraSmall)
                 ) {
                     MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MedAITheme.dimensions.medium))
             HorizontalDivider(color = MedAITheme.colors.neutral.copy(0.3f))
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MedAITheme.dimensions.medium))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MedAIText(text = "📅", style = MedAITheme.textStyle.body.medium)
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(MedAITheme.dimensions.small))
                 MedAIText(
                     text = appointment.date.toUiString(),
                     style = MedAITheme.textStyle.label.medium,
@@ -208,13 +207,13 @@ fun AppointmentCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.small)) {
                 if (appointment.canRebook) {
                     OutlinedButton(
                         onClick = { /* Rebook Logic */ },
-                        modifier = Modifier.weight(1f).height(40.dp),
+                        modifier = Modifier.weight(1f).height(MedAITheme.dimensions.spacing48),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MedAITheme.colors.primary)
                     ) {
@@ -225,7 +224,7 @@ fun AppointmentCard(
                 if (appointment.canAddReview) {
                     Button(
                         onClick = onReviewClick,
-                        modifier = Modifier.weight(1f).height(40.dp),
+                        modifier = Modifier.weight(1f).height(MedAITheme.dimensions.spacing48),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = MedAITheme.colors.primary)
                     ) {
@@ -234,7 +233,7 @@ fun AppointmentCard(
                 } else if (appointment.status == AppointmentDetailStatus.UPCOMING) {
                     Button(
                         onClick = { onClick() },
-                        modifier = Modifier.weight(1f).height(40.dp),
+                        modifier = Modifier.weight(1f).height(MedAITheme.dimensions.spacing48),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = MedAITheme.colors.primary)
                     ) {

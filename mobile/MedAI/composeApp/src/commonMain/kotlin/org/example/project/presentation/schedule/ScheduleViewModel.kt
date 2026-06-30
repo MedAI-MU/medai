@@ -1,11 +1,8 @@
 package org.example.project.presentation.schedule
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.schedule.*
 import org.example.project.domain.repository.schedule.CreateScheduleDayInput
 import org.example.project.domain.repository.schedule.CreateScheduleSlotInput
@@ -22,169 +19,141 @@ class ScheduleViewModel(
     private val updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
     private val deleteScheduleSlotUseCase: DeleteScheduleSlotUseCase,
     private val doctorId: Int
-) : ScreenModel {
-
-    // --- Tab State ---
-    private val _selectedTab = MutableStateFlow(0) // 0 = Templates, 1 = Slots
-    val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
-
-    // --- Templates State ---
-    private val _templatesState = MutableStateFlow<ScheduleUiState<PagedTemplates>>(ScheduleUiState.Loading)
-    val templatesState: StateFlow<ScheduleUiState<PagedTemplates>> = _templatesState.asStateFlow()
-
-    private val _templateSearchQuery = MutableStateFlow("")
-    val templateSearchQuery: StateFlow<String> = _templateSearchQuery.asStateFlow()
-
-    // --- Slots State ---
-    private val _slotsState = MutableStateFlow<ScheduleUiState<DoctorSchedule>>(ScheduleUiState.Loading)
-    val slotsState: StateFlow<ScheduleUiState<DoctorSchedule>> = _slotsState.asStateFlow()
-
-    // --- Action State ---
-    private val _actionState = MutableStateFlow<ActionState>(ActionState.Idle)
-    val actionState: StateFlow<ActionState> = _actionState.asStateFlow()
-
-    // --- Dialog State ---
-    private val _showCreateTemplateDialog = MutableStateFlow(false)
-    val showCreateTemplateDialog: StateFlow<Boolean> = _showCreateTemplateDialog.asStateFlow()
-
-    private val _showCreateSlotDialog = MutableStateFlow(false)
-    val showCreateSlotDialog: StateFlow<Boolean> = _showCreateSlotDialog.asStateFlow()
-
-    private val _showApplyTemplateDialog = MutableStateFlow<ScheduleTemplate?>(null)
-    val showApplyTemplateDialog: StateFlow<ScheduleTemplate?> = _showApplyTemplateDialog.asStateFlow()
-
-    private val _editingTemplate = MutableStateFlow<ScheduleTemplate?>(null)
-    val editingTemplate: StateFlow<ScheduleTemplate?> = _editingTemplate.asStateFlow()
+) : MviScreenModel<ScheduleState, ScheduleEvent, ScheduleEffect>(ScheduleState()) {
 
     init {
         loadTemplates()
         loadSlots()
     }
 
-    fun refreshCurrentTab() {
-        if (_selectedTab.value == 0) loadTemplates() else loadSlots()
+    override fun onEvent(event: ScheduleEvent) {
+        when (event) {
+            is ScheduleEvent.RefreshCurrentTab -> {
+                if (state.value.selectedTab == 0) loadTemplates() else loadSlots()
+            }
+            is ScheduleEvent.OnTabSelected -> {
+                setState { copy(selectedTab = event.tab) }
+                if (event.tab == 0) loadTemplates() else loadSlots()
+            }
+            is ScheduleEvent.LoadTemplates -> loadTemplates(event.page)
+            is ScheduleEvent.OnTemplateSearchQueryChanged -> {
+                setState { copy(templateSearchQuery = event.query) }
+            }
+            is ScheduleEvent.SearchTemplates -> loadTemplates()
+            is ScheduleEvent.ShowCreateTemplate -> {
+                setState { copy(editingTemplate = null, showCreateTemplateDialog = true) }
+            }
+            is ScheduleEvent.ShowEditTemplate -> {
+                setState { copy(editingTemplate = event.template, showCreateTemplateDialog = true) }
+            }
+            is ScheduleEvent.DismissCreateTemplateDialog -> {
+                setState { copy(showCreateTemplateDialog = false, editingTemplate = null) }
+            }
+            is ScheduleEvent.CreateTemplate -> createTemplate(event.name, event.slots)
+            is ScheduleEvent.UpdateTemplate -> updateTemplate(event.templateId, event.name, event.slots)
+            is ScheduleEvent.DeleteTemplate -> deleteTemplate(event.templateId)
+            is ScheduleEvent.ShowApplyTemplate -> {
+                setState { copy(showApplyTemplateDialog = event.template) }
+            }
+            is ScheduleEvent.DismissApplyTemplateDialog -> {
+                setState { copy(showApplyTemplateDialog = null) }
+            }
+            is ScheduleEvent.ApplyTemplate -> applyTemplate(event.templateId, event.startDate, event.endDate)
+            is ScheduleEvent.LoadSlots -> loadSlots(event.page, event.fromDate, event.toDate)
+            is ScheduleEvent.ShowCreateSlot -> {
+                setState { copy(showCreateSlotDialog = true) }
+            }
+            is ScheduleEvent.DismissCreateSlotDialog -> {
+                setState { copy(showCreateSlotDialog = false) }
+            }
+            is ScheduleEvent.CreateSlots -> createSlots(event.date, event.startTime, event.endTime)
+            is ScheduleEvent.DeleteSlot -> deleteSlot(event.slotId)
+        }
     }
 
-    fun onTabSelected(tab: Int) {
-        _selectedTab.value = tab
-        // Refresh data when switching tabs so external changes (e.g. patient bookings) are reflected
-        if (tab == 0) loadTemplates() else loadSlots()
-    }
-
-    // --- Templates ---
-
-    fun loadTemplates(page: Int = 1) {
+    private fun loadTemplates(page: Int = 1) {
         screenModelScope.launch {
-            _templatesState.value = ScheduleUiState.Loading
+            setState { copy(templatesState = ScheduleUiState.Loading) }
             getScheduleTemplatesUseCase(
                 pageNo = page,
                 pageSize = 10,
-                name = _templateSearchQuery.value.ifBlank { null },
+                name = state.value.templateSearchQuery.ifBlank { null },
                 doctorId = doctorId
             ).onSuccess {
-                _templatesState.value = ScheduleUiState.Success(it)
+                setState { copy(templatesState = ScheduleUiState.Success(it)) }
             }.onFailure {
-                _templatesState.value = ScheduleUiState.Error(it.message ?: "Failed to load templates")
+                setState { copy(templatesState = ScheduleUiState.Error(it.message ?: "Failed to load templates")) }
             }
         }
     }
 
-    fun onTemplateSearchQueryChanged(query: String) {
-        _templateSearchQuery.value = query
-    }
-
-    fun searchTemplates() {
-        loadTemplates()
-    }
-
-    fun showCreateTemplate() {
-        _editingTemplate.value = null
-        _showCreateTemplateDialog.value = true
-    }
-
-    fun showEditTemplate(template: ScheduleTemplate) {
-        _editingTemplate.value = template
-        _showCreateTemplateDialog.value = true
-    }
-
-    fun dismissCreateTemplateDialog() {
-        _showCreateTemplateDialog.value = false
-        _editingTemplate.value = null
-    }
-
-    fun createTemplate(name: String, slots: List<ScheduleTemplateSlot>) {
+    private fun createTemplate(name: String, slots: List<ScheduleTemplateSlot>) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             createScheduleTemplateUseCase(doctorId, name, slots)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template created successfully")
-                    _showCreateTemplateDialog.value = false
+                    setState { copy(isActionLoading = false, showCreateTemplateDialog = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template created successfully"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to create template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to create template", isError = true))
                 }
         }
     }
 
-    fun updateTemplate(templateId: Int, name: String?, slots: List<ScheduleTemplateSlot>?) {
+    private fun updateTemplate(templateId: Int, name: String?, slots: List<ScheduleTemplateSlot>?) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             updateScheduleTemplateUseCase(doctorId, templateId, name, slots)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template updated successfully")
-                    _showCreateTemplateDialog.value = false
-                    _editingTemplate.value = null
+                    setState { copy(isActionLoading = false, showCreateTemplateDialog = false, editingTemplate = null) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template updated successfully"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to update template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to update template", isError = true))
                 }
         }
     }
 
-    fun deleteTemplate(templateId: Int) {
+    private fun deleteTemplate(templateId: Int) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             deleteScheduleTemplateUseCase(doctorId, templateId)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template deleted")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template deleted"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to delete template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to delete template", isError = true))
                 }
         }
     }
 
-    fun showApplyTemplate(template: ScheduleTemplate) {
-        _showApplyTemplateDialog.value = template
-    }
-
-    fun dismissApplyTemplateDialog() {
-        _showApplyTemplateDialog.value = null
-    }
-
-    fun applyTemplate(templateId: Int, startDate: String, endDate: String) {
+    private fun applyTemplate(templateId: Int, startDate: String, endDate: String) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             applyScheduleTemplateUseCase(doctorId, templateId, startDate, endDate)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template applied successfully")
-                    _showApplyTemplateDialog.value = null
+                    setState { copy(isActionLoading = false, showApplyTemplateDialog = null) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template applied successfully"))
                     loadSlots()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to apply template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to apply template", isError = true))
                 }
         }
     }
 
-    // --- Slots ---
-
-    fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
+    private fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
         screenModelScope.launch {
-            _slotsState.value = ScheduleUiState.Loading
+            setState { copy(slotsState = ScheduleUiState.Loading) }
             getScheduleSlotsUseCase(
                 doctorId = doctorId,
                 fromDate = fromDate,
@@ -192,24 +161,16 @@ class ScheduleViewModel(
                 pageNo = page,
                 pageSize = 10
             ).onSuccess {
-                _slotsState.value = ScheduleUiState.Success(it)
+                setState { copy(slotsState = ScheduleUiState.Success(it)) }
             }.onFailure {
-                _slotsState.value = ScheduleUiState.Error(it.message ?: "Failed to load schedule slots")
+                setState { copy(slotsState = ScheduleUiState.Error(it.message ?: "Failed to load schedule slots")) }
             }
         }
     }
 
-    fun showCreateSlot() {
-        _showCreateSlotDialog.value = true
-    }
-
-    fun dismissCreateSlotDialog() {
-        _showCreateSlotDialog.value = false
-    }
-
-    fun createSlots(date: String, startTime: String, endTime: String) {
+    private fun createSlots(date: String, startTime: String, endTime: String) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             createScheduleSlotsUseCase(
                 doctorId,
                 listOf(
@@ -219,43 +180,29 @@ class ScheduleViewModel(
                     )
                 )
             ).onSuccess {
-                _actionState.value = ActionState.Success("Slot created successfully")
-                _showCreateSlotDialog.value = false
+                setState { copy(isActionLoading = false, showCreateSlotDialog = false) }
+                sendEffect(ScheduleEffect.ShowSnackbar("Slot created successfully"))
                 loadSlots()
             }.onFailure {
-                _actionState.value = ActionState.Error(it.message ?: "Failed to create slot")
+                setState { copy(isActionLoading = false) }
+                sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to create slot", isError = true))
             }
         }
     }
 
-    fun deleteSlot(slotId: Int) {
+    private fun deleteSlot(slotId: Int) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             deleteScheduleSlotUseCase(doctorId, slotId)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Slot deleted")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Slot deleted"))
                     loadSlots()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to delete slot")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to delete slot", isError = true))
                 }
         }
     }
-
-    fun clearActionState() {
-        _actionState.value = ActionState.Idle
-    }
-}
-
-sealed class ScheduleUiState<out T> {
-    data object Loading : ScheduleUiState<Nothing>()
-    data class Success<T>(val data: T) : ScheduleUiState<T>()
-    data class Error(val message: String) : ScheduleUiState<Nothing>()
-}
-
-sealed class ActionState {
-    data object Idle : ActionState()
-    data object Loading : ActionState()
-    data class Success(val message: String) : ActionState()
-    data class Error(val message: String) : ActionState()
 }

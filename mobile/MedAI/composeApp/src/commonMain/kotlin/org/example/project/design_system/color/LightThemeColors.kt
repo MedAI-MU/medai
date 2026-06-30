@@ -17,12 +17,17 @@ val lightStatusColors = MedAiStatusColors(
     error = error,
     successContainer = success100,
     warningContainer = warning100,
-    errorContainer = error100
+    errorContainer = error100,
+    starRating = gold,
+    waiting = warningAlt,
+    completed = successAlt,
+    cancelled = errorAlt
 )
 
 val lightColors = MedAiColors(
     primary = primary600, // Slightly darker blue for better contrast on white
     secondary = secondary,
+    accent = accent,
     background = neutral100, // Very light grey, easier on eyes than pure white
     surface = baseWhite,
     onPrimary = baseWhite,

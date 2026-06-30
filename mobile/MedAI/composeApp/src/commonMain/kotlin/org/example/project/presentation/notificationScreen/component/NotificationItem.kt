@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.notification.Notification
 import org.example.project.domain.model.notification.NotificationType
@@ -25,6 +25,7 @@ fun NotificationItem(
     notification: Notification,
     modifier: Modifier = Modifier
 ) {
+    val dimensions = LocalDimensions.current
     val icon = when (notification.type) {
         NotificationType.APPOINTMENT_CONFIRMED -> Icons.Default.CheckCircle
         NotificationType.APPOINTMENT_CANCELLED -> Icons.Default.Info
@@ -45,13 +46,13 @@ fun NotificationItem(
         modifier = modifier
             .fillMaxWidth()
             .background(backgroundColor)
-            .padding(16.dp),
+            .padding(dimensions.medium),
         verticalAlignment = Alignment.Top
     ) {
         // Icon
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(dimensions.spacing48)
                 .clip(CircleShape)
                 .background(iconColor.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
@@ -60,11 +61,11 @@ fun NotificationItem(
                 imageVector = icon,
                 contentDescription = null,
                 tint = iconColor,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(dimensions.large)
             )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(dimensions.medium))
 
         // Content
         Column(modifier = Modifier.weight(1f)) {
@@ -73,7 +74,7 @@ fun NotificationItem(
                 style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
                 color = MedAITheme.colors.text.primary
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensions.extraSmall))
             MedAIText(
                 text = notification.message,
                 style = MedAITheme.textStyle.body.small,
@@ -85,7 +86,7 @@ fun NotificationItem(
         if (!notification.isRead) {
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(dimensions.small)
                     .clip(CircleShape)
                     .background(MedAITheme.colors.primary)
             )
