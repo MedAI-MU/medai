@@ -46,6 +46,8 @@ import org.example.project.presentation.patientDirectory.PatientsDirectoryScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.example.project.design_system.theme.LocalDimensions
+import androidx.compose.material.icons.filled.LocalHospital
+import org.example.project.presentation.secretary.doctors.SecretaryDoctorListScreen
 
 class SecretaryDashboardScreen : Screen {
     @Composable
@@ -132,6 +134,15 @@ class SecretaryDashboardScreen : Screen {
                             text = "Billing",
                             icon = Icons.Default.AttachMoney,
                             onClick = { navigator.push(BillingScreen()) })
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MedAICardButton(
+                            text = "Doctors",
+                            icon = Icons.Default.LocalHospital,
+                            onClick = { navigator.push(SecretaryDoctorListScreen()) })
                     }
                 }
                 Spacer(modifier = Modifier.height(dimensions.large))
