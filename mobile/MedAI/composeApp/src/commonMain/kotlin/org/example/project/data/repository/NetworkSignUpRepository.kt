@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.setCookie
 import org.example.project.data.remote.dto.auth.AuthRegisterRequestDto
 import org.example.project.data.remote.dto.auth.JwtPayloadDto
@@ -11,6 +12,8 @@ import org.example.project.data.remote.util.decodeBase64String
 import org.example.project.domain.repository.auth.SignUpRepository
 import org.example.project.domain.model.auth.AuthResult
 import org.example.project.domain.model.auth.RegisterRequest
+
+import io.ktor.http.contentType
 
 class NetworkSignUpRepository(
     private val client: HttpClient
@@ -27,6 +30,7 @@ class NetworkSignUpRepository(
             )
             // 1. Register User
             val registerResponse = client.post("users") {
+                contentType(ContentType.Application.Json)
                 setBody(requestDto)
             }
 
@@ -36,6 +40,7 @@ class NetworkSignUpRepository(
 
             // 2. Auto-Login to get tokens
             val loginResponse = client.post("auth/login") {
+                contentType(ContentType.Application.Json)
                 setBody(mapOf("email" to request.email, "password" to request.password))
             }
 

@@ -6,6 +6,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,6 +16,8 @@ import org.example.project.data.remote.mapper.toDomain
 import org.example.project.domain.model.chat.ChatConversation
 import org.example.project.domain.model.chat.Message
 import org.example.project.domain.repository.chat.ChatRepository
+
+import io.ktor.http.contentType
 
 class NetworkChatRepository(
     private val client: HttpClient
@@ -52,6 +55,8 @@ class NetworkChatRepository(
 
                 val domainMessages = dtos.map { it.toDomain(currentUserId) }
                 emit(domainMessages)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Emit empty list or keep previous state on error
@@ -68,6 +73,7 @@ class NetworkChatRepository(
             val requestBody = mapOf("text" to text)
 
             val responseDto: MessageDto = client.post("/chats/$doctorId/messages") {
+                contentType(ContentType.Application.Json)
                 setBody(requestBody)
             }.body()
 
