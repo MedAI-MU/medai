@@ -9,6 +9,9 @@ import org.example.project.data.remote.dto.auth.AuthLoginResponseDto
 import org.example.project.domain.model.auth.AuthResult
 import org.example.project.domain.repository.auth.LoginRepository
 import io.ktor.client.call.body
+import io.ktor.http.ContentType
+
+import io.ktor.http.contentType
 
 class NetworkLoginRepository(
     private val httpClient: HttpClient
@@ -18,6 +21,7 @@ class NetworkLoginRepository(
             // Example call - secure and serialized
             // 1. Perform Login
             val loginResponse = httpClient.post("auth/login") {
+                contentType(ContentType.Application.Json)
                 setBody(AuthLoginRequestDto(email, password))
             }
 
