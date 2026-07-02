@@ -81,6 +81,10 @@ export class PatientsService {
     return patient;
   }
 
+  async remove(userId: number): Promise<void> {
+    await this.patientsRepository.delete(userId);
+  }
+
   async removeRelation<T extends GenericPatientRelation>(
     patient: Patient,
     relationType: RelationType,

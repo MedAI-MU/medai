@@ -61,16 +61,19 @@ describe('AppointmentsService', () => {
     id: 5,
     email: 'patient@test.com',
     role: 'patient',
+    status: 'approved',
   };
   const secretaryUser: TokenUser = {
     id: 99,
     email: 'sec@test.com',
     role: 'secretary',
+    status: 'approved',
   };
   const otherPatientUser: TokenUser = {
     id: 7,
     email: 'other@test.com',
     role: 'patient',
+    status: 'approved',
   };
 
   // ── Module setup ───────────────────────────────────────────────────────────
