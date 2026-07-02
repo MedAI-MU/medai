@@ -75,30 +75,17 @@ export class UsersController {
     await this.usersService.addSecretaryRole(addSecretaryDto.userId);
   }
 
-  @Delete('remove/doctor/:id')
+  @Delete(':id')
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
-  @ApiOkResponse({ description: 'Doctor removed successfully' })
+  @ApiOkResponse({ description: 'User removed successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async removeDoctor(@Param('id') id: number) {
-    await this.usersService.removeDoctorRole(id);
-  }
-
-  @Delete('remove/secretary/:id')
-  @Roles('manager')
-  @UseGuards(RolesGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', description: 'User ID', type: Number })
-  @ApiOkResponse({ description: 'Secretary removed successfully' })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async removeSecretary(@Param('id') id: number) {
-    await this.usersService.removeSecretaryRole(id);
+  async removeUser(@Param('id') id: number) {
+    await this.usersService.removeUser(id);
   }
 
   @Get('secretaries')
@@ -132,19 +119,6 @@ export class UsersController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async getPendingSecretaries() {
     return this.usersService.findByRoleAndStatus('secretary', 'pending');
-  }
-
-  @Delete(':id')
-  @Roles('manager')
-  @UseGuards(RolesGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', description: 'User ID', type: Number })
-  @ApiOkResponse({ description: 'User deleted successfully' })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async deleteUser(@Param('id') id: number) {
-    await this.usersService.delete(id);
   }
 
   @Get('managers')

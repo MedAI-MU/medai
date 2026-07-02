@@ -65,42 +65,12 @@ export class UsersService {
     });
   }
 
-  async removeDoctorRole(userId: number): Promise<void> {
+  async removeUser(userId: number): Promise<void> {
     const user = await this.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    await this.dataSource.transaction(async (manager) => {
-      await manager.getRepository(Doctor).delete(userId);
-      await manager.getRepository(Patient).save({ userId });
-      await manager.getRepository(User).update(userId, {
-        role: 'patient',
-        status: 'approved',
-      });
-    });
-  }
-
-  async removeSecretaryRole(userId: number): Promise<void> {
-    const user = await this.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    await this.dataSource.transaction(async (manager) => {
-      await manager.getRepository(Patient).save({ userId });
-      await manager.getRepository(User).update(userId, {
-        role: 'patient',
-        status: 'approved',
-      });
-    });
-  }
-
-  async delete(id: number): Promise<void> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
     await this.usersRepository.remove(user);
   }
 
