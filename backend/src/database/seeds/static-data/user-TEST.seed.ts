@@ -15,13 +15,6 @@ export class UsersSeed implements ISeed {
         phone: '01123435565',
         role: 'manager',
       }),
-      new User({
-        name: 'Mostafa Atef',
-        email: 'mostafa.atef@example.com',
-        password: await argon2.hash('password123'),
-        phone: '01122337799',
-        role: 'secretary',
-      }),
     ];
     await dataSource.getRepository(User).save(users);
   }
