@@ -9,11 +9,11 @@ export class UsersSeed implements ISeed {
   async run(dataSource: DataSource): Promise<void> {
     const users: User[] = [
       new User({
-        name: 'Dr. Sarah Johnson',
-        email: 'sarah.johnson@example.com',
+        name: 'Ahmed Gouda',
+        email: 'ahmed.gouda@example.com',
         password: await argon2.hash('password123'),
-        phone: '01133445566',
-        role: 'doctor',
+        phone: '01123435565',
+        role: 'manager',
       }),
       new User({
         name: 'Mostafa Atef',
