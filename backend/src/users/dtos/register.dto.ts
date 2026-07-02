@@ -1,12 +1,10 @@
 import {
   IsEmail,
-  IsIn,
   IsNotEmpty,
   IsString,
   Length,
   Matches,
 } from 'class-validator';
-import type { UserRoles } from '../types/role.types';
 
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -50,16 +48,4 @@ export class RegisterDto {
     description: 'Phone number of the user',
   })
   phone: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsIn(['patient'], {
-    message: 'role must be patient',
-  })
-  @ApiProperty({
-    example: 'patient',
-    description: 'Role of the user',
-    enum: ['patient'],
-  })
-  role: UserRoles;
 }

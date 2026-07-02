@@ -101,12 +101,11 @@ describe('SchedulesController (e2e)', () => {
 
     // Create users once for all tests
     // Seed a secretary user directly in the database
-    const registerDto: RegisterDto = {
+    const registerDto: Pick<RegisterDto, 'email' | 'password' | 'name' | 'phone'> = {
       email: 'secretary@test.com',
       password: 'strongPassword123',
       name: 'Test Secretary',
       phone: '01123456789',
-      role: 'secretary',
     };
 
     const secretary = new User({
@@ -114,7 +113,7 @@ describe('SchedulesController (e2e)', () => {
       password: await argon2.hash(registerDto.password),
       name: registerDto.name,
       phone: registerDto.phone,
-      role: registerDto.role,
+      role: 'secretary',
     });
     await dataSource.getRepository(User).save(secretary);
 
@@ -142,7 +141,6 @@ describe('SchedulesController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test Doctor',
       phone: '01198765432',
-      role: 'doctor',
     };
 
     await request(app.getHttpServer() as App)
@@ -193,7 +191,6 @@ describe('SchedulesController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test Doctor 2',
       phone: '01187654321',
-      role: 'doctor',
     };
 
     await request(app.getHttpServer() as App)

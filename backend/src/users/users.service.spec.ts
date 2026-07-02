@@ -84,7 +84,6 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'patient',
       };
 
       const result = await usersService.registerUser(dto);
@@ -105,7 +104,6 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'patient',
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(
@@ -123,7 +121,6 @@ describe('users.service', () => {
         email: 'test@test.com',
         password: 'strongpassword',
         phone: '00000000000',
-        role: 'patient',
       };
 
       await expect(usersService.registerUser(dto)).rejects.toThrow(
@@ -146,7 +143,7 @@ describe('users.service', () => {
 
       dataSourceMock.transaction.mockImplementation(
         async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> =>
-          cb(mockManager as EntityManager),
+          cb(mockManager as unknown as EntityManager),
       );
 
       await usersService.addDoctorRole(userId);
@@ -182,7 +179,7 @@ describe('users.service', () => {
 
       dataSourceMock.transaction.mockImplementation(
         async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> =>
-          cb(mockManager as EntityManager),
+          cb(mockManager as unknown as EntityManager),
       );
 
       await usersService.addSecretaryRole(userId);

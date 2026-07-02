@@ -56,7 +56,7 @@ export class UsersService {
     ) {
       throw new ConflictException('Phone number or email already in use');
     }
-    const user = new User(registerDto);
+    const user = new User({ ...registerDto, role: 'patient' });
     user.password = await argon2.hash(registerDto.password);
     return this.usersRepository.save(user);
   }

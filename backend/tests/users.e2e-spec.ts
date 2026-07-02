@@ -103,20 +103,6 @@ describe('UsersController (e2e)', () => {
         password: '123456',
         phone: '01012345678',
       },
-      {
-        name: 'Valid Name',
-        email: 'test@test.com',
-        password: '123456',
-        phone: '01012345678',
-        role: 10,
-      },
-      {
-        name: 'Valid Name',
-        email: 'test@test.com',
-        password: '123456',
-        phone: '01012345678',
-        role: 'manager',
-      },
     ];
 
     it.each(invalidRegisterDtotestCases)(
@@ -135,7 +121,6 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
@@ -149,14 +134,12 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
       };
       const duplicateEmailDto: RegisterDto = {
         name: 'Another Name',
         email: 'test@test.com',
         password: '654321',
         phone: '01087654321',
-        role: 'doctor',
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
@@ -174,14 +157,12 @@ describe('UsersController (e2e)', () => {
         email: 'test@test.com',
         password: '123456',
         phone: '01012345678',
-        role: 'doctor',
       };
       const duplicatePhoneDto: RegisterDto = {
         name: 'Another Name',
         email: 'nottest@test.com',
         password: '654321',
         phone: '01012345678',
-        role: 'doctor',
       };
       await request(app.getHttpServer() as App)
         .post(REGISTER_USER_URL)
