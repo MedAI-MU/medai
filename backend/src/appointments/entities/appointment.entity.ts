@@ -26,7 +26,7 @@ export class Appointment extends TimestampEntity {
   @Column()
   patientUserId: number;
 
-  @ManyToOne(() => Doctor, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Doctor, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'doctorUserId' })
   doctor: Doctor;
 

@@ -83,6 +83,7 @@ export class AuthController {
       email: credentials.email,
       phone: credentials.phone,
       role: credentials.role,
+      status: credentials.status,
     };
   }
 

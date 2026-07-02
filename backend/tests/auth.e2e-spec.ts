@@ -109,7 +109,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
       // first register the user
       await request(app.getHttpServer() as App)
@@ -130,7 +130,7 @@ describe('AuthController (e2e)', () => {
         name: registerDto.name,
         email: registerDto.email,
         phone: registerDto.phone,
-        role: registerDto.role,
+        role: 'patient',
       });
       expect(response.body.id).toEqual(expect.any(Number));
 
@@ -157,7 +157,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
 
       // first register the user
@@ -241,7 +241,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
 
       // first register the user
