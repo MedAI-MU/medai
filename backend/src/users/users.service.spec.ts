@@ -160,6 +160,7 @@ describe('users.service', () => {
       expect(doctorRepoMock.save).toHaveBeenCalledWith({ userId });
       expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
         role: 'doctor',
+        status: 'approved',
       });
     });
 
@@ -195,6 +196,7 @@ describe('users.service', () => {
       expect(patientRepoMock.delete).toHaveBeenCalledWith(userId);
       expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
         role: 'secretary',
+        status: 'approved',
       });
     });
 
@@ -232,6 +234,7 @@ describe('users.service', () => {
       expect(patientRepoMock.save).toHaveBeenCalledWith({ userId });
       expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
         role: 'patient',
+        status: 'approved',
       });
     });
 
@@ -267,6 +270,7 @@ describe('users.service', () => {
       expect(patientRepoMock.save).toHaveBeenCalledWith({ userId });
       expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
         role: 'patient',
+        status: 'approved',
       });
     });
 
