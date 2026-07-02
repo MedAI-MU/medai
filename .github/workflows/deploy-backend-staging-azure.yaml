@@ -134,13 +134,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Copy compose file
+      - name: Create environment files
+        run: |
+          cat > docker-compose/.env.staging << 'ENVEOF'
+          APP_PORT=8000
+          NODE_ENV=production
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_SSL=${{ secrets.DB_SSL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+          REFRESH_TOKEN_EXPIRATION=${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+          ENVEOF
+          cat > docker-compose/.env.frontend.staging << 'ENVEOF'
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          ENVEOF
+
+      - name: Copy compose and env files
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VM_HOST }}
           username: azureuser
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          source: docker-compose/staging.yaml
+          source: "docker-compose/staging.yaml,docker-compose/.env.staging,docker-compose/.env.frontend.staging"
           target: /home/azureuser/medai/
 
       - name: SSH and deploy
@@ -151,6 +171,8 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd /home/azureuser/medai
+            az login --identity --output none
+            az acr login --name medaigradprojrepo --identity
             docker compose -f docker-compose/staging.yaml pull
             docker compose -f docker-compose/staging.yaml up -d
             docker image prune -f

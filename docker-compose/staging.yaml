@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: staging-medai-backend
-    image: medairegistery.azurecr.io/medai-staging-backend:latest
+    image: medaigradprojrepo.azurecr.io/medai-staging-backend:latest
     ports:
       - "127.0.0.1:8000:8000"
     env_file:
@@ -10,7 +10,7 @@ services:
 
   frontend:
     container_name: staging-medai-frontend
-    image: medairegistery.azurecr.io/medai-staging-frontend:latest
+    image: medaigradprojrepo.azurecr.io/medai-staging-frontend:latest
     ports:
       - "127.0.0.1:3000:3000"
     env_file:
