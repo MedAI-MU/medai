@@ -8,7 +8,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import PatientAppointmentCard from "./PatientAppointmentCard";
 import AnimateWrapper from "../ui/AnimateWrapper";
 
-const tabsArray = ["upcoming", "past", "cancelled"];
+const tabsArray = ["upcoming", "past"];
 
 function PatientAppointments({ appointments }) {
   const [activeTab, setActiveTab] = useState(tabsArray[0]);
@@ -49,11 +49,6 @@ function PatientAppointments({ appointments }) {
 
       return isPast && app?.status !== "cancelled";
     });
-
-  if (activeTab === "cancelled")
-    filteredAppointments = appointments?.filter(
-      (app) => app?.status === "cancelled",
-    );
 
   return (
     <>

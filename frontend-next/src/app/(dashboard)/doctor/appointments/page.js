@@ -1,9 +1,9 @@
-import PatientAppointments from "@/components/patient/PatientAppointments";
+import DoctorAppointments from "@/components/doctor/DoctorAppointments";
 import EmptyState from "@/components/ui/EmptyState";
 import Heading from "@/components/ui/Heading";
 import { getUserAppointments } from "@/services/server/appointments";
 
-async function PatientAppointmentsPage() {
+async function DoctorAppointmentsPage() {
   const data = await getUserAppointments();
 
   if (!data?.length)
@@ -13,11 +13,11 @@ async function PatientAppointmentsPage() {
     <div className="space-y-8">
       <Heading
         title="My Appointments"
-        subtitle="Track and manage your scheduled healthcare visits."
+        subtitle="View and manage your patient appointments schedule."
       />
-      <PatientAppointments appointments={data} />
+      <DoctorAppointments appointments={data} />
     </div>
   );
 }
 
-export default PatientAppointmentsPage;
+export default DoctorAppointmentsPage;
