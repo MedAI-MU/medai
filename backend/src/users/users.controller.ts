@@ -44,7 +44,9 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   async registerUser(@Body() registerDto: RegisterDto) {
     const user = await this.usersService.registerUser(registerDto);
-    await this.patientsService.create(user.id);
+    if (registerDto.role === 'patient') {
+      await this.patientsService.create(user.id);
+    }
   }
 
   @Post('add/doctor')
@@ -103,11 +105,33 @@ export class UsersController {
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Secretaries retrieved successfully' })
+  @ApiOkResponse({ description: 'Approved secretaries retrieved successfully' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async getSecretaries() {
-    return this.usersService.findByRole('secretary');
+    return this.usersService.findByRoleAndStatus('secretary', 'approved');
+  }
+
+  @Get('pending/doctors')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Pending doctors retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getPendingDoctors() {
+    return this.usersService.findByRoleAndStatus('doctor', 'pending');
+  }
+
+  @Get('pending/secretaries')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Pending secretaries retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getPendingSecretaries() {
+    return this.usersService.findByRoleAndStatus('secretary', 'pending');
   }
 
   @Get('managers')

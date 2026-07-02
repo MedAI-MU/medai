@@ -115,6 +115,7 @@ describe('PatientsController (e2e)', () => {
       password: 'strongPassword123',
       name: 'Test User',
       phone: `011${Math.floor(10000000 + Math.random() * 90000000)}`,
+      role: 'patient',
     };
 
     await request(app.getHttpServer() as App)

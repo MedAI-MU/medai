@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsString,
   Length,
@@ -7,6 +8,7 @@ import {
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
+import type { UserRoles } from '../types/role.types';
 
 export class RegisterDto {
   @Length(5, 100)
@@ -48,4 +50,12 @@ export class RegisterDto {
     description: 'Phone number of the user',
   })
   phone: string;
+
+  @IsNotEmpty()
+  @IsIn(['doctor', 'patient', 'secretary'] as const)
+  @ApiProperty({
+    example: 'patient',
+    description: 'Role of the user (manager cannot self-register)',
+  })
+  role: Exclude<UserRoles, 'manager'>;
 }
