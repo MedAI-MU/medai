@@ -134,6 +134,19 @@ export class UsersController {
     return this.usersService.findByRoleAndStatus('secretary', 'pending');
   }
 
+  @Delete(':id')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'User ID', type: Number })
+  @ApiOkResponse({ description: 'User deleted successfully' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async deleteUser(@Param('id') id: number) {
+    await this.usersService.delete(id);
+  }
+
   @Get('managers')
   @Roles('manager')
   @UseGuards(RolesGuard)
