@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +22,8 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PatientsService } from 'src/patients/patients.service';
@@ -66,5 +71,53 @@ export class UsersController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async addSecretary(@Body() addSecretaryDto: AddUserRoleDto) {
     await this.usersService.addSecretaryRole(addSecretaryDto.userId);
+  }
+
+  @Delete('remove/doctor/:id')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'User ID', type: Number })
+  @ApiOkResponse({ description: 'Doctor removed successfully' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async removeDoctor(@Param('id') id: number) {
+    await this.usersService.removeDoctorRole(id);
+  }
+
+  @Delete('remove/secretary/:id')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'User ID', type: Number })
+  @ApiOkResponse({ description: 'Secretary removed successfully' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async removeSecretary(@Param('id') id: number) {
+    await this.usersService.removeSecretaryRole(id);
+  }
+
+  @Get('secretaries')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Secretaries retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getSecretaries() {
+    return this.usersService.findByRole('secretary');
+  }
+
+  @Get('managers')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Managers retrieved successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getManagers() {
+    return this.usersService.findByRole('manager');
   }
 }

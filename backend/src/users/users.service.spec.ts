@@ -25,10 +25,12 @@ describe('users.service', () => {
 
   const patientRepoMock = {
     delete: jest.fn(),
+    save: jest.fn(),
   };
 
   const doctorRepoMock = {
     save: jest.fn(),
+    delete: jest.fn(),
   };
 
   const dataSourceMock = {
@@ -61,7 +63,9 @@ describe('users.service', () => {
     usersRepositoryMock.findOneBy.mockReset();
     usersRepositoryMock.update.mockReset();
     patientRepoMock.delete.mockReset();
+    patientRepoMock.save.mockReset();
     doctorRepoMock.save.mockReset();
+    doctorRepoMock.delete.mockReset();
     dataSourceMock.transaction.mockReset();
     mockManager.getRepository.mockReset();
     (argon2.hash as jest.Mock).mockReset();
@@ -195,6 +199,78 @@ describe('users.service', () => {
       usersRepositoryMock.findOneBy.mockResolvedValue(null);
 
       await expect(usersService.addSecretaryRole(1)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeDoctorRole', () => {
+    it('should delete doctor, create patient, and update user role', async () => {
+      const userId = 1;
+      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId } as User);
+
+      mockManager.getRepository.mockImplementation((entity) => {
+        if (entity === Patient) return patientRepoMock;
+        if (entity === Doctor) return doctorRepoMock;
+        if (entity === User) return usersRepositoryMock;
+        return {};
+      });
+
+      dataSourceMock.transaction.mockImplementation(
+        async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> =>
+          cb(mockManager as unknown as EntityManager),
+      );
+
+      await usersService.removeDoctorRole(userId);
+
+      expect(dataSourceMock.transaction).toHaveBeenCalled();
+      expect(doctorRepoMock.delete).toHaveBeenCalledWith(userId);
+      expect(patientRepoMock.save).toHaveBeenCalledWith({ userId });
+      expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
+        role: 'patient',
+      });
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      usersRepositoryMock.findOneBy.mockResolvedValue(null);
+
+      await expect(usersService.removeDoctorRole(1)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeSecretaryRole', () => {
+    it('should create patient and update user role', async () => {
+      const userId = 1;
+      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId } as User);
+
+      mockManager.getRepository.mockImplementation((entity) => {
+        if (entity === Patient) return patientRepoMock;
+        if (entity === User) return usersRepositoryMock;
+        return {};
+      });
+
+      dataSourceMock.transaction.mockImplementation(
+        async <T>(cb: (manager: EntityManager) => Promise<T>): Promise<T> =>
+          cb(mockManager as unknown as EntityManager),
+      );
+
+      await usersService.removeSecretaryRole(userId);
+
+      expect(dataSourceMock.transaction).toHaveBeenCalled();
+      expect(patientRepoMock.save).toHaveBeenCalledWith({ userId });
+      expect(usersRepositoryMock.update).toHaveBeenCalledWith(userId, {
+        role: 'patient',
+      });
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      usersRepositoryMock.findOneBy.mockResolvedValue(null);
+
+      await expect(usersService.removeSecretaryRole(1)).rejects.toThrow(
         NotFoundException,
       );
       expect(dataSourceMock.transaction).not.toHaveBeenCalled();

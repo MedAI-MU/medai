@@ -9,6 +9,7 @@ import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RegisterDto } from './dtos/register.dto';
+import type { UserRoles } from './types/role.types';
 import * as argon2 from 'argon2';
 
 @Injectable()
@@ -20,6 +21,10 @@ export class UsersService {
 
   async findById(id: number): Promise<User | null> {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async findByRole(role: UserRoles): Promise<User[]> {
+    return this.usersRepository.find({ where: { role } });
   }
 
   async addDoctorRole(userId: number): Promise<void> {
@@ -44,6 +49,31 @@ export class UsersService {
     await this.dataSource.transaction(async (manager) => {
       await manager.getRepository(Patient).delete(userId);
       await manager.getRepository(User).update(userId, { role: 'secretary' });
+    });
+  }
+
+  async removeDoctorRole(userId: number): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.getRepository(Doctor).delete(userId);
+      await manager.getRepository(Patient).save({ userId });
+      await manager.getRepository(User).update(userId, { role: 'patient' });
+    });
+  }
+
+  async removeSecretaryRole(userId: number): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.getRepository(Patient).save({ userId });
+      await manager.getRepository(User).update(userId, { role: 'patient' });
     });
   }
 

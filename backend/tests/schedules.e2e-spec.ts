@@ -101,7 +101,10 @@ describe('SchedulesController (e2e)', () => {
 
     // Create users once for all tests
     // Seed a secretary user directly in the database
-    const registerDto: Pick<RegisterDto, 'email' | 'password' | 'name' | 'phone'> = {
+    const registerDto: Pick<
+      RegisterDto,
+      'email' | 'password' | 'name' | 'phone'
+    > = {
       email: 'secretary@test.com',
       password: 'strongPassword123',
       name: 'Test Secretary',

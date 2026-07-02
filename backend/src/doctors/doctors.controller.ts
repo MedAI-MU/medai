@@ -158,7 +158,7 @@ export class DoctorsController {
     }
   }
 
-  @Roles('secretary', 'patient')
+  @Roles('secretary', 'patient', 'manager')
   @UseGuards(RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -174,7 +174,7 @@ export class DoctorsController {
   }
 
   @UseGuards(SameIdGuard)
-  @Roles('secretary', 'patient')
+  @Roles('secretary', 'patient', 'manager')
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })

@@ -46,7 +46,7 @@ export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
   @Get()
-  @Roles('secretary')
+  @Roles('secretary', 'manager')
   @UseGuards(RolesGuard)
   @ApiOkResponse({
     description: 'Returns an array of patients',
