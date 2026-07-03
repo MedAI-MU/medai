@@ -14,6 +14,10 @@ import org.example.project.presentation.doctor.services.xray.XRayAnalysisViewMod
 import org.example.project.presentation.doctorDetailsScreen.DoctorDetailsViewModel
 import org.example.project.presentation.doctorsScreen.DoctorsListViewModel
 import org.example.project.presentation.specialtiesScreen.SpecialtiesViewModel
+import org.example.project.domain.usecase.doctor.GetAllSpecialitiesUseCase
+import org.example.project.domain.usecase.doctor.AssignSpecialityUseCase
+import org.example.project.domain.usecase.doctor.RemoveSpecialityUseCase
+import org.example.project.domain.usecase.doctor.CreateSpecialityUseCase
 import org.koin.dsl.module
 
 val doctorModule = module {
@@ -23,6 +27,10 @@ val doctorModule = module {
     factory { GetDoctorsUseCase(get()) }
     factory { GetDoctorDetailsUseCase(get()) }
     factory { GetSpecialtiesUseCase(get()) }
+    factory { GetAllSpecialitiesUseCase(get()) }
+    factory { AssignSpecialityUseCase(get()) }
+    factory { RemoveSpecialityUseCase(get()) }
+    factory { CreateSpecialityUseCase(get()) }
 
     factory { SpecialtiesViewModel(get(), get()) }
     factory { (specialtyId: String?) ->

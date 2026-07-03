@@ -3,10 +3,18 @@ package org.example.project.data.repository.mock
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 import org.example.project.domain.model.doctor.Doctor
+import org.example.project.domain.model.doctor.Speciality
 import org.example.project.domain.model.appointment.TimeSlot
 import org.example.project.domain.repository.doctor.DoctorRepository
 
 class MockDoctorRepository : DoctorRepository {
+
+    private val allSpecialities = mutableListOf(
+        Speciality(1, "Cardiology"),
+        Speciality(2, "Neurology"),
+        Speciality(3, "Pediatrics"),
+        Speciality(4, "Dermatology")
+    )
 
     private val allDoctors = listOf(
         Doctor(
@@ -88,5 +96,31 @@ class MockDoctorRepository : DoctorRepository {
         slotId: String
     ): Result<String> {
         return  Result.success("Booking Successful")
+    }
+
+    override suspend fun getAllSpecialities(): Result<List<Speciality>> {
+        return Result.success(allSpecialities)
+    }
+
+    override suspend fun createSpeciality(name: String): Result<Speciality> {
+        val newSpec = Speciality(id = allSpecialities.size + 1, name = name)
+        allSpecialities.add(newSpec)
+        return Result.success(newSpec)
+    }
+
+    override suspend fun assignSpeciality(
+        doctorId: String,
+        specialityId: Int,
+        isPrimary: Boolean,
+        yearsOfExperience: Int
+    ): Result<Unit> {
+        return Result.success(Unit)
+    }
+
+    override suspend fun removeSpeciality(
+        doctorId: String,
+        doctorSpecialityId: Int
+    ): Result<Unit> {
+        return Result.success(Unit)
     }
 }

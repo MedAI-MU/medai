@@ -24,6 +24,7 @@ import org.example.project.design_system.component.bottomNavigation.MedAIBottomN
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.schedule.ScheduleScreen
+import org.example.project.presentation.secretary.doctors.SecretaryDoctorListScreen
 import org.example.project.presentation.chatScreen.ChatListScreen
 import org.example.project.presentation.homeScreen.HomeScreen
 import org.example.project.presentation.profileScreen.ProfileScreen
@@ -163,20 +164,26 @@ object ScheduleTab : Tab {
     @Composable
     override fun Content() {
         val userSessionManager = koinInject<UserSessionManager>()
+        val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
+            value = userSessionManager.getUserRole()
+        }.value
         val userId = androidx.compose.runtime.produceState<String?>(initialValue = null) {
             value = userSessionManager.getUserId()
         }.value
 
-        if (userId == null) {
-            // Still loading session
+        if (userId == null || role == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator()
             }
             return
         }
 
-        val doctorId = userId.toIntOrNull() ?: 0
-        ScheduleScreen(doctorId = doctorId).Content()
+        if (role == UserRole.SECRETARY) {
+            SecretaryDoctorListScreen().Content()
+        } else {
+            val doctorId = userId.toIntOrNull() ?: 0
+            ScheduleScreen(doctorId = doctorId).Content()
+        }
     }
 }
 
