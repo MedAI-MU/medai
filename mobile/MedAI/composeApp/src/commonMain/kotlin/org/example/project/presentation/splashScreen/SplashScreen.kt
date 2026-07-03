@@ -40,6 +40,8 @@ import org.example.project.presentation.welcomeScreen.WelcomeScreen
 import org.koin.compose.koinInject
 import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.model.auth.AccountStatus
+import org.example.project.presentation.pendingApprovalScreen.PendingApprovalScreen
 import kotlinx.coroutines.flow.first
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 import org.example.project.presentation.MainContainerScreen
@@ -71,11 +73,16 @@ class SplashScreen : Screen {
             delay(2000)
 
             if (userSessionManager.isUserLoggedIn.first()) {
-                val role = userSessionManager.getUserRole()
-                when (role) {
-                    UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
-                    UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
-                    else -> navigator.replace(MainContainerScreen()) // Default to patient flow
+                val status = userSessionManager.getAccountStatus()
+                if (status == AccountStatus.PENDING) {
+                    navigator.replace(PendingApprovalScreen())
+                } else {
+                    val role = userSessionManager.getUserRole()
+                    when (role) {
+                        UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
+                        UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
+                        else -> navigator.replace(MainContainerScreen()) // Default to patient flow
+                    }
                 }
             } else {
                 if (storage.isOnboardingCompleted()) {

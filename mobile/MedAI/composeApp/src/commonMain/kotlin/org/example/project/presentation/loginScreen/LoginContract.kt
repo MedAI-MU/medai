@@ -16,6 +16,7 @@ sealed class LoginEvent {
 
 sealed class LoginEffect {
     object NavigateToHome : LoginEffect()
+    object NavigateToPendingApproval : LoginEffect()
     object NavigateToSignUp : LoginEffect()
     data class ShowError(val message: String) : LoginEffect()
 }

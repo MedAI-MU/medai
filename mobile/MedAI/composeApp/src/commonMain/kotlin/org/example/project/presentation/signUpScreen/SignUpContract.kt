@@ -29,6 +29,7 @@ sealed class SignUpEvent {
 
 sealed class SignUpEffect {
     object NavigateToHome : SignUpEffect()
+    object NavigateToPendingApproval : SignUpEffect()
     object NavigateToLogin : SignUpEffect()
     data class ShowError(val message: String) : SignUpEffect()
 }

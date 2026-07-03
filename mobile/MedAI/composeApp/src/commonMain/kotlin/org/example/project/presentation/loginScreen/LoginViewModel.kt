@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.auth.LoginUseCase
+import org.example.project.domain.model.auth.AccountStatus
 
 class LoginViewModel(
     private val loginUseCase: LoginUseCase
@@ -36,9 +37,12 @@ class LoginViewModel(
             val result = loginUseCase(currentState.email, currentState.password)
 
             result.fold(
-                onSuccess = {
+                onSuccess = { authResult ->
                     setState { copy(isLoading = false) }
-                    sendEffect(LoginEffect.NavigateToHome)
+                    when (authResult.accountStatus) {
+                        AccountStatus.APPROVED -> sendEffect(LoginEffect.NavigateToHome)
+                        AccountStatus.PENDING -> sendEffect(LoginEffect.NavigateToPendingApproval)
+                    }
                 },
                 onFailure = { error ->
                     setState { copy(isLoading = false, error = error.message) }

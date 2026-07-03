@@ -14,6 +14,7 @@ import org.example.project.domain.model.auth.AuthResult
 import org.example.project.domain.model.auth.RegisterRequest
 
 import io.ktor.http.contentType
+import org.example.project.data.remote.mapper.mapAccountStatus
 
 class NetworkSignUpRepository(
     private val client: HttpClient
@@ -70,7 +71,8 @@ class NetworkSignUpRepository(
                 token = authToken,
                 userName = request.name,
                 email = request.email,
-                role = claims.role ?: "patient"
+                role = claims.role ?: "patient",
+                accountStatus = mapAccountStatus(claims.status)
             ))
         } catch (e: Exception) {
             e.printStackTrace()

@@ -9,6 +9,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+import org.example.project.domain.model.auth.AccountStatus
+
 class NetworkProfileRepositoryTest {
 
     private class MockUserSessionManager(
@@ -24,9 +26,18 @@ class NetworkProfileRepositoryTest {
         override suspend fun getUserEmail() = email
         override suspend fun getUserToken() = null
         override suspend fun getUserRole() = role
+        override suspend fun getAccountStatus(): AccountStatus? = null
+        override suspend fun updateAccountStatus(status: AccountStatus) {}
         override suspend fun getCookies() = emptySet<String>()
         override suspend fun saveCookies(cookies: Set<String>) {}
-        override suspend fun saveSession(userId: String, token: String, name: String, email: String, role: UserRole) {}
+        override suspend fun saveSession(
+            userId: String,
+            token: String,
+            name: String,
+            email: String,
+            role: UserRole,
+            accountStatus: AccountStatus
+        ) {}
         override suspend fun clearSession() {}
     }
 

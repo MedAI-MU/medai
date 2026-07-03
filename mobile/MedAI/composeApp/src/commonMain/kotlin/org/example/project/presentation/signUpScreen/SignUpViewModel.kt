@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.auth.SignUpUseCase
+import org.example.project.domain.model.auth.AccountStatus
 
 class SignUpViewModel(
     private val signUpUseCase: SignUpUseCase
@@ -43,10 +44,12 @@ class SignUpViewModel(
             )
 
             result.fold(
-                onSuccess = {
-                    // Success!
+                onSuccess = { authResult ->
                     setState { copy(isLoading = false) }
-                    sendEffect(SignUpEffect.NavigateToLogin) // Or NavigateToHome depending on requirements
+                    when (authResult.accountStatus) {
+                        AccountStatus.APPROVED -> sendEffect(SignUpEffect.NavigateToHome)
+                        AccountStatus.PENDING -> sendEffect(SignUpEffect.NavigateToPendingApproval)
+                    }
                 },
                 onFailure = { error ->
                     setState { copy(isLoading = false, error = error.message ?: "Unknown Error") }

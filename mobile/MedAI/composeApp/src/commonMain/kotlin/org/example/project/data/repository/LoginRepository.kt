@@ -12,6 +12,7 @@ import io.ktor.client.call.body
 import io.ktor.http.ContentType
 
 import io.ktor.http.contentType
+import org.example.project.data.remote.mapper.mapAccountStatus
 
 class NetworkLoginRepository(
     private val httpClient: HttpClient
@@ -37,7 +38,14 @@ class NetworkLoginRepository(
             // 3. Extract the actual body
             val responseBody = loginResponse.body<AuthLoginResponseDto>()
 
-            Result.success(AuthResult(responseBody.id.toString(), authToken, responseBody.name, responseBody.email ?: "", responseBody.role ?: "patient"))
+            Result.success(AuthResult(
+                userId = responseBody.id.toString(),
+                token = authToken,
+                userName = responseBody.name,
+                email = responseBody.email ?: "",
+                role = responseBody.role ?: "patient",
+                accountStatus = mapAccountStatus(responseBody.status)
+            ))
         } catch (e: Exception) {
             e.printStackTrace()
             println("LoginRepository: Error during login: ${e.message}")

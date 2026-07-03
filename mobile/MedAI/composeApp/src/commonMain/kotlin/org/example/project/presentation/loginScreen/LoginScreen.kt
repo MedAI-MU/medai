@@ -42,6 +42,7 @@ import org.example.project.design_system.component.textFields.MedAiPasswordTextF
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.MainContainerScreen
+import org.example.project.presentation.pendingApprovalScreen.PendingApprovalScreen
 import org.example.project.presentation.loginScreen.component.InputLabel
 import org.example.project.presentation.loginScreen.component.SignUpLink
 import org.example.project.presentation.loginScreen.component.SocialLoginSection
@@ -61,6 +62,7 @@ class LoginScreen : Screen {
             viewModel.effect.collectLatest { effect ->
                 when (effect) {
                     is LoginEffect.NavigateToHome -> navigator.replaceAll(MainContainerScreen())
+                    is LoginEffect.NavigateToPendingApproval -> navigator.replaceAll(PendingApprovalScreen())
                     is LoginEffect.NavigateToSignUp -> navigator.push(SignUpScreen())
                     is LoginEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                 }
