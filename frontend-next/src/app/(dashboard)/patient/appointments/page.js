@@ -1,4 +1,3 @@
-import PatientAppointmentCard from "@/components/patient/PatientAppointmentCard";
 import PatientAppointments from "@/components/patient/PatientAppointments";
 import EmptyState from "@/components/ui/EmptyState";
 import Heading from "@/components/ui/Heading";

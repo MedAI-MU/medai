@@ -54,13 +54,11 @@ export async function proxy(request) {
         let response;
         if (isProtectedRoute) {
           response = NextResponse.redirect(new URL("/auth/login", request.url));
-          response.cookies.delete("Authentication");
-          response.cookies.delete("Refresh");
         } else {
           response = NextResponse.next();
-          response.cookies.delete("Authentication");
-          response.cookies.delete("Refresh");
         }
+        response.cookies.delete("Authentication");
+        response.cookies.delete("Refresh");
         return response;
       }
     }

@@ -74,16 +74,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const doctorId = 10;
     const doctorEntity: Doctor = {
@@ -296,16 +299,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const doctorEntity: Doctor = {
       userId: 10,
@@ -659,16 +665,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const _anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const _doctorEntity: Doctor = {
       userId: 10,

@@ -91,6 +91,7 @@ describe('DocScheduleTemplatesService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
 
     const mockTemplates = [
@@ -201,12 +202,14 @@ describe('DocScheduleTemplatesService', () => {
       id: secretaryId,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     const createDto: CreateDocScheduleTemplateDto = {
@@ -261,6 +264,7 @@ describe('DocScheduleTemplatesService', () => {
         id: 99,
         email: 'other@test.com',
         role: 'doctor',
+        status: 'approved',
       };
 
       await expect(
@@ -313,18 +317,21 @@ describe('DocScheduleTemplatesService', () => {
       id: secretaryId,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     const otherDoctorUser: TokenUser = {
       id: 99,
       email: 'other@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     const existingTemplate: DocScheduleTemplate = {
@@ -607,18 +614,21 @@ describe('DocScheduleTemplatesService', () => {
       id: secretaryId,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
 
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     const otherDoctorUser: TokenUser = {
       id: 99,
       email: 'other@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     const existingTemplate: DocScheduleTemplate = {
@@ -709,11 +719,13 @@ describe('DocScheduleTemplatesService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: doctorId,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
 
     interface MockTemplateRepo {
