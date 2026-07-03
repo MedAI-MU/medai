@@ -15,6 +15,7 @@ import { AddUserRoleDto } from './dtos/add-user-role.dto';
 import { AllowAnon } from 'src/auth/decorators/allow-anon.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ApprovedGuard } from './guards/approved.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -29,6 +30,7 @@ import {
 import { PatientsService } from 'src/patients/patients.service';
 
 @Controller('users')
+@UseGuards(ApprovedGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,

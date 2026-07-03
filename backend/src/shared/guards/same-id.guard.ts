@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from 'src/auth/decorators/roles.decorator';
 import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface';
@@ -21,10 +16,6 @@ export class SameIdGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
     if (!user) return false;
-
-    if (user.status !== 'approved') {
-      throw new ForbiddenException('Account is not approved');
-    }
 
     return (
       user.id === parseInt(request.params['id'] as string) ||
