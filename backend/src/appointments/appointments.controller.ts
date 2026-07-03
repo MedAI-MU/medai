@@ -30,10 +30,12 @@ import { ReviewAppointmentDto } from './dtos/review-appointment.dto';
 import { AppointmentDto } from './dtos/appointment.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { ApprovedGuard } from 'src/users/guards/approved.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 
 @Controller('appointments')
+@UseGuards(ApprovedGuard)
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
