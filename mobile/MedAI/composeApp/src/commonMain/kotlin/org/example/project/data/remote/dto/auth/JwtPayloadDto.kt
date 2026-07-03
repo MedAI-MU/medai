@@ -12,6 +12,7 @@ data class JwtPayloadDto(
     @SerialName("sub") val sub: Int,
     val email: String,
     val role: String? = null,
+    val status: String? = null,
 ) {
     val userId: String get() = sub.toString()
     val name: String get() = email.substringBefore("@")

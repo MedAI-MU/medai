@@ -136,4 +136,15 @@ Medicine</string>
     <string name="re_book">Re-book</string>
     <string name="no_records_found">No medical records found</string>
 
+    <!-- Pending Approval Screen -->
+    <string name="pending_approval_title">Account Pending Approval</string>
+    <string name="pending_approval_subtitle">Under Review</string>
+    <string name="pending_approval_desc">When you register as a Doctor or Secretary, your credentials require manual review and validation by a Manager. This process ensures the security and integrity of our medical network.</string>
+    <string name="pending_approval_status">Status: Pending Review</string>
+    <string name="pending_approval_reassure">You will receive full access as soon as the manager reviews and approves your account. Thank you for your patience.</string>
+    <string name="pending_approval_password_label">Enter Password to Refresh Status</string>
+    <string name="check_status">Check Status</string>
+    <string name="logout">Log Out</string>
+    <string name="still_pending_message">Your account is still pending approval. Please try again later or contact your manager.</string>
+
 </resources>

@@ -46,6 +46,7 @@ import org.example.project.domain.model.home.Category
 import org.example.project.domain.model.home.CategoryType
 import org.example.project.domain.model.doctor.Doctor
 import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.model.auth.AccountStatus
 import org.example.project.domain.model.patient.Patient
 import org.example.project.data.remote.dto.ChatConversationDto
 import org.example.project.data.remote.dto.MessageDto
@@ -77,6 +78,14 @@ fun mapStatus(status: String?): AppointmentStatus {
         "finished" -> AppointmentStatus.Finished
         "cancelled" -> AppointmentStatus.Cancelled
         else -> AppointmentStatus.Pending // Default fallback
+    }
+}
+
+fun mapAccountStatus(status: String?): AccountStatus {
+    return when (status?.lowercase()) {
+        "pending" -> AccountStatus.PENDING
+        "approved" -> AccountStatus.APPROVED
+        else -> AccountStatus.APPROVED
     }
 }
 
