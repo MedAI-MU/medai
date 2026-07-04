@@ -1,0 +1,117 @@
+name: Terraform Infrastructure
+
+on:
+  pull_request:
+    branches: ["staging", "main"]
+    paths: ["infra/**"]
+  push:
+    branches: ["staging", "main"]
+    paths: ["infra/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VAR_ssh_public_key:    ${{ secrets.TF_SSH_PUBLIC_KEY }}
+  TF_VAR_certbot_email:     ${{ secrets.TF_CERTBOT_EMAIL }}
+  TF_VAR_pg_admin_password: ${{ secrets.TF_PG_ADMIN_PASSWORD }}
+  TF_VAR_client_ip_address: ${{ secrets.TF_CLIENT_IP_ADDRESS }}
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BRANCH="${{ github.base_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
+          case "$BRANCH" in
+            staging)
+              echo "dir=infra/environments/staging" >> "$GITHUB_OUTPUT"
+              echo "name=staging" >> "$GITHUB_OUTPUT" ;;
+            main)
+              echo "dir=infra/environments/prod" >> "$GITHUB_OUTPUT"
+              echo "name=prod" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "Unknown branch: $BRANCH" >&2
+              exit 1 ;;
+          esac
+
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Terraform Format
+        working-directory: infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: ${{ steps.env.outputs.dir }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ steps.env.outputs.dir }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        id: plan
+        working-directory: ${{ steps.env.outputs.dir }}
+        run: |
+          terraform plan -no-color > plan.txt 2>&1
+          EXIT_CODE=$?
+          echo "exitcode=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Terraform Plan — \`${{ steps.env.outputs.name }}\`"
+            echo ""
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "✅ Plan succeeded"
+            else
+              echo "❌ Plan failed"
+            fi
+            echo ""
+            echo "<details><summary>Plan output</summary>"
+            echo ""
+            echo '```text'
+            cat plan.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > plan_comment.md
+        continue-on-error: true
+
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: terraform-${{ steps.env.outputs.name }}
+          path: ${{ steps.env.outputs.dir }}/plan_comment.md
+
+      - name: Fail on plan error
+        if: github.event_name == 'pull_request' && steps.plan.outputs.exitcode != '0'
+        run: |
+          echo "Terraform plan failed with exit code ${{ steps.plan.outputs.exitcode }}"
+          exit 1
+
+      - name: Terraform Apply
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        working-directory: ${{ steps.env.outputs.dir }}
+        run: terraform apply -auto-approve -no-color
