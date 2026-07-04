@@ -11,6 +11,8 @@ export default function StarRating({
   containerClassName = "",
   starClassName = "",
   disabled = false,
+  isViewOnly = false,
+  isLabelHidden = false,
 }) {
   const [rating, setRating] = useState(defualtRate);
   const [tempRating, setTempRating] = useState(0);
@@ -41,12 +43,15 @@ export default function StarRating({
             starClassName={starClassName}
             color={color}
             disabled={disabled}
+            isViewOnly={isViewOnly}
           />
         ))}
       </ul>
-      <div className="text-text-subtle">
-        {tempRating || rating || "0"}.0 out of 5 stars
-      </div>
+      {!isLabelHidden && (
+        <div className="text-text-subtle">
+          {tempRating || rating || "0"}.0 out of 5 stars
+        </div>
+      )}
     </div>
   );
 }
@@ -59,15 +64,22 @@ function Star({
   full,
   color,
   starClassName,
+  isViewOnly,
 }) {
   return (
     <li style={{ lineHeight: 0 }}>
       <button
         type="button"
-        className={cn("size-5 cursor-pointer bg-none", starClassName)}
-        onClick={onRate}
-        onMouseEnter={onHoverIn}
-        onMouseLeave={onHoverOut}
+        className={cn(
+          "size-5 cursor-pointer bg-none",
+          isViewOnly && "pointer-events-none",
+          starClassName,
+        )}
+        {...(!isViewOnly && {
+          onClick: onRate,
+          onMouseEnter: onHoverIn,
+          onMouseLeave: onHoverOut,
+        })}
         disabled={disabled}
       >
         {full ? (

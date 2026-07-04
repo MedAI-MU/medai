@@ -18,7 +18,7 @@ export class DocSchedule {
   id: number;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.schedules, {
-    onDelete: 'RESTRICT',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;

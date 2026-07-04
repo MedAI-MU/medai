@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -19,21 +18,22 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Settings
 import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import org.example.project.design_system.component.button.MedAICardButton
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.secretary.QueueEntry
@@ -45,33 +45,47 @@ import org.example.project.presentation.secretary.billing.BillingScreen
 import org.example.project.presentation.patientDirectory.PatientsDirectoryScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.example.project.design_system.theme.LocalDimensions
+import androidx.compose.material.icons.filled.LocalHospital
+import org.example.project.presentation.secretary.doctors.SecretaryDoctorListScreen
 
 class SecretaryDashboardScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<SecretaryDashboardViewModel>()
+        val viewModel = koinScreenModel<SecretaryDashboardViewModel>()
         val state by viewModel.state.collectAsState()
+        val dimensions = LocalDimensions.current
+
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is SecretaryDashboardEffect.ShowSnackbar -> {
+                        snackbarHostState.showSnackbar(effect.message)
+                    }
+                }
+            }
+        }
 
         Scaffold(
-            containerColor = MedAITheme.colors.background
+            containerColor = MedAITheme.colors.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(dimensions.medium)
             ) {
-                // ... (Header and Stats Row omitted for brevity, assuming they are unchanged or I need to be careful not to delete them)
-                // Actually, I should just target the Quick Actions Row.
-
                 // Header
                 Text(
                     text = "Secretary Dashboard",
                     style = MedAITheme.textStyle.headline.medium,
                     color = MedAITheme.colors.text.primary
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensions.large))
 
                 // Stats Row
                 Row(
@@ -80,9 +94,9 @@ class SecretaryDashboardScreen : Screen {
                 ) {
                     StatCard("Patients", state.clinicStats.totalPatientsToday.toString())
                     StatCard("Doctors", state.clinicStats.activeDoctors.toString())
-                    StatCard("Revenue", "$${state.clinicStats.totalRevenueToday}")
+                    StatCard("Revenue", "${state.clinicStats.totalRevenueToday}")
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensions.large))
 
                 // Quick Actions
                 Text(
@@ -90,10 +104,10 @@ class SecretaryDashboardScreen : Screen {
                     style = MedAITheme.textStyle.title.medium,
                     color = MedAITheme.colors.text.primary
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensions.medium))
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(dimensions.medium)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -121,8 +135,17 @@ class SecretaryDashboardScreen : Screen {
                             icon = Icons.Default.AttachMoney,
                             onClick = { navigator.push(BillingScreen()) })
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MedAICardButton(
+                            text = "Doctors",
+                            icon = Icons.Default.LocalHospital,
+                            onClick = { navigator.push(SecretaryDoctorListScreen()) })
+                    }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensions.large))
 
                 // Queue / Appointments Lists
                 Text(
@@ -130,7 +153,7 @@ class SecretaryDashboardScreen : Screen {
                     style = MedAITheme.textStyle.title.medium,
                     color = MedAITheme.colors.text.primary
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensions.medium))
 
                 if (state.isLoading) {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -138,7 +161,7 @@ class SecretaryDashboardScreen : Screen {
                     }
                 } else {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(dimensions.small)
                     ) {
                         items(state.queues) { entry ->
                             QueueItem(entry, onClick = { navigator.push(DoctorPatientRecordsScreen(entry.patientId)) })
@@ -151,10 +174,11 @@ class SecretaryDashboardScreen : Screen {
 
     @Composable
     fun StatCard(label: String, value: String) {
+        val dimensions = LocalDimensions.current
         Column(
             modifier = Modifier
-                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                .padding(16.dp),
+                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(dimensions.radiusMedium))
+                .padding(dimensions.medium),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = value, style = MedAITheme.textStyle.headline.small, color = MedAITheme.colors.primary, fontWeight = FontWeight.Bold)
@@ -164,12 +188,13 @@ class SecretaryDashboardScreen : Screen {
 
     @Composable
     fun QueueItem(entry: QueueEntry, onClick: () -> Unit) {
+        val dimensions = LocalDimensions.current
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                .background(MedAITheme.colors.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(dimensions.radiusMedium))
                 .clickable { onClick() }
-                .padding(16.dp),
+                .padding(dimensions.medium),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -184,17 +209,18 @@ class SecretaryDashboardScreen : Screen {
 
     @Composable
     fun QueueStatusBadge(status: QueueStatus) {
+        val dimensions = LocalDimensions.current
         val (color, text) = when (status) {
-            QueueStatus.WAITING -> Color(0xFFFFCC00) to "Waiting"
-            QueueStatus.IN_PROGRESS -> Color(0xFF00E5FF) to "In Progress"
-            QueueStatus.COMPLETED -> Color(0xFF00C853) to "Completed"
-            QueueStatus.CANCELLED -> Color(0xFFFF5252) to "Cancelled"
+            QueueStatus.WAITING -> MedAITheme.colors.status.warning to "Waiting"
+            QueueStatus.IN_PROGRESS -> MedAITheme.colors.primary to "In Progress"
+            QueueStatus.COMPLETED -> MedAITheme.colors.status.success to "Completed"
+            QueueStatus.CANCELLED -> MedAITheme.colors.status.error to "Cancelled"
         }
 
         Box(
             modifier = Modifier
-                .background(color.copy(alpha = 0.2f), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .background(color.copy(alpha = 0.2f), shape = androidx.compose.foundation.shape.RoundedCornerShape(dimensions.radiusSmall))
+                .padding(horizontal = dimensions.small, vertical = dimensions.extraSmall)
         ) {
             Text(text = text, style = MedAITheme.textStyle.label.small, color = color, fontWeight = FontWeight.Bold)
         }

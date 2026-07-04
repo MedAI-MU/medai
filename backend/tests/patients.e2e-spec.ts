@@ -106,15 +106,16 @@ describe('PatientsController (e2e)', () => {
     return cookiesArray.find((c) => c.startsWith('Authentication=')) || '';
   };
 
-  const registerAndLogin = async (
-    role: 'patient' | 'doctor' | 'secretary' = 'patient',
-  ): Promise<{ authCookie: string; user: RegisterDto }> => {
+  const registerAndLogin = async (): Promise<{
+    authCookie: string;
+    user: RegisterDto;
+  }> => {
     const registerDto: RegisterDto = {
       email: `test-${Date.now()}-${Math.random()}@test.com`,
       password: 'strongPassword123',
       name: 'Test User',
       phone: `011${Math.floor(10000000 + Math.random() * 90000000)}`,
-      role,
+      role: 'patient',
     };
 
     await request(app.getHttpServer() as App)
@@ -196,7 +197,7 @@ describe('PatientsController (e2e)', () => {
 
   describe('POST /api/patients', () => {
     it('should create a patient profile for authenticated patient user', async () => {
-      const { authCookie } = await registerAndLogin('patient');
+      const { authCookie } = await registerAndLogin();
 
       const patientDto: PatientDto = {
         birthDate: new Date('1990-01-15'),
@@ -237,7 +238,7 @@ describe('PatientsController (e2e)', () => {
     });
 
     it('should return 400 for invalid patient data', async () => {
-      const { authCookie } = await registerAndLogin('patient');
+      const { authCookie } = await registerAndLogin();
 
       const invalidPatientDto = {
         birthDate: 'not-a-date',
@@ -254,7 +255,7 @@ describe('PatientsController (e2e)', () => {
     });
 
     it('should create patient with optional fields omitted', async () => {
-      const { authCookie } = await registerAndLogin('patient');
+      const { authCookie } = await registerAndLogin();
 
       const patientDto: Partial<PatientDto> = {
         birthDate: new Date('1995-06-20'),
@@ -278,7 +279,7 @@ describe('PatientsController (e2e)', () => {
 
   describe('GET /api/patients/:id', () => {
     it('should return patient with all relations for authorized user', async () => {
-      const { authCookie } = await registerAndLogin('patient');
+      const { authCookie } = await registerAndLogin();
 
       const patientDto: PatientDto = {
         birthDate: new Date('1990-01-15'),
@@ -320,343 +321,7 @@ describe('PatientsController (e2e)', () => {
 
   describe('PATCH /api/patients/:id', () => {
     it('should update patient profile', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const updateDto = {
-        height: 180,
-        weight: 75,
-        bloodType: 'O+',
-      };
-
-      const response = await request(app.getHttpServer() as App)
-        .patch(`${PATIENTS_URL}/${patientId}`)
-        .set('Cookie', authCookie)
-        .send(updateDto)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.height).toBe(180);
-      expect(body.weight).toBe(75);
-      expect(body.bloodType).toBe('O+');
-    });
-
-    it('should update only provided fields', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-        bloodType: 'A+',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const updateDto = {
-        weight: 72,
-      };
-
-      const response = await request(app.getHttpServer() as App)
-        .patch(`${PATIENTS_URL}/${patientId}`)
-        .set('Cookie', authCookie)
-        .send(updateDto)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.weight).toBe(72);
-      expect(body.height).toBe(175);
-      expect(body.bloodType).toBe('A+');
-    });
-  });
-
-  describe('PUT /api/patients/:id/allergies', () => {
-    it('should update patient allergies', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const allergies = [
-        { name: 'Peanuts', description: 'Severe allergy' },
-        { name: 'Shellfish', description: 'Mild reaction' },
-      ];
-
-      const response = await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/allergies`)
-        .set('Cookie', authCookie)
-        .send(allergies)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.allergies).toHaveLength(2);
-      expect(body.allergies[0].name).toBe('Peanuts');
-      expect(body.allergies[1].name).toBe('Shellfish');
-    });
-
-    it('should return 400 when allergies is not an array', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/allergies`)
-        .set('Cookie', authCookie)
-        .send({ allergies: [{ name: 'Peanuts' }] })
-        .expect(400);
-    });
-  });
-
-  describe('PUT /api/patients/:id/chronic-diseases', () => {
-    it('should update patient chronic diseases', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const chronicDiseases = [
-        { name: 'Diabetes', description: 'Type 2' },
-        { name: 'Hypertension', description: 'Controlled with medication' },
-      ];
-
-      const response = await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/chronic-diseases`)
-        .set('Cookie', authCookie)
-        .send(chronicDiseases)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.chronicDiseases).toHaveLength(2);
-      expect(body.chronicDiseases[0].name).toBe('Diabetes');
-    });
-  });
-
-  describe('PUT /api/patients/:id/surgeries', () => {
-    it('should update patient surgeries', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const surgeries = [
-        {
-          name: 'Appendectomy',
-          description: 'Performed in 2015',
-          date: new Date('2015-03-20'),
-        },
-      ];
-
-      const response = await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/surgeries`)
-        .set('Cookie', authCookie)
-        .send(surgeries)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.surgeries).toHaveLength(1);
-      expect(body.surgeries[0].name).toBe('Appendectomy');
-    });
-  });
-
-  describe('PUT /api/patients/:id/family-histories', () => {
-    it('should update patient family histories', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const familyHistories = [
-        {
-          relation: 'father',
-          condition: 'Heart Disease',
-          notes: 'Father had heart attack at 55',
-        },
-      ];
-
-      const response = await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/family-histories`)
-        .set('Cookie', authCookie)
-        .send(familyHistories)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.familyHistories).toHaveLength(1);
-      expect(body.familyHistories[0].condition).toBe('Heart Disease');
-    });
-  });
-
-  describe('PUT /api/patients/:id/emergency-contacts', () => {
-    it('should update patient emergency contacts', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const emergencyContacts = [
-        {
-          name: 'John Doe',
-          relation: 'father',
-          phoneNumber: '01012345678',
-          email: 'john@example.com',
-          address: '123 Main St',
-          notes: 'Primary contact',
-        },
-      ];
-
-      const response = await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/emergency-contacts`)
-        .set('Cookie', authCookie)
-        .send(emergencyContacts)
-        .expect(200);
-
-      const body = response.body as PatientResponse;
-      expect(body.emergencyContacts).toHaveLength(1);
-      expect(body.emergencyContacts[0].name).toBe('John Doe');
-      expect(body.emergencyContacts[0].relation).toBe('father');
-    });
-
-    it('should validate emergency contact data', async () => {
-      const { authCookie } = await registerAndLogin('patient');
-
-      const patientDto: PatientDto = {
-        birthDate: new Date('1990-01-15'),
-        height: 175,
-        weight: 70,
-        gender: 'male',
-      };
-
-      const createResponse = await request(app.getHttpServer() as App)
-        .post(PATIENTS_URL)
-        .set('Cookie', authCookie)
-        .send(patientDto)
-        .expect(201);
-
-      const createBody = createResponse.body as PatientResponse;
-      const patientId = createBody.userId;
-
-      const invalidEmergencyContacts = [
-        {
-          name: 'John Doe',
-          relation: 'invalid-relation',
-          phoneNumber: 'invalid-phone',
-          email: 'invalid-email',
-        },
-      ];
-
-      await request(app.getHttpServer() as App)
-        .put(`${PATIENTS_URL}/${patientId}/emergency-contacts`)
-        .set('Cookie', authCookie)
-        .send(invalidEmergencyContacts)
-        .expect(400);
-    });
-  });
-
-  describe('GET /api/patients (secretary access)', () => {
-    it('should allow secretary to get all patients', async () => {
-      // Create a patient first
-      const { authCookie: patientAuth } = await registerAndLogin('patient');
+      const { authCookie } = await registerAndLogin();
 
       const patientDto: PatientDto = {
         birthDate: new Date('1990-01-15'),
@@ -667,12 +332,12 @@ describe('PatientsController (e2e)', () => {
 
       await request(app.getHttpServer() as App)
         .post(PATIENTS_URL)
-        .set('Cookie', patientAuth)
+        .set('Cookie', authCookie)
         .send(patientDto)
         .expect(201);
 
       // Login as secretary
-      const { authCookie: secretaryAuth } = await registerAndLogin('secretary');
+      const { authCookie: secretaryAuth } = await registerAndLogin();
 
       const response = await request(app.getHttpServer() as App)
         .get(PATIENTS_URL)

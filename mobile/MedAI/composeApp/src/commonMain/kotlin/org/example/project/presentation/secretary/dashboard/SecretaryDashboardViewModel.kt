@@ -1,59 +1,38 @@
 package org.example.project.presentation.secretary.dashboard
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.patient.Patient
-import org.example.project.domain.model.secretary.ClinicStats
-import org.example.project.domain.model.secretary.QueueEntry
 import org.example.project.domain.model.secretary.QueueStatus
 import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
 
-data class SecretaryState(
-    val clinicStats: ClinicStats = ClinicStats(0, 0, 0.0, 0),
-    val queues: List<QueueEntry> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
-
-sealed class SecretaryEvent {
-    object LoadDashboard : SecretaryEvent()
-    data class UpdateQueueStatus(val entryId: String, val status: QueueStatus) : SecretaryEvent()
-    data class CreatePatient(val patient: Patient) : SecretaryEvent()
-}
-
 class SecretaryDashboardViewModel(
     private val getDashboardStatsUseCase: GetDashboardStatsUseCase,
     private val getAllQueuesUseCase: GetAllQueuesUseCase,
     private val checkInPatientUseCase: CheckInPatientUseCase,
     private val createPatientUseCase: CreatePatientUseCase
-) : ScreenModel {
-
-    private val _state = MutableStateFlow(SecretaryState())
-    val state: StateFlow<SecretaryState> = _state.asStateFlow()
+) : MviScreenModel<SecretaryDashboardState, SecretaryDashboardEvent, SecretaryDashboardEffect>(SecretaryDashboardState()) {
 
     init {
-        onEvent(SecretaryEvent.LoadDashboard)
+        onEvent(SecretaryDashboardEvent.LoadDashboard)
     }
 
-    fun onEvent(event: SecretaryEvent) {
+    override fun onEvent(event: SecretaryDashboardEvent) {
         when (event) {
-            is SecretaryEvent.LoadDashboard -> {
+            is SecretaryDashboardEvent.LoadDashboard -> {
                 loadStats()
                 loadQueues()
             }
-            is SecretaryEvent.UpdateQueueStatus -> {
+            is SecretaryDashboardEvent.UpdateQueueStatus -> {
                 updateQueueStatus(event.entryId, event.status)
             }
-            is SecretaryEvent.CreatePatient -> {
+            is SecretaryDashboardEvent.CreatePatient -> {
                 createPatient(event.patient)
             }
         }
@@ -62,7 +41,7 @@ class SecretaryDashboardViewModel(
     private fun loadStats() {
         getDashboardStatsUseCase()
             .onEach { stats ->
-                _state.value = _state.value.copy(clinicStats = stats)
+                setState { copy(clinicStats = stats) }
             }
             .launchIn(screenModelScope)
     }
@@ -70,17 +49,13 @@ class SecretaryDashboardViewModel(
     private fun loadQueues() {
         getAllQueuesUseCase()
             .onEach { queues ->
-                _state.value = _state.value.copy(queues = queues)
+                setState { copy(queues = queues) }
             }
             .launchIn(screenModelScope)
     }
 
     private fun updateQueueStatus(entryId: String, status: QueueStatus) {
         screenModelScope.launch {
-            // Call repository directly or use case?
-            // Missing `UpdateQueueStatusUseCase`.
-            // I'll add `checkInPatientUseCase` which does something similar, but for specific status changes, I need a new use case.
-            // For now, I'll just checkIn if status is WAITING.
             if (status == QueueStatus.WAITING) {
                 checkInPatientUseCase(entryId)
             }
@@ -91,9 +66,10 @@ class SecretaryDashboardViewModel(
         screenModelScope.launch {
             val result = createPatientUseCase(patient)
             if (result.isSuccess) {
-                // Show success message or refresh
+                sendEffect(SecretaryDashboardEffect.ShowSnackbar("Patient created successfully"))
             } else {
-                _state.value = _state.value.copy(error = result.exceptionOrNull()?.message)
+                setState { copy(error = result.exceptionOrNull()?.message) }
+                sendEffect(SecretaryDashboardEffect.ShowSnackbar(result.exceptionOrNull()?.message ?: "Failed to create patient", isError = true))
             }
         }
     }

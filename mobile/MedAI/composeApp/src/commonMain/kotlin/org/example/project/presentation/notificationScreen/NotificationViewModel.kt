@@ -1,37 +1,26 @@
 package org.example.project.presentation.notificationScreen
 
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.notification.Notification
 import org.example.project.domain.usecase.notification.GetNotificationsUseCase
 
 class NotificationViewModel(
     private val getNotificationsUseCase: GetNotificationsUseCase
-) : ScreenModel {
-
-    private val _state = MutableStateFlow(NotificationState())
-    val state = _state.asStateFlow()
-
-    private val _effect = Channel<NotificationEffect>()
-    val effect = _effect.receiveAsFlow()
+) : MviScreenModel<NotificationState, NotificationEvent, NotificationEffect>(NotificationState()) {
 
     init {
         loadNotifications()
     }
 
-    fun onEvent(event: NotificationEvent) {
+    override fun onEvent(event: NotificationEvent) {
         when (event) {
             NotificationEvent.BackClicked -> sendEffect(NotificationEffect.NavigateBack)
             is NotificationEvent.NotificationClicked -> {
@@ -42,14 +31,14 @@ class NotificationViewModel(
 
     private fun loadNotifications() {
         screenModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            setState { copy(isLoading = true) }
             getNotificationsUseCase().fold(
                 onSuccess = { list ->
                     val groupedList = groupNotifications(list)
-                    _state.update { it.copy(isLoading = false, notifications = groupedList) }
+                    setState { copy(isLoading = false, notifications = groupedList) }
                 },
                 onFailure = { error ->
-                    _state.update { it.copy(isLoading = false, error = error.message) }
+                    setState { copy(isLoading = false, error = error.message) }
                 }
             )
         }
@@ -90,9 +79,5 @@ class NotificationViewModel(
         }
 
         return result
-    }
-
-    private fun sendEffect(effect: NotificationEffect) {
-        screenModelScope.launch { _effect.send(effect) }
     }
 }

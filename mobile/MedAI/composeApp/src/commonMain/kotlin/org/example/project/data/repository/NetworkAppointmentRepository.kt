@@ -102,6 +102,7 @@ class NetworkAppointmentRepository(
 
         return AppointmentDetail(
             id = this.id.toString(),
+            patientId = this.patientUserId.toString(),
             doctorName = "Doctor #${this.doctorUserId}",
             specialty = "General",
             doctorRating = 0.0,

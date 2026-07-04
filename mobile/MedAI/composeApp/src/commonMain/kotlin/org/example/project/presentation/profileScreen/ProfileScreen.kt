@@ -44,15 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.menu_favorite
 import medai.composeapp.generated.resources.menu_help
@@ -64,6 +61,7 @@ import medai.composeapp.generated.resources.menu_settings
 import medai.composeapp.generated.resources.my_profile_title
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.loginScreen.LoginScreen
 import org.jetbrains.compose.resources.StringResource
@@ -73,12 +71,13 @@ class ProfileScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<ProfileViewModel>()
+        val viewModel = koinScreenModel<ProfileViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when(effect) {
                     ProfileEffect.NavigateBack -> navigator.pop()
                     ProfileEffect.NavigateToLogin -> navigator.replaceAll(LoginScreen())
@@ -98,8 +97,8 @@ class ProfileScreen : Screen {
 
                 // 1. Header Profile Info
                 if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color.White)
+                    Box(modifier = Modifier.fillMaxWidth().height(dimensions.spacing64 * 2), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MedAITheme.colors.primary)
                     }
                 } else {
                     ProfileHeader(
@@ -109,20 +108,21 @@ class ProfileScreen : Screen {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                 // 2. White Menu List
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                        .padding(24.dp)
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
+                        .background(MedAITheme.colors.background)
+                        .padding(dimensions.extraLarge)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                        verticalArrangement = Arrangement.spacedBy(dimensions.extraLarge)
                     ) {
                         ProfileMenuItem(
                             icon = Icons.Default.Person,
@@ -170,6 +170,7 @@ class ProfileScreen : Screen {
 
     @Composable
     fun ProfileHeader(name: String, email: String, onEditClick: () -> Unit) {
+        val dimensions = LocalDimensions.current
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -178,20 +179,20 @@ class ProfileScreen : Screen {
                 // Avatar
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(dimensions.spacing64 + dimensions.extraExtraLarge) // Approx 96dp
                         .clip(CircleShape)
-                        .background(Color.LightGray) // Placeholder for AsyncImage
+                        .background(MedAITheme.colors.surface) // Placeholder for AsyncImage
                 )
 
                 // Edit Pencil Icon
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .offset(x = 4.dp, y = 4.dp)
+                        .size(dimensions.extraExtraLarge)
+                        .offset(x = dimensions.extraSmall, y = dimensions.extraSmall)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(MedAITheme.colors.background)
                         .clickable { onEditClick() }
-                        .padding(6.dp)
+                        .padding(dimensions.small)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -201,7 +202,7 @@ class ProfileScreen : Screen {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensions.large))
 
             MedAIText(
                 text = name,
@@ -225,6 +226,7 @@ class ProfileScreen : Screen {
         isDestructive: Boolean = false,
         onClick: () -> Unit
     ) {
+        val dimensions = LocalDimensions.current
         val contentColor = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.text.primary
         val iconContainerColor = if (isDestructive) MedAITheme.colors.status.errorContainer else MedAITheme.colors.primary.copy(alpha = 0.1f) // Light Cyan
         val iconTint = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.primary // Brand Cyan
@@ -233,16 +235,16 @@ class ProfileScreen : Screen {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onClick() }
-                .padding(vertical = 4.dp),
+                .padding(vertical = dimensions.extraSmall),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Icon Circle
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(dimensions.spacing48)
                     .clip(CircleShape)
                     .background(iconContainerColor)
-                    .padding(10.dp),
+                    .padding(dimensions.medium),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -252,7 +254,7 @@ class ProfileScreen : Screen {
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(dimensions.large))
 
             MedAIText(
                 text = stringResource(title),
@@ -266,7 +268,7 @@ class ProfileScreen : Screen {
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = null,
                     tint = MedAITheme.colors.text.secondary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(dimensions.large)
                 )
             }
         }

@@ -8,7 +8,9 @@ export class DoctorSpeciality extends TimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.specialities)
+  @ManyToOne(() => Doctor, (doctor) => doctor.specialities, {
+    onDelete: 'CASCADE',
+  })
   doctor: Doctor;
 
   @ManyToOne(() => Speciality)

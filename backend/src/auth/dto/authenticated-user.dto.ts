@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { UserRoles } from 'src/users/types/role.types';
+import type { UserRoles, UserStatus } from 'src/users/types/role.types';
 
 export class AuthenticatedUserDto {
   @ApiProperty({
@@ -31,4 +31,10 @@ export class AuthenticatedUserDto {
     example: 'doctor',
   })
   role: UserRoles;
+
+  @ApiProperty({
+    description: 'User status',
+    example: 'approved',
+  })
+  status: UserStatus;
 }

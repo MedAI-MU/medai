@@ -26,6 +26,7 @@ import { DoctorsService } from './doctors.service';
 import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ApprovedGuard } from 'src/users/guards/approved.guard';
 import { SpecialityDto } from './dtos/speciality.dto';
 import { SpecialityService } from './speciality.service';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
@@ -35,6 +36,7 @@ import { SpecialityResponseDto } from './dtos/speciality-response.dto';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Controller('doctors')
+@UseGuards(ApprovedGuard)
 export class DoctorsController {
   constructor(
     private readonly doctorsService: DoctorsService,
@@ -158,7 +160,7 @@ export class DoctorsController {
     }
   }
 
-  @Roles('secretary', 'patient')
+  @Roles('secretary', 'patient', 'manager')
   @UseGuards(RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -174,7 +176,7 @@ export class DoctorsController {
   }
 
   @UseGuards(SameIdGuard)
-  @Roles('secretary', 'patient')
+  @Roles('secretary', 'patient', 'manager')
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })

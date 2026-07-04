@@ -74,16 +74,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const doctorId = 10;
     const doctorEntity: Doctor = {
@@ -296,16 +299,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const doctorEntity: Doctor = {
       userId: 10,
@@ -321,7 +327,7 @@ describe('DocScheduleSlotsService', () => {
       startTime: '09:00',
       endTime: '10:00',
       status: 'available',
-    } as DocScheduleSlot;
+    };
 
     it('should update schedule slot successfully as secretary', async () => {
       const updateDto: UpdateDocScheduleSlotDto = {
@@ -598,7 +604,7 @@ describe('DocScheduleSlotsService', () => {
         startTime: '10:00:00',
         endTime: '11:00:00',
         status: 'available',
-      } as DocScheduleSlot;
+      };
 
       scheduleSlotRepositoryMock.findOne.mockResolvedValue(existingSlot);
       const scheduleWithSlots = {
@@ -636,7 +642,7 @@ describe('DocScheduleSlotsService', () => {
         startTime: '11:00:00',
         endTime: '12:00:00',
         status: 'available',
-      } as DocScheduleSlot;
+      };
 
       scheduleSlotRepositoryMock.findOne.mockResolvedValue(existingSlot);
       const scheduleWithSlots = {
@@ -659,16 +665,19 @@ describe('DocScheduleSlotsService', () => {
       id: 1,
       email: 'secretary@test.com',
       role: 'secretary',
+      status: 'approved',
     };
     const doctorUser: TokenUser = {
       id: 10,
       email: 'doctor@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const _anotherDoctorUser: TokenUser = {
       id: 20,
       email: 'doctor2@test.com',
       role: 'doctor',
+      status: 'approved',
     };
     const _doctorEntity: Doctor = {
       userId: 10,

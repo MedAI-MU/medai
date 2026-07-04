@@ -69,13 +69,14 @@ kotlin {
             implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta02")
             implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta02")
             implementation(libs.voyager.koin)
-            implementation(libs.kotlinx.datetime)
 
             // data store
             implementation("androidx.datastore:datastore-preferences-core:1.1.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
         }
 
         iosMain.dependencies {

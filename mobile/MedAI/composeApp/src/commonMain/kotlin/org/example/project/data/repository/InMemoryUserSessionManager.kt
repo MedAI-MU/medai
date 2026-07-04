@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.model.auth.UserRole
+import org.example.project.domain.model.auth.AccountStatus
 
 class InMemoryUserSessionManager(
     private val dataStore: DataStore<Preferences>
@@ -23,6 +24,7 @@ class InMemoryUserSessionManager(
         private val KEY_ROLE = stringPreferencesKey("user_role")
         private val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         private val KEY_COOKIES = stringPreferencesKey("cookies")
+        private val KEY_ACCOUNT_STATUS = stringPreferencesKey("account_status")
     }
 
     override val isUserLoggedIn: Flow<Boolean> = dataStore.data.map { prefs ->
@@ -56,6 +58,23 @@ class InMemoryUserSessionManager(
         }
     }
 
+    override suspend fun getAccountStatus(): AccountStatus? {
+        val statusString = dataStore.data.first()[KEY_ACCOUNT_STATUS]
+        return statusString?.let {
+             try {
+                 AccountStatus.valueOf(it)
+             } catch (e: IllegalArgumentException) {
+                 null
+             }
+        }
+    }
+
+    override suspend fun updateAccountStatus(status: AccountStatus) {
+        dataStore.edit { prefs ->
+            prefs[KEY_ACCOUNT_STATUS] = status.name
+        }
+    }
+
     override suspend fun getCookies(): Set<String> {
          // Storing as a delimited string for simplicity, or JSON
          val cookiesString = dataStore.data.first()[KEY_COOKIES]
@@ -69,13 +88,21 @@ class InMemoryUserSessionManager(
     }
 
 
-    override suspend fun saveSession(userId: String, token: String, name: String, email: String, role: UserRole) {
+    override suspend fun saveSession(
+        userId: String,
+        token: String,
+        name: String,
+        email: String,
+        role: UserRole,
+        accountStatus: AccountStatus
+    ) {
         dataStore.edit { prefs ->
             prefs[KEY_USER_ID] = userId
             prefs[KEY_TOKEN] = token
             prefs[KEY_NAME] = name
             prefs[KEY_EMAIL] = email
             prefs[KEY_ROLE] = role.name
+            prefs[KEY_ACCOUNT_STATUS] = accountStatus.name
             prefs[KEY_IS_LOGGED_IN] = true
         }
     }

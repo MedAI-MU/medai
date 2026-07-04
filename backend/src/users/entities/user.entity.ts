@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
-import type { UserRoles } from '../types/role.types';
+import type { UserRoles, UserStatus } from '../types/role.types';
 
 import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-template.entity';
 import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
@@ -51,6 +51,9 @@ export class User extends TimestampEntity {
 
   @Column({ type: 'varchar' })
   role: UserRoles;
+
+  @Column({ type: 'varchar', default: 'pending' })
+  status: UserStatus;
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor?: Doctor;

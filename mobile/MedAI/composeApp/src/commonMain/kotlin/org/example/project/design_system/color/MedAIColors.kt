@@ -14,6 +14,7 @@ data class MedAiColors(
     // Core
     val primary: Color,
     val secondary: Color,
+    val accent: Color, // New Accent (Cyan)
     val background: Color,
     val surface: Color,
     val onPrimary: Color,
@@ -49,7 +50,13 @@ data class MedAiStatusColors(
     val error: Color,
     val successContainer: Color,
     val warningContainer: Color,
-    val errorContainer: Color
+    val errorContainer: Color,
+
+    // Additional semantic statuses used throughout the app
+    val starRating: Color,
+    val waiting: Color, // E.g., Queue Pending
+    val completed: Color, // E.g., Queue Completed
+    val cancelled: Color // E.g., Queue Cancelled
 )
 
 /**

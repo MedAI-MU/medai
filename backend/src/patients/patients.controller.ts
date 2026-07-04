@@ -18,6 +18,7 @@ import { UpdatePatientDto } from './dtos/update_patient.dto';
 import { AllergyDto } from './dtos/allergy.dto';
 import { UpdateAllergyDto } from './dtos/update-allergy.dto';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
+import { ApprovedGuard } from 'src/users/guards/approved.guard';
 import { Allergy } from './entities/allergy.entity';
 import { ChronicDiseaseDto } from './dtos/chronic_disease.dto';
 import { UpdateChronicDiseaseDto } from './dtos/update-chronic-disease.dto';
@@ -42,11 +43,12 @@ import {
 import { ApiPatientGeneral } from './decorators/api-patient-general.decorator';
 
 @Controller('patients')
+@UseGuards(ApprovedGuard)
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
   @Get()
-  @Roles('secretary')
+  @Roles('secretary', 'manager')
   @UseGuards(RolesGuard)
   @ApiOkResponse({
     description: 'Returns an array of patients',
@@ -60,7 +62,7 @@ export class PatientsController {
   }
 
   @Get(':id')
-  @Roles('secretary')
+  @Roles('secretary', 'doctor')
   @UseGuards(SameIdGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient', type: PatientResponseDto })

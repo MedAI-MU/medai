@@ -8,5 +8,6 @@ data class AuthLoginResponseDto(
     val name: String,
     val email: String? = null,
     val phone: String? = null,
-    val role: String? = null
+    val role: String? = null,
+    val status: String? = null
 )

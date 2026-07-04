@@ -7,7 +7,7 @@ const Variations = {
   primary: "bg-primary text-white hover:opacity-90",
   secondary: "border-2 border-primary text-primary hover:bg-primary/10",
   outline:
-    "border-border text-text-muted hover:bg-surface-overlay focus:ring-primary border bg-surface transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none",
+    "border-border text-text-muted hover:bg-surface-overlay focus:ring-primary border bg-surface focus:ring-2 focus:ring-offset-1 focus:outline-none",
   ghost: "text-text-muted hover:bg-surface-overlay hover:text-text-base",
   danger: "bg-danger text-white hover:opacity-90",
   dangerGhost: "text-danger hover:bg-danger-muted",
@@ -33,7 +33,7 @@ function Button({
   ...props
 }) {
   const Style = cn(
-    "rounded-lg flex justify-center font-medium gap-2 shrink-0 items-center transition-all cursor-pointer data-[disabled=true]:opacity-70 data-[disabled=true]:cursor-not-allowed disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-95 transition-all",
+    "rounded-lg flex justify-center font-medium gap-2 shrink-0 items-center transition-all cursor-pointer data-[disabled=true]:opacity-70 data-[disabled=true]:cursor-not-allowed disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-95",
     Variations[variation],
     Sizes[size],
     className,
