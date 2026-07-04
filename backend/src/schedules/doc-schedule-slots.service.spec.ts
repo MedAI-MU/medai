@@ -327,7 +327,7 @@ describe('DocScheduleSlotsService', () => {
       startTime: '09:00',
       endTime: '10:00',
       status: 'available',
-    } as DocScheduleSlot;
+    };
 
     it('should update schedule slot successfully as secretary', async () => {
       const updateDto: UpdateDocScheduleSlotDto = {
@@ -604,7 +604,7 @@ describe('DocScheduleSlotsService', () => {
         startTime: '10:00:00',
         endTime: '11:00:00',
         status: 'available',
-      } as DocScheduleSlot;
+      };
 
       scheduleSlotRepositoryMock.findOne.mockResolvedValue(existingSlot);
       const scheduleWithSlots = {
@@ -642,7 +642,7 @@ describe('DocScheduleSlotsService', () => {
         startTime: '11:00:00',
         endTime: '12:00:00',
         status: 'available',
-      } as DocScheduleSlot;
+      };
 
       scheduleSlotRepositoryMock.findOne.mockResolvedValue(existingSlot);
       const scheduleWithSlots = {

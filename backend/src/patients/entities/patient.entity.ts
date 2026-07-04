@@ -12,6 +12,9 @@ import { ChronicDisease } from './chronic_disease.entity';
 import { Surgery } from './surgery.entity';
 import { FamilyHistory } from './family_history.entity';
 import { EmergencyContact } from './emergency_contact.entity';
+import { Scan } from '../../scans/entities/scan.entity';
+import { Report } from '../../scans/entities/report.entity';
+import { Diagnosis } from '../../diagnosis/entities/diagnosis.entity';
 import { MaritalStatusEnum, BloodTypeEnum } from '../enums/patients.enum';
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import type { BloodType, MaritalStatus } from '../types/patient.types';
@@ -63,4 +66,13 @@ export class Patient extends TimestampEntity {
     cascade: ['insert', 'update'],
   })
   emergencyContacts: EmergencyContact[];
+
+  @OneToMany(() => Scan, (scan) => scan.patient)
+  scans: Scan[];
+
+  @OneToMany(() => Report, (report) => report.patient)
+  reports: Report[];
+
+  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.patient)
+  diagnoses: Diagnosis[];
 }

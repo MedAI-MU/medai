@@ -342,7 +342,7 @@ describe('DocScheduleTemplatesService', () => {
       slots: [],
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as DocScheduleTemplate;
+    };
 
     it('should update schedule template name by secretary', async () => {
       const updateDto: UpdateDocScheduleTemplateDto = {
@@ -789,7 +789,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '09:00', endTime: '10:00' }],
-      } as DocScheduleTemplate);
+      });
       scheduleRepo.find.mockResolvedValue([]);
       scheduleRepo.save.mockResolvedValue([{ dayDate: dto.startDate }]);
       slotRepo.save.mockResolvedValue([{ id: 1 }]);
@@ -815,7 +815,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '14:00', endTime: '15:00' }],
-      } as DocScheduleTemplate);
+      });
       scheduleRepo.find.mockResolvedValue([]);
       scheduleRepo.save.mockResolvedValue([{ dayDate: dto.startDate }]);
       slotRepo.save.mockResolvedValue([{ id: 1 }]);
@@ -877,7 +877,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '09:00', endTime: '11:00' }],
-      } as DocScheduleTemplate);
+      });
 
       scheduleRepo.find.mockResolvedValue([
         {
@@ -910,7 +910,7 @@ describe('DocScheduleTemplatesService', () => {
           { weekDay: weekDay1, startTime: '09:00', endTime: '10:00' },
           { weekDay: weekDay2, startTime: '11:00', endTime: '12:00' },
         ],
-      } as DocScheduleTemplate);
+      });
 
       scheduleRepo.find.mockResolvedValue([]);
       scheduleRepo.save.mockImplementation((schedules: DocSchedule[]) =>
@@ -939,7 +939,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '09:00', endTime: '10:00' }],
-      } as DocScheduleTemplate);
+      });
 
       const existingSchedule = {
         dayDate: dto.startDate,
@@ -1002,7 +1002,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '09:00', endTime: '10:00' }],
-      } as DocScheduleTemplate);
+      });
 
       scheduleRepo.find.mockResolvedValue([]);
       scheduleRepo.save.mockImplementation((schedules: DocSchedule[]) =>
@@ -1063,7 +1063,7 @@ describe('DocScheduleTemplatesService', () => {
         id: templateId,
         doctor: { userId: doctorId } as Doctor,
         slots: [{ weekDay, startTime: '08:00', endTime: '09:00' }],
-      } as DocScheduleTemplate);
+      });
 
       scheduleRepo.find.mockResolvedValue([]);
       scheduleRepo.save.mockImplementation((schedules: DocSchedule[]) =>

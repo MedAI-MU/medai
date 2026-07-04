@@ -104,7 +104,7 @@ describe('users.service', () => {
         id: 1,
         email: 'test@test.com',
         phone: '11111111111',
-      } as User);
+      });
       const dto: RegisterDto = {
         name: 'Test User',
         email: 'test@test.com',
@@ -122,7 +122,7 @@ describe('users.service', () => {
         id: 1,
         email: 'nottest@test.com',
         phone: '00000000000',
-      } as User);
+      });
       const dto: RegisterDto = {
         name: 'Test User',
         email: 'test@test.com',
@@ -140,7 +140,7 @@ describe('users.service', () => {
   describe('addDoctorRole', () => {
     it('should remove patient, create doctor, and update user role', async () => {
       const userId = 1;
-      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId } as User);
+      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId });
 
       mockManager.getRepository.mockImplementation((entity) => {
         if (entity === Patient) return patientRepoMock;
@@ -178,7 +178,7 @@ describe('users.service', () => {
   describe('addSecretaryRole', () => {
     it('should remove patient and update user role', async () => {
       const userId = 1;
-      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId } as User);
+      usersRepositoryMock.findOneBy.mockResolvedValue({ id: userId });
 
       mockManager.getRepository.mockImplementation((entity) => {
         if (entity === Patient) return patientRepoMock;

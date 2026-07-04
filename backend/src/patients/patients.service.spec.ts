@@ -27,8 +27,8 @@ describe('PatientsService', () => {
     userId: 1,
     height: 175,
     weight: 70,
-    bloodType: 'A+' as BloodType,
-    maritalStatus: 'single' as MaritalStatus,
+    bloodType: 'A+',
+    maritalStatus: 'single',
     allergies: [],
     chronicDiseases: [],
     surgeries: [],
@@ -117,7 +117,7 @@ describe('PatientsService', () => {
   describe('findOne', () => {
     it('should return a patient with all relations when found', async () => {
       patientsRepositoryMock.findOne.mockResolvedValue(
-        mockPatientWithRelations as Patient,
+        mockPatientWithRelations,
       );
 
       const result = await service.findOne(1);
@@ -156,7 +156,7 @@ describe('PatientsService', () => {
     });
 
     it('should load all required relations', async () => {
-      patientsRepositoryMock.findOne.mockResolvedValue(mockPatient as Patient);
+      patientsRepositoryMock.findOne.mockResolvedValue(mockPatient);
 
       await service.findOne(1);
 
@@ -210,8 +210,8 @@ describe('PatientsService', () => {
       const updateDto: UpdatePatientDto = {
         height: 180,
         weight: 75,
-        bloodType: 'O+' as BloodType,
-        maritalStatus: 'married' as MaritalStatus,
+        bloodType: 'O+',
+        maritalStatus: 'married',
       };
 
       const updatedPatient = {
@@ -234,7 +234,7 @@ describe('PatientsService', () => {
     it('should update only provided fields', async () => {
       const updateDto: UpdatePatientDto = {
         weight: 80,
-      } as UpdatePatientDto;
+      };
 
       const updatedPatient = {
         ...mockPatient,
@@ -254,7 +254,7 @@ describe('PatientsService', () => {
       const updateDto = {} as UpdatePatientDto;
 
       patientsRepositoryMock.update.mockResolvedValue({ affected: 0 });
-      patientsRepositoryMock.findOne.mockResolvedValue(mockPatient as Patient);
+      patientsRepositoryMock.findOne.mockResolvedValue(mockPatient);
 
       const result = await service.update(updateDto, 1);
 
@@ -264,8 +264,8 @@ describe('PatientsService', () => {
 
     it('should update blood type correctly', async () => {
       const updateDto: UpdatePatientDto = {
-        bloodType: 'AB-' as BloodType,
-      } as UpdatePatientDto;
+        bloodType: 'AB-',
+      };
 
       const updatedPatient = {
         ...mockPatient,
@@ -282,8 +282,8 @@ describe('PatientsService', () => {
 
     it('should update marital status correctly', async () => {
       const updateDto: UpdatePatientDto = {
-        maritalStatus: 'divorced' as MaritalStatus,
-      } as UpdatePatientDto;
+        maritalStatus: 'divorced',
+      };
 
       const updatedPatient = {
         ...mockPatient,

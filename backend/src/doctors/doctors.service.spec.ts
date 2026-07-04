@@ -109,7 +109,7 @@ describe('DoctorsService', () => {
   describe('findOne', () => {
     it('should return a doctor with specialities when found', async () => {
       doctorsRepositoryMock.findOne.mockResolvedValue(
-        mockDoctorWithSpecialities as Doctor,
+        mockDoctorWithSpecialities,
       );
 
       const result = await service.findOne(1);
@@ -138,7 +138,7 @@ describe('DoctorsService', () => {
     });
 
     it('should load speciality relations nested', async () => {
-      doctorsRepositoryMock.findOne.mockResolvedValue(mockDoctor as Doctor);
+      doctorsRepositoryMock.findOne.mockResolvedValue(mockDoctor);
 
       await service.findOne(1);
 
