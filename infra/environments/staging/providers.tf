@@ -7,7 +7,7 @@ terraform {
   }
 
   cloud {
-    organization = "medai"
+    organization = "medai-org"
     workspaces {
       name = "medai-staging"
     }

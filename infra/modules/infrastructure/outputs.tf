@@ -17,3 +17,13 @@ output "resource_group_name" {
   value       = azurerm_resource_group.main.name
   description = "Name of the resource group"
 }
+
+output "pg_server_name" {
+  value       = azurerm_postgresql_flexible_server.db.name
+  description = "Name of the PostgreSQL flexible server"
+}
+
+output "pg_server_fqdn" {
+  value       = azurerm_postgresql_flexible_server.db.fqdn
+  description = "FQDN of the PostgreSQL flexible server"
+}

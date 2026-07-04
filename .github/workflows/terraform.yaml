@@ -14,8 +14,10 @@ permissions:
   pull-requests: write
 
 env:
-  TF_VAR_ssh_public_key: ${{ secrets.TF_SSH_PUBLIC_KEY }}
-  TF_VAR_certbot_email: ${{ secrets.TF_CERTBOT_EMAIL }}
+  TF_VAR_ssh_public_key:    ${{ secrets.TF_SSH_PUBLIC_KEY }}
+  TF_VAR_certbot_email:     ${{ secrets.TF_CERTBOT_EMAIL }}
+  TF_VAR_pg_admin_password: ${{ secrets.TF_PG_ADMIN_PASSWORD }}
+  TF_VAR_client_ip_address: ${{ secrets.TF_CLIENT_IP_ADDRESS }}
 
 jobs:
   terraform:

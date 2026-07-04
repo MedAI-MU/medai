@@ -46,20 +46,55 @@ variable "acr_name" {
   description = "Name of the Azure Container Registry (globally unique)"
 }
 
-variable "acr_sku" {
-  type        = string
-  description = "SKU for the Azure Container Registry"
-  default     = "Basic"
-}
-
-variable "create_acr" {
-  type        = bool
-  description = "Whether to create the ACR in this environment (staging creates it, prod references it)"
-  default     = true
-}
-
 variable "existing_acr_resource_group_name" {
   type        = string
-  description = "Resource group name of an existing ACR (used when create_acr = false)"
-  default     = ""
+  description = "Resource group name of the shared, externally-managed ACR"
+}
+
+variable "pg_version" {
+  type        = string
+  description = "PostgreSQL major version for the flexible server"
+  default     = "18"
+}
+
+variable "pg_admin_login" {
+  type        = string
+  description = "Administrator login for the PostgreSQL flexible server"
+  default     = "medai"
+}
+
+variable "pg_admin_password" {
+  type        = string
+  description = "Administrator password for the PostgreSQL flexible server"
+  sensitive   = true
+}
+
+variable "pg_sku_name" {
+  type        = string
+  description = "SKU name (tier_family_size) for the flexible server — Burstable B2s"
+  default     = "B_Standard_B2s"
+}
+
+variable "pg_storage_mb" {
+  type        = number
+  description = "Storage in MB for the flexible server (128 GiB = 131072)"
+  default     = 131072
+}
+
+variable "pg_storage_tier" {
+  type        = string
+  description = "Storage tier (P10 = 128 GiB @ 500 IOPS)"
+  default     = "P10"
+}
+
+variable "pg_backup_retention_days" {
+  type        = number
+  description = "Backup retention in days (7–35)"
+  default     = 7
+}
+
+variable "client_ip_address" {
+  type        = string
+  description = "Public IP (single IPv4) to allow in the flexible-server firewall rule named client-ip-address"
+  sensitive   = true
 }

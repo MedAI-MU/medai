@@ -1,8 +1,8 @@
 locals {
   prefix = "medai-${var.environment}"
 
-  acr_id           = var.create_acr ? azurerm_container_registry.main[0].id : data.azurerm_container_registry.existing[0].id
-  acr_login_server = var.create_acr ? azurerm_container_registry.main[0].login_server : data.azurerm_container_registry.existing[0].login_server
+  acr_id           = data.azurerm_container_registry.existing.id
+  acr_login_server = data.azurerm_container_registry.existing.login_server
 }
 
 resource "azurerm_resource_group" "main" {
@@ -99,17 +99,7 @@ resource "azurerm_network_interface_security_group_association" "vm_nic_nsg" {
   network_security_group_id = azurerm_network_security_group.vm_nsg.id
 }
 
-resource "azurerm_container_registry" "main" {
-  count               = var.create_acr ? 1 : 0
-  name                = var.acr_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = var.location
-  sku                 = var.acr_sku
-  admin_enabled       = true
-}
-
 data "azurerm_container_registry" "existing" {
-  count               = var.create_acr ? 0 : 1
   name                = var.acr_name
   resource_group_name = var.existing_acr_resource_group_name
 }
@@ -156,4 +146,40 @@ resource "azurerm_role_assignment" "vm_acrpull" {
   scope                = local.acr_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
+}
+
+resource "azurerm_postgresql_flexible_server" "db" {
+  name                   = "${local.prefix}-db"
+  resource_group_name    = azurerm_resource_group.main.name
+  location               = var.location
+  version                = var.pg_version
+  administrator_login    = var.pg_admin_login
+  administrator_password = var.pg_admin_password
+  create_mode            = "Default"
+
+  sku_name                      = var.pg_sku_name
+  storage_mb                    = var.pg_storage_mb
+  storage_tier                  = var.pg_storage_tier
+  public_network_access_enabled = true
+
+  backup_retention_days        = var.pg_backup_retention_days
+  geo_redundant_backup_enabled = false
+
+  authentication {
+    active_directory_auth_enabled = false
+    password_auth_enabled         = true
+  }
+}
+
+resource "azurerm_postgresql_flexible_server_firewall_rule" "client_ip" {
+  name             = "client-ip-address"
+  server_id        = azurerm_postgresql_flexible_server.db.id
+  start_ip_address = var.client_ip_address
+  end_ip_address   = var.client_ip_address
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "extensions" {
+  name      = "azure.extensions"
+  server_id = azurerm_postgresql_flexible_server.db.id
+  value     = "pg_trgm"
 }
