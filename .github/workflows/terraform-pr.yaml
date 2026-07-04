@@ -1,13 +1,9 @@
-name: Terraform Infrastructure
+name: Terraform Plan (PR)
 
 on:
   pull_request:
     branches: ["staging", "main"]
     paths: ["infra/**"]
-  push:
-    branches: ["staging", "main"]
-    paths: ["infra/**"]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,11 +27,7 @@ jobs:
       - name: Determine environment
         id: env
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BRANCH="${{ github.base_ref }}"
-          else
-            BRANCH="${{ github.ref_name }}"
-          fi
+          BRANCH="${{ github.base_ref }}"
           case "$BRANCH" in
             staging)
               echo "dir=infra/environments/staging" >> "$GITHUB_OUTPUT"
@@ -51,7 +43,7 @@ jobs:
           esac
 
   terraform:
-    name: Terraform
+    name: Terraform Plan
     needs: setup
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env_name }}
@@ -84,7 +76,6 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        if: github.event_name == 'pull_request'
         id: plan
         working-directory: ${{ needs.setup.outputs.dir }}
         run: |
@@ -111,19 +102,13 @@ jobs:
         continue-on-error: true
 
       - name: Post Plan to PR
-        if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: terraform-${{ needs.setup.outputs.name }}
           path: ${{ needs.setup.outputs.dir }}/plan_comment.md
 
       - name: Fail on plan error
-        if: github.event_name == 'pull_request' && steps.plan.outputs.exitcode != '0'
+        if: steps.plan.outputs.exitcode != '0'
         run: |
           echo "Terraform plan failed with exit code ${{ steps.plan.outputs.exitcode }}"
           exit 1
-
-      - name: Terraform Apply
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        working-directory: ${{ needs.setup.outputs.dir }}
-        run: terraform apply -auto-approve -no-color
