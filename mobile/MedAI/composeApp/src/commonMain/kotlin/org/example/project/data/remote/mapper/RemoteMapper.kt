@@ -50,6 +50,7 @@ import org.example.project.domain.model.auth.AccountStatus
 import org.example.project.domain.model.patient.Patient
 import org.example.project.data.remote.dto.ChatConversationDto
 import org.example.project.data.remote.dto.MessageDto
+import org.example.project.data.remote.dto.manager.ManagedUserDto
 import org.example.project.domain.model.patient.BloodType
 import org.example.project.domain.model.chat.ChatConversation
 import org.example.project.domain.model.patient.ChronicDiseaseEntity
@@ -60,6 +61,7 @@ import org.example.project.domain.model.patient.Gender
 import org.example.project.domain.model.patient.MaritalStatus
 import org.example.project.domain.model.chat.Message
 import org.example.project.domain.model.chat.MessageStatus
+import org.example.project.domain.model.manager.ManagedUser
 import org.example.project.domain.model.notification.NotificationType
 import org.example.project.domain.model.patient.AllergyEntity
 import org.example.project.domain.model.patient.AllergyParams
@@ -380,4 +382,13 @@ private fun mapMessageStatus(status: String): MessageStatus {
         "failed" -> MessageStatus.FAILED
         else -> MessageStatus.SENT
     }
+}
+
+fun ManagedUserDto.toDomain():ManagedUser {
+    return ManagedUser(
+        id = this.id,
+        name = this.name,
+        role = this.role ?: "unknown",
+        status = this.status ?: "pending"
+    )
 }
