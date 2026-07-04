@@ -13,6 +13,7 @@ import { DocScheduleSlot } from '../../schedules/entities/doc-schedule-slot.enti
 import { User } from '../../users/entities/user.entity';
 import { AppointmentStatusEnum } from '../enums/appointment-status.enum';
 import type { AppointmentStatus } from '../types/appointment-status.type';
+import { Diagnosis } from '../../diagnosis/entities/diagnosis.entity';
 
 @Entity()
 export class Appointment extends TimestampEntity {
@@ -59,4 +60,7 @@ export class Appointment extends TimestampEntity {
 
   @Column({ type: 'text', nullable: true })
   review: string | null;
+
+  @OneToOne(() => Diagnosis, (diagnosis) => diagnosis.appointment)
+  diagnosis: Diagnosis | null;
 }
