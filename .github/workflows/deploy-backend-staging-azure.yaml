@@ -85,7 +85,7 @@ jobs:
         run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
       - name: Allow runner IP on database firewall
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         with:
           azcliversion: 2.85.0
           inlineScript: |
@@ -110,7 +110,7 @@ jobs:
 
       - name: Remove runner IP from database firewall
         if: always()
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         with:
           azcliversion: 2.85.0
           inlineScript: |
