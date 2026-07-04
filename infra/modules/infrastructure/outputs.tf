@@ -27,3 +27,15 @@ output "pg_server_fqdn" {
   value       = azurerm_postgresql_flexible_server.db.fqdn
   description = "FQDN of the PostgreSQL flexible server"
 }
+
+output "pg_admin_login" {
+  value       = var.pg_admin_login
+  sensitive   = true
+  description = "PostgreSQL administrator login (DB_USERNAME)"
+}
+
+output "pg_admin_password" {
+  value       = var.pg_admin_password
+  sensitive   = true
+  description = "PostgreSQL administrator password (DB_PASSWORD)"
+}
