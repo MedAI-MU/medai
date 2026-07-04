@@ -159,12 +159,13 @@ class SignUpScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.small)
                         ) {
-                            UserRole.entries.forEach { role ->
+                            UserRole.entries.filter { it != UserRole.MANAGER }.forEach { role ->
                                 val isSelected = state.selectedRole == role
                                 val label = when(role) {
                                     UserRole.PATIENT -> "Patient"
                                     UserRole.DOCTOR -> "Doctor"
                                     UserRole.SECRETARY -> "SECRETARY"
+                                    UserRole.MANAGER -> "Manager"
                                 }
 
                                 FilterChip(

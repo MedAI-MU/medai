@@ -33,6 +33,7 @@ import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.model.auth.UserRole
 import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
+import org.example.project.presentation.manager.dashboard.ManagerDashboardScreen
 import org.koin.compose.koinInject
 
 class MainContainerScreen : Screen {
@@ -121,6 +122,7 @@ object HomeTab : Tab {
             }
             UserRole.DOCTOR -> DoctorDashboardScreen().Content()
             UserRole.SECRETARY -> SecretaryDashboardScreen().Content()
+            UserRole.MANAGER -> ManagerDashboardScreen().Content()
             else -> HomeScreen().Content()
         }
     }

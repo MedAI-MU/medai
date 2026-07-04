@@ -19,7 +19,8 @@ val appModule = module {
         medicalRecordModule,
         doctorModule,
         secretaryModule,
-        scheduleModule
+        scheduleModule,
+        managerModule
     )
 
     // Other shared dependencies
