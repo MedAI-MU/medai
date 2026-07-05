@@ -51,6 +51,7 @@ export class DiagnosisService {
   async create(
     dto: CreateDiagnosisDto,
     doctorUserId: number,
+    patientUserId: number,
   ): Promise<Diagnosis> {
     const appointment = await this.appointmentsRepository.findOne({
       where: { id: dto.appointmentId },
@@ -61,7 +62,7 @@ export class DiagnosisService {
     if (appointment.doctorUserId !== doctorUserId) {
       throw new BadRequestException('This appointment does not belong to you');
     }
-    if (appointment.patientUserId !== dto.patientUserId) {
+    if (appointment.patientUserId !== patientUserId) {
       throw new BadRequestException('Patient does not match the appointment');
     }
 
@@ -75,7 +76,7 @@ export class DiagnosisService {
     }
 
     const diagnosis = this.diagnosesRepository.create({
-      patientUserId: dto.patientUserId,
+      patientUserId,
       doctorUserId,
       appointmentId: dto.appointmentId,
       symptoms: dto.symptoms,
