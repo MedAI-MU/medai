@@ -163,6 +163,13 @@ resource "azurerm_postgresql_flexible_server" "db" {
   }
 }
 
+resource "azurerm_postgresql_flexible_server_database" "app" {
+  name      = var.db_name
+  server_id = azurerm_postgresql_flexible_server.db.id
+  charset   = "UTF8"
+  collation = "C.UTF-8"
+}
+
 resource "azurerm_postgresql_flexible_server_firewall_rule" "client_ip" {
   name             = "client-ip-address"
   server_id        = azurerm_postgresql_flexible_server.db.id
