@@ -157,6 +157,10 @@ resource "azurerm_postgresql_flexible_server" "db" {
     active_directory_auth_enabled = false
     password_auth_enabled         = true
   }
+
+  lifecycle {
+    ignore_changes = [ zone ]
+  }
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "client_ip" {
