@@ -1,7 +1,6 @@
 locals {
   prefix = "medai-${var.environment}"
 
-  acr_id           = data.azurerm_container_registry.existing.id
   acr_login_server = data.azurerm_container_registry.existing.login_server
 }
 
@@ -119,10 +118,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = var.ssh_public_key
   }
 
-  identity {
-    type = "SystemAssigned"
-  }
-
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -137,15 +132,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml.tpl", {
     fqdn          = azurerm_public_ip.vm_ip.fqdn
-    acr_name      = var.acr_name
     certbot_email = var.certbot_email
   }))
-}
-
-resource "azurerm_role_assignment" "vm_acrpull" {
-  scope                = local.acr_id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
 }
 
 resource "azurerm_postgresql_flexible_server" "db" {
