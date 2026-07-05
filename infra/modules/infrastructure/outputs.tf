@@ -28,6 +28,11 @@ output "pg_server_fqdn" {
   description = "FQDN of the PostgreSQL flexible server"
 }
 
+output "db_name" {
+  value       = azurerm_postgresql_flexible_server_database.app.name
+  description = "Name of the application database"
+}
+
 output "pg_admin_login" {
   value       = var.pg_admin_login
   sensitive   = true

@@ -93,6 +93,12 @@ variable "pg_backup_retention_days" {
   default     = 7
 }
 
+variable "db_name" {
+  type        = string
+  description = "Name of the application database to create on the PostgreSQL flexible server"
+  default     = "medai_db"
+}
+
 variable "client_ip_address" {
   type        = string
   description = "Public IP (single IPv4) to allow in the flexible-server firewall rule named client-ip-address"
