@@ -41,6 +41,10 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.koin.core.parameter.parametersOf
 import org.example.project.design_system.theme.MedAITheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+import androidx.compose.ui.text.style.TextAlign
 
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -66,6 +70,7 @@ import org.example.project.domain.model.patient.FamilyRelation
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.presentation.shared.records.*
+import org.example.project.presentation.scans.ScansScreen
 
 sealed class SheetType {
     object None : SheetType()
@@ -116,7 +121,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
         }
 
         var selectedTabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency")
+        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency", "Scans & Reports")
 
         MedAIScaffold(
             title = "Patient Records",
@@ -184,6 +189,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                 3 -> PatientSurgeries(state, viewModel) { currentSheet = it }
                                 4 -> PatientFamilyHistory(state, viewModel) { currentSheet = it }
                                 5 -> PatientEmergencyContacts(state, viewModel) { currentSheet = it }
+                                6 -> PatientScansTab(patientId)
                             }
                         }
                     }
@@ -676,4 +682,45 @@ fun SectionHeader(title: String) {
         color = MedAITheme.colors.primary,
         modifier = Modifier.padding(bottom = 8.dp)
     )
+}
+
+@Composable
+fun PatientScansTab(patientId: String) {
+    val navigator = LocalNavigator.current
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Science,
+            contentDescription = null,
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(36.dp))
+                .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
+                .padding(16.dp),
+            tint = MedAITheme.colors.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Scans & Reports",
+            style = MedAITheme.textStyle.title.medium,
+            color = MedAITheme.colors.text.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Access secure medical scan plates, radiological imagery, and analytical reports for this patient.",
+            style = MedAITheme.textStyle.body.medium,
+            color = MedAITheme.colors.text.secondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        MedAIButton(
+            text = "Open Scans & Reports",
+            onClick = { navigator?.push(ScansScreen(patientId)) }
+        )
+    }
 }
