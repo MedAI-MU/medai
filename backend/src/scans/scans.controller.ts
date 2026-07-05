@@ -208,7 +208,10 @@ export class ScansController {
     @Param('reportId', ParseIntPipe) reportId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto> {
-    const report = await this.scansService.findReportById(reportId, currentUser);
+    const report = await this.scansService.findReportById(
+      reportId,
+      currentUser,
+    );
     return new ReportResponseDto(report);
   }
 
