@@ -254,14 +254,17 @@ jobs:
 
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.2.5
+        env:
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         with:
           host: ${{ needs.terraform.outputs.vm_host }}
           username: azureuser
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          envs: ACR_USERNAME,ACR_PASSWORD
           script: |
             cd /home/azureuser/medai
-            az login --identity --output none
-            az acr login --name medaigradprojrepo
+            docker login ${{ needs.terraform.outputs.acr_login_server }} -u "$ACR_USERNAME" -p "$ACR_PASSWORD"
             docker compose -f docker-compose/staging.yaml pull
             docker compose -f docker-compose/staging.yaml up -d
             docker image prune -f
