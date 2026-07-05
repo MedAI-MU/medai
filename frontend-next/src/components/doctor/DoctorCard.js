@@ -4,7 +4,11 @@ import Card from "@/components/ui/Card";
 import Heading from "@/components/ui/Heading";
 import UserFallback from "../ui/UserFallback";
 
-function DoctorCard({ doctor }) {
+function DoctorCard({
+  doctor,
+  actionLabel = "Book Appointment",
+  basePath = "/patient/book-appointment",
+}) {
   const { specialities = [], name, userId: doctorId } = doctor || {};
 
   return (
@@ -28,11 +32,8 @@ function DoctorCard({ doctor }) {
           ))
         )}
       </div>
-      <footer className="border-border mt-4 flex flex-col gap-3 border-t pt-4">
-        <Button href={`/patient/book-appointment/${doctorId}`}>
-          Book Appointment
-        </Button>
-        <Button variation="secondary">View Profile</Button>
+      <footer className="border-border mt-4 border-t pt-4">
+        <Button href={`${basePath}/${doctorId}`}>{actionLabel}</Button>
       </footer>
     </Card>
   );

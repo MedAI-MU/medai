@@ -11,8 +11,11 @@ import {
   LogOut,
   MessageCircle,
   Plus,
+  Scan,
   Settings,
+  Stethoscope,
   User,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -67,6 +70,30 @@ const LINKS = {
         },
       ],
     },
+  ],
+  secretary: [
+    { text: "dashboard", href: "/secretary", icon: LayoutDashboard },
+    {
+      text: "appointments",
+      href: "/secretary/appointments",
+      icon: CalendarCheck,
+    },
+    {
+      text: "doctors",
+      href: "/secretary/doctors",
+      icon: Stethoscope,
+    },
+    {
+      text: "patients",
+      href: "/secretary/patients",
+      icon: Users,
+    },
+    {
+      text: "scans & reports",
+      href: "/secretary/scans",
+      icon: Scan,
+    },
+    { text: "messages", href: "#", icon: MessageCircle },
   ],
 };
 
