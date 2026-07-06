@@ -44,13 +44,6 @@ export class ScansService {
     });
     if (!scan) throw new NotFoundException('Scan not found');
 
-    if (
-      currentUser.role === 'patient' &&
-      scan.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only access your own scans');
-    }
-
     if (currentUser.role === 'doctor') {
       const patientIds = await this.getDoctorPatientIds(currentUser.id);
       if (!patientIds.includes(scan.patientUserId)) {
@@ -65,10 +58,6 @@ export class ScansService {
     patientUserId: number,
     currentUser: TokenUser,
   ): Promise<void> {
-    if (currentUser.role === 'patient' && patientUserId !== currentUser.id) {
-      throw new ForbiddenException('You can only access your own data');
-    }
-
     if (currentUser.role === 'doctor') {
       const patientIds = await this.getDoctorPatientIds(currentUser.id);
       if (!patientIds.includes(patientUserId)) {
@@ -81,12 +70,7 @@ export class ScansService {
     patientUserId: number,
     appointmentId: number | null,
     files: Express.Multer.File[],
-    currentUser: TokenUser,
   ): Promise<Scan> {
-    if (currentUser.role === 'patient' && patientUserId !== currentUser.id) {
-      throw new ForbiddenException('You can only upload your own scans');
-    }
-
     const scan = this.scansRepository.create({
       patientUserId,
       appointmentId: appointmentId ?? null,
@@ -112,21 +96,6 @@ export class ScansService {
   }
 
   async findAll(currentUser: TokenUser): Promise<Scan[]> {
-    if (currentUser.role === 'secretary') {
-      return this.scansRepository.find({
-        relations: { images: true },
-        order: { createdAt: 'DESC' },
-      });
-    }
-
-    if (currentUser.role === 'patient') {
-      return this.scansRepository.find({
-        where: { patientUserId: currentUser.id },
-        relations: { images: true },
-        order: { createdAt: 'DESC' },
-      });
-    }
-
     if (currentUser.role === 'doctor') {
       const patientIds = await this.getDoctorPatientIds(currentUser.id);
       if (patientIds.length === 0) return [];
@@ -137,26 +106,40 @@ export class ScansService {
       });
     }
 
-    return [];
+    return this.scansRepository.find({
+      relations: { images: true },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByPatient(
+    patientUserId: number,
+    currentUser: TokenUser,
+  ): Promise<Scan[]> {
+    if (currentUser.role === 'doctor') {
+      const patientIds = await this.getDoctorPatientIds(currentUser.id);
+      if (!patientIds.includes(patientUserId)) {
+        throw new ForbiddenException('You are not related to this patient');
+      }
+    }
+
+    return this.scansRepository.find({
+      where: { patientUserId },
+      relations: { images: true },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOne(id: number, currentUser: TokenUser): Promise<Scan> {
     return this.assertCanAccessScan(id, currentUser);
   }
 
-  async delete(id: number, currentUser: TokenUser): Promise<void> {
+  async delete(id: number): Promise<void> {
     const scan = await this.scansRepository.findOne({
       where: { id },
       relations: { images: true },
     });
     if (!scan) throw new NotFoundException('Scan not found');
-
-    if (
-      currentUser.role === 'patient' &&
-      scan.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only delete your own scans');
-    }
 
     for (const image of scan.images) {
       await this.fileStorage.deleteFile(image.path);
@@ -168,12 +151,7 @@ export class ScansService {
     scanId: number,
     patientUserId: number,
     file: Express.Multer.File,
-    currentUser: TokenUser,
   ): Promise<Report> {
-    if (currentUser.role === 'patient' && patientUserId !== currentUser.id) {
-      throw new ForbiddenException('You can only upload reports for yourself');
-    }
-
     const scan = await this.scansRepository.findOne({ where: { id: scanId } });
     if (!scan) throw new NotFoundException('Scan not found');
 
@@ -208,16 +186,9 @@ export class ScansService {
     return report;
   }
 
-  async deleteReport(id: number, currentUser: TokenUser): Promise<void> {
+  async deleteReport(id: number): Promise<void> {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
-
-    if (
-      currentUser.role === 'patient' &&
-      report.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only delete your own reports');
-    }
 
     await this.fileStorage.deleteFile(report.path);
     await this.reportsRepository.remove(report);
