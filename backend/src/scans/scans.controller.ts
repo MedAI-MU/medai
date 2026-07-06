@@ -64,7 +64,6 @@ export class ScansController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async create(
-    @CurrentUser() currentUser: TokenUser,
     @UploadedFiles() images: Express.Multer.File[],
     @Param('id', ParseIntPipe) patientUserId: number,
     @Body('appointmentId') appointmentId?: string,
@@ -74,12 +73,11 @@ export class ScansController {
       patientUserId,
       aId,
       images || [],
-      currentUser,
     );
     return new ScanResponseDto(scan);
   }
 
-  @Roles('patient', 'secretary', 'doctor')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Get('scans')
   @HttpCode(HttpStatus.OK)
@@ -90,6 +88,25 @@ export class ScansController {
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ScanResponseDto[]> {
     const scans = await this.scansService.findAll(currentUser);
+    return scans.map((s) => new ScanResponseDto(s));
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('scans/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: "Patient's scans", type: [ScanResponseDto] })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async findPatientScans(
+    @Param('id', ParseIntPipe) patientUserId: number,
+    @CurrentUser() currentUser: TokenUser,
+  ): Promise<ScanResponseDto[]> {
+    const scans = await this.scansService.findByPatient(
+      patientUserId,
+      currentUser,
+    );
     return scans.map((s) => new ScanResponseDto(s));
   }
 
@@ -119,11 +136,8 @@ export class ScansController {
   @ApiNoContentResponse({ description: 'Scan deleted' })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async delete(
-    @Param('scanId', ParseIntPipe) scanId: number,
-    @CurrentUser() currentUser: TokenUser,
-  ): Promise<void> {
-    await this.scansService.delete(scanId, currentUser);
+  async delete(@Param('scanId', ParseIntPipe) scanId: number): Promise<void> {
+    await this.scansService.delete(scanId);
   }
 
   @UseGuards(SameIdGuard)
@@ -167,7 +181,6 @@ export class ScansController {
   })
   async createReport(
     @Param('scanId', ParseIntPipe) scanId: number,
-    @CurrentUser() currentUser: TokenUser,
     @UploadedFile() file: Express.Multer.File,
     @Param('id', ParseIntPipe) patientUserId: number,
   ): Promise<ReportResponseDto> {
@@ -175,7 +188,6 @@ export class ScansController {
       scanId,
       patientUserId,
       file,
-      currentUser,
     );
     return new ReportResponseDto(report);
   }
@@ -191,9 +203,8 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async deleteReport(
     @Param('reportId', ParseIntPipe) reportId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<void> {
-    await this.scansService.deleteReport(reportId, currentUser);
+    await this.scansService.deleteReport(reportId);
   }
 
   @UseGuards(SameIdGuard)

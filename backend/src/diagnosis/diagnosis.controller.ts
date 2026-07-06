@@ -65,7 +65,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @Roles('patient', 'doctor')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -79,6 +79,28 @@ export class DiagnosisController {
     @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto[]> {
     const diagnoses = await this.diagnosisService.findAll(currentUser);
+    return diagnoses.map((d) => new DiagnosisResponseDto(d));
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({
+    description: "Patient's diagnoses",
+    type: [DiagnosisResponseDto],
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async findPatientDiagnoses(
+    @Param('id', ParseIntPipe) patientUserId: number,
+    @CurrentUser() currentUser: TokenUser,
+  ): Promise<DiagnosisResponseDto[]> {
+    const diagnoses = await this.diagnosisService.findByPatient(
+      patientUserId,
+      currentUser,
+    );
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 

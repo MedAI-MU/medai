@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Diagnosis } from './entities/diagnosis.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { CreateDiagnosisDto } from './dtos/create-diagnosis.dto';
@@ -22,6 +22,14 @@ export class DiagnosisService {
     private readonly appointmentsRepository: Repository<Appointment>,
   ) {}
 
+  private async getDoctorPatientIds(doctorUserId: number): Promise<number[]> {
+    const appointments = await this.appointmentsRepository.find({
+      where: { doctorUserId },
+      select: { patientUserId: true },
+    });
+    return [...new Set(appointments.map((a) => a.patientUserId))];
+  }
+
   private async assertOwnsDiagnosis(
     id: number,
     currentUser: TokenUser,
@@ -30,13 +38,6 @@ export class DiagnosisService {
       where: { id },
     });
     if (!diagnosis) throw new NotFoundException('Diagnosis not found');
-
-    if (
-      currentUser.role === 'patient' &&
-      diagnosis.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only access your own diagnoses');
-    }
 
     if (
       currentUser.role === 'doctor' &&
@@ -86,21 +87,35 @@ export class DiagnosisService {
   }
 
   async findAll(currentUser: TokenUser): Promise<Diagnosis[]> {
-    if (currentUser.role === 'patient') {
-      return this.diagnosesRepository.find({
-        where: { patientUserId: currentUser.id },
-        order: { createdAt: 'DESC' },
-      });
-    }
-
     if (currentUser.role === 'doctor') {
+      const patientIds = await this.getDoctorPatientIds(currentUser.id);
+      if (patientIds.length === 0) return [];
       return this.diagnosesRepository.find({
-        where: { doctorUserId: currentUser.id },
+        where: { patientUserId: In(patientIds) },
         order: { createdAt: 'DESC' },
       });
     }
 
-    throw new ForbiddenException('Access denied');
+    return this.diagnosesRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByPatient(
+    patientUserId: number,
+    currentUser: TokenUser,
+  ): Promise<Diagnosis[]> {
+    if (currentUser.role === 'doctor') {
+      const patientIds = await this.getDoctorPatientIds(currentUser.id);
+      if (!patientIds.includes(patientUserId)) {
+        throw new ForbiddenException('You are not related to this patient');
+      }
+    }
+
+    return this.diagnosesRepository.find({
+      where: { patientUserId },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOne(id: number, currentUser: TokenUser): Promise<Diagnosis> {
@@ -112,10 +127,6 @@ export class DiagnosisService {
     dto: UpdateDiagnosisDto,
     currentUser: TokenUser,
   ): Promise<Diagnosis> {
-    if (currentUser.role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can update diagnoses');
-    }
-
     const diagnosis = await this.assertOwnsDiagnosis(id, currentUser);
     diagnosis.symptoms = dto.symptoms;
     diagnosis.summary = dto.summary;
@@ -133,10 +144,6 @@ export class DiagnosisService {
   }
 
   async delete(id: number, currentUser: TokenUser): Promise<void> {
-    if (currentUser.role !== 'doctor') {
-      throw new ForbiddenException('Only doctors can delete diagnoses');
-    }
-
     const diagnosis = await this.assertOwnsDiagnosis(id, currentUser);
     await this.diagnosesRepository.remove(diagnosis);
   }
