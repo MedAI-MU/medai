@@ -102,7 +102,7 @@ jobs:
         continue-on-error: true
 
       - name: Post Plan to PR
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: terraform-${{ needs.setup.outputs.name }}
           path: ${{ needs.setup.outputs.dir }}/plan_comment.md
