@@ -136,9 +136,7 @@ export class ScansController {
   @ApiNoContentResponse({ description: 'Scan deleted' })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async delete(
-    @Param('scanId', ParseIntPipe) scanId: number,
-  ): Promise<void> {
+  async delete(@Param('scanId', ParseIntPipe) scanId: number): Promise<void> {
     await this.scansService.delete(scanId);
   }
 
