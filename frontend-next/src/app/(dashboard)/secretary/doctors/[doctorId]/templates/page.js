@@ -1,22 +1,35 @@
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
+
+import { getDoctorById } from "@/services/server/doctors";
 import AddEditTemplate from "@/components/schedule/AddEditTemplate";
 import ScheduleTemplateList from "@/components/schedule/ScheduleTemplateList";
 import ScheduleTemplateListSkeleton from "@/components/schedule/ScheduleTemplateListSkeleton";
 import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
-import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
-import { getUserFromToken } from "@/lib/session";
+import BackButton from "@/components/ui/BackButton";
 
-async function WorkingHoursPage({ searchParams }) {
+async function WorkingHoursPage({ searchParams, params }) {
   const { templateName, pageNo } = (await searchParams) || {};
-  const { email, role, sub: doctorId } = await getUserFromToken();
+  const doctorId = Number((await params)?.doctorId);
+
+  let doctor;
+  try {
+    doctor = await getDoctorById(doctorId);
+  } catch (err) {
+    if (err.statusCode === 404) notFound();
+    throw err;
+  }
 
   return (
-    <DoctorInfoProvider doctorInfo={{ email, role, doctorId }}>
+    <DoctorInfoProvider doctorInfo={{ doctorId }}>
       <div className="space-y-8">
+        <BackButton title="Back to Doctor" />
+
         <Heading
-          title="Working Hours"
-          subtitle="Define your recurring weekly patterns, then apply them to generate bookable slots."
+          title={`${doctor.name || "Doctor"}'s Working Hours`}
+          subtitle="Manage recurring weekly patterns and apply them to generate bookable slots."
           hideSubtitleOnMobile
           rowOnMobile
         >

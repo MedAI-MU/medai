@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { applyScheduleTemplate } from "@/services/client/schedule";
 import { formatDate } from "@/lib/utils/DateTimeHelpers";
 
@@ -15,8 +14,7 @@ import Button from "@/components/ui/Button";
 import SpinnerMini from "@/components/ui/SpinnerMini";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 
-function ApplyTemplateForm({ closeModal, templateId }) {
-  const { user } = useAuth();
+function ApplyTemplateForm({ closeModal, doctorId, templateId }) {
   const {
     handleSubmit,
     control,
@@ -38,7 +36,7 @@ function ApplyTemplateForm({ closeModal, templateId }) {
     };
 
     try {
-      await applyScheduleTemplate(formatedDates, user?.sub, templateId);
+      await applyScheduleTemplate(formatedDates, doctorId, templateId);
 
       closeModal?.();
       toast.success("Template applied successfully");

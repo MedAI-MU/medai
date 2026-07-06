@@ -82,6 +82,7 @@ const LINKS = {
       text: "doctors",
       href: "/secretary/doctors",
       icon: Stethoscope,
+      matchPrefix: true,
     },
     {
       text: "patients",
@@ -129,7 +130,7 @@ function Sidebar({ role }) {
 
         {/* Navigation Links */}
         <nav className="flex-1 space-y-1 px-4 py-4">
-          {LINKS[role]?.map(({ text, href, items, icon: Icon }) =>
+          {LINKS[role]?.map(({ text, href, items, icon: Icon, ...rest }) =>
             !items ? (
               <SidebarNavItem
                 key={text}
@@ -137,6 +138,7 @@ function Sidebar({ role }) {
                 href={href}
                 icon={<Icon size={18} />}
                 onClick={closeSidebar}
+                {...rest}
               />
             ) : (
               <SidebarNavGroup

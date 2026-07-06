@@ -11,3 +11,7 @@ export function searchDoctorsBySpeciality(speciality) {
     name: speciality,
   });
 }
+
+export function getDoctorById(doctorId) {
+  return apiServer.get(`api/doctors/${doctorId}`);
+}
