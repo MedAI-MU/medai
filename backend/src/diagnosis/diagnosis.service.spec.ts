@@ -69,8 +69,6 @@ describe('DiagnosisService', () => {
     ...overrides,
   });
 
-  const mockDiagnosis = buildDiagnosis();
-
   const mockAppointment: Partial<Appointment> = {
     id: 100,
     doctorUserId: 10,

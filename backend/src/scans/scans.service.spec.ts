@@ -243,7 +243,7 @@ describe('ScansService', () => {
       scansRepositoryMock.save.mockResolvedValue({ id: 2, patientUserId: 5 });
       scanImagesRepositoryMock.save.mockResolvedValue([]);
 
-      const result = await service.create(5, null, []);
+      await service.create(5, null, []);
       expect(scansRepositoryMock.create).toHaveBeenCalledWith({
         patientUserId: 5,
         appointmentId: null,
