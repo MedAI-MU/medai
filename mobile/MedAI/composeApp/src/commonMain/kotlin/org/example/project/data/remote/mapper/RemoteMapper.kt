@@ -72,6 +72,12 @@ import org.example.project.domain.model.patient.FamilyHistoryParams
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.domain.model.patient.UpdatePatientParams
+import org.example.project.data.remote.dto.diagnosis.DiagnosisResponseDto
+import org.example.project.data.remote.dto.diagnosis.CreateDiagnosisRequestDto
+import org.example.project.data.remote.dto.diagnosis.UpdateDiagnosisRequestDto
+import org.example.project.domain.model.diagnosis.Diagnosis
+import org.example.project.domain.model.diagnosis.CreateDiagnosisParams
+import org.example.project.domain.model.diagnosis.UpdateDiagnosisParams
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -392,3 +398,25 @@ fun ManagedUserDto.toDomain():ManagedUser {
         status = this.status ?: "pending"
     )
 }
+
+fun DiagnosisResponseDto.toDomain() = Diagnosis(
+    id = id,
+    patientUserId = patientUserId,
+    doctorUserId = doctorUserId,
+    appointmentId = appointmentId,
+    symptoms = symptoms,
+    summary = summary,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun CreateDiagnosisParams.toDto() = CreateDiagnosisRequestDto(
+    appointmentId = appointmentId,
+    symptoms = symptoms,
+    summary = summary
+)
+
+fun UpdateDiagnosisParams.toDto() = UpdateDiagnosisRequestDto(
+    symptoms = symptoms,
+    summary = summary
+)
