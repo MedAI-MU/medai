@@ -14,6 +14,7 @@ import * as argon2 from 'argon2';
 import { Request } from 'express';
 import { AuthMailerService } from './auth-mailer.service';
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -498,6 +499,7 @@ describe('AuthService', () => {
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
           verificationToken: expect.any(String),
+          verificationTokenExpiresAt: expect.any(Date),
         }),
       );
       expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
@@ -522,6 +524,7 @@ describe('AuthService', () => {
         id: 1,
         emailVerified: false,
         verificationToken: 'valid-token',
+        verificationTokenExpiresAt: new Date(Date.now() + 86_400_000),
       };
 
       usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
@@ -529,13 +532,35 @@ describe('AuthService', () => {
       await authService.verifyEmail('valid-token');
 
       expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: { verificationToken: 'valid-token' },
+        where: {
+          verificationToken: createHash('sha256')
+            .update('valid-token')
+            .digest('hex'),
+        },
       });
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
           emailVerified: true,
-          verificationToken: undefined,
+          verificationToken: null,
+          verificationTokenExpiresAt: null,
         }),
+      );
+    });
+
+    it('should throw BadRequestException when verification token is expired', async () => {
+      const fakeUser = {
+        id: 1,
+        emailVerified: false,
+        verificationToken: createHash('sha256')
+          .update('expired-token')
+          .digest('hex'),
+        verificationTokenExpiresAt: new Date(Date.now() - 1),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await expect(authService.verifyEmail('expired-token')).rejects.toThrow(
+        'Verification token has expired',
       );
     });
   });
@@ -589,8 +614,10 @@ describe('AuthService', () => {
     it('should throw BadRequestException when token is expired', async () => {
       const fakeUser = {
         id: 1,
-        resetPasswordToken: 'expired-token',
-        resetPasswordExpiresAt: new Date(Date.now() - 3600000),
+        resetPasswordToken: createHash('sha256')
+          .update('expired-token')
+          .digest('hex'),
+        resetPasswordExpiresAt: new Date(Date.now() - 3_600_000),
       };
 
       usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
@@ -604,8 +631,10 @@ describe('AuthService', () => {
       const fakeUser = {
         id: 1,
         password: 'old-hashed-password',
-        resetPasswordToken: 'valid-token',
-        resetPasswordExpiresAt: new Date(Date.now() + 3600000),
+        resetPasswordToken: createHash('sha256')
+          .update('valid-token')
+          .digest('hex'),
+        resetPasswordExpiresAt: new Date(Date.now() + 3_600_000),
       };
 
       usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
@@ -617,8 +646,8 @@ describe('AuthService', () => {
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
           password: 'new-hashed-password',
-          resetPasswordToken: undefined,
-          resetPasswordExpiresAt: undefined,
+          resetPasswordToken: null,
+          resetPasswordExpiresAt: null,
         }),
       );
     });
@@ -631,7 +660,10 @@ describe('AuthService', () => {
         email: 'old@test.com',
         pendingEmail: 'new@test.com',
         emailVerified: false,
-        verificationToken: 'token-123',
+        verificationToken: createHash('sha256')
+          .update('token-123')
+          .digest('hex'),
+        verificationTokenExpiresAt: new Date(Date.now() + 86_400_000),
       };
 
       usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
@@ -641,9 +673,10 @@ describe('AuthService', () => {
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'new@test.com',
-          pendingEmail: undefined,
+          pendingEmail: null,
           emailVerified: true,
-          verificationToken: undefined,
+          verificationToken: null,
+          verificationTokenExpiresAt: null,
         }),
       );
     });
@@ -723,6 +756,7 @@ describe('AuthService', () => {
         expect.objectContaining({
           pendingEmail: 'new@test.com',
           verificationToken: expect.any(String),
+          verificationTokenExpiresAt: expect.any(Date),
         }),
       );
       expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(

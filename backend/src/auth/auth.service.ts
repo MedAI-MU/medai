@@ -18,7 +18,7 @@ import { Request } from 'express';
 import { TokenPayload } from './interfaces/token-payload.interface';
 import { AuthCookies } from './interfaces/auth-cookies.interface';
 import { AuthMailerService } from './auth-mailer.service';
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
@@ -137,33 +137,45 @@ export class AuthService {
       return;
     }
 
-    const verificationToken = randomBytes(32).toString('hex');
-    user.verificationToken = verificationToken;
+    const rawToken = randomBytes(32).toString('hex');
+    user.verificationToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.verificationTokenExpiresAt = new Date(Date.now() + 86_400_000);
     await this.usersRepository.save(user);
 
     await this.authMailerService.sendVerificationEmail(
       user.email,
       user.name,
-      verificationToken,
+      rawToken,
     );
   }
 
   async verifyEmail(token: string): Promise<void> {
+    const hashedToken = createHash('sha256').update(token).digest('hex');
     const user = await this.usersRepository.findOne({
-      where: { verificationToken: token },
+      where: { verificationToken: hashedToken },
     });
 
     if (!user) {
       throw new BadRequestException('Invalid verification token');
     }
 
+    if (
+      user.verificationTokenExpiresAt &&
+      user.verificationTokenExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Verification token has expired');
+    }
+
     if (user.pendingEmail) {
       user.email = user.pendingEmail;
-      user.pendingEmail = undefined;
+      user.pendingEmail = null;
     }
 
     user.emailVerified = true;
-    user.verificationToken = undefined;
+    user.verificationToken = null;
+    user.verificationTokenExpiresAt = null;
     await this.usersRepository.save(user);
   }
 
@@ -174,21 +186,24 @@ export class AuthService {
       return;
     }
 
-    const resetToken = randomBytes(32).toString('hex');
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiresAt = new Date(Date.now() + 3600000);
+    const rawToken = randomBytes(32).toString('hex');
+    user.resetPasswordToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.resetPasswordExpiresAt = new Date(Date.now() + 3_600_000);
     await this.usersRepository.save(user);
 
     await this.authMailerService.sendPasswordResetEmail(
       user.email,
       user.name,
-      resetToken,
+      rawToken,
     );
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
+    const hashedToken = createHash('sha256').update(token).digest('hex');
     const user = await this.usersRepository.findOne({
-      where: { resetPasswordToken: token },
+      where: { resetPasswordToken: hashedToken },
     });
 
     if (
@@ -200,8 +215,8 @@ export class AuthService {
     }
 
     user.password = await argon2.hash(newPassword);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiresAt = undefined;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiresAt = null;
     await this.usersRepository.save(user);
   }
 
@@ -234,15 +249,18 @@ export class AuthService {
       throw new ConflictException('Email already in use');
     }
 
-    const verificationToken = randomBytes(32).toString('hex');
+    const rawToken = randomBytes(32).toString('hex');
     user.pendingEmail = newEmail;
-    user.verificationToken = verificationToken;
+    user.verificationToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.verificationTokenExpiresAt = new Date(Date.now() + 86_400_000);
     await this.usersRepository.save(user);
 
     await this.authMailerService.sendVerificationEmail(
       newEmail,
       user.name,
-      verificationToken,
+      rawToken,
     );
   }
 

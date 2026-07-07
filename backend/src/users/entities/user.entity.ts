@@ -61,19 +61,23 @@ export class User extends TimestampEntity {
 
   @Exclude()
   @Column({ type: 'varchar', nullable: true })
-  pendingEmail?: string;
+  pendingEmail: string | null;
 
   @Exclude()
   @Column({ type: 'varchar', nullable: true })
-  verificationToken?: string;
-
-  @Exclude()
-  @Column({ type: 'varchar', nullable: true })
-  resetPasswordToken?: string;
+  verificationToken: string | null;
 
   @Exclude()
   @Column({ type: 'timestamp', nullable: true })
-  resetPasswordExpiresAt?: Date;
+  verificationTokenExpiresAt: Date | null;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken: string | null;
+
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpiresAt: Date | null;
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor?: Doctor;
