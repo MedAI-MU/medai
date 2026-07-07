@@ -9,6 +9,7 @@ overrides:
   handlebars: 4.7.9
   multer: 2.2.0
   nodemailer: 9.0.3
+  uuid: 11.1.1
 
 importers:
 
@@ -4347,11 +4348,6 @@ packages:
 
   uuid@11.1.1:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
-    hasBin: true
-
-  uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -8920,7 +8916,7 @@ snapshots:
       p-event: 4.2.0
       p-wait-for: 3.2.0
       pug: 3.0.4
-      uuid: 9.0.1
+      uuid: 11.1.1
     optional: true
 
   promise@7.3.1:
@@ -9608,9 +9604,6 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@11.1.1: {}
-
-  uuid@9.0.1:
-    optional: true
 
   v8-compile-cache-lib@3.0.1: {}
 
