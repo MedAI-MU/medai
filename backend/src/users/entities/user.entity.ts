@@ -55,6 +55,22 @@ export class User extends TimestampEntity {
   @Column({ type: 'varchar', default: 'pending' })
   status: UserStatus;
 
+  @Exclude()
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  verificationToken?: string;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken?: string;
+
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpiresAt?: Date;
+
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor?: Doctor;
 

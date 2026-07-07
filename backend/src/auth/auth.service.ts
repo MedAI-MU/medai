@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +11,8 @@ import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { Request } from 'express';
 import { TokenPayload } from './interfaces/token-payload.interface';
 import { AuthCookies } from './interfaces/auth-cookies.interface';
+import { AuthMailerService } from './auth-mailer.service';
+import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtOptions: ConfigType<typeof jwtConfig>,
+    private readonly authMailerService: AuthMailerService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -118,5 +121,75 @@ export class AuthService {
       }
     }
     return null;
+  }
+
+  async sendVerificationEmail(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user || user.emailVerified) {
+      return;
+    }
+
+    const verificationToken = randomBytes(32).toString('hex');
+    user.verificationToken = verificationToken;
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendVerificationEmail(
+      user.email,
+      user.name,
+      verificationToken,
+    );
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { verificationToken: token },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    await this.usersRepository.save(user);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user) {
+      return;
+    }
+
+    const resetToken = randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiresAt = new Date(Date.now() + 3600000);
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendPasswordResetEmail(
+      user.email,
+      user.name,
+      resetToken,
+    );
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { resetPasswordToken: token },
+    });
+
+    if (
+      !user ||
+      !user.resetPasswordExpiresAt ||
+      user.resetPasswordExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    user.password = await argon2.hash(newPassword);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await this.usersRepository.save(user);
   }
 }
