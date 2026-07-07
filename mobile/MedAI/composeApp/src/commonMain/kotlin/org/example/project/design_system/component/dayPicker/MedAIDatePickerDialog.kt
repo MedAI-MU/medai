@@ -20,16 +20,22 @@ import org.example.project.design_system.theme.MedAITheme
 @Composable
 fun MedAIDatePickerDialog(
     onDateSelected: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    allowFutureDates: Boolean = false,
+    outputFormat: String = "DD / MM / YYYY"
 ) {
     val datePickerState = rememberDatePickerState(
-        selectableDates = object : SelectableDates {
-            override fun isSelectableYear(year: Int): Boolean {
-                val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-                return year <= currentYear
-            }
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                return utcTimeMillis <= Clock.System.now().toEpochMilliseconds()
+        selectableDates = if (allowFutureDates) {
+            object : SelectableDates {}
+        } else {
+            object : SelectableDates {
+                override fun isSelectableYear(year: Int): Boolean {
+                    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+                    return year <= currentYear
+                }
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis <= Clock.System.now().toEpochMilliseconds()
+                }
             }
         }
     )
@@ -40,8 +46,11 @@ fun MedAIDatePickerDialog(
             TextButton(onClick = {
                 val selectedDateMillis = datePickerState.selectedDateMillis
                 if (selectedDateMillis != null) {
-                    // Convert Millis to "DD / MM / YYYY"
-                    val formattedDate = convertMillisToDate(selectedDateMillis)
+                    val formattedDate = if (outputFormat == "YYYY-MM-DD") {
+                        convertMillisToYyyyMmDd(selectedDateMillis)
+                    } else {
+                        convertMillisToDate(selectedDateMillis)
+                    }
                     onDateSelected(formattedDate)
                 }
                 onDismiss()
@@ -100,4 +109,10 @@ fun convertMillisToDate(millis: Long): String {
     val instant = Instant.fromEpochMilliseconds(millis)
     val date = instant.toLocalDateTime(TimeZone.UTC).date
     return "${date.dayOfMonth.toString().padStart(2, '0')} / ${date.monthNumber.toString().padStart(2, '0')} / ${date.year}"
+}
+
+fun convertMillisToYyyyMmDd(millis: Long): String {
+    val instant = Instant.fromEpochMilliseconds(millis)
+    val date = instant.toLocalDateTime(TimeZone.UTC).date
+    return "${date.year}-${date.monthNumber.toString().padStart(2, '0')}-${date.dayOfMonth.toString().padStart(2, '0')}"
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun SlotsTab(
     state: ScheduleUiState<DoctorSchedule>,
+    isPaginating: Boolean,
+    onLoadMore: () -> Unit,
     onDeleteSlot: (Int) -> Unit,
     onRetry: () -> Unit
 ) {
@@ -55,13 +58,41 @@ fun SlotsTab(
                     subtitle = "Create slots manually or apply a template"
                 )
             } else {
+                val listState = rememberLazyListState()
+                val shouldLoadMore by remember {
+                    derivedStateOf {
+                        val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                            ?: return@derivedStateOf false
+                        lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 2
+                    }
+                }
+
+                LaunchedEffect(shouldLoadMore) {
+                    if (shouldLoadMore) {
+                        onLoadMore()
+                    }
+                }
+
                 LazyColumn(
+                    state = listState,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(schedule.days) { day ->
                         DayCard(day = day, onDeleteSlot = onDeleteSlot)
                     }
+
+                    if (isPaginating) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = MedAITheme.colors.primary)
+                            }
+                        }
+                    }
+
                     // Bottom spacing for FAB
                     item { Spacer(modifier = Modifier.height(80.dp)) }
                 }

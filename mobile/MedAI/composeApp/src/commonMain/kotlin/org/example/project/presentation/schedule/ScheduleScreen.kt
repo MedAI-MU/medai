@@ -108,6 +108,8 @@ class ScheduleScreen(private val doctorId: Int) : Screen {
                     )
                     1 -> SlotsTab(
                         state = state.slotsState,
+                        isPaginating = state.isSlotsPaginating,
+                        onLoadMore = { viewModel.onEvent(ScheduleEvent.LoadNextSlotsPage) },
                         onDeleteSlot = { viewModel.onEvent(ScheduleEvent.DeleteSlot(it)) },
                         onRetry = { viewModel.onEvent(ScheduleEvent.LoadSlots()) }
                     )

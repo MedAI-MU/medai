@@ -20,6 +20,7 @@ data class ScheduleState(
 
     // Slots State
     val slotsState: ScheduleUiState<DoctorSchedule> = ScheduleUiState.Loading,
+    val isSlotsPaginating: Boolean = false,
 
     // Action State (Loading Overlay)
     val isActionLoading: Boolean = false,
@@ -51,6 +52,7 @@ sealed interface ScheduleEvent {
 
     // Slots
     data class LoadSlots(val page: Int = 1, val fromDate: String? = null, val toDate: String? = null) : ScheduleEvent
+    data object LoadNextSlotsPage : ScheduleEvent
     data object ShowCreateSlot : ScheduleEvent
     data object DismissCreateSlotDialog : ScheduleEvent
     data class CreateSlots(val date: String, val startTime: String, val endTime: String) : ScheduleEvent
