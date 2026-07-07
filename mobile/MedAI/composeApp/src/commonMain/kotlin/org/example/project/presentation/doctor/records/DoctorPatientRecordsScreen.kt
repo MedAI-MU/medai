@@ -71,6 +71,8 @@ import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.presentation.shared.records.*
 import org.example.project.presentation.scans.ScansScreen
+import org.example.project.presentation.shared.diagnosis.DiagnosisListContent
+import org.example.project.presentation.shared.diagnosis.DiagnosisViewModel
 
 sealed class SheetType {
     object None : SheetType()
@@ -121,7 +123,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
         }
 
         var selectedTabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency", "Scans & Reports")
+        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency", "Scans & Reports", "Diagnoses")
 
         MedAIScaffold(
             title = "Patient Records",
@@ -190,6 +192,10 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                 4 -> PatientFamilyHistory(state, viewModel) { currentSheet = it }
                                 5 -> PatientEmergencyContacts(state, viewModel) { currentSheet = it }
                                 6 -> PatientScansTab(patientId)
+                                7 -> {
+                                    val diagnosisViewModel = getScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
+                                    DiagnosisListContent(viewModel = diagnosisViewModel, patientId = patientId)
+                                }
                             }
                         }
                     }
