@@ -2,6 +2,7 @@ overrides:
   'flatted': '3.4.2'
   'handlebars': '4.7.9'
   'multer': '2.2.0'
+  'nodemailer': '9.0.3'
 
 allowBuilds:
   '@nestjs/core': true
