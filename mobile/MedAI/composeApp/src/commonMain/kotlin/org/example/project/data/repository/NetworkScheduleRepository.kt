@@ -251,7 +251,7 @@ private fun DocScheduleResponseDto.toDomain() = DoctorSchedule(
     speciality = speciality,
     days = days.data.map { dayDto ->
         ScheduleDay(
-            day = dayDto.day,
+            day = dayDto.day.take(10),
             slots = dayDto.slots.map { slotDto ->
                 ScheduleSlot(
                     id = slotDto.id,

@@ -1,9 +1,9 @@
 package org.example.project.presentation.schedule
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,16 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.design_system.component.scaffold.MedAIScaffold
-import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.domain.model.schedule.*
-import org.koin.core.parameter.parametersOf
-
-
-// ==================== Templates Tab ====================
 
 @Composable
 fun TemplatesTab(
@@ -42,31 +37,66 @@ fun TemplatesTab(
     onApply: (ScheduleTemplate) -> Unit,
     onRetry: (Int) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Search Bar
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = onSearchQueryChanged,
-            placeholder = { Text("Search templates...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = {
-                        onSearchQueryChanged("")
-                        onSearch()
-                    }) {
-                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MedAITheme.colors.background)
+    ) {
+        // Search Bar container with subtle elevation
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            border = BorderStroke(1.dp, MedAITheme.colors.neutral.copy(alpha = 0.05f))
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChanged,
+                placeholder = {
+                    Text(
+                        "Search templates...",
+                        style = MedAITheme.textStyle.body.medium,
+                        color = MedAITheme.colors.text.tertiary
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MedAITheme.colors.text.secondary
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = {
+                            onSearchQueryChanged("")
+                            onSearch()
+                        }) {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = "Clear",
+                                tint = MedAITheme.colors.text.secondary
+                            )
+                        }
                     }
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MedAITheme.colors.primary,
-                unfocusedBorderColor = MedAITheme.colors.neutral.copy(alpha = 0.3f)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
+                textStyle = MedAITheme.textStyle.body.medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MedAITheme.colors.primary,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedContainerColor = MedAITheme.colors.neutral.copy(alpha = 0.03f),
+                    unfocusedContainerColor = MedAITheme.colors.neutral.copy(alpha = 0.03f),
+                )
             )
-        )
+        }
 
         when (state) {
             is ScheduleUiState.Loading -> {
@@ -80,14 +110,14 @@ fun TemplatesTab(
             is ScheduleUiState.Success -> {
                 if (state.data.data.isEmpty()) {
                     EmptyContent(
-                        icon = Icons.Default.ContentCopy,
+                        icon = Icons.Outlined.ContentCopy,
                         message = "No templates found",
-                        subtitle = "Create your first schedule template using the + button"
+                        subtitle = "Create your first schedule template using the '+' button below"
                     )
                 } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(state.data.data) { template ->
                             TemplateCard(
@@ -98,7 +128,7 @@ fun TemplatesTab(
                             )
                         }
                         // Bottom spacing for FAB
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
+                        item { Spacer(modifier = Modifier.height(100.dp)) }
                     }
                 }
             }
@@ -118,136 +148,174 @@ fun TemplateCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.surface),
+        border = BorderStroke(1.dp, MedAITheme.colors.neutral.copy(alpha = 0.08f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header
+        Column(modifier = Modifier.padding(20.dp)) {
+            // Header Info Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = template.name,
-                        style = MedAITheme.textStyle.title.medium,
+                        style = MedAITheme.textStyle.headline.small,
                         fontWeight = FontWeight.Bold,
                         color = MedAITheme.colors.text.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${template.slots.size} slots · Created by ${template.createdByName}",
+                        text = "${template.slots.size} recurring slots · By ${template.createdByName}",
                         style = MedAITheme.textStyle.body.small,
                         color = MedAITheme.colors.text.secondary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Week day pills
+            // Week Day Circular Indicators
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 weekDays.forEachIndexed { index, dayName ->
                     val isActive = template.slots.any { it.weekDay == index }
                     val bgColor by animateColorAsState(
-                        if (isActive) MedAITheme.colors.primary else Color.Transparent
+                        if (isActive) MedAITheme.colors.primary else MedAITheme.colors.neutral.copy(alpha = 0.05f)
                     )
                     val textColor by animateColorAsState(
                         if (isActive) MedAITheme.colors.onPrimary else MedAITheme.colors.text.tertiary
                     )
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
+                            .weight(1f)
+                            .aspectRatio(1f)
+                            .padding(horizontal = 3.dp)
                             .clip(CircleShape)
-                            .background(bgColor)
-                            .border(
-                                width = 1.dp,
-                                color = if (isActive) Color.Transparent else MedAITheme.colors.neutral.copy(alpha = 0.3f),
-                                shape = CircleShape
-                            ),
+                            .background(bgColor),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = dayName.first().toString(),
+                            text = dayName.take(1),
                             style = MedAITheme.textStyle.label.small,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             color = textColor
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Time slots preview
+            // Day Slots Previews Section
             val groupedByDay = template.slots.groupBy { it.weekDay }
                 .entries.sortedBy { it.key }
-                .take(3) // Show first 3 days
+                .take(3) // Show first 3 active days
 
-            groupedByDay.forEach { (day, slots) ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            if (groupedByDay.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MedAITheme.colors.neutral.copy(alpha = 0.03f)),
+                    border = BorderStroke(1.dp, MedAITheme.colors.neutral.copy(alpha = 0.05f))
                 ) {
-                    Text(
-                        text = weekDays.getOrElse(day) { "?" },
-                        style = MedAITheme.textStyle.label.medium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MedAITheme.colors.primary,
-                        modifier = Modifier.width(40.dp)
-                    )
-                    Text(
-                        text = slots.joinToString(" · ") { "${it.startTime}-${it.endTime}" },
-                        style = MedAITheme.textStyle.body.small,
-                        color = MedAITheme.colors.text.secondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        groupedByDay.forEach { (day, slots) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(MedAITheme.colors.primary.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = weekDays.getOrElse(day) { "?" },
+                                        style = MedAITheme.textStyle.label.small,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MedAITheme.colors.primary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = slots.joinToString(" , ") { "${it.startTime.take(5)} - ${it.endTime.take(5)}" },
+                                    style = MedAITheme.textStyle.body.small,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MedAITheme.colors.text.secondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+
+                        val remainingDays = template.slots.groupBy { it.weekDay }.size - groupedByDay.size
+                        if (remainingDays > 0) {
+                            Text(
+                                text = "+$remainingDays more day${if (remainingDays > 1) "s" else ""}",
+                                style = MedAITheme.textStyle.label.small,
+                                color = MedAITheme.colors.text.tertiary,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
                 }
             }
-            if (groupedByDay.size < template.slots.groupBy { it.weekDay }.size) {
-                Text(
-                    text = "+${template.slots.groupBy { it.weekDay }.size - groupedByDay.size} more days",
-                    style = MedAITheme.textStyle.label.small,
-                    color = MedAITheme.colors.text.tertiary,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
 
+            Spacer(modifier = Modifier.height(18.dp))
+            HorizontalDivider(color = MedAITheme.colors.neutral.copy(alpha = 0.08f))
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MedAITheme.colors.neutral.copy(alpha = 0.15f))
-            Spacer(modifier = Modifier.height(8.dp))
 
-            // Action buttons
+            // Action Buttons Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = onApply) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Apply", style = MedAITheme.textStyle.label.medium)
-                }
-                TextButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Edit", style = MedAITheme.textStyle.label.medium)
-                }
+                // Delete text button on the far left
                 TextButton(
                     onClick = { showDeleteConfirm = true },
                     colors = ButtonDefaults.textButtonColors(contentColor = MedAITheme.colors.status.error)
                 ) {
-                    Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Delete", style = MedAITheme.textStyle.label.medium)
+                    Text("Delete", style = MedAITheme.textStyle.label.medium, fontWeight = FontWeight.Bold)
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Edit outlined button
+                    OutlinedButton(
+                        onClick = onEdit,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MedAITheme.colors.primary.copy(alpha = 0.5f)),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MedAITheme.colors.primary)
+                    ) {
+                        Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Edit", style = MedAITheme.textStyle.label.medium, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Apply filled button
+                    Button(
+                        onClick = onApply,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MedAITheme.colors.primary)
+                    ) {
+                        Icon(Icons.Outlined.PlayCircleOutline, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Apply", style = MedAITheme.textStyle.label.medium, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -256,16 +324,31 @@ fun TemplateCard(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete Template") },
-            text = { Text("Are you sure you want to delete \"${template.name}\"? This action cannot be undone.") },
+            title = {
+                Text(
+                    "Delete Template",
+                    style = MedAITheme.textStyle.headline.small,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    "Are you sure you want to delete \"${template.name}\"? This will permanently remove this recurring rule. This action cannot be undone.",
+                    style = MedAITheme.textStyle.body.medium
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = { showDeleteConfirm = false; onDelete() },
                     colors = ButtonDefaults.textButtonColors(contentColor = MedAITheme.colors.status.error)
-                ) { Text("Delete") }
+                ) {
+                    Text("Delete", fontWeight = FontWeight.Bold)
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel", color = MedAITheme.colors.text.secondary)
+                }
             }
         )
     }

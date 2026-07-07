@@ -1,9 +1,11 @@
 package org.example.project.presentation.schedule
 
+import kotlinx.datetime.LocalDate
 import org.example.project.domain.model.schedule.DoctorSchedule
 import org.example.project.domain.model.schedule.PagedTemplates
 import org.example.project.domain.model.schedule.ScheduleTemplate
 import org.example.project.domain.model.schedule.ScheduleTemplateSlot
+import org.example.project.presentation.homeScreen.CalendarUiModel
 
 sealed class ScheduleUiState<out T> {
     data object Loading : ScheduleUiState<Nothing>()
@@ -21,6 +23,11 @@ data class ScheduleState(
     // Slots State
     val slotsState: ScheduleUiState<DoctorSchedule> = ScheduleUiState.Loading,
     val isSlotsPaginating: Boolean = false,
+
+    // Selected day view controls
+    val selectedDate: LocalDate? = null,
+    val displayedMonth: LocalDate? = null,
+    val calendarDays: List<CalendarUiModel> = emptyList(),
 
     // Action State (Loading Overlay)
     val isActionLoading: Boolean = false,
@@ -57,6 +64,9 @@ sealed interface ScheduleEvent {
     data object DismissCreateSlotDialog : ScheduleEvent
     data class CreateSlots(val date: String, val startTime: String, val endTime: String) : ScheduleEvent
     data class DeleteSlot(val slotId: Int) : ScheduleEvent
+    data class DateSelected(val date: LocalDate) : ScheduleEvent
+    data object PrevMonthClicked : ScheduleEvent
+    data object NextMonthClicked : ScheduleEvent
 }
 
 sealed interface ScheduleEffect {
