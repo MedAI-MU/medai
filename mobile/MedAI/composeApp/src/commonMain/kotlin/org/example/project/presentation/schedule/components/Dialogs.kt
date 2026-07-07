@@ -4,9 +4,11 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.appBar.MedAiAppBar
+import org.example.project.design_system.component.dayPicker.MedAIDatePickerDialog
 import org.example.project.domain.model.schedule.*
 import org.koin.core.parameter.parametersOf
 
@@ -81,7 +84,12 @@ fun CreateEditTemplateDialog(
                 )
 
                 // Day selector
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     weekDays.forEachIndexed { index, day ->
                         val daySlots = slotsState.value[index]
                         val hasSlotsForDay = daySlots != null && daySlots.isNotEmpty()
@@ -230,22 +238,37 @@ fun CreateSlotDialog(
     var date by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("09:00") }
     var endTime by remember { mutableStateOf("10:00") }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Create Schedule Slot") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Date") },
-                    placeholder = { Text("YYYY-MM-DD") },
-                    leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = date,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        label = { Text("Date") },
+                        placeholder = { Text("YYYY-MM-DD") },
+                        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MedAITheme.colors.text.primary,
+                            disabledBorderColor = MedAITheme.colors.neutral.copy(alpha = 0.3f),
+                            disabledLabelColor = MedAITheme.colors.text.secondary,
+                            disabledLeadingIconColor = MedAITheme.colors.text.secondary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showDatePicker = true }
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -282,6 +305,15 @@ fun CreateSlotDialog(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+
+    if (showDatePicker) {
+        MedAIDatePickerDialog(
+            onDateSelected = { date = it },
+            onDismiss = { showDatePicker = false },
+            allowFutureDates = true,
+            outputFormat = "YYYY-MM-DD"
+        )
+    }
 }
 
 @Composable
@@ -292,6 +324,8 @@ fun ApplyTemplateDialog(
 ) {
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -303,26 +337,54 @@ fun ApplyTemplateDialog(
                     style = MedAITheme.textStyle.body.medium,
                     color = MedAITheme.colors.text.secondary
                 )
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = { startDate = it },
-                    label = { Text("Start Date") },
-                    placeholder = { Text("YYYY-MM-DD") },
-                    leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = endDate,
-                    onValueChange = { endDate = it },
-                    label = { Text("End Date") },
-                    placeholder = { Text("YYYY-MM-DD") },
-                    leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = startDate,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        label = { Text("Start Date") },
+                        placeholder = { Text("YYYY-MM-DD") },
+                        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MedAITheme.colors.text.primary,
+                            disabledBorderColor = MedAITheme.colors.neutral.copy(alpha = 0.3f),
+                            disabledLabelColor = MedAITheme.colors.text.secondary,
+                            disabledLeadingIconColor = MedAITheme.colors.text.secondary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showStartDatePicker = true }
+                    )
+                }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = endDate,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        label = { Text("End Date") },
+                        placeholder = { Text("YYYY-MM-DD") },
+                        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MedAITheme.colors.text.primary,
+                            disabledBorderColor = MedAITheme.colors.neutral.copy(alpha = 0.3f),
+                            disabledLabelColor = MedAITheme.colors.text.secondary,
+                            disabledLeadingIconColor = MedAITheme.colors.text.secondary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showEndDatePicker = true }
+                    )
+                }
             }
         },
         confirmButton = {
@@ -336,4 +398,22 @@ fun ApplyTemplateDialog(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+
+    if (showStartDatePicker) {
+        MedAIDatePickerDialog(
+            onDateSelected = { startDate = it },
+            onDismiss = { showStartDatePicker = false },
+            allowFutureDates = true,
+            outputFormat = "YYYY-MM-DD"
+        )
+    }
+
+    if (showEndDatePicker) {
+        MedAIDatePickerDialog(
+            onDateSelected = { endDate = it },
+            onDismiss = { showEndDatePicker = false },
+            allowFutureDates = true,
+            outputFormat = "YYYY-MM-DD"
+        )
+    }
 }

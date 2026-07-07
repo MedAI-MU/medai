@@ -60,6 +60,7 @@ class ScheduleViewModel(
             }
             is ScheduleEvent.ApplyTemplate -> applyTemplate(event.templateId, event.startDate, event.endDate)
             is ScheduleEvent.LoadSlots -> loadSlots(event.page, event.fromDate, event.toDate)
+            is ScheduleEvent.LoadNextSlotsPage -> loadNextSlotsPage()
             is ScheduleEvent.ShowCreateSlot -> {
                 setState { copy(showCreateSlotDialog = true) }
             }
@@ -153,7 +154,11 @@ class ScheduleViewModel(
 
     private fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
         screenModelScope.launch {
-            setState { copy(slotsState = ScheduleUiState.Loading) }
+            if (page == 1) {
+                setState { copy(slotsState = ScheduleUiState.Loading) }
+            } else {
+                setState { copy(isSlotsPaginating = true) }
+            }
             getScheduleSlotsUseCase(
                 doctorId = doctorId,
                 fromDate = fromDate,
@@ -161,9 +166,57 @@ class ScheduleViewModel(
                 pageNo = page,
                 pageSize = 10
             ).onSuccess {
-                setState { copy(slotsState = ScheduleUiState.Success(it)) }
+                setState {
+                    copy(
+                        slotsState = ScheduleUiState.Success(it),
+                        isSlotsPaginating = false
+                    )
+                }
             }.onFailure {
-                setState { copy(slotsState = ScheduleUiState.Error(it.message ?: "Failed to load schedule slots")) }
+                setState {
+                    copy(
+                        slotsState = if (page == 1) ScheduleUiState.Error(it.message ?: "Failed to load schedule slots") else slotsState,
+                        isSlotsPaginating = false
+                    )
+                }
+                if (page > 1) {
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to load more slots", isError = true))
+                }
+            }
+        }
+    }
+
+    private fun loadNextSlotsPage() {
+        val currentState = state.value.slotsState
+        if (currentState is ScheduleUiState.Success) {
+            val currentSchedule = currentState.data
+            if (currentSchedule.hasNext && !state.value.isSlotsPaginating) {
+                setState { copy(isSlotsPaginating = true) }
+                screenModelScope.launch {
+                    getScheduleSlotsUseCase(
+                        doctorId = doctorId,
+                        pageNo = currentSchedule.currentPage + 1,
+                        pageSize = 10
+                    ).onSuccess { nextSchedule ->
+                        setState {
+                            val combinedDays = currentSchedule.days + nextSchedule.days
+                            copy(
+                                isSlotsPaginating = false,
+                                slotsState = ScheduleUiState.Success(
+                                    currentSchedule.copy(
+                                        days = combinedDays,
+                                        currentPage = nextSchedule.currentPage,
+                                        hasNext = nextSchedule.hasNext,
+                                        hasPrevious = nextSchedule.hasPrevious
+                                    )
+                                )
+                            )
+                        }
+                    }.onFailure {
+                        setState { copy(isSlotsPaginating = false) }
+                        sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to load more slots", isError = true))
+                    }
+                }
             }
         }
     }
