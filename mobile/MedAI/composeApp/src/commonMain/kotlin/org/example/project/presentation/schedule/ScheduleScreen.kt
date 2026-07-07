@@ -2,6 +2,7 @@ package org.example.project.presentation.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import kotlinx.datetime.LocalDate
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -107,11 +108,14 @@ class ScheduleScreen(private val doctorId: Int) : Screen {
                         onRetry = { viewModel.onEvent(ScheduleEvent.LoadTemplates(it)) }
                     )
                     1 -> SlotsTab(
-                        state = state.slotsState,
-                        isPaginating = state.isSlotsPaginating,
-                        onLoadMore = { viewModel.onEvent(ScheduleEvent.LoadNextSlotsPage) },
+                        scheduleState = state,
+                        onDateSelected = { viewModel.onEvent(ScheduleEvent.DateSelected(it)) },
+                        onPrevMonth = { viewModel.onEvent(ScheduleEvent.PrevMonthClicked) },
+                        onNextMonth = { viewModel.onEvent(ScheduleEvent.NextMonthClicked) },
                         onDeleteSlot = { viewModel.onEvent(ScheduleEvent.DeleteSlot(it)) },
-                        onRetry = { viewModel.onEvent(ScheduleEvent.LoadSlots()) }
+                        onRetry = { viewModel.onEvent(ScheduleEvent.LoadSlots()) },
+                        onApplyTemplate = { viewModel.onEvent(ScheduleEvent.OnTabSelected(0)) },
+                        onCreateSlot = { viewModel.onEvent(ScheduleEvent.ShowCreateSlot) }
                     )
                 }
 
@@ -141,6 +145,7 @@ class ScheduleScreen(private val doctorId: Int) : Screen {
 
         if (state.showCreateSlotDialog) {
             CreateSlotDialog(
+                initialDate = state.selectedDate?.toString() ?: "",
                 onDismiss = { viewModel.onEvent(ScheduleEvent.DismissCreateSlotDialog) },
                 onCreate = { date, start, end -> viewModel.onEvent(ScheduleEvent.CreateSlots(date, start, end)) }
             )
@@ -148,7 +153,7 @@ class ScheduleScreen(private val doctorId: Int) : Screen {
 
         state.showApplyTemplateDialog?.let { template ->
             ApplyTemplateDialog(
-                templateName = template.name,
+                template = template,
                 onDismiss = { viewModel.onEvent(ScheduleEvent.DismissApplyTemplateDialog) },
                 onApply = { start, end -> viewModel.onEvent(ScheduleEvent.ApplyTemplate(template.id, start, end)) }
             )

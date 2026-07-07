@@ -6,11 +6,16 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.plus
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.schedule.*
 import org.example.project.domain.repository.schedule.CreateScheduleDayInput
 import org.example.project.domain.repository.schedule.CreateScheduleSlotInput
 import org.example.project.domain.usecase.schedule.*
+
+import org.example.project.core.presentation.util.CalendarManager
+import org.example.project.presentation.homeScreen.CalendarUiModel
 
 class ScheduleViewModel(
     private val getScheduleTemplatesUseCase: GetScheduleTemplatesUseCase,
@@ -22,10 +27,19 @@ class ScheduleViewModel(
     private val createScheduleSlotsUseCase: CreateScheduleSlotsUseCase,
     private val updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
     private val deleteScheduleSlotUseCase: DeleteScheduleSlotUseCase,
+    private val calendarManager: CalendarManager,
     private val doctorId: Int
 ) : MviScreenModel<ScheduleState, ScheduleEvent, ScheduleEffect>(ScheduleState()) {
 
     init {
+        val today = calendarManager.getToday()
+        setState {
+            copy(
+                selectedDate = today,
+                displayedMonth = today
+            )
+        }
+        generateCalendar(today)
         loadTemplates()
         loadSlots()
     }
@@ -73,6 +87,24 @@ class ScheduleViewModel(
             }
             is ScheduleEvent.CreateSlots -> createSlots(event.date, event.startTime, event.endTime)
             is ScheduleEvent.DeleteSlot -> deleteSlot(event.slotId)
+            is ScheduleEvent.DateSelected -> {
+                if (state.value.selectedDate != event.date) {
+                    setState { copy(selectedDate = event.date) }
+                    state.value.displayedMonth?.let { generateCalendar(it) }
+                }
+            }
+            is ScheduleEvent.PrevMonthClicked -> {
+                val current = state.value.displayedMonth ?: return
+                val newMonth = calendarManager.getPreviousMonth(current)
+                setState { copy(displayedMonth = newMonth) }
+                loadSlotsForMonth(newMonth)
+            }
+            is ScheduleEvent.NextMonthClicked -> {
+                val current = state.value.displayedMonth ?: return
+                val newMonth = calendarManager.getNextMonth(current)
+                setState { copy(displayedMonth = newMonth) }
+                loadSlotsForMonth(newMonth)
+            }
         }
     }
 
@@ -162,9 +194,17 @@ class ScheduleViewModel(
             setState { copy(isActionLoading = true) }
             applyScheduleTemplateUseCase(doctorId, templateId, startDate, endDate)
                 .onSuccess {
-                    setState { copy(isActionLoading = false, showApplyTemplateDialog = null) }
+                    setState {
+                        copy(
+                            isActionLoading = false,
+                            showApplyTemplateDialog = null,
+                            selectedTab = 1,
+                            selectedDate = start,
+                            displayedMonth = start
+                        )
+                    }
                     sendEffect(ScheduleEffect.ShowSnackbar("Template applied successfully"))
-                    loadSlots()
+                    loadSlotsForMonth(start!!)
                 }
                 .onFailure {
                     setState { copy(isActionLoading = false) }
@@ -173,7 +213,21 @@ class ScheduleViewModel(
         }
     }
 
+    private fun loadSlotsForMonth(month: LocalDate) {
+        val firstDay = LocalDate(month.year, month.monthNumber, 1)
+        val lastDay = firstDay.plus(DatePeriod(months = 1)).plus(DatePeriod(days = -1))
+        loadSlots(fromDate = firstDay.toString(), toDate = lastDay.toString())
+    }
+
     private fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
+        val effectiveFromDate = fromDate ?: state.value.displayedMonth?.let {
+            LocalDate(it.year, it.monthNumber, 1).toString()
+        }
+        val effectiveToDate = toDate ?: state.value.displayedMonth?.let {
+            val firstDay = LocalDate(it.year, it.monthNumber, 1)
+            firstDay.plus(DatePeriod(months = 1)).plus(DatePeriod(days = -1)).toString()
+        }
+
         screenModelScope.launch {
             if (page == 1) {
                 setState { copy(slotsState = ScheduleUiState.Loading) }
@@ -182,10 +236,10 @@ class ScheduleViewModel(
             }
             getScheduleSlotsUseCase(
                 doctorId = doctorId,
-                fromDate = fromDate,
-                toDate = toDate,
+                fromDate = effectiveFromDate,
+                toDate = effectiveToDate,
                 pageNo = page,
-                pageSize = 10
+                pageSize = 31
             ).onSuccess {
                 setState {
                     copy(
@@ -193,6 +247,7 @@ class ScheduleViewModel(
                         isSlotsPaginating = false
                     )
                 }
+                state.value.displayedMonth?.let { generateCalendar(it) }
             }.onFailure {
                 setState {
                     copy(
@@ -290,5 +345,23 @@ class ScheduleViewModel(
                     sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to delete slot", isError = true))
                 }
         }
+    }
+
+    private fun generateCalendar(baseDate: LocalDate) {
+        val days = calendarManager.getDaysForMonth(baseDate)
+        val selected = state.value.selectedDate ?: calendarManager.getToday()
+        val successSlots = (state.value.slotsState as? ScheduleUiState.Success)?.data?.days ?: emptyList()
+
+        val uiDays = days.map { date ->
+            val hasSlots = successSlots.any { it.day == date.toString() && it.slots.isNotEmpty() }
+            CalendarUiModel(
+                day = date.dayOfMonth.toString(),
+                weekDay = date.dayOfWeek.name.take(3),
+                fullDate = date,
+                isSelected = date == selected,
+                hasAppointment = hasSlots
+            )
+        }
+        setState { copy(calendarDays = uiDays) }
     }
 }

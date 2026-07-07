@@ -3,6 +3,10 @@ package org.example.project.data.repository.mock
 import org.example.project.domain.model.schedule.*
 import org.example.project.domain.repository.schedule.CreateScheduleDayInput
 import org.example.project.domain.repository.schedule.ScheduleRepository
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 
 class MockScheduleRepository : ScheduleRepository {
 
@@ -184,7 +188,68 @@ class MockScheduleRepository : ScheduleRepository {
         startDate: String,
         endDate: String
     ): Result<Unit> {
-        // Simulate applying template - just return success
+        val template = templates.find { it.id == templateId } ?: return Result.failure(Exception("Template not found"))
+
+        val start = try { LocalDate.parse(startDate) } catch(e: Exception) { return Result.failure(e) }
+        val end = try { LocalDate.parse(endDate) } catch(e: Exception) { return Result.failure(e) }
+
+        if (start > end) return Result.failure(Exception("Invalid range"))
+
+        var current = start
+        while (current <= end) {
+            val weekDayInt = when (current.dayOfWeek) {
+                DayOfWeek.SUNDAY -> 0
+                DayOfWeek.MONDAY -> 1
+                DayOfWeek.TUESDAY -> 2
+                DayOfWeek.WEDNESDAY -> 3
+                DayOfWeek.THURSDAY -> 4
+                DayOfWeek.FRIDAY -> 5
+                DayOfWeek.SATURDAY -> 6
+                else -> 0
+            }
+
+            val dayTemplateSlots = template.slots.filter { it.weekDay == weekDayInt }
+            if (dayTemplateSlots.isNotEmpty()) {
+                val dateStr = current.toString()
+                val existingDay = scheduleSlots.find { it.day == dateStr }
+                if (existingDay != null) {
+                    dayTemplateSlots.forEach { templateSlot ->
+                        val isOverlap = existingDay.slots.any {
+                            it.startTime < templateSlot.endTime && templateSlot.startTime < it.endTime
+                        }
+                        if (!isOverlap) {
+                            existingDay.slots.add(
+                                MockSlot(
+                                    id = nextSlotId++,
+                                    startTime = templateSlot.startTime,
+                                    endTime = templateSlot.endTime,
+                                    status = SlotStatus.AVAILABLE
+                                )
+                            )
+                        }
+                    }
+                    existingDay.slots.sortBy { it.startTime }
+                } else {
+                    val newSlots = dayTemplateSlots.map { templateSlot ->
+                        MockSlot(
+                            id = nextSlotId++,
+                            startTime = templateSlot.startTime,
+                            endTime = templateSlot.endTime,
+                            status = SlotStatus.AVAILABLE
+                        )
+                    }.toMutableList()
+                    scheduleSlots.add(
+                        MockScheduleDay(
+                            day = dateStr,
+                            slots = newSlots
+                        )
+                    )
+                }
+            }
+            current = current.plus(1, DateTimeUnit.DAY)
+        }
+
+        scheduleSlots.sortBy { it.day }
         return Result.success(Unit)
     }
 
