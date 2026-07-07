@@ -1,4 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +17,9 @@ import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { Request } from 'express';
 import { TokenPayload } from './interfaces/token-payload.interface';
 import { AuthCookies } from './interfaces/auth-cookies.interface';
+import { AuthMailerService } from './auth-mailer.service';
+import { createHash, randomBytes } from 'node:crypto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +30,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtOptions: ConfigType<typeof jwtConfig>,
+    private readonly authMailerService: AuthMailerService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -118,5 +128,162 @@ export class AuthService {
       }
     }
     return null;
+  }
+
+  async sendVerificationEmail(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user || user.emailVerified) {
+      return;
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    user.verificationToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.verificationTokenExpiresAt = new Date(Date.now() + 86_400_000);
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendVerificationEmail(
+      user.email,
+      user.name,
+      rawToken,
+    );
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+    const user = await this.usersRepository.findOne({
+      where: { verificationToken: hashedToken },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    if (
+      user.verificationTokenExpiresAt &&
+      user.verificationTokenExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Verification token has expired');
+    }
+
+    if (user.pendingEmail) {
+      user.email = user.pendingEmail;
+      user.pendingEmail = null;
+    }
+
+    user.emailVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpiresAt = null;
+    await this.usersRepository.save(user);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user) {
+      return;
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    user.resetPasswordToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.resetPasswordExpiresAt = new Date(Date.now() + 3_600_000);
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendPasswordResetEmail(
+      user.email,
+      user.name,
+      rawToken,
+    );
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+    const user = await this.usersRepository.findOne({
+      where: { resetPasswordToken: hashedToken },
+    });
+
+    if (
+      !user ||
+      !user.resetPasswordExpiresAt ||
+      user.resetPasswordExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    user.password = await argon2.hash(newPassword);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiresAt = null;
+    await this.usersRepository.save(user);
+  }
+
+  async requestEmailChange(
+    userId: number,
+    password: string,
+    newEmail: string,
+  ): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!(await argon2.verify(user.password, password))) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    if (user.email === newEmail) {
+      throw new BadRequestException('New email is the same as current email');
+    }
+
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: newEmail },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    user.pendingEmail = newEmail;
+    user.verificationToken = createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    user.verificationTokenExpiresAt = new Date(Date.now() + 86_400_000);
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendVerificationEmail(
+      newEmail,
+      user.name,
+      rawToken,
+    );
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto): Promise<void> {
+    const updateData: Partial<User> = {};
+
+    if (dto.name !== undefined) {
+      updateData.name = dto.name;
+    }
+    if (dto.phone !== undefined) {
+      updateData.phone = dto.phone;
+    }
+    if (dto.birthDate !== undefined) {
+      updateData.birthDate = new Date(dto.birthDate);
+    }
+    if (dto.gender !== undefined) {
+      updateData.gender = dto.gender as 'male' | 'female';
+    }
+
+    const result = await this.usersRepository.update(userId, updateData);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
