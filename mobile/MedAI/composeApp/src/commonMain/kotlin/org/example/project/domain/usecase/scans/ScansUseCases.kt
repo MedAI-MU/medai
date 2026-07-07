@@ -5,7 +5,7 @@ import org.example.project.domain.model.scans.Report
 import org.example.project.domain.repository.scans.ScansRepository
 
 class GetScansUseCase(private val repository: ScansRepository) {
-    suspend operator fun invoke(): Result<List<Scan>> = repository.getScans()
+    suspend operator fun invoke(patientUserId: String? = null): Result<List<Scan>> = repository.getScans(patientUserId)
 }
 
 class GetScanDetailsUseCase(private val repository: ScansRepository) {

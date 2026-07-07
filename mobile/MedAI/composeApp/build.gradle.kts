@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -37,9 +38,9 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.ktor.client.okhttp)
 
-            // TensorFlow Lite for on-device ML
-            implementation("org.tensorflow:tensorflow-lite:2.14.0")
-            implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+            // LiteRT (TensorFlow Lite successor) for on-device ML supporting 16 KB page sizes
+            implementation("com.google.ai.edge.litert:litert:1.4.0")
+            implementation("com.google.ai.edge.litert:litert-support:1.4.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -117,4 +118,46 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     debugImplementation(compose.uiTooling)
+}
+
+val generateBuildConfig = tasks.register("generateBuildConfig") {
+    val localPropertiesFile = rootProject.file("local.properties")
+    inputs.file(localPropertiesFile).optional()
+
+    val outputDir = layout.buildDirectory.dir("generated/buildconfig/src/commonMain/kotlin")
+    outputs.dir(outputDir)
+
+    doLast {
+        val localProperties = Properties()
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        var baseUrl = localProperties.getProperty("medai.base_url") ?: "http://10.0.2.2:8000/api/"
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/"
+        }
+        if (!baseUrl.endsWith("api/")) {
+            baseUrl += "api/"
+        }
+
+        val outputFile = outputDir.get().file("org/example/project/AppConfig.kt").asFile
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(
+            """
+            package org.example.project
+
+            object AppConfig {
+                const val BASE_URL = "$baseUrl"
+            }
+            """.trimIndent()
+        )
+    }
+}
+
+kotlin {
+    sourceSets {
+        commonMain {
+            kotlin.srcDirs(generateBuildConfig)
+        }
+    }
 }

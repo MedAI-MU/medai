@@ -21,8 +21,9 @@ class NetworkScansRepository(
     private val client: HttpClient
 ) : ScansRepository {
 
-    override suspend fun getScans(): Result<List<Scan>> = safeApiCall {
-        val dtos: List<ScanResponseDto> = client.get("scans").body()
+    override suspend fun getScans(patientUserId: String?): Result<List<Scan>> = safeApiCall {
+        val path = if (patientUserId != null) "scans/$patientUserId" else "scans"
+        val dtos: List<ScanResponseDto> = client.get(path).body()
         dtos.map { it.toDomain() }
     }
 
