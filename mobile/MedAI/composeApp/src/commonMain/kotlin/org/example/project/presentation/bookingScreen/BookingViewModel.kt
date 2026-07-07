@@ -51,12 +51,14 @@ class BookingViewModel(
     private fun generateCalendar(baseDate: LocalDate) {
         val days = calendarManager.getDaysForMonth(baseDate)
         val selected = state.value.selectedDate
+        val today = calendarManager.getToday()
         val uiDays = days.map { date ->
             CalendarUiModel(
                 day = date.dayOfMonth.toString(),
                 weekDay = date.dayOfWeek.name.take(3),
                 fullDate = date,
-                isSelected = date == selected
+                isSelected = date == selected,
+                isEnabled = date >= today
             )
         }
         setState { copy(calendarDays = uiDays) }
@@ -119,6 +121,17 @@ class BookingViewModel(
 
         if (currentState.selectedSlotId == null) {
             sendEffect(BookingEffect.ShowError("Please select a time slot"))
+            return
+        }
+
+        val selectedDate = currentState.selectedDate
+        if (selectedDate == null) {
+            sendEffect(BookingEffect.ShowError("Please select a date"))
+            return
+        }
+        val today = calendarManager.getToday()
+        if (selectedDate < today) {
+            sendEffect(BookingEffect.ShowError("Cannot book an appointment in the past"))
             return
         }
 

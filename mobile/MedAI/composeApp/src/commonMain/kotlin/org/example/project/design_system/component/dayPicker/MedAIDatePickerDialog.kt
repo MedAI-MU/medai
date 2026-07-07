@@ -14,6 +14,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toInstant
 import org.example.project.design_system.theme.MedAITheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,20 +23,34 @@ fun MedAIDatePickerDialog(
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
     allowFutureDates: Boolean = false,
+    allowPastDates: Boolean = true,
     outputFormat: String = "DD / MM / YYYY"
 ) {
     val datePickerState = rememberDatePickerState(
-        selectableDates = if (allowFutureDates) {
-            object : SelectableDates {}
-        } else {
-            object : SelectableDates {
-                override fun isSelectableYear(year: Int): Boolean {
-                    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-                    return year <= currentYear
+        selectableDates = object : SelectableDates {
+            override fun isSelectableYear(year: Int): Boolean {
+                val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+                if (!allowPastDates) return year >= currentYear
+                if (!allowFutureDates) return year <= currentYear
+                return true
+            }
+
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val todayUtcStart = kotlinx.datetime.LocalDateTime(today.year, today.monthNumber, today.dayOfMonth, 0, 0, 0)
+                    .toInstant(TimeZone.UTC)
+                    .toEpochMilliseconds()
+
+                if (!allowPastDates) {
+                    // Only allow today and future dates. We use a buffer of 12 hours/timezone tolerance if needed,
+                    // but using start of day today in UTC is standard for Calendar components which return UTC millis.
+                    return utcTimeMillis >= todayUtcStart
                 }
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis <= Clock.System.now().toEpochMilliseconds()
+                if (!allowFutureDates) {
+                    val now = Clock.System.now().toEpochMilliseconds()
+                    return utcTimeMillis <= now
                 }
+                return true
             }
         }
     )

@@ -19,10 +19,13 @@ import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.home.GetHomeDataUseCase
 
+import org.example.project.domain.repository.appointment.AppointmentRepository
+
 class HomeViewModel(
     private val getHomeDataUseCase: GetHomeDataUseCase,
     private val calendarManager: CalendarManager,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    private val appointmentRepository: AppointmentRepository
 ) : ScreenModel {
 
     // 1. UI State (Persistent data)
@@ -42,6 +45,15 @@ class HomeViewModel(
             )
         }
         loadData()
+        observeRefreshSignals()
+    }
+
+    private fun observeRefreshSignals() {
+        screenModelScope.launch {
+            appointmentRepository.appointmentsRefreshSignals.collect {
+                loadData()
+            }
+        }
     }
 
     fun onEvent(event: HomeEvent) {
