@@ -10,7 +10,7 @@ import org.koin.dsl.module
 val appointmentModule = module {
     single<AppointmentRepository> { NetworkAppointmentRepository(get()) }
 
-    factory { BookAppointmentUseCase(get()) }
+    factory { BookAppointmentUseCase(get(), get()) }
     factory { GetAvailableSlotsUseCase(get()) }
     factory { GetAppointmentsUseCase(get()) }
     factory { GetAppointmentDetailsUseCase(get()) }
@@ -19,7 +19,7 @@ val appointmentModule = module {
     factory { GetCancelReasonsUseCase(get()) }
     factory { GetDoctorAppointmentsUseCase(get()) }
 
-    factory { AppointmentViewModel(get(), get(), get(), get(), get()) }
+    factory { AppointmentViewModel(get(), get(), get(), get(), get(), get()) }
     factory { (doctorId: String) ->
         BookingViewModel(doctorId, get(), get(), get(), get())
     }

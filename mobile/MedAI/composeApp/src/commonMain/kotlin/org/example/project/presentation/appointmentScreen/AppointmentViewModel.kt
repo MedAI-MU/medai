@@ -9,17 +9,28 @@ import org.example.project.domain.usecase.appointment.GetAppointmentDetailsUseCa
 import org.example.project.domain.usecase.appointment.GetAppointmentsUseCase
 import org.example.project.domain.usecase.appointment.GetCancelReasonsUseCase
 import org.example.project.domain.usecase.appointment.SubmitReviewUseCase
+import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class AppointmentViewModel(
     private val getAppointmentsUseCase: GetAppointmentsUseCase,
     private val getAppointmentDetailsUseCase: GetAppointmentDetailsUseCase,
     private val cancelAppointmentUseCase: CancelAppointmentUseCase,
     private val submitReviewUseCase: SubmitReviewUseCase,
-    private val getCancelReasonsUseCase: GetCancelReasonsUseCase
+    private val getCancelReasonsUseCase: GetCancelReasonsUseCase,
+    private val appointmentRepository: AppointmentRepository
 ) : MviScreenModel<AppointmentState, AppointmentEvent, AppointmentEffect>(AppointmentState()) {
 
     init {
         loadAppointments(state.value.selectedTab)
+        observeRefreshSignals()
+    }
+
+    private fun observeRefreshSignals() {
+        screenModelScope.launch {
+            appointmentRepository.appointmentsRefreshSignals.collect {
+                loadAppointments(state.value.selectedTab)
+            }
+        }
     }
 
     override fun onEvent(event: AppointmentEvent) {

@@ -2,6 +2,10 @@ package org.example.project.presentation.schedule
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.schedule.*
 import org.example.project.domain.repository.schedule.CreateScheduleDayInput
@@ -137,6 +141,23 @@ class ScheduleViewModel(
     }
 
     private fun applyTemplate(templateId: Int, startDate: String, endDate: String) {
+        val start = try { LocalDate.parse(startDate) } catch (e: Exception) { null }
+        val end = try { LocalDate.parse(endDate) } catch (e: Exception) { null }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+        if (start == null || end == null) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Invalid date format", isError = true))
+            return
+        }
+        if (start < today || end < today) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Cannot apply template to past dates", isError = true))
+            return
+        }
+        if (start > end) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Start date cannot be after end date", isError = true))
+            return
+        }
+
         screenModelScope.launch {
             setState { copy(isActionLoading = true) }
             applyScheduleTemplateUseCase(doctorId, templateId, startDate, endDate)
@@ -222,6 +243,18 @@ class ScheduleViewModel(
     }
 
     private fun createSlots(date: String, startTime: String, endTime: String) {
+        val selectedDate = try { LocalDate.parse(date) } catch (e: Exception) { null }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+        if (selectedDate == null) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Invalid date format", isError = true))
+            return
+        }
+        if (selectedDate < today) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Cannot create slots in the past", isError = true))
+            return
+        }
+
         screenModelScope.launch {
             setState { copy(isActionLoading = true) }
             createScheduleSlotsUseCase(

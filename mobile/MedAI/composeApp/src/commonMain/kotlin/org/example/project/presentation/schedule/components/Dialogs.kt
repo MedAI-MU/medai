@@ -311,6 +311,7 @@ fun CreateSlotDialog(
             onDateSelected = { date = it },
             onDismiss = { showDatePicker = false },
             allowFutureDates = true,
+            allowPastDates = false,
             outputFormat = "YYYY-MM-DD"
         )
     }
@@ -404,6 +405,7 @@ fun ApplyTemplateDialog(
             onDateSelected = { startDate = it },
             onDismiss = { showStartDatePicker = false },
             allowFutureDates = true,
+            allowPastDates = false,
             outputFormat = "YYYY-MM-DD"
         )
     }
@@ -413,6 +415,7 @@ fun ApplyTemplateDialog(
             onDateSelected = { endDate = it },
             onDismiss = { showEndDatePicker = false },
             allowFutureDates = true,
+            allowPastDates = false,
             outputFormat = "YYYY-MM-DD"
         )
     }
