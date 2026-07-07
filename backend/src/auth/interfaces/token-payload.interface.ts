@@ -5,4 +5,5 @@ export interface TokenPayload {
   email: string;
   role: UserRoles;
   status: UserStatus;
+  emailVerified: boolean;
 }

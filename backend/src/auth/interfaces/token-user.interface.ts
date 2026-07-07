@@ -5,4 +5,5 @@ export interface TokenUser {
   email: string;
   role: UserRoles;
   status: UserStatus;
+  emailVerified: boolean;
 }
