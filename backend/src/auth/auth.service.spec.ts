@@ -12,12 +12,14 @@ import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './jwt.config';
 import * as argon2 from 'argon2';
 import { Request } from 'express';
+import { AuthMailerService } from './auth-mailer.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
 
   const usersRepositoryMock = {
     findOne: jest.fn(),
+    save: jest.fn(),
   };
   const refreshTokensRepositoryMock = {
     findOne: jest.fn(),
@@ -33,6 +35,11 @@ describe('AuthService', () => {
     tokenExpiresInMs: 900000,
     refreshTokenSecret: 'testRefreshSecret',
     refreshTokenExpiresInMs: 604800000,
+  };
+
+  const authMailerServiceMock = {
+    sendVerificationEmail: jest.fn(),
+    sendPasswordResetEmail: jest.fn(),
   };
 
   const now = new Date('2025-12-05T12:00:00Z');
@@ -56,6 +63,10 @@ describe('AuthService', () => {
         {
           provide: jwtConfig.KEY,
           useValue: jwtOptionsMock,
+        },
+        {
+          provide: AuthMailerService,
+          useValue: authMailerServiceMock,
         },
       ],
     }).compile();
@@ -437,6 +448,176 @@ describe('AuthService', () => {
       expect(refreshTokensRepositoryMock.remove).toHaveBeenCalledTimes(1);
       expect(refreshTokensRepositoryMock.remove).toHaveBeenCalledWith(
         existingTokens[1],
+      );
+    });
+  });
+
+  describe('sendVerificationEmail', () => {
+    it('should do nothing when user is not found', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await authService.sendVerificationEmail('unknown@test.com');
+
+      expect(
+        authMailerServiceMock.sendVerificationEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when email is already verified', async () => {
+      const fakeUser = {
+        id: 1,
+        email: 'test@test.com',
+        emailVerified: true,
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await authService.sendVerificationEmail('test@test.com');
+
+      expect(
+        authMailerServiceMock.sendVerificationEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should generate token, save user and send email', async () => {
+      const fakeUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@test.com',
+        emailVerified: false,
+        verificationToken: undefined,
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      authMailerServiceMock.sendVerificationEmail.mockResolvedValue(undefined);
+
+      await authService.sendVerificationEmail('test@test.com');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          verificationToken: expect.any(String),
+        }),
+      );
+      expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
+        'test@test.com',
+        'Test User',
+        expect.any(String),
+      );
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should throw BadRequestException when token is invalid', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(authService.verifyEmail('invalid-token')).rejects.toThrow(
+        'Invalid verification token',
+      );
+    });
+
+    it('should mark email as verified and clear token', async () => {
+      const fakeUser = {
+        id: 1,
+        emailVerified: false,
+        verificationToken: 'valid-token',
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await authService.verifyEmail('valid-token');
+
+      expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({
+        where: { verificationToken: 'valid-token' },
+      });
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          emailVerified: true,
+          verificationToken: undefined,
+        }),
+      );
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should do nothing when user is not found', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await authService.forgotPassword('unknown@test.com');
+
+      expect(
+        authMailerServiceMock.sendPasswordResetEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should generate reset token and send email', async () => {
+      const fakeUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@test.com',
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      authMailerServiceMock.sendPasswordResetEmail.mockResolvedValue(undefined);
+
+      await authService.forgotPassword('test@test.com');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resetPasswordToken: expect.any(String),
+          resetPasswordExpiresAt: expect.any(Date),
+        }),
+      );
+      expect(authMailerServiceMock.sendPasswordResetEmail).toHaveBeenCalledWith(
+        'test@test.com',
+        'Test User',
+        expect.any(String),
+      );
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should throw BadRequestException when token is invalid', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(
+        authService.resetPassword('invalid-token', 'newPassword123'),
+      ).rejects.toThrow('Invalid or expired reset token');
+    });
+
+    it('should throw BadRequestException when token is expired', async () => {
+      const fakeUser = {
+        id: 1,
+        resetPasswordToken: 'expired-token',
+        resetPasswordExpiresAt: new Date(Date.now() - 3600000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await expect(
+        authService.resetPassword('expired-token', 'newPassword123'),
+      ).rejects.toThrow('Invalid or expired reset token');
+    });
+
+    it('should hash new password and clear reset token', async () => {
+      const fakeUser = {
+        id: 1,
+        password: 'old-hashed-password',
+        resetPasswordToken: 'valid-token',
+        resetPasswordExpiresAt: new Date(Date.now() + 3600000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      (argon2.hash as jest.Mock).mockResolvedValue('new-hashed-password');
+
+      await authService.resetPassword('valid-token', 'newPassword123');
+
+      expect(argon2.hash).toHaveBeenCalledWith('newPassword123');
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          password: 'new-hashed-password',
+          resetPasswordToken: undefined,
+          resetPasswordExpiresAt: undefined,
+        }),
       );
     });
   });
