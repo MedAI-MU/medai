@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.repository.auth.UserSessionManager
+import org.example.project.domain.model.auth.UserRole
 import org.example.project.domain.usecase.scans.*
 
 class ScansViewModel(
@@ -53,22 +54,19 @@ class ScansViewModel(
     private fun loadScans() {
         screenModelScope.launch {
             setState { copy(isLoading = true, error = null) }
-            getScansUseCase().fold(
-                onSuccess = { allScans ->
-                    // Determine which patient's scans we should view
-                    val targetPatientId = patientIdArg ?: state.value.currentUserId
+            val targetPatientId = patientIdArg ?: state.value.currentUserId
+            val userRole = state.value.currentUserRole
 
-                    // Filter scans to only show those belonging to the target patient
-                    val filteredScans = if (targetPatientId != null) {
-                        allScans.filter { it.patientUserId == targetPatientId }
-                    } else {
-                        allScans
-                    }
+            // Patients are only authorized to fetch their own scans.
+            // Secretary and Doctors can query scans broadly or target a specific patient.
+            val fetchId = if (userRole == UserRole.PATIENT || targetPatientId != null) targetPatientId else null
 
+            getScansUseCase(fetchId).fold(
+                onSuccess = { scansList ->
                     setState {
                         copy(
                             isLoading = false,
-                            scans = filteredScans
+                            scans = scansList
                         )
                     }
                 },

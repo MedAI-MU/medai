@@ -74,6 +74,7 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
         // Upload Pickers
         val targetPatientId = patientUserId ?: state.currentUserId ?: ""
         var activeScanIdForReportUpload by remember { mutableStateOf<String?>(null) }
+        var scanIdToDelete by remember { mutableStateOf<String?>(null) }
 
         val scanPicker = rememberImagePicker { bytes ->
             viewModel.onEvent(ScansEvent.UploadScan(targetPatientId, null, listOf(bytes)))
@@ -90,8 +91,8 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
             onBackClick = { navigator.pop() },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             floatingActionButton = {
-                // Secretaries can upload new scans
-                if (state.currentUserRole == UserRole.SECRETARY) {
+                // Secretaries and Patients can upload new scans
+                if (state.currentUserRole == UserRole.SECRETARY || state.currentUserRole == UserRole.PATIENT) {
                     ExtendedFloatingActionButton(
                         onClick = { scanPicker.launch() },
                         icon = { Icon(Icons.Default.CloudUpload, contentDescription = null) },
@@ -142,9 +143,14 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                             Spacer(modifier = Modifier.height(16.dp))
                             MedAIText("No Scans Or Reports Found", style = MedAITheme.textStyle.title.medium, color = MedAITheme.colors.text.primary)
                             Spacer(modifier = Modifier.height(8.dp))
+                            val canUploadScans = state.currentUserRole == UserRole.SECRETARY || state.currentUserRole == UserRole.PATIENT
                             MedAIText(
-                                text = if (state.currentUserRole == UserRole.SECRETARY) {
-                                    "Tap the button below to upload the patient's first medical scan plate."
+                                text = if (canUploadScans) {
+                                    if (state.currentUserRole == UserRole.PATIENT) {
+                                        "There are currently no uploaded scan plates or analytical reports for your profile. Tap the button below to upload your first medical scan plate."
+                                    } else {
+                                        "Tap the button below to upload the patient's first medical scan plate."
+                                    }
                                 } else {
                                     "There are currently no uploaded scan plates or analytical reports for your profile."
                                 },
@@ -152,7 +158,7 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                                 color = MedAITheme.colors.text.secondary,
                                 textAlign = TextAlign.Center
                             )
-                            if (state.currentUserRole == UserRole.SECRETARY) {
+                            if (canUploadScans) {
                                 Spacer(modifier = Modifier.height(24.dp))
                                 MedAIButton(text = "Upload First Scan", onClick = { scanPicker.launch() })
                             }
@@ -175,7 +181,7 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                                         viewModel.onEvent(ScansEvent.ToggleScanExpanded(scan.id, targetPatientId))
                                     },
                                     onDeleteScan = {
-                                        viewModel.onEvent(ScansEvent.DeleteScan(targetPatientId, scan.id))
+                                        scanIdToDelete = scan.id
                                     },
                                     onUploadReportClick = {
                                         activeScanIdForReportUpload = scan.id
@@ -227,6 +233,50 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                             }
                         }
                     }
+                }
+
+                // Delete Scan Confirmation Dialog
+                if (scanIdToDelete != null) {
+                    AlertDialog(
+                        onDismissRequest = { scanIdToDelete = null },
+                        title = {
+                            Text(
+                                text = "Delete Medical Scan",
+                                style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
+                                color = MedAITheme.colors.text.primary
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "Are you sure you want to permanently delete this scan plate? This will also delete any analytical reports associated with it. This action cannot be undone.",
+                                style = MedAITheme.textStyle.body.medium,
+                                color = MedAITheme.colors.text.secondary
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    scanIdToDelete?.let { scanId ->
+                                        viewModel.onEvent(ScansEvent.DeleteScan(targetPatientId, scanId))
+                                    }
+                                    scanIdToDelete = null
+                                },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MedAITheme.colors.status.error)
+                            ) {
+                                Text("Delete", style = MedAITheme.textStyle.label.medium.copy(fontWeight = FontWeight.Bold))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { scanIdToDelete = null },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MedAITheme.colors.text.secondary)
+                            ) {
+                                Text("Cancel", style = MedAITheme.textStyle.label.medium)
+                            }
+                        },
+                        containerColor = MedAITheme.colors.surface,
+                        shape = RoundedCornerShape(16.dp)
+                    )
                 }
 
                 // Lightbox File Viewer Dialog
@@ -380,7 +430,7 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (currentUserRole == UserRole.SECRETARY) {
+                        if (currentUserRole == UserRole.SECRETARY || currentUserRole == UserRole.PATIENT) {
                             IconButton(onClick = onDeleteScan) {
                                 Icon(Icons.Default.Delete, contentDescription = "Delete Scan", tint = MedAITheme.colors.status.error)
                             }
@@ -451,7 +501,7 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
                                 style = MedAITheme.textStyle.label.small.copy(fontWeight = FontWeight.Bold),
                                 color = MedAITheme.colors.text.secondary
                             )
-                            if (currentUserRole == UserRole.SECRETARY) {
+                            if (currentUserRole == UserRole.SECRETARY || currentUserRole == UserRole.PATIENT) {
                                 TextButton(
                                     onClick = onUploadReportClick,
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)

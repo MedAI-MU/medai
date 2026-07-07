@@ -24,10 +24,13 @@ import io.ktor.http.encodedPath
 import io.ktor.http.path
 import io.ktor.http.takeFrom
 
+import org.example.project.AppConfig
+
 class KtorClientFactory(
     private val sessionManager: UserSessionManager
 ) {
-    private val BASE_URL = "http://10.0.2.2:8000/api/"
+    private val BASE_URL = AppConfig.BASE_URL
+    //"http://10.0.2.2:8000/api/"
 
     fun create(): HttpClient {
         return HttpClient {
@@ -55,9 +58,7 @@ class KtorClientFactory(
             }
 
             defaultRequest {
-                url.protocol = URLProtocol.HTTP
-                url.host = "10.0.2.2"
-                url.port = 8000
+                url.takeFrom(AppConfig.BASE_URL)
                 contentType(ContentType.Application.Json)
             }
         }.apply {

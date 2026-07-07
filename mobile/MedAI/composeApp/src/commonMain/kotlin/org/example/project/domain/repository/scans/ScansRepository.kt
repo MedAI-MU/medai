@@ -4,7 +4,7 @@ import org.example.project.domain.model.scans.Scan
 import org.example.project.domain.model.scans.Report
 
 interface ScansRepository {
-    suspend fun getScans(): Result<List<Scan>>
+    suspend fun getScans(patientUserId: String? = null): Result<List<Scan>>
 
     suspend fun getScanDetails(patientUserId: String, scanId: String): Result<Scan>
 
