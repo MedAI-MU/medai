@@ -27,6 +27,7 @@ import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApprovedGuard } from 'src/users/guards/approved.guard';
+import { VerifiedGuard } from 'src/auth/guards/verified.guard';
 import { SpecialityDto } from './dtos/speciality.dto';
 import { SpecialityService } from './speciality.service';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
@@ -36,7 +37,7 @@ import { SpecialityResponseDto } from './dtos/speciality-response.dto';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 
 @Controller('doctors')
-@UseGuards(ApprovedGuard)
+@UseGuards(ApprovedGuard, VerifiedGuard)
 export class DoctorsController {
   constructor(
     private readonly doctorsService: DoctorsService,

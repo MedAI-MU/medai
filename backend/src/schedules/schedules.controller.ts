@@ -17,6 +17,7 @@ import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-templat
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { ApprovedGuard } from 'src/users/guards/approved.guard';
+import { VerifiedGuard } from 'src/auth/guards/verified.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
@@ -37,7 +38,7 @@ import {
 } from '@nestjs/swagger';
 
 @Controller('doctors')
-@UseGuards(ApprovedGuard)
+@UseGuards(ApprovedGuard, VerifiedGuard)
 export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,

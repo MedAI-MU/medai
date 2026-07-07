@@ -16,6 +16,7 @@ import { AllowAnon } from 'src/auth/decorators/allow-anon.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApprovedGuard } from './guards/approved.guard';
+import { VerifiedGuard } from 'src/auth/guards/verified.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -30,7 +31,7 @@ import {
 import { PatientsService } from 'src/patients/patients.service';
 
 @Controller('users')
-@UseGuards(ApprovedGuard)
+@UseGuards(ApprovedGuard, VerifiedGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,

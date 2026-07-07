@@ -31,11 +31,12 @@ import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ApprovedGuard } from '../users/guards/approved.guard';
+import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 
 @Controller('diagnoses')
-@UseGuards(ApprovedGuard)
+@UseGuards(ApprovedGuard, VerifiedGuard)
 export class DiagnosisController {
   constructor(private readonly diagnosisService: DiagnosisService) {}
 
