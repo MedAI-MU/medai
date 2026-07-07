@@ -2,27 +2,27 @@ import { Test } from '@nestjs/testing';
 import { AuthMailerService } from './auth-mailer.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
+const sendMailMock = jest.fn().mockResolvedValue(undefined);
+
 describe('AuthMailerService', () => {
   let authMailerService: AuthMailerService;
-  let mailerService: MailerService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module = await Test.createTestingModule({
       providers: [
         AuthMailerService,
         {
           provide: MailerService,
           useValue: {
-            sendMail: jest.fn().mockResolvedValue(undefined),
+            sendMail: sendMailMock,
           },
         },
       ],
     }).compile();
 
     authMailerService = module.get<AuthMailerService>(AuthMailerService);
-    mailerService = module.get<MailerService>(MailerService);
-
-    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -40,7 +40,7 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
+      expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Verify your MedAI account',
         html: expect.stringContaining(
@@ -61,7 +61,7 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
+      expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Verify your MedAI account',
         html: expect.stringContaining(
@@ -84,7 +84,7 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
+      expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Reset your MedAI password',
         html: expect.stringContaining(

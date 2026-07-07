@@ -61,6 +61,10 @@ export class User extends TimestampEntity {
 
   @Exclude()
   @Column({ type: 'varchar', nullable: true })
+  pendingEmail?: string;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
   verificationToken?: string;
 
   @Exclude()

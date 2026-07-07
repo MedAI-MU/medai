@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -13,6 +19,7 @@ import { TokenPayload } from './interfaces/token-payload.interface';
 import { AuthCookies } from './interfaces/auth-cookies.interface';
 import { AuthMailerService } from './auth-mailer.service';
 import { randomBytes } from 'node:crypto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -150,6 +157,11 @@ export class AuthService {
       throw new BadRequestException('Invalid verification token');
     }
 
+    if (user.pendingEmail) {
+      user.email = user.pendingEmail;
+      user.pendingEmail = undefined;
+    }
+
     user.emailVerified = true;
     user.verificationToken = undefined;
     await this.usersRepository.save(user);
@@ -191,5 +203,69 @@ export class AuthService {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await this.usersRepository.save(user);
+  }
+
+  async requestEmailChange(
+    userId: number,
+    password: string,
+    newEmail: string,
+  ): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!(await argon2.verify(user.password, password))) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    if (user.email === newEmail) {
+      throw new BadRequestException('New email is the same as current email');
+    }
+
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: newEmail },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
+    }
+
+    const verificationToken = randomBytes(32).toString('hex');
+    user.pendingEmail = newEmail;
+    user.verificationToken = verificationToken;
+    await this.usersRepository.save(user);
+
+    await this.authMailerService.sendVerificationEmail(
+      newEmail,
+      user.name,
+      verificationToken,
+    );
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto): Promise<void> {
+    const updateData: Partial<User> = {};
+
+    if (dto.name !== undefined) {
+      updateData.name = dto.name;
+    }
+    if (dto.phone !== undefined) {
+      updateData.phone = dto.phone;
+    }
+    if (dto.birthDate !== undefined) {
+      updateData.birthDate = new Date(dto.birthDate);
+    }
+    if (dto.gender !== undefined) {
+      updateData.gender = dto.gender as 'male' | 'female';
+    }
+
+    const result = await this.usersRepository.update(userId, updateData);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
   }
 }

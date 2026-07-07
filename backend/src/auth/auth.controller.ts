@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Req,
   Res,
@@ -24,6 +25,8 @@ import { SendVerificationDto } from './dto/send-verification.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangeEmailDto } from './dto/change-email.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -149,5 +152,34 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Invalid or expired reset token' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     await this.authService.resetPassword(dto.token, dto.password);
+  }
+
+  @Post('change-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: ChangeEmailDto })
+  @ApiOkResponse({
+    description: 'Verification email sent to new address',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid password' })
+  async changeEmail(
+    @CurrentUser() user: Partial<User>,
+    @Body() dto: ChangeEmailDto,
+  ) {
+    await this.authService.requestEmailChange(
+      user.id!,
+      dto.password,
+      dto.newEmail,
+    );
+  }
+
+  @Patch('profile')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiOkResponse({ description: 'Profile updated successfully' })
+  async updateProfile(
+    @CurrentUser() user: Partial<User>,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    await this.authService.updateProfile(user.id!, dto);
   }
 }
