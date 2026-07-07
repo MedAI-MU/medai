@@ -122,7 +122,9 @@ dependencies {
 
 val generateBuildConfig = tasks.register("generateBuildConfig") {
     val localPropertiesFile = rootProject.file("local.properties")
-    inputs.file(localPropertiesFile).optional()
+    if (localPropertiesFile.exists()) {
+        inputs.file(localPropertiesFile)
+    }
 
     val outputDir = layout.buildDirectory.dir("generated/buildconfig/src/commonMain/kotlin")
     outputs.dir(outputDir)
@@ -132,7 +134,9 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use { localProperties.load(it) }
         }
-        var baseUrl = localProperties.getProperty("medai.base_url") ?: "http://10.0.2.2:8000/api/"
+        val envUrl = System.getenv("MEDAI_BASE_URL")
+        val propUrl = if (localPropertiesFile.exists()) localProperties.getProperty("medai.base_url") else null
+        var baseUrl = envUrl ?: propUrl ?: "http://10.0.2.2:8000/api/"
         if (!baseUrl.endsWith("/")) {
             baseUrl += "/"
         }

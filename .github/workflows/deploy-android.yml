@@ -35,6 +35,8 @@ jobs:
 
       - name: Build Debug APK
         working-directory: ./mobile/MedAI
+        env:
+          MEDAI_BASE_URL: ${{ secrets.MEDAI_BASE_URL }}
         run: ./gradlew assembleDebug
 
       # Deploy to DEV testers
