@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.koin.core.parameter.parametersOf
 import org.example.project.design_system.component.button.MedAIButton
@@ -32,7 +32,7 @@ class DiagnosisListScreen(val patientId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = getScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
+        val viewModel = koinScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
         MedAIScaffold(
             title = "Diagnoses",
             onBackClick = { navigator?.pop() }

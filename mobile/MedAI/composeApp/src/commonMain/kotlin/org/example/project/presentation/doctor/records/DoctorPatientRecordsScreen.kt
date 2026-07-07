@@ -37,7 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.koin.core.parameter.parametersOf
 import org.example.project.design_system.theme.MedAITheme
@@ -104,7 +104,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = getScreenModel<SharedMedicalRecordViewModel> { parametersOf(patientId) }
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel> { parametersOf(patientId) }
         val state by viewModel.state.collectAsState()
 
         val snackbarHostState = remember { SnackbarHostState() }
@@ -193,7 +193,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                 5 -> PatientEmergencyContacts(state, viewModel) { currentSheet = it }
                                 6 -> PatientScansTab(patientId)
                                 7 -> {
-                                    val diagnosisViewModel = getScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
+                                    val diagnosisViewModel = koinScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
                                     DiagnosisListContent(viewModel = diagnosisViewModel, patientId = patientId)
                                 }
                             }

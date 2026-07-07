@@ -77,12 +77,7 @@ class SplashScreen : Screen {
                 if (status == AccountStatus.PENDING) {
                     navigator.replace(PendingApprovalScreen())
                 } else {
-                    val role = userSessionManager.getUserRole()
-                    when (role) {
-                        UserRole.DOCTOR -> navigator.replace(MainContainerScreen())
-                        UserRole.SECRETARY -> navigator.replace(SecretaryDashboardScreen())
-                        else -> navigator.replace(MainContainerScreen()) // Default to patient flow
-                    }
+                    navigator.replace(MainContainerScreen())
                 }
             } else {
                 if (storage.isOnboardingCompleted()) {
