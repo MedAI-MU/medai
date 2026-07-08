@@ -22,6 +22,7 @@ import ButtonIcon from "@/components/ui/ButtonIcon";
 import Heading from "@/components/ui/Heading";
 import SidebarNavItem from "@/components/sidebar/SidebarNavItem";
 import SidebarNavGroup from "@/components/sidebar/SidebarNavGroup";
+import LogoutButton from "../ui/LogoutButton";
 
 const LINKS = {
   patient: [
@@ -31,7 +32,11 @@ const LINKS = {
       href: "/patient/book-appointment",
       icon: CalendarPlus,
     },
-    { text: "my appointments", href: "#", icon: CalendarCheck },
+    {
+      text: "my appointments",
+      href: "/patient/appointments",
+      icon: CalendarCheck,
+    },
     {
       text: "medical records",
       href: "/patient/medical-records",
@@ -51,8 +56,8 @@ const LINKS = {
           icon: CalendarDays,
         },
         {
-          text: "availablitiy",
-          href: "/doctor/availablitiy",
+          text: "availability",
+          href: "/doctor/availability",
           icon: Plus,
         },
         {
@@ -75,7 +80,7 @@ function Sidebar({ role }) {
       )}
 
       <aside
-        className={`border-border bg-surface fixed inset-y-0 z-50 row-span-2 flex w-(--sidebar-width) flex-col border-r transition-all duration-300 lg:relative lg:translate-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`border-border bg-surface fixed inset-y-0 z-50 row-span-2 flex w-(--sidebar-width) max-w-full flex-col border-r transition-all duration-300 lg:relative lg:translate-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <ButtonIcon
           className="absolute top-[20px] right-[15px] lg:hidden"
@@ -141,10 +146,7 @@ function Sidebar({ role }) {
 
         {/* Logout */}
         <div className="border-border border-t p-4">
-          <button className="text-danger hover:bg-danger-muted flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors">
-            <LogOut size={18} />
-            <span className="text-sm font-medium">Log out</span>
-          </button>
+          <LogoutButton />
         </div>
       </aside>
     </>

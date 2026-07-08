@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class RenameAndIndexRefreshTokenColumn1764716507750
-  implements MigrationInterface
-{
+export class RenameAndIndexRefreshTokenColumn1764716507750 implements MigrationInterface {
   name = 'RenameAndIndexRefreshTokenColumn1764716507750';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

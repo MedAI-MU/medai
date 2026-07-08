@@ -9,18 +9,12 @@ export class UsersSeed implements ISeed {
   async run(dataSource: DataSource): Promise<void> {
     const users: User[] = [
       new User({
-        name: 'Dr. Sarah Johnson',
-        email: 'sarah.johnson@example.com',
+        name: 'Ahmed Gouda',
+        email: 'ahmed.gouda1@example.com',
         password: await argon2.hash('password123'),
-        phone: '01133445566',
-        role: 'doctor',
-      }),
-      new User({
-        name: 'Mostafa Atef',
-        email: 'mostafa.atef@example.com',
-        password: await argon2.hash('password123'),
-        phone: '01122337799',
-        role: 'secretary',
+        phone: '01123431234',
+        role: 'manager',
+        status: 'approved',
       }),
     ];
     await dataSource.getRepository(User).save(users);

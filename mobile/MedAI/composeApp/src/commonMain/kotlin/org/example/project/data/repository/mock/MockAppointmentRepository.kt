@@ -4,6 +4,9 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.domain.model.appointment.CancelReason
@@ -11,11 +14,19 @@ import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class MockAppointmentRepository : AppointmentRepository {
 
+    private val _refreshSignals = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val appointmentsRefreshSignals: Flow<Unit> = _refreshSignals.asSharedFlow()
+
+    override fun triggerAppointmentsRefresh() {
+        _refreshSignals.tryEmit(Unit)
+    }
+
     private val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     private val mockAppointments = listOf(
         AppointmentDetail(
             id = "1",
+            patientId = "10",
             doctorName = "Dr. Olivia Turner",
             specialty = "Dermatologist",
             doctorRating = 4.8,
@@ -27,6 +38,7 @@ class MockAppointmentRepository : AppointmentRepository {
         ),
         AppointmentDetail(
             id = "2",
+            patientId = "11",
             doctorName = "Dr. Alexander Bennett",
             specialty = "Dermatologist",
             doctorRating = 4.5,
@@ -38,6 +50,7 @@ class MockAppointmentRepository : AppointmentRepository {
         ),
         AppointmentDetail(
             id = "3",
+            patientId = "12",
             doctorName = "Dr. Michael Chang",
             specialty = "Cardiologist",
             doctorRating = 4.9,
@@ -62,6 +75,7 @@ class MockAppointmentRepository : AppointmentRepository {
 
     override suspend fun cancelAppointment(id: String): Result<Unit> {
         delay(150)
+        triggerAppointmentsRefresh()
         return Result.success(Unit)
     }
 

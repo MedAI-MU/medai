@@ -3,7 +3,7 @@ import FormLabel from "./FormLabel";
 
 function FormSelect({
   label,
-  defaultValue = "Select role...",
+  defaultValue,
   options,
   error,
   startIcon,
@@ -23,9 +23,12 @@ function FormSelect({
           className={`border-border bg-surface-overlay disabled:text-text-muted disabled:border-border text-text-base w-full cursor-pointer rounded-lg border capitalize outline-none disabled:cursor-not-allowed disabled:opacity-75 ${startIcon ? "ps-10 pe-4" : "px-4"} ${error ? "ring-danger" : "ring-primary/90"} py-3 transition-all focus:ring-2`}
           {...attrs}
         >
-          <option value="" disabled>
-            {defaultValue}
-          </option>
+          {/* Select Title */}
+          {defaultValue && (
+            <option value="" disabled hidden>
+              {defaultValue}
+            </option>
+          )}
           {options.map((option) => (
             <option key={option} value={option}>
               {option}

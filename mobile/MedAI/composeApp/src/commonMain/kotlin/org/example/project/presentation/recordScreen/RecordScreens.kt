@@ -65,7 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.example.project.design_system.component.button.MedAIButton
@@ -91,6 +91,9 @@ import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.domain.model.patient.UpdatePatientParams
+import org.example.project.presentation.shared.records.*
+import org.example.project.presentation.scans.ScansScreen
+import org.example.project.presentation.shared.diagnosis.DiagnosisListScreen
 
 // --- Sheet Type Sealed Class (patient-specific) ---
 sealed class PatientSheetType {
@@ -144,14 +147,14 @@ class RecordsDashboardScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
         }
 
         MedAIScaffold(title = "Medical Records", snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -180,7 +183,7 @@ class RecordsDashboardScreen : Screen {
     }
 
     @Composable
-    fun DashboardContent(state: MedicalRecordState, navigator: cafe.adriel.voyager.navigator.Navigator, onEditProfile: () -> Unit) {
+    fun DashboardContent(state: SharedMedicalRecordState, navigator: cafe.adriel.voyager.navigator.Navigator, onEditProfile: () -> Unit) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             state.patientProfile?.let { UserHeader(it, onEditClick = onEditProfile) }
             Spacer(modifier = Modifier.height(24.dp))
@@ -191,13 +194,16 @@ class RecordsDashboardScreen : Screen {
                 DashboardItem("Surgeries", Icons.Default.Vaccines, Color(0xFFC8E6C9)) { navigator.push(SurgeriesScreen()) },
                 DashboardItem("Family", Icons.Default.History, Color(0xFFBBDEFB)) { navigator.push(FamilyHistoryScreen()) },
                 DashboardItem("Emergency", Icons.Default.ContactPhone, Color(0xFFFFF9C4)) { navigator.push(EmergencyContactsScreen()) },
-                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) }
+                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) },
+                DashboardItem("Scans", Icons.Default.Science, Color(0xFF80DEEA)) { navigator.push(ScansScreen(state.patientProfile?.id)) },
+                DashboardItem("Diagnoses", Icons.Default.ListAlt, Color(0xFFFFCC80)) { navigator.push(DiagnosisListScreen(state.patientProfile?.id ?: "")) }
             )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.weight(1f)
             ) {
                 items(items) { item -> DashboardCard(item) }
             }
@@ -260,7 +266,7 @@ fun UserHeader(profile: Patient, onEditClick: () -> Unit = {}) {
 fun PatientProfileForm(
     profile: Patient?,
     onDismiss: () -> Unit,
-    onEvent: (MedicalRecordEvent) -> Unit
+    onEvent: (SharedMedicalRecordEvent) -> Unit
 ) {
     var height by remember { mutableStateOf(profile?.height?.toString() ?: "") }
     var weight by remember { mutableStateOf(profile?.weight?.toString() ?: "") }
@@ -352,7 +358,7 @@ fun PatientProfileForm(
                     bloodType = selectedBloodType,
                     maritalStatus = selectedMaritalStatus
                 )
-                onEvent(MedicalRecordEvent.UpdatePatientInfo(params))
+                onEvent(SharedMedicalRecordEvent.UpdatePatientInfo(params))
                 onDismiss()
             }
         )
@@ -404,7 +410,7 @@ fun RecordEmptyState(label: String, onAddClick: () -> Unit) {
 class AllergiesScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val snackbarHostState = remember { SnackbarHostState() }
@@ -413,7 +419,7 @@ class AllergiesScreen : Screen {
 
         LaunchedEffect(viewModel) {
             viewModel.effect.collect { effect ->
-                if (effect is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(effect.message)
+                if (effect is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(effect.message)
             }
         }
 
@@ -449,7 +455,7 @@ class AllergiesScreen : Screen {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditAllergy(allergy) }) {
                                             Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp))
                                         }
-                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteAllergy(allergy.id)) }) {
+                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteAllergy(allergy.id)) }) {
                                             Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp))
                                         }
                                     }
@@ -481,7 +487,7 @@ class AllergiesScreen : Screen {
 }
 
 @Composable
-fun PatientAllergyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+fun PatientAllergyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (SharedMedicalRecordEvent) -> Unit) {
     val allergy = (sheetType as? PatientSheetType.EditAllergy)?.allergy
     var name by remember { mutableStateOf(allergy?.name ?: "") }
     var symptoms by remember { mutableStateOf(allergy?.symptoms ?: "") }
@@ -494,8 +500,8 @@ fun PatientAllergyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
         Spacer(modifier = Modifier.height(24.dp))
         MedAIButton(text = if (allergy == null) "Add" else "Update", onClick = {
             val params = AllergyParams(name = name, symptoms = symptoms)
-            if (allergy == null) onEvent(MedicalRecordEvent.AddAllergy(params))
-            else onEvent(MedicalRecordEvent.EditAllergy(allergy.id, params))
+            if (allergy == null) onEvent(SharedMedicalRecordEvent.AddAllergy(params))
+            else onEvent(SharedMedicalRecordEvent.EditAllergy(allergy.id, params))
             onDismiss()
         })
         Spacer(modifier = Modifier.height(32.dp))
@@ -506,7 +512,7 @@ fun PatientAllergyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
 class AnalysesScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
@@ -545,7 +551,7 @@ class AnalysesScreen : Screen {
 class DiseasesScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val snackbarHostState = remember { SnackbarHostState() }
@@ -553,7 +559,7 @@ class DiseasesScreen : Screen {
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
         }
 
         MedAIScaffold(title = "Chronic Diseases", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -573,7 +579,7 @@ class DiseasesScreen : Screen {
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditDisease(disease) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteChronicDisease(disease.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteChronicDisease(disease.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -598,7 +604,7 @@ class DiseasesScreen : Screen {
 }
 
 @Composable
-fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (SharedMedicalRecordEvent) -> Unit) {
     val disease = (sheetType as? PatientSheetType.EditDisease)?.disease
     var name by remember { mutableStateOf(disease?.name ?: "") }
     var desc by remember { mutableStateOf(disease?.description ?: "") }
@@ -624,8 +630,8 @@ fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
 
         MedAIButton(text = if (disease == null) "Add" else "Update", enabled = isValid, onClick = {
             val params = ChronicDiseaseParams(name = name, description = desc, diagnosisDate = date)
-            if (disease == null) onEvent(MedicalRecordEvent.AddChronicDisease(params))
-            else onEvent(MedicalRecordEvent.EditChronicDisease(disease.id, params))
+            if (disease == null) onEvent(SharedMedicalRecordEvent.AddChronicDisease(params))
+            else onEvent(SharedMedicalRecordEvent.EditChronicDisease(disease.id, params))
             onDismiss()
         })
         Spacer(modifier = Modifier.height(32.dp))
@@ -637,7 +643,7 @@ fun PatientDiseaseForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
 class SurgeriesScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val snackbarHostState = remember { SnackbarHostState() }
@@ -645,7 +651,7 @@ class SurgeriesScreen : Screen {
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
         }
 
         MedAIScaffold(title = "Surgeries", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -665,7 +671,7 @@ class SurgeriesScreen : Screen {
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditSurgery(surgery) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteSurgery(surgery.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteSurgery(surgery.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -690,7 +696,7 @@ class SurgeriesScreen : Screen {
 }
 
 @Composable
-fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (SharedMedicalRecordEvent) -> Unit) {
     val surgery = (sheetType as? PatientSheetType.EditSurgery)?.surgery
     var name by remember { mutableStateOf(surgery?.name ?: "") }
     var desc by remember { mutableStateOf(surgery?.description ?: "") }
@@ -716,8 +722,8 @@ fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
 
         MedAIButton(text = if (surgery == null) "Add" else "Update", enabled = isValid, onClick = {
             val params = SurgeryParams(name = name, description = desc, date = date)
-            if (surgery == null) onEvent(MedicalRecordEvent.AddSurgery(params))
-            else onEvent(MedicalRecordEvent.EditSurgery(surgery.id, params))
+            if (surgery == null) onEvent(SharedMedicalRecordEvent.AddSurgery(params))
+            else onEvent(SharedMedicalRecordEvent.EditSurgery(surgery.id, params))
             onDismiss()
         })
         Spacer(modifier = Modifier.height(32.dp))
@@ -729,7 +735,7 @@ fun PatientSurgeryForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEve
 class FamilyHistoryScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val snackbarHostState = remember { SnackbarHostState() }
@@ -737,7 +743,7 @@ class FamilyHistoryScreen : Screen {
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
         }
 
         MedAIScaffold(title = "Family History", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -756,7 +762,7 @@ class FamilyHistoryScreen : Screen {
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditFamily(history) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteFamilyHistory(history.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteFamilyHistory(history.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -782,7 +788,7 @@ class FamilyHistoryScreen : Screen {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (SharedMedicalRecordEvent) -> Unit) {
     val history = (sheetType as? PatientSheetType.EditFamily)?.history
     var relation by remember { mutableStateOf(history?.relation ?: FamilyRelation.Father) }
     var condition by remember { mutableStateOf(history?.condition ?: "") }
@@ -827,8 +833,8 @@ fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEven
         Spacer(modifier = Modifier.height(24.dp))
         MedAIButton(text = if (history == null) "Add" else "Update", onClick = {
             val params = FamilyHistoryParams(relation = relation, condition = condition, notes = notes)
-            if (history == null) onEvent(MedicalRecordEvent.AddFamilyHistory(params))
-            else onEvent(MedicalRecordEvent.EditFamilyHistory(history.id, params))
+            if (history == null) onEvent(SharedMedicalRecordEvent.AddFamilyHistory(params))
+            else onEvent(SharedMedicalRecordEvent.EditFamilyHistory(history.id, params))
             onDismiss()
         })
         Spacer(modifier = Modifier.height(32.dp))
@@ -840,7 +846,7 @@ fun PatientFamilyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEven
 class EmergencyContactsScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val snackbarHostState = remember { SnackbarHostState() }
@@ -848,7 +854,7 @@ class EmergencyContactsScreen : Screen {
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is MedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
         }
 
         MedAIScaffold(title = "Emergency Contacts", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -868,7 +874,7 @@ class EmergencyContactsScreen : Screen {
                                         }
                                         Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                             IconButton(onClick = { currentSheet = PatientSheetType.EditEmergency(contact) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                            IconButton(onClick = { viewModel.onEvent(MedicalRecordEvent.DeleteEmergencyContact(contact.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                            IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteEmergencyContact(contact.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                         }
                                     }
                                 }
@@ -894,7 +900,7 @@ class EmergencyContactsScreen : Screen {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (MedicalRecordEvent) -> Unit) {
+fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onEvent: (SharedMedicalRecordEvent) -> Unit) {
     val contact = (sheetType as? PatientSheetType.EditEmergency)?.contact
     var name by remember { mutableStateOf(contact?.name ?: "") }
     var relation by remember {
@@ -970,8 +976,8 @@ fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onE
                 name = name, relation = relation.name.lowercase(), phoneNumber = phone,
                 email = email, address = address, notes = notes
             )
-            if (contact == null) onEvent(MedicalRecordEvent.AddEmergencyContact(params))
-            else onEvent(MedicalRecordEvent.EditEmergencyContact(contact.id, params))
+            if (contact == null) onEvent(SharedMedicalRecordEvent.AddEmergencyContact(params))
+            else onEvent(SharedMedicalRecordEvent.EditEmergencyContact(contact.id, params))
             onDismiss()
         })
         Spacer(modifier = Modifier.height(32.dp))
@@ -982,7 +988,7 @@ fun PatientEmergencyForm(sheetType: PatientSheetType, onDismiss: () -> Unit, onE
 class VaccinationsScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
@@ -1016,7 +1022,7 @@ class VaccinationsScreen : Screen {
 class MedicalHistoryScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel = getScreenModel<MedicalRecordViewModel>()
+        val viewModel = koinScreenModel<SharedMedicalRecordViewModel>()
         val state by viewModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 

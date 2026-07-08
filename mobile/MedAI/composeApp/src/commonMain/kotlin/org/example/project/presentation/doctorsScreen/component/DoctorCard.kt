@@ -18,19 +18,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.info_button
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.doctor.Doctor
 import org.jetbrains.compose.resources.stringResource
@@ -41,28 +41,29 @@ fun DoctorCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val dimensions = LocalDimensions.current
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(elevation = dimensions.extraSmall, shape = RoundedCornerShape(dimensions.large))
+            .clip(RoundedCornerShape(dimensions.large))
             .background(MedAITheme.colors.surface)
             .clickable { onClick() }
-            .padding(16.dp)
+            .padding(dimensions.large)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // 1. Doctor Image
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(dimensions.spacing64 + dimensions.large)
                     .clip(CircleShape)
-                    .background(Color.LightGray) // Placeholder for AsyncImage
+                    .background(MedAITheme.colors.neutral) // Placeholder for AsyncImage
             ) {
                 // In production, we will use Coil/Kamel here:
                 // AsyncImage(data = doctor.imageUrl, ...)
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(dimensions.large))
 
             // 2. Info Column
             Column(modifier = Modifier.weight(1f)) {
@@ -80,7 +81,7 @@ fun DoctorCard(
                     color = MedAITheme.colors.text.secondary
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensions.medium))
 
                 // 3. Actions Row (Info Button + Icons)
                 Row(
@@ -91,9 +92,9 @@ fun DoctorCard(
                     // Info Button (Outlined pill)
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .border(1.dp, color = MedAITheme.colors.primary, RoundedCornerShape(50))
-                            .padding(horizontal = 20.dp, vertical = 6.dp)
+                            .clip(RoundedCornerShape(dimensions.radiusRound))
+                            .border(1.dp, color = MedAITheme.colors.primary, RoundedCornerShape(dimensions.radiusRound))
+                            .padding(horizontal = dimensions.extraLarge, vertical = dimensions.small)
                             .clickable { /* Info Action */ }
                     ) {
                         MedAIText(
@@ -104,24 +105,24 @@ fun DoctorCard(
                     }
 
                     // Icons
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(dimensions.small)) {
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
                             contentDescription = "Schedule",
-                            tint = MedAITheme.colors.primary.copy(alpha = 0.6f),//Color(0xFF00E5FF), // Cyan
-                            modifier = Modifier.size(20.dp)
+                            tint = MedAITheme.colors.primary.copy(alpha = 0.6f),
+                            modifier = Modifier.size(dimensions.extraLarge)
                         )
                         Icon(
-                            imageVector = Icons.Default.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Filled.HelpOutline,
                             contentDescription = "Help",
                             tint = MedAITheme.colors.primary.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(dimensions.extraLarge)
                         )
                         Icon(
                             imageVector = Icons.Default.Favorite,
                             contentDescription = "Favorite",
                             tint = MedAITheme.colors.primary.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(dimensions.extraLarge)
                         )
                     }
                 }

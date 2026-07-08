@@ -10,10 +10,15 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { DocScheduleTemplatesService } from './doc-schedule-templates.service';
 import { CreateDocScheduleTemplateDto } from './dtos/create-doc-schedule-template.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { ApprovedGuard } from 'src/users/guards/approved.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { SameIdGuard } from 'src/shared/guards/same-id.guard';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 import { UpdateDocScheduleTemplateDto } from './dtos/update-doc-schedule-template.dto';
 import { CreateDocScheduleDto } from './dtos/create-doc-schedule.dto';
@@ -32,22 +37,25 @@ import {
 } from '@nestjs/swagger';
 
 @Controller('doctors')
+@UseGuards(ApprovedGuard)
 export class SchedulesController {
   constructor(
     private readonly scheduleTemplatesService: DocScheduleTemplatesService,
     private readonly scheduleSlotsService: DocScheduleSlotsService,
   ) {}
 
-  @Get(':doctorId/schedule-templates')
+  @Get(':id/schedule-templates')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
   @ApiOkResponse({ description: 'List of schedule templates' })
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiQuery({ name: 'pageNo', required: false, type: Number })
   @ApiQuery({ name: 'pageSize', required: false, type: Number })
   @ApiQuery({ name: 'name', required: false, type: String })
   async getAllTemplates(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Query('pageNo', new ParseIntPipe({ optional: true })) pageNo = 1,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize = 10,
     @Query('name') name?: string,
@@ -62,15 +70,17 @@ export class SchedulesController {
     return new PagedListDto(data, total, pageNo, pageSize);
   }
 
-  @Post(':doctorId/schedule-templates')
+  @Post(':id/schedule-templates')
   @HttpCode(HttpStatus.CREATED)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiCreatedResponse({ description: 'Schedule template created successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiBody({ type: CreateDocScheduleTemplateDto })
   async createTemplate(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Body() createDocScheduleTemplateDto: CreateDocScheduleTemplateDto,
   ) {
     await this.scheduleTemplatesService.create(
@@ -80,9 +90,11 @@ export class SchedulesController {
     );
   }
 
-  @Patch(':doctorId/schedule-templates/:templateId')
+  @Patch(':id/schedule-templates/:templateId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiParam({
     name: 'templateId',
     description: 'Schedule template ID',
@@ -95,7 +107,7 @@ export class SchedulesController {
   @ApiBody({ type: UpdateDocScheduleTemplateDto })
   async updateTemplate(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Param('templateId', ParseIntPipe) templateId: number,
     @Body() updateDocScheduleTemplateDto: UpdateDocScheduleTemplateDto,
   ) {
@@ -107,9 +119,11 @@ export class SchedulesController {
     );
   }
 
-  @Delete(':doctorId/schedule-templates/:templateId')
+  @Delete(':id/schedule-templates/:templateId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiParam({
     name: 'templateId',
     description: 'Schedule template ID',
@@ -120,7 +134,7 @@ export class SchedulesController {
   })
   async deleteTemplate(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Param('templateId', ParseIntPipe) templateId: number,
   ) {
     await this.scheduleTemplatesService.delete(
@@ -130,9 +144,11 @@ export class SchedulesController {
     );
   }
 
-  @Get(':doctorId/schedule-slots')
+  @Get(':id/schedule-slots')
   @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(RolesGuard)
+  @Roles('patient', 'doctor', 'secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiOkResponse({
     description: 'Schedule slots retrieved successfully',
   })
@@ -161,7 +177,7 @@ export class SchedulesController {
     description: 'Page size for pagination',
   })
   async getDoctorSlots(
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
     @Query('pageNo', new ParseIntPipe({ optional: true })) pageNo: number = 1,
@@ -177,9 +193,11 @@ export class SchedulesController {
     );
   }
 
-  @Post(':doctorId/schedule-slots')
+  @Post(':id/schedule-slots')
   @HttpCode(HttpStatus.CREATED)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiBody({
     type: CreateDocScheduleDto,
     description: 'Schedule slots creation payload',
@@ -190,7 +208,7 @@ export class SchedulesController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   async createSlots(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Body() createDocScheduleDto: CreateDocScheduleDto,
   ) {
     await this.scheduleSlotsService.create(
@@ -200,9 +218,11 @@ export class SchedulesController {
     );
   }
 
-  @Patch(':doctorId/schedule-slots/:slotId')
+  @Patch(':id/schedule-slots/:slotId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiParam({ name: 'slotId', description: 'Schedule slot ID', type: Number })
   @ApiBody({
     type: UpdateDocScheduleSlotDto,
@@ -214,7 +234,7 @@ export class SchedulesController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   async updateSlot(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Param('slotId', ParseIntPipe) slotId: number,
     @Body() updateDocScheduleSlotDto: UpdateDocScheduleSlotDto,
   ) {
@@ -226,24 +246,28 @@ export class SchedulesController {
     );
   }
 
-  @Delete(':doctorId/schedule-slots/:slotId')
+  @Delete(':id/schedule-slots/:slotId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiParam({ name: 'slotId', description: 'Schedule slot ID', type: Number })
   @ApiNoContentResponse({
     description: 'Schedule slot deleted successfully',
   })
   async deleteSlot(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Param('slotId', ParseIntPipe) slotId: number,
   ) {
     await this.scheduleSlotsService.delete(slotId, doctorId, currentUser);
   }
 
-  @Post(':doctorId/schedule-templates/:templateId/apply')
+  @Post(':id/schedule-templates/:templateId/apply')
   @HttpCode(HttpStatus.CREATED)
-  @ApiParam({ name: 'doctorId', description: 'Doctor ID', type: Number })
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
   @ApiParam({
     name: 'templateId',
     description: 'Schedule template ID',
@@ -259,7 +283,7 @@ export class SchedulesController {
   })
   async applyTemplateToDoctor(
     @CurrentUser() currentUser: TokenUser,
-    @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Param('id', ParseIntPipe) doctorId: number,
     @Param('templateId', ParseIntPipe) templateId: number,
     @Body() applyTemplateDto: ApplyDocScheduleTemplateDto,
   ) {

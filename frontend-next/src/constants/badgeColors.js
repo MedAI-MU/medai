@@ -15,9 +15,17 @@ export const THEMES = {
     text: "text-green-600",
     bg: "bg-green-50 dark:bg-green-900/20",
   },
+  success: {
+    text: "text-success",
+    bg: "bg-success/15",
+  },
   amber: {
     text: "text-amber-600",
     bg: "bg-amber-50 dark:bg-amber-900/20",
+  },
+  warning: {
+    text: "text-warning",
+    bg: "bg-warning/15",
   },
   purple: {
     text: "text-purple-600",
@@ -26,5 +34,9 @@ export const THEMES = {
   slate: {
     text: "text-slate-500",
     bg: "bg-slate-100 dark:bg-slate-800",
+  },
+  subtle: {
+    text: "text-text-subtle",
+    bg: "bg-text-subtle/15",
   },
 };

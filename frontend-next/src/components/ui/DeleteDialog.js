@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +12,7 @@ import {
 } from "../shadcn/alert-dialog";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import SpinnerMini from "./SpinnerMini";
 
 function DeleteDialog({
   title,
@@ -19,21 +20,26 @@ function DeleteDialog({
   onConfirm,
   successMessage,
   failMessage,
+  confirmLabel = "Delete",
+  cancelLabel = "Cancel",
   children,
 }) {
   const router = useRouter();
   const [alertOpen, setAlertOpen] = useState(false);
+  const [isDeleting, startTransition] = useTransition();
 
-  async function handleConfirm() {
-    try {
-      await onConfirm();
-      toast.success(successMessage);
-      setAlertOpen(false);
-      router.refresh();
-    } catch (err) {
-      console.error(err.message);
-      toast.error(failMessage);
-    }
+  function handleConfirm() {
+    startTransition(async () => {
+      try {
+        await onConfirm();
+        setAlertOpen(false);
+        toast.success(successMessage);
+        router.refresh();
+      } catch (err) {
+        console.error(err.message);
+        toast.error(failMessage);
+      }
+    });
   }
   return (
     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
@@ -46,8 +52,18 @@ function DeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>Delete</AlertDialogAction>
+          <AlertDialogCancel disabled={isDeleting}>
+            {cancelLabel}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleConfirm();
+            }}
+            disabled={isDeleting}
+          >
+            {isDeleting ? <SpinnerMini /> : confirmLabel}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

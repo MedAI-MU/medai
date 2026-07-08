@@ -46,9 +46,11 @@ import org.example.project.domain.model.home.Category
 import org.example.project.domain.model.home.CategoryType
 import org.example.project.domain.model.doctor.Doctor
 import org.example.project.domain.model.notification.Notification
+import org.example.project.domain.model.auth.AccountStatus
 import org.example.project.domain.model.patient.Patient
 import org.example.project.data.remote.dto.ChatConversationDto
 import org.example.project.data.remote.dto.MessageDto
+import org.example.project.data.remote.dto.manager.ManagedUserDto
 import org.example.project.domain.model.patient.BloodType
 import org.example.project.domain.model.chat.ChatConversation
 import org.example.project.domain.model.patient.ChronicDiseaseEntity
@@ -59,6 +61,7 @@ import org.example.project.domain.model.patient.Gender
 import org.example.project.domain.model.patient.MaritalStatus
 import org.example.project.domain.model.chat.Message
 import org.example.project.domain.model.chat.MessageStatus
+import org.example.project.domain.model.manager.ManagedUser
 import org.example.project.domain.model.notification.NotificationType
 import org.example.project.domain.model.patient.AllergyEntity
 import org.example.project.domain.model.patient.AllergyParams
@@ -69,6 +72,12 @@ import org.example.project.domain.model.patient.FamilyHistoryParams
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.domain.model.patient.UpdatePatientParams
+import org.example.project.data.remote.dto.diagnosis.DiagnosisResponseDto
+import org.example.project.data.remote.dto.diagnosis.CreateDiagnosisRequestDto
+import org.example.project.data.remote.dto.diagnosis.UpdateDiagnosisRequestDto
+import org.example.project.domain.model.diagnosis.Diagnosis
+import org.example.project.domain.model.diagnosis.CreateDiagnosisParams
+import org.example.project.domain.model.diagnosis.UpdateDiagnosisParams
 
 fun mapStatus(status: String?): AppointmentStatus {
     return when (status?.lowercase()) {
@@ -77,6 +86,14 @@ fun mapStatus(status: String?): AppointmentStatus {
         "finished" -> AppointmentStatus.Finished
         "cancelled" -> AppointmentStatus.Cancelled
         else -> AppointmentStatus.Pending // Default fallback
+    }
+}
+
+fun mapAccountStatus(status: String?): AccountStatus {
+    return when (status?.lowercase()) {
+        "pending" -> AccountStatus.PENDING
+        "approved" -> AccountStatus.APPROVED
+        else -> AccountStatus.APPROVED
     }
 }
 
@@ -372,3 +389,34 @@ private fun mapMessageStatus(status: String): MessageStatus {
         else -> MessageStatus.SENT
     }
 }
+
+fun ManagedUserDto.toDomain():ManagedUser {
+    return ManagedUser(
+        id = this.id,
+        name = this.name,
+        role = this.role ?: "unknown",
+        status = this.status ?: "pending"
+    )
+}
+
+fun DiagnosisResponseDto.toDomain() = Diagnosis(
+    id = id,
+    patientUserId = patientUserId,
+    doctorUserId = doctorUserId,
+    appointmentId = appointmentId,
+    symptoms = symptoms,
+    summary = summary,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun CreateDiagnosisParams.toDto() = CreateDiagnosisRequestDto(
+    appointmentId = appointmentId,
+    symptoms = symptoms,
+    summary = summary
+)
+
+fun UpdateDiagnosisParams.toDto() = UpdateDiagnosisRequestDto(
+    symptoms = symptoms,
+    summary = summary
+)

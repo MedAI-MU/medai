@@ -31,12 +31,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.doctors_label
 import medai.composeapp.generated.resources.find_your_doctor
@@ -46,6 +44,7 @@ import medai.composeapp.generated.resources.specialties
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAISearchBar
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.doctorsScreen.DoctorsScreen
 import org.example.project.presentation.homeScreen.component.SpecialtyItem
@@ -56,17 +55,17 @@ class SpecialtiesScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<SpecialtiesViewModel>()
+        val viewModel = koinScreenModel<SpecialtiesViewModel>()
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when(effect) {
                     SpecialtiesEffect.NavigateBack -> navigator.pop()
                     is SpecialtiesEffect.NavigateToDoctorsBySpecialty -> {
-                        val screen = DoctorsScreen(specialtyId = effect.specialtyId.origin.id,effect.specialtyId.name)
+                        val screen = DoctorsScreen(specialtyId = effect.specialtyId.origin.id, effect.specialtyId.name)
                         navigator.parent?.push(screen) ?: navigator.push(screen)
                         println("Navigating to Doctors for: ${effect.specialtyId}")
                     }
@@ -89,18 +88,17 @@ class SpecialtiesScreen : Screen {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // We can build a custom header here inside the scaffold.
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = dimensions.extraLarge)
                 ) {
                     MedAIText(
                         text = stringResource(Res.string.find_your_doctor),
                         style = MedAITheme.textStyle.body.large,
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = Color.White.copy(alpha = 0.9f), // Keep white for header text
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                     // Search Bar
                     MedAISearchBar(
@@ -109,16 +107,16 @@ class SpecialtiesScreen : Screen {
                         placeholder = stringResource(Res.string.search_placeholder)
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions.extraLarge))
                 }
 
                 // --- White Content Area (Rounded Top) ---
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
                         .background(MedAITheme.colors.background)
-                        .padding(24.dp)
+                        .padding(dimensions.extraLarge)
                 ) {
                     Column {
                         // Filters Row
@@ -129,19 +127,21 @@ class SpecialtiesScreen : Screen {
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 MedAIText(
-                                    text = stringResource(Res.string.sort_by), color = MedAITheme.colors.text.secondary,
+                                    text = stringResource(Res.string.sort_by),
+                                    color = MedAITheme.colors.text.secondary,
                                     style = MedAITheme.textStyle.label.medium)
 
                                 // Simple Sort Chip
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(50))
+                                        .clip(RoundedCornerShape(dimensions.radiusRound))
+                                        .background(MedAITheme.colors.primary)
                                         .clickable { viewModel.onEvent(SpecialtiesEvent.SortClicked) }
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .padding(horizontal = dimensions.medium, vertical = dimensions.small)
                                 ) {
                                     MedAIText(
                                         text = state.sortOption.name,
-                                        color = Color.White,
+                                        color = MedAITheme.colors.text.onPrimary,
                                         style = MedAITheme.textStyle.label.small
                                     )
                                 }
@@ -149,12 +149,12 @@ class SpecialtiesScreen : Screen {
 
                             MedAIText(
                                 text = stringResource(Res.string.doctors_label),
-                                color = Color(0xFF00E5FF),
+                                color = MedAITheme.colors.primary,
                                 style = MedAITheme.textStyle.label.large.copy(fontWeight = FontWeight.Bold)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                         if (state.isLoading) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -163,9 +163,9 @@ class SpecialtiesScreen : Screen {
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(bottom = 24.dp)
+                                verticalArrangement = Arrangement.spacedBy(dimensions.large),
+                                horizontalArrangement = Arrangement.spacedBy(dimensions.large),
+                                contentPadding = PaddingValues(bottom = dimensions.extraLarge)
                             ) {
                                 items(state.filteredSpecialties) { specialty ->
                                     SpecialtyItem(

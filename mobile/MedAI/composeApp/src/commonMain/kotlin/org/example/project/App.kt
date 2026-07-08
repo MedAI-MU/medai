@@ -1,6 +1,5 @@
 package org.example.project
 
-import androidx.compose.animation.AnimatedVisibility
 
 import androidx.compose.runtime.*
 import cafe.adriel.voyager.navigator.Navigator

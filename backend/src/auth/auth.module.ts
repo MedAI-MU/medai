@@ -11,16 +11,20 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshToken } from 'src/users/entities/refresh-token.entity';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { MailModule } from 'src/mail/mail.module';
+import { AuthMailerService } from './auth-mailer.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, RefreshToken]),
     PassportModule,
     JwtModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthMailerService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,

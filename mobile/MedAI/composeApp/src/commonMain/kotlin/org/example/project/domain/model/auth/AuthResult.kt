@@ -5,5 +5,6 @@ data class AuthResult(
     val token: String,
     val userName: String = "",
     val email: String = "",
-    val role: String
+    val role: String,
+    val accountStatus: AccountStatus = AccountStatus.APPROVED
 )

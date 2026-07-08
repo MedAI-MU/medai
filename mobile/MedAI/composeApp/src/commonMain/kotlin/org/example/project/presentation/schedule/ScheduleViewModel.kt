@@ -1,15 +1,21 @@
 package org.example.project.presentation.schedule
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.plus
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.schedule.*
 import org.example.project.domain.repository.schedule.CreateScheduleDayInput
 import org.example.project.domain.repository.schedule.CreateScheduleSlotInput
 import org.example.project.domain.usecase.schedule.*
+
+import org.example.project.core.presentation.util.CalendarManager
+import org.example.project.presentation.homeScreen.CalendarUiModel
 
 class ScheduleViewModel(
     private val getScheduleTemplatesUseCase: GetScheduleTemplatesUseCase,
@@ -21,195 +27,291 @@ class ScheduleViewModel(
     private val createScheduleSlotsUseCase: CreateScheduleSlotsUseCase,
     private val updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
     private val deleteScheduleSlotUseCase: DeleteScheduleSlotUseCase,
+    private val calendarManager: CalendarManager,
     private val doctorId: Int
-) : ScreenModel {
-
-    // --- Tab State ---
-    private val _selectedTab = MutableStateFlow(0) // 0 = Templates, 1 = Slots
-    val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
-
-    // --- Templates State ---
-    private val _templatesState = MutableStateFlow<ScheduleUiState<PagedTemplates>>(ScheduleUiState.Loading)
-    val templatesState: StateFlow<ScheduleUiState<PagedTemplates>> = _templatesState.asStateFlow()
-
-    private val _templateSearchQuery = MutableStateFlow("")
-    val templateSearchQuery: StateFlow<String> = _templateSearchQuery.asStateFlow()
-
-    // --- Slots State ---
-    private val _slotsState = MutableStateFlow<ScheduleUiState<DoctorSchedule>>(ScheduleUiState.Loading)
-    val slotsState: StateFlow<ScheduleUiState<DoctorSchedule>> = _slotsState.asStateFlow()
-
-    // --- Action State ---
-    private val _actionState = MutableStateFlow<ActionState>(ActionState.Idle)
-    val actionState: StateFlow<ActionState> = _actionState.asStateFlow()
-
-    // --- Dialog State ---
-    private val _showCreateTemplateDialog = MutableStateFlow(false)
-    val showCreateTemplateDialog: StateFlow<Boolean> = _showCreateTemplateDialog.asStateFlow()
-
-    private val _showCreateSlotDialog = MutableStateFlow(false)
-    val showCreateSlotDialog: StateFlow<Boolean> = _showCreateSlotDialog.asStateFlow()
-
-    private val _showApplyTemplateDialog = MutableStateFlow<ScheduleTemplate?>(null)
-    val showApplyTemplateDialog: StateFlow<ScheduleTemplate?> = _showApplyTemplateDialog.asStateFlow()
-
-    private val _editingTemplate = MutableStateFlow<ScheduleTemplate?>(null)
-    val editingTemplate: StateFlow<ScheduleTemplate?> = _editingTemplate.asStateFlow()
+) : MviScreenModel<ScheduleState, ScheduleEvent, ScheduleEffect>(ScheduleState()) {
 
     init {
+        val today = calendarManager.getToday()
+        setState {
+            copy(
+                selectedDate = today,
+                displayedMonth = today
+            )
+        }
+        generateCalendar(today)
         loadTemplates()
         loadSlots()
     }
 
-    fun refreshCurrentTab() {
-        if (_selectedTab.value == 0) loadTemplates() else loadSlots()
+    override fun onEvent(event: ScheduleEvent) {
+        when (event) {
+            is ScheduleEvent.RefreshCurrentTab -> {
+                if (state.value.selectedTab == 0) loadTemplates() else loadSlots()
+            }
+            is ScheduleEvent.OnTabSelected -> {
+                setState { copy(selectedTab = event.tab) }
+                if (event.tab == 0) loadTemplates() else loadSlots()
+            }
+            is ScheduleEvent.LoadTemplates -> loadTemplates(event.page)
+            is ScheduleEvent.OnTemplateSearchQueryChanged -> {
+                setState { copy(templateSearchQuery = event.query) }
+            }
+            is ScheduleEvent.SearchTemplates -> loadTemplates()
+            is ScheduleEvent.ShowCreateTemplate -> {
+                setState { copy(editingTemplate = null, showCreateTemplateDialog = true) }
+            }
+            is ScheduleEvent.ShowEditTemplate -> {
+                setState { copy(editingTemplate = event.template, showCreateTemplateDialog = true) }
+            }
+            is ScheduleEvent.DismissCreateTemplateDialog -> {
+                setState { copy(showCreateTemplateDialog = false, editingTemplate = null) }
+            }
+            is ScheduleEvent.CreateTemplate -> createTemplate(event.name, event.slots)
+            is ScheduleEvent.UpdateTemplate -> updateTemplate(event.templateId, event.name, event.slots)
+            is ScheduleEvent.DeleteTemplate -> deleteTemplate(event.templateId)
+            is ScheduleEvent.ShowApplyTemplate -> {
+                setState { copy(showApplyTemplateDialog = event.template) }
+            }
+            is ScheduleEvent.DismissApplyTemplateDialog -> {
+                setState { copy(showApplyTemplateDialog = null) }
+            }
+            is ScheduleEvent.ApplyTemplate -> applyTemplate(event.templateId, event.startDate, event.endDate)
+            is ScheduleEvent.LoadSlots -> loadSlots(event.page, event.fromDate, event.toDate)
+            is ScheduleEvent.LoadNextSlotsPage -> loadNextSlotsPage()
+            is ScheduleEvent.ShowCreateSlot -> {
+                setState { copy(showCreateSlotDialog = true) }
+            }
+            is ScheduleEvent.DismissCreateSlotDialog -> {
+                setState { copy(showCreateSlotDialog = false) }
+            }
+            is ScheduleEvent.CreateSlots -> createSlots(event.date, event.startTime, event.endTime)
+            is ScheduleEvent.DeleteSlot -> deleteSlot(event.slotId)
+            is ScheduleEvent.DateSelected -> {
+                if (state.value.selectedDate != event.date) {
+                    setState { copy(selectedDate = event.date) }
+                    state.value.displayedMonth?.let { generateCalendar(it) }
+                }
+            }
+            is ScheduleEvent.PrevMonthClicked -> {
+                val current = state.value.displayedMonth ?: return
+                val newMonth = calendarManager.getPreviousMonth(current)
+                setState { copy(displayedMonth = newMonth) }
+                loadSlotsForMonth(newMonth)
+            }
+            is ScheduleEvent.NextMonthClicked -> {
+                val current = state.value.displayedMonth ?: return
+                val newMonth = calendarManager.getNextMonth(current)
+                setState { copy(displayedMonth = newMonth) }
+                loadSlotsForMonth(newMonth)
+            }
+        }
     }
 
-    fun onTabSelected(tab: Int) {
-        _selectedTab.value = tab
-        // Refresh data when switching tabs so external changes (e.g. patient bookings) are reflected
-        if (tab == 0) loadTemplates() else loadSlots()
-    }
-
-    // --- Templates ---
-
-    fun loadTemplates(page: Int = 1) {
+    private fun loadTemplates(page: Int = 1) {
         screenModelScope.launch {
-            _templatesState.value = ScheduleUiState.Loading
+            setState { copy(templatesState = ScheduleUiState.Loading) }
             getScheduleTemplatesUseCase(
                 pageNo = page,
                 pageSize = 10,
-                name = _templateSearchQuery.value.ifBlank { null },
+                name = state.value.templateSearchQuery.ifBlank { null },
                 doctorId = doctorId
             ).onSuccess {
-                _templatesState.value = ScheduleUiState.Success(it)
+                setState { copy(templatesState = ScheduleUiState.Success(it)) }
             }.onFailure {
-                _templatesState.value = ScheduleUiState.Error(it.message ?: "Failed to load templates")
+                setState { copy(templatesState = ScheduleUiState.Error(it.message ?: "Failed to load templates")) }
             }
         }
     }
 
-    fun onTemplateSearchQueryChanged(query: String) {
-        _templateSearchQuery.value = query
-    }
-
-    fun searchTemplates() {
-        loadTemplates()
-    }
-
-    fun showCreateTemplate() {
-        _editingTemplate.value = null
-        _showCreateTemplateDialog.value = true
-    }
-
-    fun showEditTemplate(template: ScheduleTemplate) {
-        _editingTemplate.value = template
-        _showCreateTemplateDialog.value = true
-    }
-
-    fun dismissCreateTemplateDialog() {
-        _showCreateTemplateDialog.value = false
-        _editingTemplate.value = null
-    }
-
-    fun createTemplate(name: String, slots: List<ScheduleTemplateSlot>) {
+    private fun createTemplate(name: String, slots: List<ScheduleTemplateSlot>) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             createScheduleTemplateUseCase(doctorId, name, slots)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template created successfully")
-                    _showCreateTemplateDialog.value = false
+                    setState { copy(isActionLoading = false, showCreateTemplateDialog = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template created successfully"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to create template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to create template", isError = true))
                 }
         }
     }
 
-    fun updateTemplate(templateId: Int, name: String?, slots: List<ScheduleTemplateSlot>?) {
+    private fun updateTemplate(templateId: Int, name: String?, slots: List<ScheduleTemplateSlot>?) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             updateScheduleTemplateUseCase(doctorId, templateId, name, slots)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template updated successfully")
-                    _showCreateTemplateDialog.value = false
-                    _editingTemplate.value = null
+                    setState { copy(isActionLoading = false, showCreateTemplateDialog = false, editingTemplate = null) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template updated successfully"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to update template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to update template", isError = true))
                 }
         }
     }
 
-    fun deleteTemplate(templateId: Int) {
+    private fun deleteTemplate(templateId: Int) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             deleteScheduleTemplateUseCase(doctorId, templateId)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template deleted")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template deleted"))
                     loadTemplates()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to delete template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to delete template", isError = true))
                 }
         }
     }
 
-    fun showApplyTemplate(template: ScheduleTemplate) {
-        _showApplyTemplateDialog.value = template
-    }
+    private fun applyTemplate(templateId: Int, startDate: String, endDate: String) {
+        val start = try { LocalDate.parse(startDate) } catch (e: Exception) { null }
+        val end = try { LocalDate.parse(endDate) } catch (e: Exception) { null }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-    fun dismissApplyTemplateDialog() {
-        _showApplyTemplateDialog.value = null
-    }
+        if (start == null || end == null) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Invalid date format", isError = true))
+            return
+        }
+        if (start < today || end < today) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Cannot apply template to past dates", isError = true))
+            return
+        }
+        if (start > end) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Start date cannot be after end date", isError = true))
+            return
+        }
 
-    fun applyTemplate(templateId: Int, startDate: String, endDate: String) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             applyScheduleTemplateUseCase(doctorId, templateId, startDate, endDate)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Template applied successfully")
-                    _showApplyTemplateDialog.value = null
-                    loadSlots()
+                    setState {
+                        copy(
+                            isActionLoading = false,
+                            showApplyTemplateDialog = null,
+                            selectedTab = 1,
+                            selectedDate = start,
+                            displayedMonth = start
+                        )
+                    }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Template applied successfully"))
+                    loadSlotsForMonth(start!!)
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to apply template")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to apply template", isError = true))
                 }
         }
     }
 
-    // --- Slots ---
+    private fun loadSlotsForMonth(month: LocalDate) {
+        val firstDay = LocalDate(month.year, month.monthNumber, 1)
+        val lastDay = firstDay.plus(DatePeriod(months = 1)).plus(DatePeriod(days = -1))
+        loadSlots(fromDate = firstDay.toString(), toDate = lastDay.toString())
+    }
 
-    fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
+    private fun loadSlots(page: Int = 1, fromDate: String? = null, toDate: String? = null) {
+        val effectiveFromDate = fromDate ?: state.value.displayedMonth?.let {
+            LocalDate(it.year, it.monthNumber, 1).toString()
+        }
+        val effectiveToDate = toDate ?: state.value.displayedMonth?.let {
+            val firstDay = LocalDate(it.year, it.monthNumber, 1)
+            firstDay.plus(DatePeriod(months = 1)).plus(DatePeriod(days = -1)).toString()
+        }
+
         screenModelScope.launch {
-            _slotsState.value = ScheduleUiState.Loading
+            if (page == 1) {
+                setState { copy(slotsState = ScheduleUiState.Loading) }
+            } else {
+                setState { copy(isSlotsPaginating = true) }
+            }
             getScheduleSlotsUseCase(
                 doctorId = doctorId,
-                fromDate = fromDate,
-                toDate = toDate,
+                fromDate = effectiveFromDate,
+                toDate = effectiveToDate,
                 pageNo = page,
-                pageSize = 10
+                pageSize = 31
             ).onSuccess {
-                _slotsState.value = ScheduleUiState.Success(it)
+                setState {
+                    copy(
+                        slotsState = ScheduleUiState.Success(it),
+                        isSlotsPaginating = false
+                    )
+                }
+                state.value.displayedMonth?.let { generateCalendar(it) }
             }.onFailure {
-                _slotsState.value = ScheduleUiState.Error(it.message ?: "Failed to load schedule slots")
+                setState {
+                    copy(
+                        slotsState = if (page == 1) ScheduleUiState.Error(it.message ?: "Failed to load schedule slots") else slotsState,
+                        isSlotsPaginating = false
+                    )
+                }
+                if (page > 1) {
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to load more slots", isError = true))
+                }
             }
         }
     }
 
-    fun showCreateSlot() {
-        _showCreateSlotDialog.value = true
+    private fun loadNextSlotsPage() {
+        val currentState = state.value.slotsState
+        if (currentState is ScheduleUiState.Success) {
+            val currentSchedule = currentState.data
+            if (currentSchedule.hasNext && !state.value.isSlotsPaginating) {
+                setState { copy(isSlotsPaginating = true) }
+                screenModelScope.launch {
+                    getScheduleSlotsUseCase(
+                        doctorId = doctorId,
+                        pageNo = currentSchedule.currentPage + 1,
+                        pageSize = 10
+                    ).onSuccess { nextSchedule ->
+                        setState {
+                            val combinedDays = currentSchedule.days + nextSchedule.days
+                            copy(
+                                isSlotsPaginating = false,
+                                slotsState = ScheduleUiState.Success(
+                                    currentSchedule.copy(
+                                        days = combinedDays,
+                                        currentPage = nextSchedule.currentPage,
+                                        hasNext = nextSchedule.hasNext,
+                                        hasPrevious = nextSchedule.hasPrevious
+                                    )
+                                )
+                            )
+                        }
+                    }.onFailure {
+                        setState { copy(isSlotsPaginating = false) }
+                        sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to load more slots", isError = true))
+                    }
+                }
+            }
+        }
     }
 
-    fun dismissCreateSlotDialog() {
-        _showCreateSlotDialog.value = false
-    }
+    private fun createSlots(date: String, startTime: String, endTime: String) {
+        val selectedDate = try { LocalDate.parse(date) } catch (e: Exception) { null }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-    fun createSlots(date: String, startTime: String, endTime: String) {
+        if (selectedDate == null) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Invalid date format", isError = true))
+            return
+        }
+        if (selectedDate < today) {
+            sendEffect(ScheduleEffect.ShowSnackbar("Cannot create slots in the past", isError = true))
+            return
+        }
+
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             createScheduleSlotsUseCase(
                 doctorId,
                 listOf(
@@ -219,43 +321,47 @@ class ScheduleViewModel(
                     )
                 )
             ).onSuccess {
-                _actionState.value = ActionState.Success("Slot created successfully")
-                _showCreateSlotDialog.value = false
+                setState { copy(isActionLoading = false, showCreateSlotDialog = false) }
+                sendEffect(ScheduleEffect.ShowSnackbar("Slot created successfully"))
                 loadSlots()
             }.onFailure {
-                _actionState.value = ActionState.Error(it.message ?: "Failed to create slot")
+                setState { copy(isActionLoading = false) }
+                sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to create slot", isError = true))
             }
         }
     }
 
-    fun deleteSlot(slotId: Int) {
+    private fun deleteSlot(slotId: Int) {
         screenModelScope.launch {
-            _actionState.value = ActionState.Loading
+            setState { copy(isActionLoading = true) }
             deleteScheduleSlotUseCase(doctorId, slotId)
                 .onSuccess {
-                    _actionState.value = ActionState.Success("Slot deleted")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar("Slot deleted"))
                     loadSlots()
                 }
                 .onFailure {
-                    _actionState.value = ActionState.Error(it.message ?: "Failed to delete slot")
+                    setState { copy(isActionLoading = false) }
+                    sendEffect(ScheduleEffect.ShowSnackbar(it.message ?: "Failed to delete slot", isError = true))
                 }
         }
     }
 
-    fun clearActionState() {
-        _actionState.value = ActionState.Idle
+    private fun generateCalendar(baseDate: LocalDate) {
+        val days = calendarManager.getDaysForMonth(baseDate)
+        val selected = state.value.selectedDate ?: calendarManager.getToday()
+        val successSlots = (state.value.slotsState as? ScheduleUiState.Success)?.data?.days ?: emptyList()
+
+        val uiDays = days.map { date ->
+            val hasSlots = successSlots.any { it.day == date.toString() && it.slots.isNotEmpty() }
+            CalendarUiModel(
+                day = date.dayOfMonth.toString(),
+                weekDay = date.dayOfWeek.name.take(3),
+                fullDate = date,
+                isSelected = date == selected,
+                hasAppointment = hasSlots
+            )
+        }
+        setState { copy(calendarDays = uiDays) }
     }
-}
-
-sealed class ScheduleUiState<out T> {
-    data object Loading : ScheduleUiState<Nothing>()
-    data class Success<T>(val data: T) : ScheduleUiState<T>()
-    data class Error(val message: String) : ScheduleUiState<Nothing>()
-}
-
-sealed class ActionState {
-    data object Idle : ActionState()
-    data object Loading : ActionState()
-    data class Success(val message: String) : ActionState()
-    data class Error(val message: String) : ActionState()
 }

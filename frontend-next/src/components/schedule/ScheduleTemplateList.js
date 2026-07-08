@@ -9,11 +9,17 @@ import EmptyState from "@/components/ui/EmptyState";
 async function ScheduleTemplateList({ name, pageNo = 1 }) {
   let templates = [];
   let totalCount = 0;
+  let currentPage = 1;
+  let hasPrevious;
+  let hasNext;
 
   try {
     const response = await getScheduleTemplates(name, PAGE_SIZE, pageNo);
     templates = response.data || [];
     totalCount = response.totalCount;
+    currentPage = response.currentPage;
+    hasPrevious = response.hasPrevious;
+    hasNext = response.hasNext;
   } catch (err) {
     return (
       <ErrorState description="We couldn't load your schedule templates right now. Please check your connection or try again in a moment." />
@@ -57,7 +63,13 @@ async function ScheduleTemplateList({ name, pageNo = 1 }) {
           </AnimateWrapper>
         ))}
       </div>
-      <Pagination totalCount={totalCount} pageSize={PAGE_SIZE} />
+      <Pagination
+        totalCount={totalCount}
+        currentPage={currentPage}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+        pageSize={PAGE_SIZE}
+      />
     </>
   );
 }

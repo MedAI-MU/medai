@@ -31,6 +31,7 @@ fun MedAIDateCard(
     weekday: String,
     isSelected: Boolean,
     hasAppointment: Boolean = false,
+    enabled: Boolean = true,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -43,12 +44,16 @@ fun MedAIDateCard(
 
     val contentColor = if (isSelected) {
         MedAITheme.colors.text.onPrimary
+    } else if (!enabled) {
+        MedAITheme.colors.text.secondary.copy(alpha = 0.38f)
     } else {
         MedAITheme.colors.text.primary
     }
 
     val border = if (isSelected) {
         null
+    } else if (!enabled) {
+        BorderStroke(1.dp, MedAITheme.colors.text.secondary.copy(alpha = 0.15f))
     } else {
         BorderStroke(1.dp, MedAITheme.colors.text.primary)
     }
@@ -56,6 +61,7 @@ fun MedAIDateCard(
     // 2. The Card Surface
     Surface(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .width(52.dp)
             .height(84.dp),

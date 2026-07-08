@@ -1,14 +1,9 @@
 package org.example.project.presentation.bookingScreen
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.appointment.BookAppointmentUseCase
 import org.example.project.domain.usecase.appointment.GetAvailableSlotsUseCase
@@ -21,13 +16,7 @@ class BookingViewModel(
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
     private val bookAppointmentUseCase: BookAppointmentUseCase,
     private val calendarManager: CalendarManager
-) : ScreenModel {
-
-    private val _state = MutableStateFlow(BookingState())
-    val state = _state.asStateFlow()
-
-    private val _effect = Channel<BookingEffect>(Channel.BUFFERED)
-    val effect = _effect.receiveAsFlow()
+) : MviScreenModel<BookingState, BookingEvent, BookingEffect>(BookingState()) {
 
     init {
         loadDoctor()
@@ -38,9 +27,9 @@ class BookingViewModel(
         screenModelScope.launch {
             val result = getDoctorDetailsUseCase(doctorId)
             result.fold(
-                onSuccess = { doc -> _state.update { it.copy(doctor = doc, isLoadingDoctor = false) } },
+                onSuccess = { doc -> setState { copy(doctor = doc, isLoadingDoctor = false) } },
                 onFailure = { err ->
-                    _state.update { it.copy(isLoadingDoctor = false) }
+                    setState { copy(isLoadingDoctor = false) }
                     sendEffect(BookingEffect.ShowError(err.message ?: "Failed to load doctor profile"))
                 }
             )
@@ -49,8 +38,8 @@ class BookingViewModel(
 
     private fun initCalendar() {
         val today = calendarManager.getToday()
-        _state.update {
-            it.copy(
+        setState {
+            copy(
                 selectedDate = today,
                 displayedMonth = today
             )
@@ -61,80 +50,93 @@ class BookingViewModel(
 
     private fun generateCalendar(baseDate: LocalDate) {
         val days = calendarManager.getDaysForMonth(baseDate)
-        val selected = _state.value.selectedDate
+        val selected = state.value.selectedDate
+        val today = calendarManager.getToday()
         val uiDays = days.map { date ->
             CalendarUiModel(
                 day = date.dayOfMonth.toString(),
                 weekDay = date.dayOfWeek.name.take(3),
                 fullDate = date,
-                isSelected = date == selected
+                isSelected = date == selected,
+                isEnabled = date >= today
             )
         }
-        _state.update { it.copy(calendarDays = uiDays) }
+        setState { copy(calendarDays = uiDays) }
     }
 
     private fun changeDisplayedMonth(newMonthBase: LocalDate) {
-        _state.update { it.copy(displayedMonth = newMonthBase) }
+        setState { copy(displayedMonth = newMonthBase) }
         generateCalendar(newMonthBase)
     }
+
     private fun loadSlots(date: LocalDate) {
         screenModelScope.launch {
-            _state.update { it.copy(isLoadingSlots = true) }
+            setState { copy(isLoadingSlots = true) }
             val result = getAvailableSlotsUseCase(doctorId, date)
             result.fold(
-                onSuccess = { slots -> _state.update { it.copy(slots = slots, isLoadingSlots = false) } },
-                onFailure = { _state.update { it.copy(isLoadingSlots = false) } }
+                onSuccess = { slots -> setState { copy(slots = slots, isLoadingSlots = false) } },
+                onFailure = { setState { copy(isLoadingSlots = false) } }
             )
         }
     }
 
-    fun onEvent(event: BookingEvent) {
+    override fun onEvent(event: BookingEvent) {
         when(event) {
             BookingEvent.BackClicked -> sendEffect(BookingEffect.NavigateBack)
             is BookingEvent.DateSelected -> {
-                if (_state.value.selectedDate != event.date) {
-                    _state.update { it.copy(selectedDate = event.date) }
+                if (state.value.selectedDate != event.date) {
+                    setState { copy(selectedDate = event.date) }
 
-                    val displayMonth = _state.value.displayedMonth ?: event.date
+                    val displayMonth = state.value.displayedMonth ?: event.date
                     generateCalendar(displayMonth)
 
                     loadSlots(event.date)
                 }
             }
             is BookingEvent.SlotSelected -> {
-                _state.update { it.copy(selectedSlotId = event.slotId) }
+                setState { copy(selectedSlotId = event.slotId) }
             }
             is BookingEvent.PatientTypeChanged -> {
-                _state.update { it.copy(bookingForSelf = event.isSelf) }
+                setState { copy(bookingForSelf = event.isSelf) }
             }
             BookingEvent.BookClicked -> {
                 performBooking()
             }
-            is BookingEvent.PatientNameChanges -> { _state.update { it.copy(patientName = event.name) } }
+            is BookingEvent.PatientNameChanges -> { setState { copy(patientName = event.name) } }
             BookingEvent.NextMonthClicked -> {
-                val current = _state.value.displayedMonth ?: return
+                val current = state.value.displayedMonth ?: return
                 val newMonth = calendarManager.getNextMonth(current)
                 changeDisplayedMonth(newMonth)
             }
             BookingEvent.PrevMonthClicked -> {
-                val current = _state.value.displayedMonth ?: return
+                val current = state.value.displayedMonth ?: return
                 val newMonth = calendarManager.getPreviousMonth(current)
                 changeDisplayedMonth(newMonth)
             }
-
         }
     }
 
     private fun performBooking() {
-        val currentState = _state.value
+        val currentState = state.value
 
         if (currentState.selectedSlotId == null) {
             sendEffect(BookingEffect.ShowError("Please select a time slot"))
             return
         }
 
+        val selectedDate = currentState.selectedDate
+        if (selectedDate == null) {
+            sendEffect(BookingEffect.ShowError("Please select a date"))
+            return
+        }
+        val today = calendarManager.getToday()
+        if (selectedDate < today) {
+            sendEffect(BookingEffect.ShowError("Cannot book an appointment in the past"))
+            return
+        }
+
         screenModelScope.launch {
-            _state.update { it.copy(isBooking = true) }
+            setState { copy(isBooking = true) }
 
             val result = bookAppointmentUseCase(
                 doctorId = doctorId,
@@ -143,18 +145,14 @@ class BookingViewModel(
 
             result.fold(
                 onSuccess = {
-                    _state.update { it.copy(isBooking = false) }
+                    setState { copy(isBooking = false) }
                     sendEffect(BookingEffect.NavigateToSuccess)
                 },
                 onFailure = { error ->
-                    _state.update { it.copy(isBooking = false) }
+                    setState { copy(isBooking = false) }
                     sendEffect(BookingEffect.ShowError(error.message ?: "Booking Failed"))
                 }
             )
         }
-    }
-
-    private fun sendEffect(effect: BookingEffect) {
-        screenModelScope.launch { _effect.send(effect) }
     }
 }

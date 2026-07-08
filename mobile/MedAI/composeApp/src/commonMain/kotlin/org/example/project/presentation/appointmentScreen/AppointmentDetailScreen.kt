@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -103,28 +102,28 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                         modifier = Modifier
                             .padding(padding)
                             .fillMaxSize()
-                            .padding(24.dp)
+                            .padding(MedAITheme.dimensions.extraLarge)
                             .verticalScroll(rememberScrollState())
                     ) {
                         // 1. Doctor Profile Card
                         DoctorProfileSection(appointment)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // 2. Schedule Info
                         SectionTitle("Scheduled Appointment")
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
                         MedAIText(appointment.date.toUiString(), style = MedAITheme.textStyle.body.large)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
                         // 3. Patient Info
                         SectionTitle("Patient Information")
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
                         InfoRow("Full Name", appointment.patientName)
 
                         Spacer(modifier = Modifier.weight(1f))
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))
 
                         // Only show Cancel/Reschedule if Upcoming
                         if (appointment.status == AppointmentDetailStatus.UPCOMING) {
@@ -145,9 +144,9 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
     fun DoctorProfileSection(appointment: AppointmentDetail) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(80.dp).clip(CircleShape).background(Color.LightGray)
+                modifier = Modifier.size(MedAITheme.dimensions.spacing64).clip(CircleShape).background(Color.LightGray)
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(MedAITheme.dimensions.large))
             Column {
                 MedAIText(appointment.doctorName, style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold))
                 MedAIText(appointment.specialty, style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
@@ -164,7 +163,7 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
     @Composable
     fun InfoRow(label: String, value: String) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = MedAITheme.dimensions.extraSmall),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             MedAIText(label, color = MedAITheme.colors.text.secondary, style = MedAITheme.textStyle.body.medium)

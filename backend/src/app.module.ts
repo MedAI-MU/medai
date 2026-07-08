@@ -10,11 +10,15 @@ import jwtConfig from './auth/jwt.config';
 import { SchedulesModule } from './schedules/schedules.module';
 import { SharedModule } from './shared/shared.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { ScansModule } from './scans/scans.module';
+import { DiagnosisModule } from './diagnosis/diagnosis.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig, jwtConfig] }),
     DatabaseModule,
+    MailModule,
     UsersModule,
     AuthModule,
     PatientsModule,
@@ -22,6 +26,8 @@ import { AppointmentsModule } from './appointments/appointments.module';
     DoctorsModule,
     SharedModule,
     AppointmentsModule,
+    ScansModule,
+    DiagnosisModule,
   ],
 })
 export class AppModule {}

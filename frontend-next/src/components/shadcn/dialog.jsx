@@ -48,7 +48,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-surface text-text-base border-border max-sm:animate-in max-sm:slide-in-from-bottom-full max-sm:data-[state=closed]:animate-out max-sm:data-[state=closed]:slide-out-to-bottom-full sm:data-[state=open]:animate-in sm:data-[state=open]:fade-in-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:animate-out sm:data-[state=closed]:fade-out-0 sm:data-[state=closed]:zoom-out-95 fixed z-50 grid w-full gap-4 rounded-t-xl border p-6 shadow-lg duration-100 outline-none max-sm:bottom-0 sm:top-1/2 sm:left-1/2 sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-b-xl",
+          "bg-surface text-text-base border-border max-sm:animate-in max-sm:slide-in-from-bottom-full max-sm:data-[state=closed]:animate-out max-sm:data-[state=closed]:slide-out-to-bottom-full sm:data-[state=open]:animate-in sm:data-[state=open]:fade-in-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:animate-out sm:data-[state=closed]:fade-out-0 sm:data-[state=closed]:zoom-out-95 fixed z-50 grid w-full gap-4 rounded-t-xl border p-6 shadow-lg duration-100 outline-none max-sm:bottom-0 sm:top-1/2 sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-b-xl",
           className,
         )}
         {...props}
@@ -90,7 +90,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "bg-surface-overlay border-border -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 border-t p-4 sm:rounded-b-xl",
+        "bg-surface-overlay border-border relative z-10 -mx-6 mt-2 -mb-6 flex flex-row justify-end gap-2 border-t p-4 sm:rounded-b-xl",
         className,
       )}
       {...props}

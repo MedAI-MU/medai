@@ -42,7 +42,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.age_label
 import medai.composeapp.generated.resources.another_person_label
@@ -65,6 +64,7 @@ import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAiTextArea
 import org.example.project.design_system.component.textFields.MedAiTextField
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.bookingScreen.component.PatientTypeChip
 import org.example.project.presentation.bookingScreen.component.TimeSlotChip
@@ -78,9 +78,10 @@ class BookingScreen(val doctorId: String) : Screen {
         val viewModel = koinScreenModel<BookingViewModel> { parametersOf(doctorId) }
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when(effect) {
                     BookingEffect.NavigateBack -> navigator.pop()
                     BookingEffect.NavigateToSuccess -> { navigator.push(BookingSuccessScreen()) }
@@ -98,11 +99,11 @@ class BookingScreen(val doctorId: String) : Screen {
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Header (Doctor Summary could go here)
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensions.large))
 
                 if (state.isLoadingDoctor) {
-                    Box(modifier = Modifier.fillMaxWidth().height(50.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color.White)
+                    Box(modifier = Modifier.fillMaxWidth().height(dimensions.spacing64), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MedAITheme.colors.onPrimary)
                     }
                 }
 
@@ -110,9 +111,9 @@ class BookingScreen(val doctorId: String) : Screen {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
                         .background(MedAITheme.colors.background)
-                        .padding(24.dp)
+                        .padding(dimensions.extraLarge)
                 ) {
                     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
 
@@ -128,56 +129,55 @@ class BookingScreen(val doctorId: String) : Screen {
                                 style = MedAITheme.textStyle.label.medium
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensions.large))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Prev Month
-                            IconButton(modifier = Modifier.size(16.dp), onClick = { viewModel.onEvent(BookingEvent.PrevMonthClicked) }) {
-                                Icon(Icons.Default.ChevronLeft, contentDescription = "Prev", tint = MedAITheme.colors.primary, modifier = Modifier.size(24.dp))
+                            IconButton(modifier = Modifier.size(dimensions.large), onClick = { viewModel.onEvent(BookingEvent.PrevMonthClicked) }) {
+                                Icon(Icons.Default.ChevronLeft, contentDescription = "Prev", tint = MedAITheme.colors.primary, modifier = Modifier.size(dimensions.extraLarge))
                             }
 
                             LazyRow(
                                 modifier = Modifier.weight(1f),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(horizontal = 4.dp)
+                                horizontalArrangement = Arrangement.spacedBy(dimensions.medium),
+                                contentPadding = PaddingValues(horizontal = dimensions.extraSmall)
                             ) {
                                 items(state.calendarDays) { day ->
                                     MedAIDateCard(
                                         day = day.day,
                                         weekday = day.weekDay,
                                         isSelected = day.isSelected,
-                                        // Note: For booking, we don't show the 'dot' (hasAppointment)
-                                        // Unless we want to show doctor availability dots (advanced).
+                                        enabled = day.isEnabled,
                                         onClick = { viewModel.onEvent(BookingEvent.DateSelected(day.fullDate)) }
                                     )
                                 }
                             }
 
                             // Next Month
-                            IconButton(modifier = Modifier.size(16.dp), onClick = { viewModel.onEvent(BookingEvent.NextMonthClicked) }) {
-                                Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = MedAITheme.colors.primary, modifier = Modifier.size(24.dp))
+                            IconButton(modifier = Modifier.size(dimensions.large), onClick = { viewModel.onEvent(BookingEvent.NextMonthClicked) }) {
+                                Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = MedAITheme.colors.primary, modifier = Modifier.size(dimensions.extraLarge))
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                         // 2. Available Time
                         MedAIText(stringResource(Res.string.available_time_title), style = MedAITheme.textStyle.title.medium)
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensions.large))
 
                         if (state.isLoadingSlots) {
-                            Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.fillMaxWidth().height(dimensions.spacing64 * 2), contentAlignment = Alignment.Center) {
                                 CircularProgressIndicator(color = MedAITheme.colors.primary)
                             }
                         }else if (state.slots.isEmpty()) {
-                            MedAIText(stringResource(Res.string.no_slots_available), color = Color.Gray, style = MedAITheme.textStyle.body.medium)
+                            MedAIText(stringResource(Res.string.no_slots_available), color = MedAITheme.colors.text.secondary, style = MedAITheme.textStyle.body.medium)
                         } else {
                             FlowRow(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(dimensions.medium),
+                                verticalArrangement = Arrangement.spacedBy(dimensions.medium),
                                 maxItemsInEachRow = 4
                             ) {
                                 state.slots.forEach { slot ->
@@ -191,11 +191,11 @@ class BookingScreen(val doctorId: String) : Screen {
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                         // 3. Patient Details Form
                         MedAIText(stringResource(Res.string.patient_details_title), style = MedAITheme.textStyle.title.medium)
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(dimensions.medium))
 
                         Row(modifier = Modifier.fillMaxWidth()) {
                             PatientTypeChip(
@@ -203,19 +203,19 @@ class BookingScreen(val doctorId: String) : Screen {
                                 isSelected = state.bookingForSelf,
                                 onClick = { viewModel.onEvent(BookingEvent.PatientTypeChanged(true)) }
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(dimensions.medium))
                             PatientTypeChip(
                                 text = stringResource(Res.string.another_person_label),
                                 isSelected = !state.bookingForSelf,
                                 onClick = { viewModel.onEvent(BookingEvent.PatientTypeChanged(false)) }
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(dimensions.medium))
                         MedAIText(stringResource(Res.string.full_name_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(dimensions.small))
                         MedAiTextField(value = state.patientName, onValueChange = { viewModel.onEvent(BookingEvent.PatientNameChanges(it))}, placeholder = "Ahmed Gouda")
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(dimensions.extraExtraLarge))
 
                         if (state.isBooking) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -229,7 +229,7 @@ class BookingScreen(val doctorId: String) : Screen {
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(dimensions.spacing64))
                     }
                 }
             }

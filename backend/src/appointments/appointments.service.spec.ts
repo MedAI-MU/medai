@@ -20,6 +20,7 @@ describe('AppointmentsService', () => {
     create: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
+    remove: jest.fn(),
   };
 
   const slotsRepositoryMock = {
@@ -60,16 +61,19 @@ describe('AppointmentsService', () => {
     id: 5,
     email: 'patient@test.com',
     role: 'patient',
+    status: 'approved',
   };
   const secretaryUser: TokenUser = {
     id: 99,
     email: 'sec@test.com',
     role: 'secretary',
+    status: 'approved',
   };
   const otherPatientUser: TokenUser = {
     id: 7,
     email: 'other@test.com',
     role: 'patient',
+    status: 'approved',
   };
 
   // ── Module setup ───────────────────────────────────────────────────────────
@@ -342,7 +346,7 @@ describe('AppointmentsService', () => {
         );
       });
 
-      it('should cancel the appointment and free the slot when patient cancels', async () => {
+      it('should cancel the appointment, free the slot, and delete the appointment when patient cancels', async () => {
         const slot = { id: 10, status: 'booked' };
         const appointment = {
           ...mockAppointment,
@@ -350,22 +354,19 @@ describe('AppointmentsService', () => {
           scheduleSlot: slot,
         };
         appointmentsRepositoryMock.findOne.mockResolvedValue(appointment);
-        appointmentsRepositoryMock.save.mockResolvedValue({
-          ...appointment,
-          status: 'cancelled',
-        });
 
         const dto: UpdateAppointmentStatusDto = {
           status: AppointmentStatusEnum.CANCELLED,
         };
-        await service.updateStatus(1, dto, patientUser);
+        const result = await service.updateStatus(1, dto, patientUser);
 
         expect(slot.status).toBe('available');
         expect(slotsRepositoryMock.save).toHaveBeenCalledWith(slot);
         expect(appointment.status).toBe('cancelled');
-        expect(appointmentsRepositoryMock.save).toHaveBeenCalledWith(
+        expect(appointmentsRepositoryMock.remove).toHaveBeenCalledWith(
           appointment,
         );
+        expect(result).toEqual(appointment);
       });
     });
 
@@ -393,7 +394,7 @@ describe('AppointmentsService', () => {
         expect(slotsRepositoryMock.save).not.toHaveBeenCalled();
       });
 
-      it('should cancel the appointment and free the slot', async () => {
+      it('should cancel the appointment, free the slot, and delete', async () => {
         const slot = { id: 10, status: 'booked' };
         const appointment = {
           ...mockAppointment,
@@ -401,22 +402,22 @@ describe('AppointmentsService', () => {
           scheduleSlot: slot,
         };
         appointmentsRepositoryMock.findOne.mockResolvedValue(appointment);
-        appointmentsRepositoryMock.save.mockResolvedValue({
-          ...appointment,
-          status: 'cancelled',
-        });
 
         const dto: UpdateAppointmentStatusDto = {
           status: AppointmentStatusEnum.CANCELLED,
         };
-        await service.updateStatus(1, dto, secretaryUser);
+        const result = await service.updateStatus(1, dto, secretaryUser);
 
         expect(slot.status).toBe('available');
         expect(slotsRepositoryMock.save).toHaveBeenCalledWith(slot);
-        expect(appointment.confirmedByUserId).toBeNull();
+        expect(appointment.status).toBe('cancelled');
+        expect(appointmentsRepositoryMock.remove).toHaveBeenCalledWith(
+          appointment,
+        );
+        expect(result).toEqual(appointment);
       });
 
-      it('should not free the slot when cancelling an already cancelled appointment', async () => {
+      it('should free the slot and delete when cancelling an already cancelled appointment', async () => {
         const slot = { id: 10, status: 'available' };
         const appointment = {
           ...mockAppointment,
@@ -424,14 +425,19 @@ describe('AppointmentsService', () => {
           scheduleSlot: slot,
         };
         appointmentsRepositoryMock.findOne.mockResolvedValue(appointment);
-        appointmentsRepositoryMock.save.mockResolvedValue(appointment);
 
         const dto: UpdateAppointmentStatusDto = {
           status: AppointmentStatusEnum.CANCELLED,
         };
-        await service.updateStatus(1, dto, secretaryUser);
+        const result = await service.updateStatus(1, dto, secretaryUser);
 
-        expect(slotsRepositoryMock.save).not.toHaveBeenCalled();
+        expect(slot.status).toBe('available');
+        expect(slotsRepositoryMock.save).toHaveBeenCalledWith(slot);
+        expect(appointment.status).toBe('cancelled');
+        expect(appointmentsRepositoryMock.remove).toHaveBeenCalledWith(
+          appointment,
+        );
+        expect(result).toEqual(appointment);
       });
 
       it('should mark appointment as finished without touching the slot', async () => {

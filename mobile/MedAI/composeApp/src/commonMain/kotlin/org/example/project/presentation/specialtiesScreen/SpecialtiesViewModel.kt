@@ -1,28 +1,17 @@
 package org.example.project.presentation.specialtiesScreen
 
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.core.domain.ResourceProvider
+import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.specialty.GetSpecialtiesUseCase
 
 class SpecialtiesViewModel(
     private val getSpecialtiesUseCase: GetSpecialtiesUseCase,
     private val resourceProvider: ResourceProvider
-) : ScreenModel {
-
-    private val _state = MutableStateFlow(SpecialtiesState())
-    val state = _state.asStateFlow()
-
-    private val _effect = Channel<SpecialtiesEffect>(Channel.BUFFERED)
-    val effect = _effect.receiveAsFlow()
+) : MviScreenModel<SpecialtiesState, SpecialtiesEvent, SpecialtiesEffect>(SpecialtiesState()) {
 
     private var searchJob: Job? = null
 
@@ -30,10 +19,10 @@ class SpecialtiesViewModel(
         loadSpecialties()
     }
 
-    fun onEvent(event: SpecialtiesEvent) {
+    override fun onEvent(event: SpecialtiesEvent) {
         when(event) {
             is SpecialtiesEvent.SearchQueryChanged -> {
-                _state.update { it.copy(searchQuery = event.query) }
+                setState { copy(searchQuery = event.query) }
                 searchJob?.cancel()
                 searchJob = screenModelScope.launch {
                     delay(300)
@@ -48,13 +37,13 @@ class SpecialtiesViewModel(
             }
             // Toolbar Buttons
             SpecialtiesEvent.SortClicked -> {
-                val newOption = if (_state.value.sortOption == SortOption.A_TO_Z) {
+                val newOption = if (state.value.sortOption == SortOption.A_TO_Z) {
                     SortOption.Z_TO_A
                 } else {
                     SortOption.A_TO_Z
                 }
 
-                _state.update { it.copy(sortOption = newOption) }
+                setState { copy(sortOption = newOption) }
                 calculateDisplayedList()
             }
         }
@@ -62,7 +51,7 @@ class SpecialtiesViewModel(
 
     private fun loadSpecialties() {
         screenModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            setState { copy(isLoading = true) }
             val result = getSpecialtiesUseCase()
 
             result.fold(
@@ -74,8 +63,8 @@ class SpecialtiesViewModel(
                         )
                     }
 
-                    _state.update {
-                        it.copy(
+                    setState {
+                        copy(
                             isLoading = false,
                             specialties = uiSpecialties
                         )
@@ -83,7 +72,7 @@ class SpecialtiesViewModel(
                     calculateDisplayedList()
                 },
                 onFailure = { error ->
-                    _state.update { it.copy(isLoading = false, error = error.message) }
+                    setState { copy(isLoading = false, error = error.message) }
                     sendEffect(SpecialtiesEffect.ShowError(error.message ?: "Unknown Error"))
                 }
             )
@@ -91,7 +80,7 @@ class SpecialtiesViewModel(
     }
 
     private fun calculateDisplayedList() {
-        val currentState = _state.value
+        val currentState = state.value
         val query = currentState.searchQuery.trim()
 
         // 1. Start with all items
@@ -108,10 +97,6 @@ class SpecialtiesViewModel(
             SortOption.Z_TO_A -> result.sortedByDescending { it.name }
         }
         // 5. Update UI
-        _state.update { it.copy(filteredSpecialties = result) }
-    }
-
-    private fun sendEffect(effect: SpecialtiesEffect) {
-        screenModelScope.launch { _effect.send(effect) }
+        setState { copy(filteredSpecialties = result) }
     }
 }

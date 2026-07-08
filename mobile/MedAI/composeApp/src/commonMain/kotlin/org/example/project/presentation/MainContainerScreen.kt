@@ -1,7 +1,6 @@
 package org.example.project.presentation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -9,20 +8,12 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
@@ -32,18 +23,17 @@ import org.example.project.design_system.component.bottomNavigation.BottomNavIte
 import org.example.project.design_system.component.bottomNavigation.MedAIBottomNavigation
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.presentation.appointmentScreen.AppointmentListScreen
 import org.example.project.presentation.schedule.ScheduleScreen
+import org.example.project.presentation.secretary.doctors.SecretaryDoctorListScreen
 import org.example.project.presentation.chatScreen.ChatListScreen
 import org.example.project.presentation.homeScreen.HomeScreen
 import org.example.project.presentation.profileScreen.ProfileScreen
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.zIndex
 import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.model.auth.UserRole
 import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
+import org.example.project.presentation.manager.dashboard.ManagerDashboardScreen
 import org.koin.compose.koinInject
 
 class MainContainerScreen : Screen {
@@ -107,21 +97,6 @@ class MainContainerScreen : Screen {
     }
 }
 
-@Composable
-private fun RowScope.TabNavigationItem(tab: Tab) {
-    val tabNavigator = LocalTabNavigator.current
-    NavigationBarItem(
-        selected = tabNavigator.current == tab,
-        onClick = { tabNavigator.current = tab },
-        icon = { tab.options.icon?.let { Icon(painter = it, contentDescription = tab.options.title) } },
-        label = { Text(tab.options.title) },
-        colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = MedAITheme.colors.primary,
-            indicatorColor = Color.Transparent
-        )
-    )
-}
-
 // --- TABS ---
 
 object HomeTab : Tab {
@@ -138,12 +113,17 @@ object HomeTab : Tab {
             value = userSessionManager.getUserRole()
         }.value
 
-        if (role == UserRole.DOCTOR) {
-             DoctorDashboardScreen().Content()
-        } else if (role == UserRole.SECRETARY) {
-             SecretaryDashboardScreen().Content()
-        }else {
-            HomeScreen().Content()
+        when (role) {
+            null -> {
+                // Still loading role — show loading indicator instead of flashing patient screen
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator()
+                }
+            }
+            UserRole.DOCTOR -> DoctorDashboardScreen().Content()
+            UserRole.SECRETARY -> SecretaryDashboardScreen().Content()
+            UserRole.MANAGER -> ManagerDashboardScreen().Content()
+            else -> HomeScreen().Content()
         }
     }
 }
@@ -163,10 +143,14 @@ object MessagesTab : Tab {
             value = userSessionManager.getUserRole()
         }.value
 
-        if (role == UserRole.DOCTOR) {
-             org.example.project.presentation.doctor.chat.DoctorChatListScreen().Content()
-        } else {
-             ChatListScreen().Content()
+        when (role) {
+            null -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.CircularProgressIndicator()
+                }
+            }
+            UserRole.DOCTOR -> org.example.project.presentation.doctor.chat.DoctorChatListScreen().Content()
+            else -> ChatListScreen().Content()
         }
     }
 }
@@ -182,20 +166,26 @@ object ScheduleTab : Tab {
     @Composable
     override fun Content() {
         val userSessionManager = koinInject<UserSessionManager>()
+        val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
+            value = userSessionManager.getUserRole()
+        }.value
         val userId = androidx.compose.runtime.produceState<String?>(initialValue = null) {
             value = userSessionManager.getUserId()
         }.value
 
-        if (userId == null) {
-            // Still loading session
+        if (userId == null || role == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator()
             }
             return
         }
 
-        val doctorId = userId.toIntOrNull() ?: 0
-        ScheduleScreen(doctorId = doctorId).Content()
+        if (role == UserRole.SECRETARY) {
+            SecretaryDoctorListScreen().Content()
+        } else {
+            val doctorId = userId.toIntOrNull() ?: 0
+            ScheduleScreen(doctorId = doctorId).Content()
+        }
     }
 }
 

@@ -1,8 +1,6 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddIndexesToScheduleEntities1770072886852
-  implements MigrationInterface
-{
+export class AddIndexesToScheduleEntities1770072886852 implements MigrationInterface {
   name = 'AddIndexesToScheduleEntities1770072886852';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -27,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.app_logo
 import medai.composeapp.generated.resources.log_in
@@ -37,6 +37,7 @@ import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.loginScreen.LoginScreen
 import org.example.project.presentation.signUpScreen.SignUpScreen
@@ -47,7 +48,7 @@ class WelcomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-
+        val dimensions = LocalDimensions.current
         var visible by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
@@ -58,7 +59,7 @@ class WelcomeScreen : Screen {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(dimensions.extraLarge), // 24.dp originally
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.weight(1f))
@@ -82,10 +83,10 @@ class WelcomeScreen : Screen {
                             style = MedAITheme.textStyle.body.medium,
                             color = MedAITheme.colors.text.secondary,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = dimensions.medium) // 16.dp originally
                         )
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(dimensions.spacing48)) // 40.dp -> spacing48
 
                         // --- Login Button ---
                         MedAIButton(
@@ -97,7 +98,7 @@ class WelcomeScreen : Screen {
                             variant = ButtonVariant.Primary
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensions.medium)) // 16.dp originally
 
                         // --- Sign Up Button ---
                         MedAIButton(
@@ -110,7 +111,7 @@ class WelcomeScreen : Screen {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(dimensions.spacing48)) // 48.dp originally -> spacing48
             }
         }
     }
@@ -119,7 +120,7 @@ class WelcomeScreen : Screen {
 @Composable
 fun MedAILogo(
     modifier: Modifier = Modifier,
-    iconSize: Dp = 150.dp
+    iconSize: Dp = 150.dp // Maintained as a specific fixed size for branding identity
 ) {
     Column(
         modifier = modifier,

@@ -10,6 +10,7 @@ import { DocScheduleTemplate } from '../../schedules/entities/doc-schedule-templ
 import { DocSchedule } from '../../schedules/entities/doc-schedule.entity';
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import { DoctorSpeciality } from './doctor-speciality.entity';
+import { Diagnosis } from '../../diagnosis/entities/diagnosis.entity';
 
 @Entity()
 export class Doctor extends TimestampEntity {
@@ -30,6 +31,9 @@ export class Doctor extends TimestampEntity {
     cascade: true,
   })
   specialities: DoctorSpeciality[];
+
+  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.doctor)
+  diagnoses: Diagnosis[];
 
   constructor(partial: Partial<Doctor>) {
     super();

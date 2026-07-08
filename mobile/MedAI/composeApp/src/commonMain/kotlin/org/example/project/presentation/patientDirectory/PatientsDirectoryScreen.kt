@@ -28,17 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.filled.Add
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.textFields.MedAISearchBar
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.patient.Patient
 
-
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
@@ -50,7 +49,7 @@ class PatientsDirectoryScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<PatientsDirectoryViewModel>()
+        val viewModel = koinScreenModel<PatientsDirectoryViewModel>()
 
         PatientsDirectoryContent(
             viewModel = viewModel,
@@ -76,8 +75,9 @@ fun PatientsDirectoryContent(
 
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val dimensions = LocalDimensions.current
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is PatientsDirectoryEffect.NavigateToPatientDetails -> {
@@ -114,12 +114,12 @@ fun PatientsDirectoryContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(dimensions.medium)
         ) {
             MedAISearchBar(
                 query = state.searchQuery,
                 onQueryChange = { viewModel.onEvent(PatientsDirectoryEvent.OnSearchQueryChanged(it)) },
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = dimensions.medium)
             )
 
             if (state.isLoading) {
@@ -143,7 +143,7 @@ fun PatientsDirectoryContent(
                             patient = patient,
                             onClick = { viewModel.onEvent(PatientsDirectoryEvent.OnPatientClicked(patient)) }
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(dimensions.medium))
                     }
                 }
             }
@@ -156,13 +156,14 @@ fun PatientItem(
     patient: Patient,
     onClick: () -> Unit
 ) {
+    val dimensions = LocalDimensions.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(dimensions.medium))
             .background(MedAITheme.colors.surface)
             .clickable { onClick() }
-            .padding(16.dp)
+            .padding(dimensions.medium)
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -179,10 +180,10 @@ fun PatientItem(
                     color = MedAITheme.colors.text.secondary
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensions.small))
             Row {
                 Badge(text = "Blood: ${patient.bloodType.label}", color = MedAITheme.colors.primary.copy(alpha = 0.1f), textColor = MedAITheme.colors.primary)
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(dimensions.small))
                 Badge(text = "Age: ${patient.age}", color = MedAITheme.colors.secondary.copy(alpha = 0.1f), textColor = MedAITheme.colors.secondary)
             }
         }
@@ -195,11 +196,12 @@ fun Badge(
     color: Color,
     textColor: Color
 ) {
+    val dimensions = LocalDimensions.current
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(dimensions.extraSmall))
             .background(color)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = dimensions.small, vertical = dimensions.extraSmall)
     ) {
         Text(
             text = text,

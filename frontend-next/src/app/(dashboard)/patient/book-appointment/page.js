@@ -14,7 +14,10 @@ async function BookAppointmentPage({ searchParams }) {
         title="All Doctors"
         subtitle="Browse and manage all registered physicians in the network"
       />
-      <SearchBar queryKey="search" />
+      <SearchBar
+        queryKey="search"
+        placeholder="Search by name or speciality..."
+      />
       <Suspense key={query} fallback={<DoctorsListSkeleton />}>
         <DoctorsList query={query} />
       </Suspense>

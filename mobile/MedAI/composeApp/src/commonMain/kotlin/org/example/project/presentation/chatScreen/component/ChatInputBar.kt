@@ -14,15 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.component.textFields.MedAiTextField
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 
 @Composable
 fun ChatInputBar(value: String, onValueChange: (String) -> Unit, onSendClick: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().background(MedAITheme.colors.background).padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val dimensions = LocalDimensions.current
+    Row(modifier = Modifier.fillMaxWidth().background(MedAITheme.colors.background).padding(dimensions.large), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(dimensions.small)) {
         IconButton(onClick = {}) { Icon(Icons.Default.AttachFile, null, tint = MedAITheme.colors.text.secondary) }
         MedAiTextField(value = value, onValueChange = onValueChange, placeholder = "Type message...", modifier = Modifier.weight(1f))
-        IconButton(onClick = onSendClick, modifier = Modifier.size(48.dp).clip(CircleShape).background(MedAITheme.colors.primary)) {
-            Icon(Icons.AutoMirrored.Filled.Send, null, tint = MedAITheme.colors.text.onPrimary)
+        IconButton(onClick = onSendClick, modifier = Modifier.size(dimensions.spacing48).clip(CircleShape).background(MedAITheme.colors.primary)) {
+            Icon(Icons.AutoMirrored.Filled.Send, null, tint = MedAITheme.colors.onPrimary)
         }
     }
 }

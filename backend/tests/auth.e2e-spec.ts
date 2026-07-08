@@ -109,7 +109,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
       // first register the user
       await request(app.getHttpServer() as App)
@@ -130,7 +130,7 @@ describe('AuthController (e2e)', () => {
         name: registerDto.name,
         email: registerDto.email,
         phone: registerDto.phone,
-        role: registerDto.role,
+        role: 'patient',
       });
       expect(response.body.id).toEqual(expect.any(Number));
 
@@ -157,7 +157,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
 
       // first register the user
@@ -177,8 +177,7 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       const firstSetCookies = firstLoginResponse.headers['set-cookie'] as
-        | string
-        | string[];
+        string | string[];
       const firstCookiesArray = Array.isArray(firstSetCookies)
         ? firstSetCookies
         : [firstSetCookies];
@@ -198,8 +197,7 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       const secondSetCookies = secondLoginResponse.headers['set-cookie'] as
-        | string
-        | string[];
+        string | string[];
       const secondCookiesArray = Array.isArray(secondSetCookies)
         ? secondSetCookies
         : [secondSetCookies];
@@ -241,7 +239,7 @@ describe('AuthController (e2e)', () => {
         password: 'strongPassword',
         name: 'Test User',
         phone: '01123456789',
-        role: 'doctor',
+        role: 'patient',
       };
 
       // first register the user
@@ -261,8 +259,7 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       const setCookies = loginResponse.headers['set-cookie'] as
-        | string
-        | string[];
+        string | string[];
       const cookiesArray = Array.isArray(setCookies)
         ? setCookies
         : [setCookies];
@@ -280,8 +277,7 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       const refreshSetCookies = refreshResponse.headers['set-cookie'] as
-        | string
-        | string[];
+        string | string[];
       expect(refreshSetCookies).toBeDefined();
       const refreshCookiesArray = Array.isArray(refreshSetCookies)
         ? refreshSetCookies

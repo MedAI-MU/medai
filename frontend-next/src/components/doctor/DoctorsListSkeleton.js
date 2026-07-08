@@ -3,7 +3,7 @@ import DoctorCardSkeleton from "./DoctorCardSkeleton";
 
 function DoctorsListSkeleton() {
   return (
-    <Grid cols="three" className="mt-10">
+    <Grid cols="two" className="mt-10">
       {Array.from({ length: 6 }).map((_, idx) => (
         <DoctorCardSkeleton key={idx} />
       ))}

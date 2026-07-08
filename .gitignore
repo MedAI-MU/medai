@@ -10,7 +10,7 @@ dist/
 node_modules/
 .npm/
 /build
-
+uploads/
 # Logs
 logs
 *.log
@@ -63,3 +63,32 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 coverage/
+
+# Models
+/models/
+
+# Local terraform vars — may contain IPs, secrets
+terraform.tfvars
+*.auto.tfvars
+
+# Terraform working directory (downloaded providers, modules)
+.terraform/
+
+# State files — contain sensitive infrastructure data in plaintext
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Local override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Backend cache and local directories
+backend/.cache/
+backend/.local/

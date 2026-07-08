@@ -21,7 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,10 +42,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.about_doctor
 import medai.composeapp.generated.resources.book_appointment_button
@@ -54,6 +53,7 @@ import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
+import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.bookingScreen.BookingScreen
 import org.example.project.presentation.chatScreen.ChatScreen
@@ -64,12 +64,13 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = getScreenModel<DoctorDetailsViewModel> { parametersOf(doctorId) }
+        val viewModel = koinScreenModel<DoctorDetailsViewModel> { parametersOf(doctorId) }
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
+        val dimensions = LocalDimensions.current
 
-        LaunchedEffect(Unit) {
-            viewModel.effect.collectLatest { effect ->
+        LaunchedEffect(viewModel.effect) {
+            viewModel.effect.collect { effect ->
                 when(effect) {
                     DoctorDetailsEffect.NavigateBack -> navigator.pop()
                     DoctorDetailsEffect.NavigateToBooking -> navigator.push(BookingScreen(doctorId))
@@ -88,8 +89,8 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
             title = stringResource(Res.string.doctor_details_title),
             onBackClick = { viewModel.onEvent(DoctorDetailsEvent.BackClicked) },
             actions = {
-                IconButton(onClick = {}) { Icon(Icons.Default.HelpOutline, null, tint = Color.White) }
-                IconButton(onClick = {}) { Icon(Icons.Default.FavoriteBorder, null, tint = Color.White) }
+                IconButton(onClick = {}) { Icon(Icons.AutoMirrored.Filled.HelpOutline, null, tint = MedAITheme.colors.onPrimary) }
+                IconButton(onClick = {}) { Icon(Icons.Default.FavoriteBorder, null, tint = MedAITheme.colors.onPrimary) }
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = MedAITheme.colors.primary
@@ -98,59 +99,59 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
 
                 // --- Header Profile Section ---
                 if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color.White)
+                    Box(modifier = Modifier.fillMaxWidth().height(dimensions.spacing64 * 3), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MedAITheme.colors.onPrimary)
                     }
                 } else {
                     state.doctor?.let { doctor ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
+                                .padding(dimensions.extraLarge),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             // Image
                             Box(
                                 modifier = Modifier
-                                    .size(100.dp)
+                                    .size(dimensions.spacing64 + dimensions.extraExtraLarge)
                                     .clip(CircleShape)
-                                    .background(Color.LightGray)
+                                    .background(MedAITheme.colors.neutral)
                             ) {
                                 // AsyncImage(doctor.imageUrl)
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(dimensions.large))
 
                             MedAIText(
                                 text = doctor.name,
                                 style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold),
-                                color = Color.White
+                                color = MedAITheme.colors.onPrimary
                             )
                             MedAIText(
                                 text = doctor.specialty,
                                 style = MedAITheme.textStyle.body.medium,
-                                color = Color.White.copy(alpha = 0.9f)
+                                color = MedAITheme.colors.onPrimary.copy(alpha = 0.9f)
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(dimensions.large))
 
                             // Stats Row (Rating, Reviews)
                             Row(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
+                                    .clip(RoundedCornerShape(dimensions.radiusRound))
                                     .background(Color.White.copy(alpha = 0.2f))
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    .padding(horizontal = dimensions.large, vertical = dimensions.small),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                horizontalArrangement = Arrangement.spacedBy(dimensions.large)
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(dimensions.large))
+                                    Spacer(modifier = Modifier.width(dimensions.extraSmall))
                                     MedAIText(text = doctor.rating.toString(), color = Color.White, style = MedAITheme.textStyle.label.medium)
                                 }
                                 MedAIText(text = "|", color = Color.White.copy(alpha = 0.5f), style = MedAITheme.textStyle.label.medium)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.ChatBubble, null, tint = Color.White, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(Icons.Default.ChatBubble, null, tint = Color.White, modifier = Modifier.size(dimensions.large))
+                                    Spacer(modifier = Modifier.width(dimensions.extraSmall))
                                     MedAIText(text = "${doctor.reviewCount} Reviews", color = Color.White, style = MedAITheme.textStyle.label.medium)
                                 }
                             }
@@ -162,9 +163,9 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
                         .background(MedAITheme.colors.background)
-                        .padding(24.dp)
+                        .padding(dimensions.extraLarge)
                 ) {
                     Column(
                         modifier = Modifier
@@ -185,11 +186,11 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(dimensions.spacing64 / 2))
 
                         // About / Bio
                         MedAIText(text = stringResource(Res.string.about_doctor), style = MedAITheme.textStyle.title.large.copy(fontWeight = FontWeight.Bold))
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(dimensions.small))
                         state.doctor?.let {
                             MedAIText(
                                 text = it.bio,
@@ -200,7 +201,7 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(dimensions.extraLarge))
 
                         // Book Button
                         if (state.doctor != null) {
@@ -219,9 +220,10 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
 
     @Composable
     fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean, onClick: () -> Unit) {
+        val dimensions = LocalDimensions.current
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(dimensions.spacing64 - dimensions.small) // approx 56dp
                 .clip(CircleShape)
                 .background(if (isSelected) MedAITheme.colors.primary else MedAITheme.colors.primary.copy(alpha = 0.1f))
                 .clickable { onClick() },
@@ -230,7 +232,7 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isSelected) Color.White else MedAITheme.colors.primary
+                tint = if (isSelected) MedAITheme.colors.onPrimary else MedAITheme.colors.primary
             )
         }
     }

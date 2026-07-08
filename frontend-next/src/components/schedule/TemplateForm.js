@@ -7,17 +7,18 @@ import {
 } from "@/services/client/schedule";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useTemplateForm } from "@/hooks/schedule.js/useTemplateForm";
+import { useTemplateForm } from "@/hooks/schedule/useTemplateForm";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 
-import { SheetFooter } from "@/components/shadcn/sheet";
+import { SheetBody, SheetFooter } from "@/components/shadcn/sheet";
 import FormInput from "@/components/ui/FormInput";
 import FormLabel from "@/components/ui/FormLabel";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SpinnerMini from "@/components/ui/SpinnerMini";
-import DaySlotGroup from "./DaySlotGroup";
+import SheetForm from "@/components/ui/SheetForm";
+import TemplateDayItem from "./TemplateDayItem";
 
 function TemplateForm({ templateToEdit = {}, closeSheet }) {
   const { id: templateId } = templateToEdit;
@@ -120,81 +121,76 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
       : groupedFields;
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col overflow-hidden"
-    >
+    <SheetForm onSubmit={handleSubmit(onSubmit)}>
       {/* Form Scrollable Content */}
-      <div className="no-scrollbar flex-1 overflow-y-auto py-4">
-        <div className="space-y-6 p-4">
-          <FormInput
-            label="Template Name"
-            placeholder="e.g. Regular Schedule"
-            required
-            {...register("name")}
-            error={errors?.name?.message}
-            disabled={isSubmitting}
-          />
+      <SheetBody>
+        <FormInput
+          label="Template Name"
+          placeholder="e.g. Regular Schedule"
+          required
+          {...register("name")}
+          error={errors?.name?.message}
+          disabled={isSubmitting}
+        />
 
-          {/* Days of week */}
-          <div>
-            <FormLabel label="Working Days" required />
-            <div className="flex flex-wrap gap-2 overflow-auto">
-              {DAYS_OF_WEEK.map((day, index) => {
-                const isSelected = fields.some((f) => f.weekDay === index);
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    className={`${isSelected ? "border-primary bg-primary/10 text-primary" : "bg-surface-overlay/75 hover:bg-surface-overlay border-border text-text-muted"} min-w-[50px] flex-1 cursor-pointer rounded-md border py-2 text-center transition-colors`}
-                    onClick={() => handleToggle(index)}
-                    disabled={isSubmitting}
-                  >
-                    {day.slice(0, 3)}
-                  </button>
-                );
-              })}
-            </div>
-            <p
-              className={`mt-2 text-xs ${slotsError ? "text-danger" : "text-text-muted"}`}
-            >
-              {slotsError || "Click to select working days"}
-            </p>
+        {/* Days of week */}
+        <div>
+          <FormLabel label="Working Days" required />
+          <div className="flex flex-wrap gap-2 overflow-auto">
+            {DAYS_OF_WEEK.map((day, index) => {
+              const isSelected = fields.some((f) => f.weekDay === index);
+              return (
+                <button
+                  key={day}
+                  type="button"
+                  className={`${isSelected ? "border-primary bg-primary/10 text-primary" : "bg-surface-overlay/75 hover:bg-surface-overlay border-border text-text-muted"} min-w-[50px] flex-1 cursor-pointer rounded-md border py-2 text-center transition-colors`}
+                  onClick={() => handleToggle(index)}
+                  disabled={isSubmitting}
+                >
+                  {day.slice(0, 3)}
+                </button>
+              );
+            })}
           </div>
+          <p
+            className={`mt-2 text-xs ${slotsError ? "text-danger" : "text-text-muted"}`}
+          >
+            {slotsError || "Click to select working days"}
+          </p>
+        </div>
 
-          <hr className="border-border" />
+        <hr className="border-border" />
 
-          {/* Generated Time for each day */}
-          {uniqueSelectedDays.length > 0 && (
-            <div>
-              <FormLabel label="Working Hours" />
-              <Checkbox
-                label="Apply same hours to all selected days"
-                checked={applyToAll}
-                onChange={handleApplyAll}
-                disabled={isSubmitting}
-              />
-              <div className="mt-5">
-                <div className="space-y-6">
-                  {renderGroups?.map((group) => (
-                    <DaySlotGroup
-                      key={`${applyToAll ? "all" : group?.dayNum}`}
-                      group={group}
-                      title={applyToAll ? "All Selected Days" : group?.dayName}
-                      register={register}
-                      errors={errors}
-                      isSubmitting={isSubmitting}
-                      onRemovePeriod={handleRemovePeriod}
-                      onAddPeriod={() => handleAddPeriod(group.dayNum)}
-                      onTimeChange={handleTimeChange}
-                    />
-                  ))}
-                </div>
+        {/* Generated Time for each day */}
+        {uniqueSelectedDays.length > 0 && (
+          <div>
+            <FormLabel label="Working Hours" />
+            <Checkbox
+              label="Apply same hours to all selected days"
+              checked={applyToAll}
+              onChange={handleApplyAll}
+              disabled={isSubmitting}
+            />
+            <div className="mt-5">
+              <div className="space-y-6">
+                {renderGroups?.map((group) => (
+                  <TemplateDayItem
+                    key={`${applyToAll ? "all" : group?.dayNum}`}
+                    group={group}
+                    title={applyToAll ? "All Selected Days" : group?.dayName}
+                    register={register}
+                    errors={errors}
+                    isSubmitting={isSubmitting}
+                    onRemovePeriod={handleRemovePeriod}
+                    onAddPeriod={() => handleAddPeriod(group.dayNum)}
+                    onTimeChange={handleTimeChange}
+                  />
+                ))}
               </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
+      </SheetBody>
 
       <SheetFooter className="border-border shrink-0 border-t pt-4">
         <Button
@@ -219,7 +215,7 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
           )}
         </div>
       </SheetFooter>
-    </form>
+    </SheetForm>
   );
 }
 
