@@ -69,7 +69,13 @@ describe('ScansService', () => {
     id: 1,
     patientUserId: 5,
     appointmentId: 100,
-    images: [{ id: 1, scanId: 1, path: 'scans/1/img.jpg' } as ScanImage],
+    images: [
+      {
+        id: 1,
+        scanId: 1,
+        path: 'https://storage.blob.core.windows.net/scans/uuid.jpg',
+      } as ScanImage,
+    ],
     createdAt: new Date(),
   };
 
@@ -77,14 +83,14 @@ describe('ScansService', () => {
     id: 1,
     scanId: 1,
     patientUserId: 5,
-    path: 'reports/report.pdf',
+    path: 'https://storage.blob.core.windows.net/reports/uuid.pdf',
     createdAt: new Date(),
   };
 
   const mockImage: Partial<ScanImage> = {
     id: 1,
     scanId: 1,
-    path: 'scans/1/img.jpg',
+    path: 'https://storage.blob.core.windows.net/scans/uuid.jpg',
     scan: mockScan as Scan,
   };
 
@@ -213,18 +219,24 @@ describe('ScansService', () => {
     const file = {
       buffer: Buffer.from('data'),
       originalname: 'x.jpg',
+      mimetype: 'image/jpeg',
     } as Express.Multer.File;
 
     it('should create a scan with images', async () => {
       scansRepositoryMock.create.mockReturnValue({ id: 1, patientUserId: 5 });
       scansRepositoryMock.save.mockResolvedValue({ id: 1, patientUserId: 5 });
-      fileStorageMock.saveFile.mockResolvedValue('scans/1/uuid.jpg');
+      fileStorageMock.saveFile.mockResolvedValue(
+        'https://storage.blob.core.windows.net/scans/uuid.jpg',
+      );
       scanImagesRepositoryMock.create.mockReturnValue({
         scanId: 1,
-        path: 'scans/1/uuid.jpg',
+        path: 'https://storage.blob.core.windows.net/scans/uuid.jpg',
       });
       scanImagesRepositoryMock.save.mockResolvedValue([
-        { scanId: 1, path: 'scans/1/uuid.jpg' },
+        {
+          scanId: 1,
+          path: 'https://storage.blob.core.windows.net/scans/uuid.jpg',
+        },
       ]);
 
       const result = await service.create(5, 100, [file]);
@@ -234,7 +246,8 @@ describe('ScansService', () => {
       expect(fileStorageMock.saveFile).toHaveBeenCalledWith(
         file.buffer,
         file.originalname,
-        'scans/1',
+        'scans',
+        file.mimetype,
       );
     });
 
@@ -258,7 +271,7 @@ describe('ScansService', () => {
 
       await service.delete(1);
       expect(fileStorageMock.deleteFile).toHaveBeenCalledWith(
-        'scans/1/img.jpg',
+        'https://storage.blob.core.windows.net/scans/uuid.jpg',
       );
       expect(scansRepositoryMock.remove).toHaveBeenCalledWith(mockScan);
     });
@@ -277,7 +290,9 @@ describe('ScansService', () => {
 
     it('should create a report', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      fileStorageMock.saveFile.mockResolvedValue('reports/uuid.pdf');
+      fileStorageMock.saveFile.mockResolvedValue(
+        'https://storage.blob.core.windows.net/reports/uuid.pdf',
+      );
       reportsRepositoryMock.create.mockReturnValue(mockReport);
       reportsRepositoryMock.save.mockResolvedValue(mockReport);
 
@@ -341,7 +356,7 @@ describe('ScansService', () => {
 
       await service.deleteReport(1);
       expect(fileStorageMock.deleteFile).toHaveBeenCalledWith(
-        'reports/report.pdf',
+        'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
       expect(reportsRepositoryMock.remove).toHaveBeenCalledWith(mockReport);
     });
@@ -358,11 +373,15 @@ describe('ScansService', () => {
     it('should return image path and name', async () => {
       scanImagesRepositoryMock.findOne.mockResolvedValue(mockImage);
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      fileStorageMock.getFullPath.mockReturnValue('/uploads/scans/1/img.jpg');
+      fileStorageMock.getFullPath.mockReturnValue(
+        'https://storage.blob.core.windows.net/scans/uuid.jpg',
+      );
 
       const result = await service.getImageFile(1, secretaryUser);
-      expect(result.path).toBe('/uploads/scans/1/img.jpg');
-      expect(result.originalName).toBe('img.jpg');
+      expect(result.path).toBe(
+        'https://storage.blob.core.windows.net/scans/uuid.jpg',
+      );
+      expect(result.originalName).toBe('uuid.jpg');
     });
 
     it('should throw NotFoundException when image not found', async () => {
@@ -377,12 +396,14 @@ describe('ScansService', () => {
     it('should return report path and name', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(mockReport);
       fileStorageMock.getFullPath.mockReturnValue(
-        '/uploads/reports/report.pdf',
+        'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
 
       const result = await service.getReportFile(1, secretaryUser);
-      expect(result.path).toBe('/uploads/reports/report.pdf');
-      expect(result.originalName).toBe('report.pdf');
+      expect(result.path).toBe(
+        'https://storage.blob.core.windows.net/reports/uuid.pdf',
+      );
+      expect(result.originalName).toBe('uuid.pdf');
     });
 
     it('should throw NotFoundException when report not found', async () => {

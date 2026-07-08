@@ -9,6 +9,7 @@ import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RegisterDto } from './dtos/register.dto';
+import { FileStorageService } from '../shared/services/file-storage.service';
 import type { UserRoles, UserStatus } from './types/role.types';
 import * as argon2 from 'argon2';
 
@@ -17,6 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly dataSource: DataSource,
+    private readonly fileStorage: FileStorageService,
   ) {}
 
   async findById(id: number): Promise<User | null> {
@@ -72,6 +74,40 @@ export class UsersService {
     }
 
     await this.usersRepository.remove(user);
+  }
+
+  async updateAvatar(
+    userId: number,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    const oldAvatar = user.avatar;
+
+    const url = await this.fileStorage.saveFile(
+      file.buffer,
+      file.originalname,
+      'avatars',
+      file.mimetype,
+    );
+    user.avatar = url;
+    await this.usersRepository.save(user);
+    if (oldAvatar) {
+      await this.fileStorage.deleteFile(oldAvatar);
+    }
+    return url;
+  }
+
+  async deleteAvatar(userId: number): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.avatar) return;
+
+    const oldAvatar = user.avatar;
+    user.avatar = null;
+    await this.usersRepository.save(user);
+    await this.fileStorage.deleteFile(oldAvatar);
   }
 
   async registerUser(registerDto: RegisterDto) {

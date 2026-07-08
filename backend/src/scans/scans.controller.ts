@@ -5,10 +5,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
+  Redirect,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -17,7 +17,6 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
-import * as fs from 'fs';
 import {
   ApiBody,
   ApiConsumes,
@@ -254,21 +253,18 @@ export class ScansController {
   @ApiParam({ name: 'imageId', type: Number })
   @ApiOkResponse({ description: 'Image file' })
   @ApiNotFoundResponse({ description: 'Image not found' })
+  @Redirect()
   async getImageFile(
     @Param('imageId', ParseIntPipe) imageId: number,
     @CurrentUser() currentUser: TokenUser,
-    @Res() res: Response,
-  ): Promise<void> {
-    const { path, originalName } = await this.scansService.getImageFile(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string; statusCode: number }> {
+    const { path: blobUrl } = await this.scansService.getImageFile(
       imageId,
       currentUser,
     );
-    if (!fs.existsSync(path)) {
-      throw new NotFoundException('File not found on disk');
-    }
-    res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
-    const stream = fs.createReadStream(path);
-    stream.pipe(res);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    return { url: blobUrl, statusCode: 302 };
   }
 
   @UseGuards(SameIdGuard)
@@ -279,20 +275,17 @@ export class ScansController {
   @ApiParam({ name: 'reportId', type: Number })
   @ApiOkResponse({ description: 'Report file' })
   @ApiNotFoundResponse({ description: 'Report not found' })
+  @Redirect()
   async getReportFile(
     @Param('reportId', ParseIntPipe) reportId: number,
     @CurrentUser() currentUser: TokenUser,
-    @Res() res: Response,
-  ): Promise<void> {
-    const { path, originalName } = await this.scansService.getReportFile(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string; statusCode: number }> {
+    const { path: blobUrl } = await this.scansService.getReportFile(
       reportId,
       currentUser,
     );
-    if (!fs.existsSync(path)) {
-      throw new NotFoundException('File not found on disk');
-    }
-    res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
-    const stream = fs.createReadStream(path);
-    stream.pipe(res);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    return { url: blobUrl, statusCode: 302 };
   }
 }

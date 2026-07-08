@@ -27,7 +27,6 @@ export class User extends TimestampEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Exclude()
   @Column({ unique: true, length: 256 })
   email: string;
 
@@ -35,11 +34,9 @@ export class User extends TimestampEntity {
   @Column()
   password: string;
 
-  @Exclude()
   @Column({ unique: true, length: 20 })
   phone: string;
 
-  @Exclude()
   @Column({ type: 'date', nullable: true })
   birthDate?: Date;
 
@@ -84,6 +81,9 @@ export class User extends TimestampEntity {
 
   @OneToOne(() => Patient, (patient) => patient.user)
   patient?: Patient;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatar?: string | null;
 
   @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];
