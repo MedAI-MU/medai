@@ -12,7 +12,7 @@ async function BookAppointmentPage({ searchParams }) {
       <Heading
         className="mb-10"
         title="All Doctors"
-        subtitle="Browse and manage all registered physicians in the network"
+        subtitle="Explore our network of doctors and book an appointment with ease."
       />
       <SearchBar
         queryKey="search"

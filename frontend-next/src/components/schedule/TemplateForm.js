@@ -5,7 +5,6 @@ import {
   createScheduleTemplate,
   updateScheduleTemplate,
 } from "@/services/client/schedule";
-import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useTemplateForm } from "@/hooks/schedule/useTemplateForm";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
@@ -19,6 +18,7 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import SpinnerMini from "@/components/ui/SpinnerMini";
 import SheetForm from "@/components/ui/SheetForm";
 import TemplateDayItem from "./TemplateDayItem";
+import { useDoctorInfo } from "@/contexts/DoctorInfoContext";
 
 function TemplateForm({ templateToEdit = {}, closeSheet }) {
   const { id: templateId } = templateToEdit;
@@ -26,7 +26,7 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
 
   // 1) Hooks
   const router = useRouter();
-  const { user } = useAuth();
+  const { doctor: { doctorId } = {} } = useDoctorInfo();
   const {
     form,
     fieldArray,
@@ -102,8 +102,8 @@ function TemplateForm({ templateToEdit = {}, closeSheet }) {
 
   async function onSubmit(data) {
     try {
-      if (isEdit) await updateScheduleTemplate(data, user?.sub, templateId);
-      else await createScheduleTemplate(data, user?.sub);
+      if (isEdit) await updateScheduleTemplate(data, doctorId, templateId);
+      else await createScheduleTemplate(data, doctorId);
 
       closeSheet?.();
       router.refresh();

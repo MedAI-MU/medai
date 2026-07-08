@@ -3,8 +3,9 @@ import Card from "@/components/ui/Card";
 import { getInitials } from "@/lib/utils/stringHelpers";
 import Heading from "../ui/Heading";
 
-function DoctorProfileCard({ name, speciality }) {
-  const initials = getInitials(name);
+function DoctorProfileCard({ name: doctorName, speciality = {} }) {
+  const { speciality: { name: specName } = {}, yearsOfExperience } = speciality;
+  const initials = getInitials(doctorName);
 
   return (
     <Card className="relative overflow-hidden">
@@ -26,29 +27,27 @@ function DoctorProfileCard({ name, speciality }) {
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             {/* Name + speciality */}
             <div>
-              <Heading title={name} />
-              <p className="text-primary mt-1 flex items-center gap-1 text-sm font-medium">
-                <Stethoscope size={15} />
-                {speciality}
-              </p>
+              <Heading title={doctorName} />
+              {specName && (
+                <p className="text-primary mt-1 flex items-center gap-1 text-sm font-medium">
+                  <Stethoscope size={15} />
+                  {specName}
+                </p>
+              )}
             </div>
 
             {/* Stats */}
-            <div className="border-border flex gap-6 sm:border-l sm:pl-6">
-              <div className="text-center">
-                <span className="text-text-base block text-xl font-bold">
-                  4.9
-                </span>
-                <span className="text-text-muted block text-xs">Rating</span>
+            {yearsOfExperience >= 0 && (
+              <div className="border-border flex gap-6 sm:border-l sm:pl-6">
+                {/* <div className="border-border border-l" /> */}
+                <div className="text-center">
+                  <span className="text-text-base block text-xl font-bold">
+                    {yearsOfExperience}
+                  </span>
+                  <span className="text-text-muted block text-xs">Yrs Exp</span>
+                </div>
               </div>
-              <div className="border-border border-l" />
-              <div className="text-center">
-                <span className="text-text-base block text-xl font-bold">
-                  15+
-                </span>
-                <span className="text-text-muted block text-xs">Yrs Exp</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Bio */}

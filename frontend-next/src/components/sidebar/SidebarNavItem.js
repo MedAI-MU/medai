@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-function SidebarNavItem({ href, onClick, icon, text }) {
+function SidebarNavItem({ href, onClick, icon, text, matchPrefix = false }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = matchPrefix
+    ? pathname.startsWith(href)
+    : pathname === href;
 
   return (
     <Link

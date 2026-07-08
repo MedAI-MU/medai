@@ -6,7 +6,7 @@ import AnimateWrapper from "@/components/ui/AnimateWrapper";
 import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 
-async function ScheduleTemplateList({ name, pageNo = 1 }) {
+async function ScheduleTemplateList({ name, pageNo = 1, doctorId }) {
   let templates = [];
   let totalCount = 0;
   let currentPage = 1;
@@ -14,7 +14,12 @@ async function ScheduleTemplateList({ name, pageNo = 1 }) {
   let hasNext;
 
   try {
-    const response = await getScheduleTemplates(name, PAGE_SIZE, pageNo);
+    const response = await getScheduleTemplates(
+      name,
+      PAGE_SIZE,
+      pageNo,
+      doctorId,
+    );
     templates = response.data || [];
     totalCount = response.totalCount;
     currentPage = response.currentPage;
