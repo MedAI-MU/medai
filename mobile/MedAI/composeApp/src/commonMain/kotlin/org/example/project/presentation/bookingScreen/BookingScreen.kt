@@ -149,8 +149,7 @@ class BookingScreen(val doctorId: String) : Screen {
                                         day = day.day,
                                         weekday = day.weekDay,
                                         isSelected = day.isSelected,
-                                        // Note: For booking, we don't show the 'dot' (hasAppointment)
-                                        // Unless we want to show doctor availability dots (advanced).
+                                        enabled = day.isEnabled,
                                         onClick = { viewModel.onEvent(BookingEvent.DateSelected(day.fullDate)) }
                                     )
                                 }

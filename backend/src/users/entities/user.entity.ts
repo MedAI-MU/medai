@@ -27,7 +27,6 @@ export class User extends TimestampEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Exclude()
   @Column({ unique: true, length: 256 })
   email: string;
 
@@ -35,11 +34,9 @@ export class User extends TimestampEntity {
   @Column()
   password: string;
 
-  @Exclude()
   @Column({ unique: true, length: 20 })
   phone: string;
 
-  @Exclude()
   @Column({ type: 'date', nullable: true })
   birthDate?: Date;
 
@@ -55,11 +52,41 @@ export class User extends TimestampEntity {
   @Column({ type: 'varchar', default: 'pending' })
   status: UserStatus;
 
+  @Exclude()
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  pendingEmail: string | null;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  verificationToken: string | null;
+
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true })
+  verificationTokenExpiresAt: Date | null;
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken: string | null;
+
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpiresAt: Date | null;
+
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor?: Doctor;
 
   @OneToOne(() => Patient, (patient) => patient.user)
   patient?: Patient;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatar?: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  bio?: string | null;
 
   @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];

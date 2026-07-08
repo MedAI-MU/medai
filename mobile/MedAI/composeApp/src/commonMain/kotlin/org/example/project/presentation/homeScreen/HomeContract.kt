@@ -10,7 +10,8 @@ data class CalendarUiModel(
     val weekDay: String,  // e.g. "MON"
     val fullDate: LocalDate, // e.g. "2025-11-09"
     val isSelected: Boolean = false,
-    val hasAppointment: Boolean = false
+    val hasAppointment: Boolean = false,
+    val isEnabled: Boolean = true
 )
 
 data class HomeState(

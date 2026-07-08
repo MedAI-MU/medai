@@ -1,10 +1,14 @@
 package org.example.project.domain.repository.appointment
 
+import kotlinx.coroutines.flow.Flow
 import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.domain.model.appointment.CancelReason
 
 interface AppointmentRepository {
+    val appointmentsRefreshSignals: Flow<Unit>
+    fun triggerAppointmentsRefresh()
+
     suspend fun getAppointments(status: AppointmentDetailStatus): Result<List<AppointmentDetail>>
     suspend fun getMyAppointments(): Result<List<AppointmentDetail>>
     suspend fun cancelAppointment(id: String): Result<Unit>

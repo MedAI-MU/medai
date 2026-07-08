@@ -21,7 +21,7 @@ val scheduleModule = module {
 
     factory { (doctorId: Int) ->
         ScheduleViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), doctorId
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), doctorId
         )
     }
 }

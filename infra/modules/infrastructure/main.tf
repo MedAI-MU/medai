@@ -1,7 +1,6 @@
 locals {
   prefix = "medai-${var.environment}"
 
-  acr_id           = data.azurerm_container_registry.existing.id
   acr_login_server = data.azurerm_container_registry.existing.login_server
 }
 
@@ -119,10 +118,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     public_key = var.ssh_public_key
   }
 
-  identity {
-    type = "SystemAssigned"
-  }
-
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -137,15 +132,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml.tpl", {
     fqdn          = azurerm_public_ip.vm_ip.fqdn
-    acr_name      = var.acr_name
     certbot_email = var.certbot_email
   }))
-}
-
-resource "azurerm_role_assignment" "vm_acrpull" {
-  scope                = local.acr_id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
 }
 
 resource "azurerm_postgresql_flexible_server" "db" {
@@ -169,6 +157,17 @@ resource "azurerm_postgresql_flexible_server" "db" {
     active_directory_auth_enabled = false
     password_auth_enabled         = true
   }
+
+  lifecycle {
+    ignore_changes = [zone]
+  }
+}
+
+resource "azurerm_postgresql_flexible_server_database" "app" {
+  name      = var.db_name
+  server_id = azurerm_postgresql_flexible_server.db.id
+  charset   = "UTF8"
+  collation = "en_US.utf8"
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "client_ip" {
@@ -176,6 +175,13 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "client_ip" {
   server_id        = azurerm_postgresql_flexible_server.db.id
   start_ip_address = var.client_ip_address
   end_ip_address   = var.client_ip_address
+}
+
+resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure_services" {
+  name             = "allow-azure-services"
+  server_id        = azurerm_postgresql_flexible_server.db.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "extensions" {

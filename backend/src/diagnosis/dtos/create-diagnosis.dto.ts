@@ -5,11 +5,6 @@ export class CreateDiagnosisDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  patientUserId: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
   appointmentId: number;
 
   @ApiProperty()

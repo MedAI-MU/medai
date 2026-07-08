@@ -2,7 +2,7 @@ import { IsInt, IsPositive } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AddUserRoleDto {
-  @ApiProperty({ description: 'User ID' })
+  @ApiProperty({ description: 'User ID', example: 1 })
   @IsInt()
   @IsPositive()
   userId: number;

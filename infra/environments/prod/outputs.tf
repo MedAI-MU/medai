@@ -22,3 +22,8 @@ output "pg_server_fqdn" {
   value       = module.infrastructure.pg_server_fqdn
   description = "FQDN of the PostgreSQL flexible server"
 }
+
+output "db_name" {
+  value       = module.infrastructure.db_name
+  description = "Name of the application database"
+}

@@ -2,17 +2,33 @@ package org.example.project.di
 
 import org.example.project.data.repository.NetworkPatientRepository
 import org.example.project.data.repository.mock.MockMedicalRecordRepository
+import org.example.project.data.repository.scans.NetworkScansRepository
 import org.example.project.domain.repository.medical_record.MedicalRecordRepository
 import org.example.project.domain.repository.patient.PatientRepository
+import org.example.project.domain.repository.scans.ScansRepository
 import org.example.project.domain.usecase.medical_record.*
 import org.example.project.domain.usecase.patient.*
+import org.example.project.domain.usecase.scans.*
 import org.example.project.presentation.patientDirectory.PatientsDirectoryViewModel
+import org.example.project.presentation.scans.ScansViewModel
 import org.example.project.presentation.shared.records.SharedMedicalRecordViewModel
 import org.koin.dsl.module
 
 val medicalRecordModule = module {
     single<MedicalRecordRepository> { MockMedicalRecordRepository() }
     single<PatientRepository> { NetworkPatientRepository(get()) }
+    single<ScansRepository> { NetworkScansRepository(get()) }
+
+    // Scans Use Cases
+    factory { GetScansUseCase(get()) }
+    factory { GetScanDetailsUseCase(get()) }
+    factory { UploadScanUseCase(get()) }
+    factory { DeleteScanUseCase(get()) }
+    factory { GetScanReportsUseCase(get()) }
+    factory { UploadReportUseCase(get()) }
+    factory { DeleteReportUseCase(get()) }
+    factory { GetScanImageFileUseCase(get()) }
+    factory { GetReportFileUseCase(get()) }
 
     // Patient Use Cases
     factory { GetPatientsUseCase(get()) }
@@ -66,6 +82,23 @@ val medicalRecordModule = module {
             updateEmergencyContactUseCase = get(),
             deleteEmergencyContactUseCase = get(),
             sessionManager = get()
+        )
+    }
+
+    factory { params ->
+        val patientId = params.getOrNull<String>()
+        ScansViewModel(
+            patientIdArg = patientId,
+            sessionManager = get(),
+            getScansUseCase = get(),
+            getScanDetailsUseCase = get(),
+            uploadScanUseCase = get(),
+            deleteScanUseCase = get(),
+            getScanReportsUseCase = get(),
+            uploadReportUseCase = get(),
+            deleteReportUseCase = get(),
+            getScanImageFileUseCase = get(),
+            getReportFileUseCase = get()
         )
     }
 }

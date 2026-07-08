@@ -12,12 +12,17 @@ import { JwtService } from '@nestjs/jwt';
 import jwtConfig from './jwt.config';
 import * as argon2 from 'argon2';
 import { Request } from 'express';
+import { AuthMailerService } from './auth-mailer.service';
+import { NotFoundException, ConflictException } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 
 describe('AuthService', () => {
   let authService: AuthService;
 
   const usersRepositoryMock = {
     findOne: jest.fn(),
+    save: jest.fn(),
+    update: jest.fn(),
   };
   const refreshTokensRepositoryMock = {
     findOne: jest.fn(),
@@ -33,6 +38,11 @@ describe('AuthService', () => {
     tokenExpiresInMs: 900000,
     refreshTokenSecret: 'testRefreshSecret',
     refreshTokenExpiresInMs: 604800000,
+  };
+
+  const authMailerServiceMock = {
+    sendVerificationEmail: jest.fn(),
+    sendPasswordResetEmail: jest.fn(),
   };
 
   const now = new Date('2025-12-05T12:00:00Z');
@@ -56,6 +66,10 @@ describe('AuthService', () => {
         {
           provide: jwtConfig.KEY,
           useValue: jwtOptionsMock,
+        },
+        {
+          provide: AuthMailerService,
+          useValue: authMailerServiceMock,
         },
       ],
     }).compile();
@@ -437,6 +451,300 @@ describe('AuthService', () => {
       expect(refreshTokensRepositoryMock.remove).toHaveBeenCalledTimes(1);
       expect(refreshTokensRepositoryMock.remove).toHaveBeenCalledWith(
         existingTokens[1],
+      );
+    });
+  });
+
+  describe('sendVerificationEmail', () => {
+    it('should do nothing when user is not found', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await authService.sendVerificationEmail('unknown@test.com');
+
+      expect(
+        authMailerServiceMock.sendVerificationEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when email is already verified', async () => {
+      const fakeUser = {
+        id: 1,
+        email: 'test@test.com',
+        emailVerified: true,
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await authService.sendVerificationEmail('test@test.com');
+
+      expect(
+        authMailerServiceMock.sendVerificationEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should generate token, save user and send email', async () => {
+      const fakeUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@test.com',
+        emailVerified: false,
+        verificationToken: undefined,
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      authMailerServiceMock.sendVerificationEmail.mockResolvedValue(undefined);
+
+      await authService.sendVerificationEmail('test@test.com');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          verificationToken: expect.any(String),
+          verificationTokenExpiresAt: expect.any(Date),
+        }),
+      );
+      expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
+        'test@test.com',
+        'Test User',
+        expect.any(String),
+      );
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should throw BadRequestException when token is invalid', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(authService.verifyEmail('invalid-token')).rejects.toThrow(
+        'Invalid verification token',
+      );
+    });
+
+    it('should mark email as verified and clear token', async () => {
+      const fakeUser = {
+        id: 1,
+        emailVerified: false,
+        verificationToken: 'valid-token',
+        verificationTokenExpiresAt: new Date(Date.now() + 86_400_000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await authService.verifyEmail('valid-token');
+
+      expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({
+        where: {
+          verificationToken: createHash('sha256')
+            .update('valid-token')
+            .digest('hex'),
+        },
+      });
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          emailVerified: true,
+          verificationToken: null,
+          verificationTokenExpiresAt: null,
+        }),
+      );
+    });
+
+    it('should throw BadRequestException when verification token is expired', async () => {
+      const fakeUser = {
+        id: 1,
+        emailVerified: false,
+        verificationToken: createHash('sha256')
+          .update('expired-token')
+          .digest('hex'),
+        verificationTokenExpiresAt: new Date(Date.now() - 1),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await expect(authService.verifyEmail('expired-token')).rejects.toThrow(
+        'Verification token has expired',
+      );
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should do nothing when user is not found', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await authService.forgotPassword('unknown@test.com');
+
+      expect(
+        authMailerServiceMock.sendPasswordResetEmail,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should generate reset token and send email', async () => {
+      const fakeUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@test.com',
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      authMailerServiceMock.sendPasswordResetEmail.mockResolvedValue(undefined);
+
+      await authService.forgotPassword('test@test.com');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resetPasswordToken: expect.any(String),
+          resetPasswordExpiresAt: expect.any(Date),
+        }),
+      );
+      expect(authMailerServiceMock.sendPasswordResetEmail).toHaveBeenCalledWith(
+        'test@test.com',
+        'Test User',
+        expect.any(String),
+      );
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should throw BadRequestException when token is invalid', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(
+        authService.resetPassword('invalid-token', 'newPassword123'),
+      ).rejects.toThrow('Invalid or expired reset token');
+    });
+
+    it('should throw BadRequestException when token is expired', async () => {
+      const fakeUser = {
+        id: 1,
+        resetPasswordToken: createHash('sha256')
+          .update('expired-token')
+          .digest('hex'),
+        resetPasswordExpiresAt: new Date(Date.now() - 3_600_000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await expect(
+        authService.resetPassword('expired-token', 'newPassword123'),
+      ).rejects.toThrow('Invalid or expired reset token');
+    });
+
+    it('should hash new password and clear reset token', async () => {
+      const fakeUser = {
+        id: 1,
+        password: 'old-hashed-password',
+        resetPasswordToken: createHash('sha256')
+          .update('valid-token')
+          .digest('hex'),
+        resetPasswordExpiresAt: new Date(Date.now() + 3_600_000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+      (argon2.hash as jest.Mock).mockResolvedValue('new-hashed-password');
+
+      await authService.resetPassword('valid-token', 'newPassword123');
+
+      expect(argon2.hash).toHaveBeenCalledWith('newPassword123');
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          password: 'new-hashed-password',
+          resetPasswordToken: null,
+          resetPasswordExpiresAt: null,
+        }),
+      );
+    });
+  });
+
+  describe('verifyEmail (with pendingEmail)', () => {
+    it('should update email from pendingEmail when present', async () => {
+      const fakeUser = {
+        id: 1,
+        email: 'old@test.com',
+        pendingEmail: 'new@test.com',
+        emailVerified: false,
+        verificationToken: createHash('sha256')
+          .update('token-123')
+          .digest('hex'),
+        verificationTokenExpiresAt: new Date(Date.now() + 86_400_000),
+      };
+
+      usersRepositoryMock.findOne.mockResolvedValue(fakeUser);
+
+      await authService.verifyEmail('token-123');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'new@test.com',
+          pendingEmail: null,
+          emailVerified: true,
+          verificationToken: null,
+          verificationTokenExpiresAt: null,
+        }),
+      );
+    });
+  });
+
+  describe('requestEmailChange', () => {
+    it('should throw NotFoundException when user not found', async () => {
+      usersRepositoryMock.findOne.mockResolvedValue(null);
+
+      await expect(
+        authService.requestEmailChange(1, 'new@test.com'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException when new email is same as current', async () => {
+      usersRepositoryMock.findOne.mockResolvedValueOnce({
+        id: 1,
+        email: 'same@test.com',
+      });
+
+      await expect(
+        authService.requestEmailChange(1, 'same@test.com'),
+      ).rejects.toThrow('New email is the same as current email');
+    });
+
+    it('should throw ConflictException when new email is already taken', async () => {
+      usersRepositoryMock.findOne
+        .mockResolvedValueOnce({
+          id: 1,
+          email: 'old@test.com',
+        })
+        .mockResolvedValueOnce({
+          id: 2,
+          email: 'taken@test.com',
+        });
+
+      await expect(
+        authService.requestEmailChange(1, 'taken@test.com'),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should generate token, set pendingEmail, save and send email to old address', async () => {
+      const fakeUser = {
+        id: 1,
+        email: 'old@test.com',
+        name: 'Test User',
+        pendingEmail: undefined,
+        verificationToken: undefined,
+      };
+
+      usersRepositoryMock.findOne
+        .mockResolvedValueOnce(fakeUser)
+        .mockResolvedValueOnce(null);
+      authMailerServiceMock.sendVerificationEmail.mockResolvedValue(undefined);
+
+      await authService.requestEmailChange(1, 'new@test.com');
+
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pendingEmail: 'new@test.com',
+          verificationToken: expect.any(String),
+          verificationTokenExpiresAt: expect.any(Date),
+        }),
+      );
+      expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
+        'old@test.com',
+        'Test User',
+        expect.any(String),
       );
     });
   });

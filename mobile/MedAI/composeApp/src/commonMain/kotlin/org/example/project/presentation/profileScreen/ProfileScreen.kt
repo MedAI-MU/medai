@@ -80,7 +80,10 @@ class ProfileScreen : Screen {
             viewModel.effect.collect { effect ->
                 when(effect) {
                     ProfileEffect.NavigateBack -> navigator.pop()
-                    ProfileEffect.NavigateToLogin -> navigator.replaceAll(LoginScreen())
+                    ProfileEffect.NavigateToLogin -> {
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.replaceAll(LoginScreen())
+                    }
                     is ProfileEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                     is ProfileEffect.NavigateToScreen -> { /* Handle generic nav */ }
                 }

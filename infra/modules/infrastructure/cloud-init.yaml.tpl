@@ -22,7 +22,6 @@ write_files:
           client_max_body_size 50m;
 
           location /api/ {
-              rewrite ^/api/(.*)$ /$1 break;
               proxy_pass http://127.0.0.1:8000;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
@@ -38,10 +37,6 @@ write_files:
               proxy_set_header X-Forwarded-Proto $scheme;
           }
       }
-  - path: /etc/cron.d/acr-login
-    permissions: '0644'
-    content: |
-      0 */2 * * * azureuser az acr login --name ${acr_name} --identity >/dev/null 2>&1
 
 runcmd:
   - |
@@ -52,16 +47,9 @@ runcmd:
     systemctl enable --now docker
     usermod -aG docker azureuser
   - |
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-  - |
     rm -f /etc/nginx/sites-enabled/default
     ln -s /etc/nginx/sites-available/medai /etc/nginx/sites-enabled/medai
     nginx -t && systemctl restart nginx
-  - |
-    for i in $(seq 1 12); do
-      su - azureuser -c "az login --identity --output none 2>/dev/null && az acr login --name ${acr_name} --identity" && break
-      sleep 10
-    done
   - |
     sleep 30
     certbot --nginx -d ${fqdn} --non-interactive --agree-tos --redirect -m ${certbot_email} || echo "Certbot failed — retry manually"

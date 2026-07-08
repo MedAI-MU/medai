@@ -13,8 +13,8 @@ export default new DataSource({
   username: configService.getOrThrow<string>('DB_USERNAME'),
   password: configService.getOrThrow<string>('DB_PASSWORD'),
   database: configService.getOrThrow<string>('DB_NAME'),
-  migrations: ['./src/database/migrations/**/*{.js,.ts}'],
-  entities: ['./src/**/entities/*{.js,.ts}'],
+  migrations: [`${__dirname}/src/database/migrations/**/*{.js,.ts}`],
+  entities: [`${__dirname}/src/**/entities/*{.js,.ts}`],
   ssl: sslEnabled ? { rejectUnauthorized: false } : false,
   extra: {
     ssl: sslEnabled ? { rejectUnauthorized: false } : false,

@@ -174,8 +174,7 @@ describe('SchedulesController (e2e)', () => {
       .expect(200);
 
     const doctorSetCookies = doctorLoginResponse.headers['set-cookie'] as
-      | string
-      | string[];
+      string | string[];
     const doctorCookiesArray = Array.isArray(doctorSetCookies)
       ? doctorSetCookies
       : [doctorSetCookies];

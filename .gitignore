@@ -10,7 +10,7 @@ dist/
 node_modules/
 .npm/
 /build
-
+uploads/
 # Logs
 logs
 *.log
@@ -88,3 +88,7 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Backend cache and local directories
+backend/.cache/
+backend/.local/

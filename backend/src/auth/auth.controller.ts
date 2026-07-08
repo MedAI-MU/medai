@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -19,6 +20,12 @@ import { ApiBody, ApiOkResponse, ApiBadRequestResponse } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { AuthenticatedUserDto } from './dto/authenticated-user.dto';
+import { SendVerificationDto } from './dto/send-verification.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangeEmailDto } from './dto/change-email.dto';
+import { ConfirmEmailChangeDto } from './dto/confirm-email-change.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -104,5 +111,72 @@ export class AuthController {
   ) {
     // remove existing refresh token and then issue new tokens
     await this.issueTokensAndSetCookies(currentUser as User, req, res);
+  }
+
+  @Post('send-verification')
+  @AllowAnon()
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: SendVerificationDto })
+  @ApiOkResponse({ description: 'Verification email sent if account exists' })
+  async sendVerification(@Body() dto: SendVerificationDto) {
+    await this.authService.sendVerificationEmail(dto.email);
+  }
+
+  @Post('verify-email')
+  @AllowAnon()
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: VerifyEmailDto })
+  @ApiOkResponse({ description: 'Email verified successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid verification token' })
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    await this.authService.verifyEmail(dto.token);
+  }
+
+  @Post('forgot-password')
+  @AllowAnon()
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiOkResponse({
+    description: 'Password reset email sent if account exists',
+  })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @AllowAnon()
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiOkResponse({ description: 'Password reset successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid or expired reset token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.password);
+  }
+
+  @Post('change-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: ChangeEmailDto })
+  @ApiOkResponse({
+    description: 'Verification email sent to current address',
+  })
+  async changeEmail(
+    @CurrentUser() user: Partial<User>,
+    @Body() dto: ChangeEmailDto,
+  ) {
+    await this.authService.requestEmailChange(user.id!, dto.newEmail);
+  }
+
+  @Post('change-email/confirm')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: ConfirmEmailChangeDto })
+  @ApiOkResponse({ description: 'Email changed successfully' })
+  @ApiBadRequestResponse({
+    description: 'Invalid or expired token / no pending change',
+  })
+  async confirmEmailChange(
+    @CurrentUser() user: Partial<User>,
+    @Body() dto: ConfirmEmailChangeDto,
+  ) {
+    await this.authService.confirmEmailChange(user.id!, dto.token);
   }
 }

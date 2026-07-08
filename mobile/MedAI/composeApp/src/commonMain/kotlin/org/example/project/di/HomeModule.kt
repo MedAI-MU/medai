@@ -9,5 +9,5 @@ import org.koin.dsl.module
 val homeModule = module {
     single<HomeRepository> { NetworkHomeRepository(get()) }
     factory { GetHomeDataUseCase(get(), get()) }
-    factory { HomeViewModel(get(), get(), get()) }
+    factory { HomeViewModel(get(), get(), get(), get()) }
 }

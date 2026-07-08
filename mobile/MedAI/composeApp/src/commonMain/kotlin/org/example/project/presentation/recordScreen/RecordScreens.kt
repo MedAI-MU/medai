@@ -92,6 +92,8 @@ import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.domain.model.patient.UpdatePatientParams
 import org.example.project.presentation.shared.records.*
+import org.example.project.presentation.scans.ScansScreen
+import org.example.project.presentation.shared.diagnosis.DiagnosisListScreen
 
 // --- Sheet Type Sealed Class (patient-specific) ---
 sealed class PatientSheetType {
@@ -192,13 +194,16 @@ class RecordsDashboardScreen : Screen {
                 DashboardItem("Surgeries", Icons.Default.Vaccines, Color(0xFFC8E6C9)) { navigator.push(SurgeriesScreen()) },
                 DashboardItem("Family", Icons.Default.History, Color(0xFFBBDEFB)) { navigator.push(FamilyHistoryScreen()) },
                 DashboardItem("Emergency", Icons.Default.ContactPhone, Color(0xFFFFF9C4)) { navigator.push(EmergencyContactsScreen()) },
-                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) }
+                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) },
+                DashboardItem("Scans", Icons.Default.Science, Color(0xFF80DEEA)) { navigator.push(ScansScreen(state.patientProfile?.id)) },
+                DashboardItem("Diagnoses", Icons.Default.ListAlt, Color(0xFFFFCC80)) { navigator.push(DiagnosisListScreen(state.patientProfile?.id ?: "")) }
             )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.weight(1f)
             ) {
                 items(items) { item -> DashboardCard(item) }
             }

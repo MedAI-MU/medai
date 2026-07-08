@@ -5,10 +5,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
+  Redirect,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -17,7 +17,6 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
-import * as fs from 'fs';
 import {
   ApiBody,
   ApiConsumes,
@@ -32,6 +31,7 @@ import {
 import { ScansService } from './scans.service';
 import { ScanResponseDto } from './dtos/scan-response.dto';
 import { ReportResponseDto } from './dtos/report-response.dto';
+import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ApprovedGuard } from '../users/guards/approved.guard';
@@ -43,18 +43,18 @@ import type { TokenUser } from '../auth/interfaces/token-user.interface';
 export class ScansController {
   constructor(private readonly scansService: ScansService) {}
 
-  @Roles('patient', 'secretary')
-  @UseGuards(RolesGuard)
-  @Post('scans')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @Post('scans/:id')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FilesInterceptor('images'))
   @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         images: { type: 'array', items: { type: 'string', format: 'binary' } },
-        patientUserId: { type: 'number' },
         appointmentId: { type: 'number' },
       },
     },
@@ -63,26 +63,20 @@ export class ScansController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async create(
-    @CurrentUser() currentUser: TokenUser,
     @UploadedFiles() images: Express.Multer.File[],
-    @Body('patientUserId') patientUserId?: string,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @Body('appointmentId') appointmentId?: string,
   ): Promise<ScanResponseDto> {
-    const pUserId =
-      currentUser.role === 'secretary' && patientUserId
-        ? Number(patientUserId)
-        : currentUser.id;
     const aId = appointmentId ? Number(appointmentId) : null;
     const scan = await this.scansService.create(
-      pUserId,
+      patientUserId,
       aId,
       images || [],
-      currentUser,
     );
     return new ScanResponseDto(scan);
   }
 
-  @Roles('patient', 'secretary', 'doctor')
+  @Roles('secretary', 'doctor')
   @UseGuards(RolesGuard)
   @Get('scans')
   @HttpCode(HttpStatus.OK)
@@ -96,67 +90,87 @@ export class ScansController {
     return scans.map((s) => new ScanResponseDto(s));
   }
 
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
   @Get('scans/:id')
   @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', type: Number })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiOkResponse({ description: "Patient's scans", type: [ScanResponseDto] })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async findPatientScans(
+    @Param('id', ParseIntPipe) patientUserId: number,
+    @CurrentUser() currentUser: TokenUser,
+  ): Promise<ScanResponseDto[]> {
+    const scans = await this.scansService.findByPatient(
+      patientUserId,
+      currentUser,
+    );
+    return scans.map((s) => new ScanResponseDto(s));
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('scans/:id/:scanId')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'scanId', type: Number })
   @ApiOkResponse({ description: 'Scan details', type: ScanResponseDto })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('scanId', ParseIntPipe) scanId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ScanResponseDto> {
-    const scan = await this.scansService.findOne(id, currentUser);
+    const scan = await this.scansService.findOne(scanId, currentUser);
     return new ScanResponseDto(scan);
   }
 
-  @Roles('patient', 'secretary')
-  @UseGuards(RolesGuard)
-  @Delete('scans/:id')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @Delete('scans/:id/:scanId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'id', type: Number })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'scanId', type: Number })
   @ApiNoContentResponse({ description: 'Scan deleted' })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async delete(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: TokenUser,
-  ): Promise<void> {
-    await this.scansService.delete(id, currentUser);
+  async delete(@Param('scanId', ParseIntPipe) scanId: number): Promise<void> {
+    await this.scansService.delete(scanId);
   }
 
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
-  @Get('scans/:id/reports')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('scans/:id/:scanId/reports')
   @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', type: Number })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'scanId', type: Number })
   @ApiOkResponse({
     description: 'Reports for scan',
     type: [ReportResponseDto],
   })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   async findReports(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('scanId', ParseIntPipe) scanId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto[]> {
-    const reports = await this.scansService.findReports(id, currentUser);
+    const reports = await this.scansService.findReports(scanId, currentUser);
     return reports.map((r) => new ReportResponseDto(r));
   }
 
-  @Roles('patient', 'secretary')
-  @UseGuards(RolesGuard)
-  @Post('scans/:id/reports')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @Post('scans/:id/:scanId/reports')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'scanId', type: Number })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         file: { type: 'string', format: 'binary' },
-        patientUserId: { type: 'number' },
       },
     },
   })
@@ -165,65 +179,63 @@ export class ScansController {
     type: ReportResponseDto,
   })
   async createReport(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: TokenUser,
+    @Param('scanId', ParseIntPipe) scanId: number,
     @UploadedFile() file: Express.Multer.File,
-    @Body('patientUserId') patientUserId?: string,
+    @Param('id', ParseIntPipe) patientUserId: number,
   ): Promise<ReportResponseDto> {
-    const pUserId =
-      currentUser.role === 'secretary' && patientUserId
-        ? Number(patientUserId)
-        : currentUser.id;
     const report = await this.scansService.createReport(
-      id,
-      pUserId,
+      scanId,
+      patientUserId,
       file,
+    );
+    return new ReportResponseDto(report);
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @Delete('reports/:id/:reportId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'reportId', type: Number })
+  @ApiNoContentResponse({ description: 'Report deleted' })
+  @ApiNotFoundResponse({ description: 'Report not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async deleteReport(
+    @Param('reportId', ParseIntPipe) reportId: number,
+  ): Promise<void> {
+    await this.scansService.deleteReport(reportId);
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('reports/:id/:reportId')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'reportId', type: Number })
+  @ApiOkResponse({ description: 'Report details', type: ReportResponseDto })
+  @ApiNotFoundResponse({ description: 'Report not found' })
+  async findReport(
+    @Param('reportId', ParseIntPipe) reportId: number,
+    @CurrentUser() currentUser: TokenUser,
+  ): Promise<ReportResponseDto> {
+    const report = await this.scansService.findReportById(
+      reportId,
       currentUser,
     );
     return new ReportResponseDto(report);
   }
 
-  @Roles('patient', 'secretary')
-  @UseGuards(RolesGuard)
-  @Delete('reports/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'id', type: Number })
-  @ApiNoContentResponse({ description: 'Report deleted' })
-  @ApiNotFoundResponse({ description: 'Report not found' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  async deleteReport(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: TokenUser,
-  ): Promise<void> {
-    await this.scansService.deleteReport(id, currentUser);
-  }
-
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
-  @Get('reports/:id')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('reports/patient/:id')
   @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', type: Number })
-  @ApiOkResponse({ description: 'Report details', type: ReportResponseDto })
-  @ApiNotFoundResponse({ description: 'Report not found' })
-  async findReport(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: TokenUser,
-  ): Promise<ReportResponseDto> {
-    const report = await this.scansService.findReportById(id, currentUser);
-    return new ReportResponseDto(report);
-  }
-
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
-  @Get('reports/patient/:patientUserId')
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'patientUserId', type: Number })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiOkResponse({
     description: "Patient's reports",
     type: [ReportResponseDto],
   })
   async findReportsByPatient(
-    @Param('patientUserId', ParseIntPipe) patientUserId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto[]> {
     const reports = await this.scansService.findReportsByPatient(
@@ -233,51 +245,47 @@ export class ScansController {
     return reports.map((r) => new ReportResponseDto(r));
   }
 
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
-  @Get('scans/images/:imageId/file')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('scans/images/:id/:imageId/file')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiParam({ name: 'imageId', type: Number })
   @ApiOkResponse({ description: 'Image file' })
   @ApiNotFoundResponse({ description: 'Image not found' })
+  @Redirect()
   async getImageFile(
     @Param('imageId', ParseIntPipe) imageId: number,
     @CurrentUser() currentUser: TokenUser,
-    @Res() res: Response,
-  ): Promise<void> {
-    const { path, originalName } = await this.scansService.getImageFile(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string; statusCode: number }> {
+    const { path: blobUrl } = await this.scansService.getImageFile(
       imageId,
       currentUser,
     );
-    if (!fs.existsSync(path)) {
-      throw new NotFoundException('File not found on disk');
-    }
-    res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
-    const stream = fs.createReadStream(path);
-    stream.pipe(res);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    return { url: blobUrl, statusCode: 302 };
   }
 
-  @Roles('patient', 'secretary', 'doctor')
-  @UseGuards(RolesGuard)
-  @Get('reports/:id/file')
+  @UseGuards(SameIdGuard)
+  @Roles('secretary', 'doctor')
+  @Get('reports/:id/:reportId/file')
   @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', type: Number })
+  @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
+  @ApiParam({ name: 'reportId', type: Number })
   @ApiOkResponse({ description: 'Report file' })
   @ApiNotFoundResponse({ description: 'Report not found' })
+  @Redirect()
   async getReportFile(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('reportId', ParseIntPipe) reportId: number,
     @CurrentUser() currentUser: TokenUser,
-    @Res() res: Response,
-  ): Promise<void> {
-    const { path, originalName } = await this.scansService.getReportFile(
-      id,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string; statusCode: number }> {
+    const { path: blobUrl } = await this.scansService.getReportFile(
+      reportId,
       currentUser,
     );
-    if (!fs.existsSync(path)) {
-      throw new NotFoundException('File not found on disk');
-    }
-    res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
-    const stream = fs.createReadStream(path);
-    stream.pipe(res);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    return { url: blobUrl, statusCode: 302 };
   }
 }
