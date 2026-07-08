@@ -37,6 +37,7 @@ async function apiClientFetch({ endpoint, options = {} }) {
   // 4) handle general fails
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.log(errorData);
     console.error(errorData?.message);
     const error = new Error(
       errorData?.message || `API Error: ${response.status}`,

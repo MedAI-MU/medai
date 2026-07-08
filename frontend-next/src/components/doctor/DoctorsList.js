@@ -6,10 +6,10 @@ import {
 } from "@/services/server/doctors";
 import ErrorState from "../ui/ErrorState";
 import EmptyState from "../ui/EmptyState";
-import { UserSearch } from "lucide-react";
+import { UserSearch, UserX } from "lucide-react";
 import AnimateWrapper from "../ui/AnimateWrapper";
 
-async function DoctorsList({ query }) {
+async function DoctorsList({ query, ...cardProps }) {
   let hasError = false;
   let doctors = [];
 
@@ -48,20 +48,30 @@ async function DoctorsList({ query }) {
       />
     );
 
-  if (doctors.length === 0)
-    return (
-      <EmptyState
-        title="No doctors found"
-        icon={<UserSearch size={30} />}
-        description={
-          <>
-            No doctors matched your search for{" "}
-            <strong className="text-text-base">&quot;{query}&quot;</strong>. Try
-            searching for a different name or speciality
-          </>
-        }
-      />
-    );
+  if (doctors.length === 0) {
+    if (query)
+      return (
+        <EmptyState
+          title="No doctors found"
+          icon={<UserSearch size={30} />}
+          description={
+            <>
+              No doctors matched your search for{" "}
+              <strong className="text-text-base">&quot;{query}&quot;</strong>.
+              Try searching for a different name or speciality
+            </>
+          }
+        />
+      );
+    else
+      return (
+        <EmptyState
+          title="No doctors yet"
+          icon={<UserX size={30} />}
+          description="There is no doctors added to the system yet."
+        />
+      );
+  }
 
   return (
     <Grid cols="two" className="mt-10">
@@ -72,7 +82,7 @@ async function DoctorsList({ query }) {
           transitionOptions={{ type: "spring", damping: 15, stiffness: 500 }}
           delay={idx * 0.1}
         >
-          <DoctorCard doctor={doctor} />
+          <DoctorCard doctor={doctor} {...cardProps} />
         </AnimateWrapper>
       ))}
     </Grid>

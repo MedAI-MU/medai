@@ -17,7 +17,7 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
   // 1) Setup Protected routes
-  const ProtectedRoutes = ["/doctor", "/patient"];
+  const ProtectedRoutes = ["/doctor", "/patient", "/secretary"];
   const isProtectedRoute = ProtectedRoutes.some((route) =>
     pathname.startsWith(route),
   );

@@ -10,7 +10,7 @@ import DoctorAppointmentCard from "./DoctorAppointmentCard";
 
 const tabsArray = ["today", "upcoming", "past"];
 
-function DoctorAppointments({ appointments }) {
+function DoctorAppointments({ appointments, cardProps = {} }) {
   const [activeTab, setActiveTab] = useState(tabsArray[0]);
 
   const todayStr = formatDate(new Date());
@@ -69,7 +69,7 @@ function DoctorAppointments({ appointments }) {
                 stiffness: 600,
               }}
             >
-              <DoctorAppointmentCard appointment={appointment} />
+              <DoctorAppointmentCard appointment={appointment} {...cardProps} />
             </AnimateWrapper>
           ))}
         </div>

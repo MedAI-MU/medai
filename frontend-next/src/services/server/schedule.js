@@ -1,12 +1,10 @@
 import "server-only";
 
 import { apiServer } from "@/lib/api/apiFetchServer";
-import { getUserFromToken } from "@/lib/session";
 import { redirect } from "next/navigation";
 
-export async function getScheduleTemplates(name, pageSize, pageNo) {
-  const user = await getUserFromToken();
-  if (!user) redirect("/auth/login");
+export async function getScheduleTemplates(name, pageSize, pageNo, doctorId) {
+  if (!doctorId) redirect("/auth/login");
 
   const params = new URLSearchParams();
 
@@ -15,7 +13,7 @@ export async function getScheduleTemplates(name, pageSize, pageNo) {
   if (pageNo) params.set("pageNo", pageNo);
 
   const response = await apiServer.get(
-    `api/doctors/${user?.sub}/schedule-templates${params.toString() ? `?${params.toString()}` : ""}`,
+    `api/doctors/${doctorId}/schedule-templates${params.toString() ? `?${params.toString()}` : ""}`,
   );
   return response;
 }
