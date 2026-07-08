@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   PrimaryColumn,
   OneToOne,
@@ -31,6 +32,9 @@ export class Doctor extends TimestampEntity {
     cascade: true,
   })
   specialities: DoctorSpeciality[];
+
+  @Column({ type: 'text', nullable: true })
+  about?: string;
 
   @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.doctor)
   diagnoses: Diagnosis[];

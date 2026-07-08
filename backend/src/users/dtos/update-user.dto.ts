@@ -41,4 +41,12 @@ export class UpdateUserDto {
     description: 'Gender',
   })
   gender?: 'male' | 'female';
+
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({
+    example: 'Experienced cardiologist with 10+ years...',
+    description: 'Short biography',
+  })
+  bio?: string;
 }

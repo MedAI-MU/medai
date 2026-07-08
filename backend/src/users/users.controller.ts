@@ -241,7 +241,6 @@ export class UsersController {
   }
 
   @UseGuards(SameIdGuard)
-  @Roles('secretary')
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: UpdateUserDto })
