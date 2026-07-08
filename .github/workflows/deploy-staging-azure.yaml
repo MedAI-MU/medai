@@ -234,6 +234,12 @@ jobs:
           JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
           REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
           REFRESH_TOKEN_EXPIRATION=${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+          BREVO_SMTP_HOST=${{ secrets.BREVO_SMTP_HOST }}
+          BREVO_SMTP_PORT=${{ secrets.BREVO_SMTP_PORT }}
+          BREVO_SMTP_USER=${{ secrets.BREVO_SMTP_USER }}
+          BREVO_SMTP_PASS=${{ secrets.BREVO_SMTP_PASS }}
+          BREVO_DEFAULT_FROM=${{ secrets.BREVO_DEFAULT_FROM }}
+          FRONTEND_URL=${{ needs.terraform.outputs.api_base_url }}
           ENVEOF
           cat > docker-compose/.env.frontend.staging << 'ENVEOF'
           NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
