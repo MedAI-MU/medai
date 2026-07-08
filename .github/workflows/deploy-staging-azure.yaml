@@ -239,6 +239,7 @@ jobs:
           BREVO_SMTP_USER=${{ secrets.BREVO_SMTP_USER }}
           BREVO_SMTP_PASS=${{ secrets.BREVO_SMTP_PASS }}
           BREVO_DEFAULT_FROM=${{ secrets.BREVO_DEFAULT_FROM }}
+          FRONTEND_URL=${{ needs.terraform.outputs.api_base_url }}
           ENVEOF
           cat > docker-compose/.env.frontend.staging << 'ENVEOF'
           NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
