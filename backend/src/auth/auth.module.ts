@@ -33,5 +33,6 @@ import { AuthMailerService } from './auth-mailer.service';
       useClass: JwtAuthGuard,
     },
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

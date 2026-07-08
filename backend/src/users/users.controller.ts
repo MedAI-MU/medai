@@ -8,6 +8,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -19,10 +20,12 @@ import { UserProfileDto } from './dtos/user-profile.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { AddUserRoleDto } from './dtos/add-user-role.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { AllowAnon } from 'src/auth/decorators/allow-anon.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApprovedGuard } from './guards/approved.guard';
+import { SameIdGuard } from '../shared/guards/same-id.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -235,5 +238,24 @@ export class UsersController {
   @ApiNoContentResponse({ description: 'Avatar removed' })
   async removeAvatar(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.usersService.deleteAvatar(id);
+  }
+
+  @UseGuards(SameIdGuard)
+  @Roles('secretary')
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: UpdateUserDto })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: UserProfileDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiConflictResponse({ description: 'Phone number already in use' })
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateUserDto,
+  ): Promise<UserProfileDto> {
+    const user = await this.usersService.updateUser(id, updateDto);
+    return new UserProfileDto(user);
   }
 }

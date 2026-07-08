@@ -7,15 +7,13 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { GenderEnum } from '../../shared/enums/gender.enum';
 
-export class UpdateProfileDto {
+export class UpdateUserDto {
   @IsOptional()
   @Length(5, 100)
   @IsString()
-  @ApiPropertyOptional({
-    description: 'Full name of the user',
-    example: 'Mohamed Ahmed',
-  })
+  @ApiPropertyOptional({ example: 'Mohamed Ahmed', description: 'Full name' })
   name?: string;
 
   @IsOptional()
@@ -25,24 +23,22 @@ export class UpdateProfileDto {
   })
   @IsString()
   @ApiPropertyOptional({
-    description: 'Phone number of the user',
     example: '01123456789',
+    description: 'Phone number',
   })
   phone?: string;
 
   @IsOptional()
   @IsDateString()
-  @ApiPropertyOptional({
-    description: 'Birth date of the user (ISO 8601)',
-    example: '1990-01-15',
-  })
+  @ApiPropertyOptional({ example: '1990-01-15', description: 'Birth date' })
   birthDate?: string;
 
   @IsOptional()
-  @IsIn(['male', 'female'] as const)
+  @IsIn(GenderEnum)
   @ApiPropertyOptional({
-    description: 'Gender of the user',
     example: 'male',
+    enum: GenderEnum,
+    description: 'Gender',
   })
-  gender?: string;
+  gender?: 'male' | 'female';
 }

@@ -687,32 +687,18 @@ describe('AuthService', () => {
       usersRepositoryMock.findOne.mockResolvedValue(null);
 
       await expect(
-        authService.requestEmailChange(1, 'password', 'new@test.com'),
+        authService.requestEmailChange(1, 'new@test.com'),
       ).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw BadRequestException when password is wrong', async () => {
-      usersRepositoryMock.findOne.mockResolvedValue({
-        id: 1,
-        password: 'hashed-password',
-      });
-      (argon2.verify as jest.Mock).mockResolvedValue(false);
-
-      await expect(
-        authService.requestEmailChange(1, 'wrong-password', 'new@test.com'),
-      ).rejects.toThrow('Invalid password');
     });
 
     it('should throw BadRequestException when new email is same as current', async () => {
       usersRepositoryMock.findOne.mockResolvedValueOnce({
         id: 1,
         email: 'same@test.com',
-        password: 'hashed-password',
       });
-      (argon2.verify as jest.Mock).mockResolvedValue(true);
 
       await expect(
-        authService.requestEmailChange(1, 'password', 'same@test.com'),
+        authService.requestEmailChange(1, 'same@test.com'),
       ).rejects.toThrow('New email is the same as current email');
     });
 
@@ -721,25 +707,22 @@ describe('AuthService', () => {
         .mockResolvedValueOnce({
           id: 1,
           email: 'old@test.com',
-          password: 'hashed-password',
         })
         .mockResolvedValueOnce({
           id: 2,
           email: 'taken@test.com',
         });
-      (argon2.verify as jest.Mock).mockResolvedValue(true);
 
       await expect(
-        authService.requestEmailChange(1, 'password', 'taken@test.com'),
+        authService.requestEmailChange(1, 'taken@test.com'),
       ).rejects.toThrow(ConflictException);
     });
 
-    it('should generate token, set pendingEmail, save and send email', async () => {
+    it('should generate token, set pendingEmail, save and send email to old address', async () => {
       const fakeUser = {
         id: 1,
         email: 'old@test.com',
         name: 'Test User',
-        password: 'hashed-password',
         pendingEmail: undefined,
         verificationToken: undefined,
       };
@@ -747,10 +730,9 @@ describe('AuthService', () => {
       usersRepositoryMock.findOne
         .mockResolvedValueOnce(fakeUser)
         .mockResolvedValueOnce(null);
-      (argon2.verify as jest.Mock).mockResolvedValue(true);
       authMailerServiceMock.sendVerificationEmail.mockResolvedValue(undefined);
 
-      await authService.requestEmailChange(1, 'password', 'new@test.com');
+      await authService.requestEmailChange(1, 'new@test.com');
 
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -760,48 +742,10 @@ describe('AuthService', () => {
         }),
       );
       expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
-        'new@test.com',
+        'old@test.com',
         'Test User',
         expect.any(String),
       );
-    });
-  });
-
-  describe('updateProfile', () => {
-    it('should update only provided fields', async () => {
-      usersRepositoryMock.update.mockResolvedValue({ affected: 1 });
-
-      await authService.updateProfile(1, { name: 'New Name' });
-
-      expect(usersRepositoryMock.update).toHaveBeenCalledWith(1, {
-        name: 'New Name',
-      });
-    });
-
-    it('should update all fields when provided', async () => {
-      usersRepositoryMock.update.mockResolvedValue({ affected: 1 });
-
-      await authService.updateProfile(1, {
-        name: 'New Name',
-        phone: '01234567890',
-        birthDate: '1990-06-15',
-        gender: 'female',
-      });
-
-      expect(usersRepositoryMock.update).toHaveBeenCalledWith(1, {
-        name: 'New Name',
-        phone: '01234567890',
-        birthDate: expect.any(Date),
-        gender: 'female',
-      });
-    });
-
-    it('should throw NotFoundException when user does not exist', async () => {
-      usersRepositoryMock.update.mockResolvedValue({ affected: 0 });
-
-      await expect(
-        authService.updateProfile(999, { name: 'Ghost' }),
-      ).rejects.toThrow(NotFoundException);
     });
   });
 });
