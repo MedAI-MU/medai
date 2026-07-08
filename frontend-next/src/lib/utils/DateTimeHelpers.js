@@ -54,3 +54,16 @@ export function parseDate(strDate) {
   if (!strDate) return new Date();
   return parse(strDate, "yyyy-MM-dd", new Date());
 }
+
+export function sortAppointmentsByDate(appointments, direction = "desc") {
+  if (!appointments?.length) return [];
+  const dir = direction === "asc" ? 1 : -1;
+  return [...appointments].sort((a, b) => {
+    const dateA = a?.scheduleSlot?.schedule?.dayDate || "";
+    const dateB = b?.scheduleSlot?.schedule?.dayDate || "";
+    if (dateA !== dateB) return dateA.localeCompare(dateB) * dir;
+    const timeA = a?.scheduleSlot?.startTime || "";
+    const timeB = b?.scheduleSlot?.startTime || "";
+    return timeA.localeCompare(timeB) * dir;
+  });
+}
