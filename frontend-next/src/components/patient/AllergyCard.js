@@ -8,12 +8,11 @@ import ActionButtons from "@/components/ui/ActionButtons";
 import EditAction from "@/components/ui/EditAction";
 import DeleteAction from "@/components/ui/DeleteAction";
 
-function AllergyCard({ allergy, patientId }) {
+function AllergyCard({ allergy, patientId, readOnly = false }) {
   const { name, description, id: allergyId } = allergy || {};
 
   return (
     <Card className="hover:border-primary flex flex-col items-center gap-4 text-center md:flex-row md:text-start">
-      {/* icon */}
       <IconBadge icon={<TriangleAlert size={20} />} isRounded color="orange" />
       <Heading
         Tag="h3"
@@ -23,21 +22,22 @@ function AllergyCard({ allergy, patientId }) {
         subtitle={description}
       />
 
-      {/* actions — visible on hover */}
-      <ActionButtons>
-        <EditAction
-          title="Edit Allergy"
-          description="Edit your allergy to be precise to help doctor know your diagnose."
-          form={<AllergyForm allergyToEdit={allergy} patientId={patientId} />}
-        />
-        <DeleteAction
-          description="This action cannot be undone. This will permanently delete allergy
+      {!readOnly && (
+        <ActionButtons>
+          <EditAction
+            title="Edit Allergy"
+            description="Edit your allergy to be precise to help doctor know your diagnose."
+            form={<AllergyForm allergyToEdit={allergy} patientId={patientId} />}
+          />
+          <DeleteAction
+            description="This action cannot be undone. This will permanently delete allergy
             from our servers."
-          onConfirm={() => deleteAllergy(patientId, allergyId)}
-          successMessage="Allergy has been deleted successfully"
-          failMessage="Failed to delete allergy"
-        />
-      </ActionButtons>
+            onConfirm={() => deleteAllergy(patientId, allergyId)}
+            successMessage="Allergy has been deleted successfully"
+            failMessage="Failed to delete allergy"
+          />
+        </ActionButtons>
+      )}
     </Card>
   );
 }
