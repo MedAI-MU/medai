@@ -83,6 +83,7 @@ export class ScansService {
         file.buffer,
         file.originalname,
         'scans',
+        file.mimetype,
       );
       const image = this.scanImagesRepository.create({
         scanId: savedScan.id,
@@ -158,6 +159,7 @@ export class ScansService {
       file.buffer,
       file.originalname,
       'reports',
+      file.mimetype,
     );
 
     const report = this.reportsRepository.create({

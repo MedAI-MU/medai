@@ -89,6 +89,7 @@ export class UsersService {
       file.buffer,
       file.originalname,
       'avatars',
+      file.mimetype,
     );
     user.avatar = url;
     await this.usersRepository.save(user);

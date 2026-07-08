@@ -219,6 +219,7 @@ describe('ScansService', () => {
     const file = {
       buffer: Buffer.from('data'),
       originalname: 'x.jpg',
+      mimetype: 'image/jpeg',
     } as Express.Multer.File;
 
     it('should create a scan with images', async () => {
@@ -246,6 +247,7 @@ describe('ScansService', () => {
         file.buffer,
         file.originalname,
         'scans',
+        file.mimetype,
       );
     });
 

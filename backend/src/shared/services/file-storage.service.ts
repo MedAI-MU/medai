@@ -32,6 +32,7 @@ export class FileStorageService {
     buffer: Buffer,
     originalName: string,
     moduleName: string,
+    mimeType?: string,
   ): Promise<string> {
     await this.ensureContainer(moduleName);
 
@@ -42,7 +43,9 @@ export class FileStorageService {
     const blobName = `${randomUUID()}${ext}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-    await blockBlobClient.uploadData(buffer);
+    await blockBlobClient.uploadData(buffer, {
+      blobHTTPHeaders: { blobContentType: mimeType },
+    });
 
     return blockBlobClient.url;
   }
