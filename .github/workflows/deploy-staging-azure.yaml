@@ -224,6 +224,8 @@ jobs:
           cat > docker-compose/.env.staging << 'ENVEOF'
           APP_PORT=8000
           NODE_ENV=production
+          AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
           DB_NAME=${{ needs.terraform.outputs.db_name }}
           DB_USERNAME=${{ needs.terraform.outputs.db_username }}
           DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }}
