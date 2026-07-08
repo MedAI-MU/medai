@@ -12,6 +12,7 @@ import { RegisterDto } from './dtos/register.dto';
 import * as argon2 from 'argon2';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
+import { FileStorageService } from '../shared/services/file-storage.service';
 
 describe('users.service', () => {
   let usersService: UsersService;
@@ -42,6 +43,11 @@ describe('users.service', () => {
     getRepository: jest.fn(),
   };
 
+  const fileStorageMock = {
+    saveFile: jest.fn(),
+    deleteFile: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
@@ -53,6 +59,10 @@ describe('users.service', () => {
         {
           provide: DataSource,
           useValue: dataSourceMock,
+        },
+        {
+          provide: FileStorageService,
+          useValue: fileStorageMock,
         },
       ],
     }).compile();
