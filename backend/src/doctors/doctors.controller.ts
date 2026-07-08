@@ -81,7 +81,7 @@ export class DoctorsController {
     return doctors.map((d) => new DoctorResponseDto(d));
   }
 
-  @Roles('secretary')
+  @Roles('secretary', 'patient')
   @UseGuards(RolesGuard)
   @Get('specialities')
   @HttpCode(HttpStatus.OK)
@@ -96,7 +96,7 @@ export class DoctorsController {
     return specialities.map((s) => new SpecialityResponseDto(s));
   }
 
-  @Roles('secretary', 'doctor')
+  @Roles('secretary')
   @UseGuards(RolesGuard)
   @Post('specialities')
   @HttpCode(HttpStatus.CREATED)
@@ -116,7 +116,7 @@ export class DoctorsController {
     return new SpecialityResponseDto(speciality);
   }
 
-  @Roles('secretary', 'doctor')
+  @Roles('secretary')
   @UseGuards(RolesGuard)
   @Patch('specialities/:id')
   @HttpCode(HttpStatus.OK)
@@ -144,7 +144,7 @@ export class DoctorsController {
     return new SpecialityResponseDto(speciality);
   }
 
-  @Roles('secretary', 'doctor')
+  @Roles('secretary')
   @UseGuards(RolesGuard)
   @Delete('specialities/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
