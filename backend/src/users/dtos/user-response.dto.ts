@@ -19,6 +19,9 @@ export class UserResponseDto {
   @ApiProperty({ nullable: true })
   avatar?: string | null;
 
+  @ApiProperty({ nullable: true })
+  bio?: string | null;
+
   @ApiProperty()
   createdAt: Date;
 
@@ -29,6 +32,7 @@ export class UserResponseDto {
     role: string;
     status: string;
     avatar?: string | null;
+    bio?: string | null;
     createdAt: Date;
   }) {
     this.id = user.id;
@@ -37,6 +41,7 @@ export class UserResponseDto {
     this.role = user.role;
     this.status = user.status;
     this.avatar = user.avatar ?? null;
+    this.bio = user.bio ?? null;
     this.createdAt = user.createdAt;
   }
 }

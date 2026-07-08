@@ -29,6 +29,9 @@ export class UserProfileDto {
   @ApiProperty({ nullable: true })
   avatar?: string | null;
 
+  @ApiProperty({ nullable: true })
+  bio?: string | null;
+
   @ApiProperty()
   createdAt: Date;
 
@@ -45,6 +48,7 @@ export class UserProfileDto {
     role: string;
     status: string;
     avatar?: string | null;
+    bio?: string | null;
     createdAt: Date;
     updatedAt: Date;
   }) {
@@ -57,6 +61,7 @@ export class UserProfileDto {
     this.role = user.role;
     this.status = user.status;
     this.avatar = user.avatar ?? null;
+    this.bio = user.bio ?? null;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }

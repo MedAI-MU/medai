@@ -85,6 +85,9 @@ export class User extends TimestampEntity {
   @Column({ type: 'varchar', nullable: true })
   avatar?: string | null;
 
+  @Column({ type: 'text', nullable: true })
+  bio?: string | null;
+
   @OneToMany(() => DocScheduleTemplate, (template) => template.createdBy)
   doctorScheduleTemplates?: DocScheduleTemplate[];
 
