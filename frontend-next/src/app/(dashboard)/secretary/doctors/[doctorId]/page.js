@@ -5,9 +5,8 @@ import { getDoctorById } from "@/services/server/doctors";
 import Heading from "@/components/ui/Heading";
 import BackButton from "@/components/ui/BackButton";
 import DoctorProfileCard from "@/components/doctor/DoctorProfileCard";
-import DoctorActionCard from "@/components/secretary/DoctorActionCard";
+import DoctorActionCard from "@/components/doctor/DoctorActionCard";
 import Grid from "@/components/ui/Grid";
-import ErrorState from "@/components/ui/ErrorState";
 
 const actions = [
   {
@@ -55,15 +54,12 @@ async function DoctorDetailPage({ params }) {
     throw err;
   }
 
-  const primarySpeciality =
-    doctor.specialities?.find((s) => s.isPrimary)?.speciality?.name ||
-    doctor.specialities?.[0]?.speciality?.name ||
-    "General Practitioner";
+  const primarySpeciality = doctor?.specialities?.find((s) => s?.isPrimary);
 
   return (
     <div className="space-y-8">
+      <BackButton title="Back to Doctors" />
       <div className="space-y-2">
-        <BackButton title="Back to Doctors" />
         <Heading
           size="xl"
           title="Doctor Management"

@@ -8,7 +8,7 @@ import Badge from "@/components/ui/Badge";
  */
 function ScheduleGrid({ children }) {
   return (
-    <div className="no-scrollbar bg-surface border-border mt-4 overflow-hidden overflow-x-auto rounded-lg border shadow-sm transition-all duration-300">
+    <div className="scrollbar-thumb-surface-overlay bg-surface border-border mt-4 scrollbar-thin overflow-hidden overflow-x-auto rounded-lg border shadow-sm transition-all duration-300">
       <div className="flex min-w-[1000px] flex-col">{children}</div>
     </div>
   );

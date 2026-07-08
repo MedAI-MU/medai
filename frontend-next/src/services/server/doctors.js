@@ -15,3 +15,7 @@ export function searchDoctorsBySpeciality(speciality) {
 export function getDoctorById(doctorId) {
   return apiServer.get(`api/doctors/${doctorId}`);
 }
+
+export function getSpecialities() {
+  return apiServer.get("api/doctors/specialities");
+}

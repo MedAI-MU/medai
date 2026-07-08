@@ -14,6 +14,7 @@ import {
   Scan,
   Settings,
   Stethoscope,
+  Briefcase,
   User,
   Users,
   X,
@@ -83,6 +84,11 @@ const LINKS = {
       href: "/secretary/doctors",
       icon: Stethoscope,
       matchPrefix: true,
+    },
+    {
+      text: "specialities",
+      href: "/secretary/specialities",
+      icon: Briefcase,
     },
     {
       text: "patients",

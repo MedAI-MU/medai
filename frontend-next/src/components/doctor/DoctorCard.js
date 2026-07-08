@@ -28,7 +28,7 @@ function DoctorCard({
           </span>
         ) : (
           specialities.map((spec) => (
-            <Badge key={spec} text={spec} color="slate" isRounded={false} />
+            <Badge key={spec?.id} text={spec?.speciality?.name} color="slate" />
           ))
         )}
       </div>
