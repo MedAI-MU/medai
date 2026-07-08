@@ -83,9 +83,7 @@ export class UsersService {
     const user = await this.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
-    if (user.avatar) {
-      await this.fileStorage.deleteFile(user.avatar);
-    }
+    const oldAvatar = user.avatar;
 
     const url = await this.fileStorage.saveFile(
       file.buffer,
@@ -94,6 +92,9 @@ export class UsersService {
     );
     user.avatar = url;
     await this.usersRepository.save(user);
+    if (oldAvatar) {
+      await this.fileStorage.deleteFile(oldAvatar);
+    }
     return url;
   }
 
@@ -102,9 +103,10 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     if (!user.avatar) return;
 
-    await this.fileStorage.deleteFile(user.avatar);
+    const oldAvatar = user.avatar;
     user.avatar = null;
     await this.usersRepository.save(user);
+    await this.fileStorage.deleteFile(oldAvatar);
   }
 
   async registerUser(registerDto: RegisterDto) {
