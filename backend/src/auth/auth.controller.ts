@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Patch,
   Post,
   Req,
   Res,
@@ -26,7 +25,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangeEmailDto } from './dto/change-email.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ConfirmEmailChangeDto } from './dto/confirm-email-change.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -158,28 +157,26 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: ChangeEmailDto })
   @ApiOkResponse({
-    description: 'Verification email sent to new address',
+    description: 'Verification email sent to current address',
   })
-  @ApiBadRequestResponse({ description: 'Invalid password' })
   async changeEmail(
     @CurrentUser() user: Partial<User>,
     @Body() dto: ChangeEmailDto,
   ) {
-    await this.authService.requestEmailChange(
-      user.id!,
-      dto.password,
-      dto.newEmail,
-    );
+    await this.authService.requestEmailChange(user.id!, dto.newEmail);
   }
 
-  @Patch('profile')
+  @Post('change-email/confirm')
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: UpdateProfileDto })
-  @ApiOkResponse({ description: 'Profile updated successfully' })
-  async updateProfile(
+  @ApiBody({ type: ConfirmEmailChangeDto })
+  @ApiOkResponse({ description: 'Email changed successfully' })
+  @ApiBadRequestResponse({
+    description: 'Invalid or expired token / no pending change',
+  })
+  async confirmEmailChange(
     @CurrentUser() user: Partial<User>,
-    @Body() dto: UpdateProfileDto,
+    @Body() dto: ConfirmEmailChangeDto,
   ) {
-    await this.authService.updateProfile(user.id!, dto);
+    await this.authService.confirmEmailChange(user.id!, dto.token);
   }
 }

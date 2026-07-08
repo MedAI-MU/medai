@@ -5,28 +5,42 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
+  ParseIntPipe,
+  Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
+import { UserProfileDto } from './dtos/user-profile.dto';
+import { UserResponseDto } from './dtos/user-response.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { AddUserRoleDto } from './dtos/add-user-role.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { AllowAnon } from 'src/auth/decorators/allow-anon.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApprovedGuard } from './guards/approved.guard';
+import { SameIdGuard } from '../shared/guards/same-id.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { TokenUser } from '../auth/interfaces/token-user.interface';
 import { PatientsService } from 'src/patients/patients.service';
 
 @Controller('users')
@@ -80,9 +94,9 @@ export class UsersController {
   @Delete(':id')
   @Roles('manager')
   @UseGuards(RolesGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({ name: 'id', description: 'User ID', type: Number })
-  @ApiOkResponse({ description: 'User removed successfully' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', description: 'User ID', type: Number, example: 1 })
+  @ApiNoContentResponse({ description: 'User removed successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
@@ -94,43 +108,153 @@ export class UsersController {
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Approved secretaries retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Approved secretaries retrieved successfully',
+    type: [UserResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getSecretaries() {
-    return this.usersService.findByRoleAndStatus('secretary', 'approved');
+  async getSecretaries(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findByRoleAndStatus(
+      'secretary',
+      'approved',
+    );
+    return users.map((u) => new UserResponseDto(u));
+  }
+
+  @Get('doctors')
+  @Roles('manager')
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Approved doctors retrieved successfully',
+    type: [UserResponseDto],
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getApprovedDoctors(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findByRoleAndStatus(
+      'doctor',
+      'approved',
+    );
+    return users.map((u) => new UserResponseDto(u));
   }
 
   @Get('pending/doctors')
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Pending doctors retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Pending doctors retrieved successfully',
+    type: [UserResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getPendingDoctors() {
-    return this.usersService.findByRoleAndStatus('doctor', 'pending');
+  async getPendingDoctors(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findByRoleAndStatus(
+      'doctor',
+      'pending',
+    );
+    return users.map((u) => new UserResponseDto(u));
   }
 
   @Get('pending/secretaries')
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Pending secretaries retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Pending secretaries retrieved successfully',
+    type: [UserResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getPendingSecretaries() {
-    return this.usersService.findByRoleAndStatus('secretary', 'pending');
+  async getPendingSecretaries(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findByRoleAndStatus(
+      'secretary',
+      'pending',
+    );
+    return users.map((u) => new UserResponseDto(u));
   }
 
   @Get('managers')
   @Roles('manager')
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Managers retrieved successfully' })
+  @ApiOkResponse({
+    description: 'Managers retrieved successfully',
+    type: [UserResponseDto],
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getManagers() {
-    return this.usersService.findByRole('manager');
+  async getManagers(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findByRole('manager');
+    return users.map((u) => new UserResponseDto(u));
+  }
+
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Current user details',
+    type: UserProfileDto,
+  })
+  async getProfile(
+    @CurrentUser() currentUser: TokenUser,
+  ): Promise<UserProfileDto> {
+    const user = await this.usersService.findById(currentUser.id);
+    if (!user) throw new NotFoundException('User not found');
+    return new UserProfileDto(user);
+  }
+
+  @UseInterceptors(FileInterceptor('file'))
+  @Post(':id/avatar')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Avatar uploaded',
+    schema: {
+      example: {
+        avatar: 'https://storage.blob.core.windows.net/avatars/uuid.jpg',
+      },
+    },
+  })
+  async uploadAvatar(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ avatar: string }> {
+    const avatar = await this.usersService.updateAvatar(id, file);
+    return { avatar };
+  }
+
+  @Delete(':id/avatar')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiNoContentResponse({ description: 'Avatar removed' })
+  async removeAvatar(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.usersService.deleteAvatar(id);
+  }
+
+  @UseGuards(SameIdGuard)
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: UpdateUserDto })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: UserProfileDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiConflictResponse({ description: 'Phone number already in use' })
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateUserDto,
+  ): Promise<UserProfileDto> {
+    const user = await this.usersService.updateUser(id, updateDto);
+    return new UserProfileDto(user);
   }
 }

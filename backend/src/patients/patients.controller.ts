@@ -1,13 +1,15 @@
 import {
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
   Body,
   Patch,
   UseGuards,
-  Delete,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { Patient } from './entities/patient.entity';
@@ -36,6 +38,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiParam,
   ApiUnauthorizedResponse,
@@ -131,8 +134,9 @@ export class PatientsController {
 
   @Delete(':id/allergies/:allergyId')
   @UseGuards(SameIdGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'allergyId', description: 'Allergy ID', type: Number })
-  @ApiOkResponse({ description: 'Removed allergy', type: PatientResponseDto })
+  @ApiNoContentResponse({ description: 'Removed allergy' })
   @ApiPatientGeneral()
   async removeAllergy(
     @Param('id') id: number,
@@ -199,15 +203,13 @@ export class PatientsController {
 
   @Delete(':id/chronic-diseases/:chronicDiseaseId')
   @UseGuards(SameIdGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({
     name: 'chronicDiseaseId',
     description: 'Chronic Disease ID',
     type: Number,
   })
-  @ApiOkResponse({
-    description: 'Removed chronic disease',
-    type: PatientResponseDto,
-  })
+  @ApiNoContentResponse({ description: 'Removed chronic disease' })
   @ApiPatientGeneral()
   async removeChronicDisease(
     @Param('id') id: number,
@@ -275,15 +277,13 @@ export class PatientsController {
 
   @Delete(':id/family-histories/:familyHistoryId')
   @UseGuards(SameIdGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({
     name: 'familyHistoryId',
     description: 'Family History ID',
     type: Number,
   })
-  @ApiOkResponse({
-    description: 'Removed family history',
-    type: PatientResponseDto,
-  })
+  @ApiNoContentResponse({ description: 'Removed family history' })
   @ApiPatientGeneral()
   async removeFamilyHistory(
     @Param('id') id: number,
@@ -342,8 +342,9 @@ export class PatientsController {
 
   @Delete(':id/surgeries/:surgeryId')
   @UseGuards(SameIdGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'surgeryId', description: 'Surgery ID', type: Number })
-  @ApiOkResponse({ description: 'Removed surgery', type: PatientResponseDto })
+  @ApiNoContentResponse({ description: 'Removed surgery' })
   @ApiPatientGeneral()
   async removeSurgery(
     @Param('id') id: number,
@@ -410,15 +411,13 @@ export class PatientsController {
 
   @Delete(':id/emergency-contacts/:emergencyContactId')
   @UseGuards(SameIdGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({
     name: 'emergencyContactId',
     description: 'Emergency Contact ID',
     type: Number,
   })
-  @ApiOkResponse({
-    description: 'Removed emergency contact',
-    type: PatientResponseDto,
-  })
+  @ApiNoContentResponse({ description: 'Removed emergency contact' })
   @ApiPatientGeneral()
   async removeEmergencyContact(
     @Param('id') id: number,

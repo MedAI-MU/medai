@@ -19,7 +19,6 @@ import { TokenPayload } from './interfaces/token-payload.interface';
 import { AuthCookies } from './interfaces/auth-cookies.interface';
 import { AuthMailerService } from './auth-mailer.service';
 import { createHash, randomBytes } from 'node:crypto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -220,21 +219,13 @@ export class AuthService {
     await this.usersRepository.save(user);
   }
 
-  async requestEmailChange(
-    userId: number,
-    password: string,
-    newEmail: string,
-  ): Promise<void> {
+  async requestEmailChange(userId: number, newEmail: string): Promise<void> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
-    }
-
-    if (!(await argon2.verify(user.password, password))) {
-      throw new BadRequestException('Invalid password');
     }
 
     if (user.email === newEmail) {
@@ -258,32 +249,41 @@ export class AuthService {
     await this.usersRepository.save(user);
 
     await this.authMailerService.sendVerificationEmail(
-      newEmail,
+      user.email,
       user.name,
       rawToken,
     );
   }
 
-  async updateProfile(userId: number, dto: UpdateProfileDto): Promise<void> {
-    const updateData: Partial<User> = {};
+  async confirmEmailChange(userId: number, token: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
 
-    if (dto.name !== undefined) {
-      updateData.name = dto.name;
-    }
-    if (dto.phone !== undefined) {
-      updateData.phone = dto.phone;
-    }
-    if (dto.birthDate !== undefined) {
-      updateData.birthDate = new Date(dto.birthDate);
-    }
-    if (dto.gender !== undefined) {
-      updateData.gender = dto.gender as 'male' | 'female';
-    }
-
-    const result = await this.usersRepository.update(userId, updateData);
-
-    if (result.affected === 0) {
+    if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    if (!user.pendingEmail) {
+      throw new BadRequestException('No pending email change');
+    }
+
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+    if (!user.verificationToken || user.verificationToken !== hashedToken) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    if (
+      !user.verificationTokenExpiresAt ||
+      user.verificationTokenExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Verification token has expired');
+    }
+
+    user.email = user.pendingEmail;
+    user.pendingEmail = null;
+    user.verificationToken = null;
+    user.verificationTokenExpiresAt = null;
+    await this.usersRepository.save(user);
   }
 }
