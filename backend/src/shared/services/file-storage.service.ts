@@ -1,43 +1,70 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
+import { BlobServiceClient } from '@azure/storage-blob';
 import { randomUUID } from 'crypto';
 
 @Injectable()
 export class FileStorageService {
-  private readonly uploadDir = path.resolve(process.cwd(), 'uploads');
+  private readonly blobServiceClient: BlobServiceClient;
+  private readonly logger = new Logger(FileStorageService.name);
 
-  constructor() {
-    fs.mkdirSync(this.uploadDir, { recursive: true });
+  constructor(configService: ConfigService) {
+    const connectionString = configService.get<string>(
+      'AZURE_STORAGE_CONNECTION_STRING',
+    );
+    if (!connectionString) {
+      throw new Error('AZURE_STORAGE_CONNECTION_STRING is not configured');
+    }
+    this.blobServiceClient =
+      BlobServiceClient.fromConnectionString(connectionString);
+  }
+
+  private getContainerClient(containerName: string) {
+    return this.blobServiceClient.getContainerClient(containerName);
+  }
+
+  private async ensureContainer(containerName: string): Promise<void> {
+    const containerClient = this.getContainerClient(containerName);
+    await containerClient.createIfNotExists({ access: 'blob' });
   }
 
   async saveFile(
     buffer: Buffer,
     originalName: string,
-    subDir: string,
+    moduleName: string,
   ): Promise<string> {
-    const dir = path.join(this.uploadDir, subDir);
-    fs.mkdirSync(dir, { recursive: true });
+    await this.ensureContainer(moduleName);
 
-    const ext = path.extname(originalName) || '';
-    const filename = `${randomUUID()}${ext}`;
-    const filePath = path.join(dir, filename);
+    const containerClient = this.getContainerClient(moduleName);
+    const ext = originalName.includes('.')
+      ? `.${originalName.split('.').pop()}`
+      : '';
+    const blobName = `${randomUUID()}${ext}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-    await fs.promises.writeFile(filePath, buffer);
+    await blockBlobClient.uploadData(buffer);
 
-    return path.join(subDir, filename);
+    return blockBlobClient.url;
   }
 
-  async deleteFile(relativePath: string): Promise<void> {
-    const fullPath = path.join(this.uploadDir, relativePath);
+  async deleteFile(blobUrl: string): Promise<void> {
     try {
-      await fs.promises.unlink(fullPath);
+      const url = new URL(blobUrl);
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      const containerName = pathParts[0];
+      const blobName = pathParts.slice(1).join('/');
+
+      const containerClient = this.getContainerClient(containerName);
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      await blockBlobClient.deleteIfExists();
     } catch (error) {
-      Logger.warn(`Failed to delete file ${fullPath}: ${error}`);
+      this.logger.warn(
+        `Failed to delete blob ${blobUrl}: ${(error as Error).message}`,
+      );
     }
   }
 
   getFullPath(relativePath: string): string {
-    return path.join(this.uploadDir, relativePath);
+    return relativePath;
   }
 }

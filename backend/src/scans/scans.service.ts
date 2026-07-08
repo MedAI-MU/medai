@@ -79,15 +79,14 @@ export class ScansService {
 
     const images: ScanImage[] = [];
     for (const file of files) {
-      const subDir = `scans/${savedScan.id}`;
-      const path = await this.fileStorage.saveFile(
+      const url = await this.fileStorage.saveFile(
         file.buffer,
         file.originalname,
-        subDir,
+        'scans',
       );
       const image = this.scanImagesRepository.create({
         scanId: savedScan.id,
-        path,
+        path: url,
       });
       images.push(image);
     }
@@ -155,17 +154,16 @@ export class ScansService {
     const scan = await this.scansRepository.findOne({ where: { id: scanId } });
     if (!scan) throw new NotFoundException('Scan not found');
 
-    const subDir = `reports`;
-    const path = await this.fileStorage.saveFile(
+    const url = await this.fileStorage.saveFile(
       file.buffer,
       file.originalname,
-      subDir,
+      'reports',
     );
 
     const report = this.reportsRepository.create({
       scanId,
       patientUserId,
-      path,
+      path: url,
     });
     return this.reportsRepository.save(report);
   }
