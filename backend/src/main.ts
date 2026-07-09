@@ -1,4 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import {
@@ -8,9 +9,10 @@ import {
 } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ValidationError } from 'class-validator';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // CORS CONFIGURATION
   app.enableCors({
     origin:
@@ -73,6 +75,8 @@ async function bootstrap() {
       jsonDocumentUrl: 'api/docs/json',
     },
   );
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
+
   await app.listen(process.env.APP_PORT || 8000);
 }
 bootstrap().catch((err) => {
