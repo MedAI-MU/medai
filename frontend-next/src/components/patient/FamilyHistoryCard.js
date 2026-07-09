@@ -18,7 +18,7 @@ const RELATION_ICONS = {
   other: <HelpCircle size={20} />,
 };
 
-function FamilyHistoryCard({ record, patientId }) {
+function FamilyHistoryCard({ record, patientId, readOnly = false }) {
   const { relation, condition, notes, id: recordId } = record || {};
 
   const icon = RELATION_ICONS[relation?.toLowerCase()] || <User size={20} />;
@@ -49,22 +49,24 @@ function FamilyHistoryCard({ record, patientId }) {
         />
       </div>
 
-      <ActionButtons>
-        <EditAction
-          title="Edit Family History"
-          description="Update the family history record."
-          form={
-            <FamilyHistoryForm patientId={patientId} recordToEdit={record} />
-          }
-        />
-        <DeleteAction
-          title="Delete Record"
-          description="This action cannot be undone."
-          onConfirm={() => deleteFamilyHistory(patientId, recordId)}
-          successMessage="Record deleted"
-          failMessage="Failed to delete"
-        />
-      </ActionButtons>
+      {!readOnly && (
+        <ActionButtons>
+          <EditAction
+            title="Edit Family History"
+            description="Update the family history record."
+            form={
+              <FamilyHistoryForm patientId={patientId} recordToEdit={record} />
+            }
+          />
+          <DeleteAction
+            title="Delete Record"
+            description="This action cannot be undone."
+            onConfirm={() => deleteFamilyHistory(patientId, recordId)}
+            successMessage="Record deleted"
+            failMessage="Failed to delete"
+          />
+        </ActionButtons>
+      )}
     </Card>
   );
 }

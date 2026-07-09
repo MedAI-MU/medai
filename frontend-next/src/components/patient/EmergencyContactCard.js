@@ -10,7 +10,7 @@ import InfoRow from "@/components/ui/InfoRow";
 import EmergencyContactForm from "./EmergencyContactForm";
 import { deleteEmergencyContact } from "@/services/client/patient";
 
-function EmergencyContactCard({ contact, patientId }) {
+function EmergencyContactCard({ contact, patientId, readOnly = false }) {
   const { id, name, relation, phoneNumber, email, address, notes } =
     contact || {};
 
@@ -23,25 +23,27 @@ function EmergencyContactCard({ contact, patientId }) {
             <Badge text={relation} color="blue" className="mt-1 inline-block" />
           </div>
 
-          <ActionButtons absolute={false}>
-            <EditAction
-              title="Edit Emergency Contact"
-              description="Update the contact's details."
-              form={
-                <EmergencyContactForm
-                  patientId={patientId}
-                  contactToEdit={contact}
-                />
-              }
-            />
-            <DeleteAction
-              title="Delete Contact"
-              description="This action cannot be undone."
-              onConfirm={() => deleteEmergencyContact(patientId, id)}
-              successMessage="Contact deleted"
-              failMessage="Failed to delete"
-            />
-          </ActionButtons>
+          {!readOnly && (
+            <ActionButtons absolute={false}>
+              <EditAction
+                title="Edit Emergency Contact"
+                description="Update the contact's details."
+                form={
+                  <EmergencyContactForm
+                    patientId={patientId}
+                    contactToEdit={contact}
+                  />
+                }
+              />
+              <DeleteAction
+                title="Delete Contact"
+                description="This action cannot be undone."
+                onConfirm={() => deleteEmergencyContact(patientId, id)}
+                successMessage="Contact deleted"
+                failMessage="Failed to delete"
+              />
+            </ActionButtons>
+          )}
         </div>
 
         <div className="space-y-2">

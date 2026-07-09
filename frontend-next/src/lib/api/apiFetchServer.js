@@ -23,6 +23,8 @@ export async function apiServerFetch({ endpoint, options = {} }) {
 
   if (!response.ok) {
     const error = new Error("Something went wrong during get data");
+    const data = await response.json().catch(() => null);
+    console.log(data);
     error.statusCode = response.status;
     throw error;
   }

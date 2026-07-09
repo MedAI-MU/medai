@@ -2,7 +2,6 @@
 
 import { Clock, CalendarDays, Zap } from "lucide-react";
 import { deleteScheduleTemplate } from "@/services/client/schedule";
-import { useAuth } from "@/contexts/AuthContext";
 import { DAYS_OF_WEEK } from "@/constants/schedules";
 
 import Button from "@/components/ui/Button";
@@ -13,9 +12,12 @@ import FormDialog from "@/components/ui/FormDialog";
 import AddEditTemplate from "./AddEditTemplate";
 import ApplyTemplateForm from "./ApplyTemplateForm";
 import { formatTime12h, getUniqueDays } from "@/lib/utils/DateTimeHelpers";
+import { useDoctorInfo } from "@/contexts/DoctorInfoContext";
 
 function ScheduleTemplateCard({ template }) {
-  const { user } = useAuth();
+  const {
+    doctor: { doctorId },
+  } = useDoctorInfo();
   const { id: templateId, name, slots = [] } = template;
 
   const uniqueDays = getUniqueDays(slots);
@@ -72,7 +74,9 @@ function ScheduleTemplateCard({ template }) {
         <FormDialog
           title="Apply Schedule Template"
           description="Define the start and end dates to apply this template to patient scheduling records."
-          form={<ApplyTemplateForm templateId={templateId} />}
+          form={
+            <ApplyTemplateForm doctorId={doctorId} templateId={templateId} />
+          }
         >
           <Button className="mr-auto sm:mr-0" startIcon={<Zap size={14} />}>
             Apply
@@ -84,7 +88,7 @@ function ScheduleTemplateCard({ template }) {
         <DeleteAction
           successMessage="Template deleted successfully"
           failMessage="Failed to delete Template"
-          onConfirm={() => deleteScheduleTemplate(user?.sub, templateId)}
+          onConfirm={() => deleteScheduleTemplate(doctorId, templateId)}
         />
       </div>
     </Card>

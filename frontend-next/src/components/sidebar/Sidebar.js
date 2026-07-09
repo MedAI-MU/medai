@@ -11,8 +11,12 @@ import {
   LogOut,
   MessageCircle,
   Plus,
+  Scan,
   Settings,
+  Stethoscope,
+  Briefcase,
   User,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -68,6 +72,36 @@ const LINKS = {
       ],
     },
   ],
+  secretary: [
+    { text: "dashboard", href: "/secretary", icon: LayoutDashboard },
+    {
+      text: "appointments",
+      href: "/secretary/appointments",
+      icon: CalendarCheck,
+    },
+    {
+      text: "doctors",
+      href: "/secretary/doctors",
+      icon: Stethoscope,
+      matchPrefix: true,
+    },
+    {
+      text: "specialities",
+      href: "/secretary/specialities",
+      icon: Briefcase,
+    },
+    {
+      text: "patients",
+      href: "/secretary/patients",
+      icon: Users,
+    },
+    {
+      text: "scans & reports",
+      href: "/secretary/scans",
+      icon: Scan,
+    },
+    { text: "messages", href: "#", icon: MessageCircle },
+  ],
 };
 
 function Sidebar({ role }) {
@@ -102,7 +136,7 @@ function Sidebar({ role }) {
 
         {/* Navigation Links */}
         <nav className="flex-1 space-y-1 px-4 py-4">
-          {LINKS[role]?.map(({ text, href, items, icon: Icon }) =>
+          {LINKS[role]?.map(({ text, href, items, icon: Icon, ...rest }) =>
             !items ? (
               <SidebarNavItem
                 key={text}
@@ -110,6 +144,7 @@ function Sidebar({ role }) {
                 href={href}
                 icon={<Icon size={18} />}
                 onClick={closeSidebar}
+                {...rest}
               />
             ) : (
               <SidebarNavGroup

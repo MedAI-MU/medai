@@ -13,7 +13,7 @@ export class DoctorSpeciality extends TimestampEntity {
   })
   doctor: Doctor;
 
-  @ManyToOne(() => Speciality)
+  @ManyToOne(() => Speciality, { onDelete: 'CASCADE' })
   speciality: Speciality;
 
   @Column({ default: false })
