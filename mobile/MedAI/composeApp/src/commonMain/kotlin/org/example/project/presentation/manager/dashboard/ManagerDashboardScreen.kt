@@ -67,6 +67,7 @@ import org.example.project.design_system.component.appBar.MedAiAppBar
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.design_system.component.image.MedAIAvatar
 import org.example.project.domain.model.manager.ManagedUser
 
 class ManagerDashboardScreen : Screen {
@@ -350,23 +351,14 @@ fun UserCard(
                 .padding(MedAITheme.dimensions.large),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // User Avatar Icon Circle
-            Box(
+            // User Avatar
+            MedAIAvatar(
+                url = null,
+                name = user.name,
                 modifier = Modifier
                     .size(52.dp)
                     .clip(CircleShape)
-                    .background(MedAITheme.colors.primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
-            ) {
-                val initials = user.name.split(" ").filter { it.isNotEmpty() }.take(2)
-                    .joinToString("") { it.take(1).uppercase() }
-                MedAIText(
-                    text = initials.ifBlank { "?" },
-                    style = MedAITheme.textStyle.title.medium,
-                    fontWeight = FontWeight.Bold,
-                    color = MedAITheme.colors.primary
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.width(MedAITheme.dimensions.large))
 
@@ -582,20 +574,13 @@ fun UserDetailDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header Avatar
-                Box(
+                MedAIAvatar(
+                    url = null,
+                    name = user.name,
                     modifier = Modifier
                         .size(72.dp)
                         .clip(CircleShape)
-                        .background(MedAITheme.colors.primary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MedAITheme.colors.primary
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(MedAITheme.dimensions.medium))
 

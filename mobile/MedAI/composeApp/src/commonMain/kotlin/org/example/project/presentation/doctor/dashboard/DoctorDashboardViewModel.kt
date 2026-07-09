@@ -12,10 +12,12 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.appointment.GetDoctorAppointmentsUseCase
+import org.example.project.domain.usecase.profile.GetProfileUseCase
 import org.example.project.core.presentation.util.CalendarManager
 
 class DoctorDashboardViewModel(
     private val getDoctorAppointmentsUseCase: GetDoctorAppointmentsUseCase,
+    private val getProfileUseCase: GetProfileUseCase,
     private val calendarManager: CalendarManager
 ) : MviScreenModel<DoctorDashboardState, DoctorDashboardEvent, DoctorDashboardEffect>(
     initialState = DoctorDashboardState(
@@ -27,6 +29,18 @@ class DoctorDashboardViewModel(
 
     init {
         fetchAppointments()
+        loadDoctorProfile()
+    }
+
+    private fun loadDoctorProfile() {
+        screenModelScope.launch {
+            getProfileUseCase().fold(
+                onSuccess = { user ->
+                    setState { copy(doctorName = user.name, avatarUrl = user.avatarUrl) }
+                },
+                onFailure = {}
+            )
+        }
     }
 
     override fun onEvent(event: DoctorDashboardEvent) {

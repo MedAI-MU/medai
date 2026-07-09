@@ -57,6 +57,7 @@ import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.presentation.bookingScreen.BookingScreen
 import org.example.project.presentation.chatScreen.ChatScreen
+import org.example.project.design_system.component.image.MedAIAvatar
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
@@ -111,14 +112,13 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             // Image
-                            Box(
+                            MedAIAvatar(
+                                url = doctor.imageUrl,
+                                name = doctor.name,
                                 modifier = Modifier
                                     .size(dimensions.spacing64 + dimensions.extraExtraLarge)
                                     .clip(CircleShape)
-                                    .background(MedAITheme.colors.neutral)
-                            ) {
-                                // AsyncImage(doctor.imageUrl)
-                            }
+                            )
                             Spacer(modifier = Modifier.height(dimensions.large))
 
                             MedAIText(

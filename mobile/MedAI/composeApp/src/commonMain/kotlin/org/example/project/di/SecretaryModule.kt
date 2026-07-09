@@ -15,16 +15,13 @@ val secretaryModule = module {
 
     single { GetDashboardStatsUseCase(get()) }
     single { GetAllPatientsUseCase(get()) }
-    // `CreatePatientUseCase` is in MedicalRecordModule (actually it was provided there, but it's used for patients. Let's make it a factory here if it wasn't in MedicalRecordModule. Wait, in AppModule it was mapped multiple times.)
-    // We already moved GetPatientsUseCase, GetPatientByIdUseCase, UpdatePatientUseCase to MedicalRecordModule.
-    // So we add CreatePatientUseCase there, or here. Let's keep CreatePatientUseCase, CheckInPatientUseCase, GetDoctorQueueUseCase, GetAllQueuesUseCase, GenerateInvoiceUseCase here.
     single { CreatePatientUseCase(get()) }
     single { CheckInPatientUseCase(get()) }
     single { GetDoctorQueueUseCase(get()) }
     single { GetAllQueuesUseCase(get()) }
     single { GenerateInvoiceUseCase(get()) }
 
-    factory { SecretaryDashboardViewModel(get(), get(), get(), get()) }
+    factory { SecretaryDashboardViewModel(get(), get(), get(), get(), get()) }
     factory { SecretaryDoctorListViewModel(get(), get(), get(), get(), get()) }
     factory { PatientManagementViewModel(get(), get()) }
     factory { QueueManagementViewModel(get(), get()) }

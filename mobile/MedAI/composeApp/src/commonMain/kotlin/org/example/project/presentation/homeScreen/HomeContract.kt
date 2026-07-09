@@ -16,6 +16,7 @@ data class CalendarUiModel(
 
 data class HomeState(
     val userName: String = "",
+    val avatarUrl: String? = null,
     val categories: List<Category> = emptyList(),
 
     // Data List

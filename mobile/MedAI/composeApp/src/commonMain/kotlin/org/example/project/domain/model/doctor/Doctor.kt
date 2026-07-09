@@ -8,5 +8,6 @@ data class Doctor(
     val rating: Double = 0.0,
     val isOnline: Boolean = false,
     val bio: String = "No biography available.",
+    val about: String? = null,
     val reviewCount: Int = 0
 )

@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 data class DoctorResponseDto(
     val userId: Int,
     val name: String? = null,
-    val specialities: List<DoctorSpecialityResponseDto> = emptyList()
+    val specialities: List<DoctorSpecialityResponseDto> = emptyList(),
+    val about: String? = null
 )
 
 @Serializable
