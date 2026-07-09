@@ -7,3 +7,7 @@ export function getUserAppointments() {
 export function getDoctorAppointments(doctorId) {
   return apiServer.get(`api/appointments/doctor/${doctorId}`);
 }
+
+export function getAllAppointments() {
+  return apiServer.get("api/appointments");
+}
