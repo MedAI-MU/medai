@@ -1,6 +1,3 @@
-"use client";
-
-import { useSidebar } from "@/contexts/SidebarContext";
 import {
   CalendarCheck,
   CalendarDays,
@@ -8,7 +5,6 @@ import {
   Clock,
   FileText,
   LayoutDashboard,
-  LogOut,
   MessageCircle,
   Plus,
   Scan,
@@ -22,11 +18,13 @@ import {
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import Overlay from "@/components/ui/Overlay";
-import ButtonIcon from "@/components/ui/ButtonIcon";
 import Heading from "@/components/ui/Heading";
 import SidebarNavItem from "@/components/sidebar/SidebarNavItem";
 import SidebarNavGroup from "@/components/sidebar/SidebarNavGroup";
 import LogoutButton from "../ui/LogoutButton";
+import SidebarContainer from "./SidebarContainer";
+import CloseButton from "./CloseButton";
+import { getUserFromToken } from "@/lib/session";
 
 const LINKS = {
   patient: [
@@ -104,24 +102,16 @@ const LINKS = {
   ],
 };
 
-function Sidebar({ role }) {
-  const { isSidebarOpen, closeSidebar } = useSidebar();
+async function Sidebar() {
+  const user = await getUserFromToken();
+  const role = user?.role;
 
   return (
     <>
-      {isSidebarOpen && (
-        <Overlay className="lg:hidden" onClick={closeSidebar} />
-      )}
+      <Overlay className="lg:hidden" />
 
-      <aside
-        className={`border-border bg-surface fixed inset-y-0 z-50 row-span-2 flex w-(--sidebar-width) max-w-full flex-col border-r transition-all duration-300 lg:relative lg:translate-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <ButtonIcon
-          className="absolute top-[20px] right-[15px] lg:hidden"
-          onClick={closeSidebar}
-        >
-          <X />
-        </ButtonIcon>
+      <SidebarContainer>
+        <CloseButton />
         {/* Logo + App Name */}
         <div className="flex items-center gap-3 p-6">
           <Logo />
@@ -143,7 +133,6 @@ function Sidebar({ role }) {
                 text={text}
                 href={href}
                 icon={<Icon size={18} />}
-                onClick={closeSidebar}
                 {...rest}
               />
             ) : (
@@ -152,7 +141,6 @@ function Sidebar({ role }) {
                 text={text}
                 icon={<Icon size={18} />}
                 items={items}
-                onClose={closeSidebar}
               />
             ),
           )}
@@ -183,7 +171,7 @@ function Sidebar({ role }) {
         <div className="border-border border-t p-4">
           <LogoutButton />
         </div>
-      </aside>
+      </SidebarContainer>
     </>
   );
 }

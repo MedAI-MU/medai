@@ -81,7 +81,7 @@ function LoginForm() {
         {errors?.root?.message && (
           <ErrorMessage
             message={errors?.root?.message}
-            className="font-semibold"
+            className="justify-center font-semibold"
           />
         )}
       </div>
