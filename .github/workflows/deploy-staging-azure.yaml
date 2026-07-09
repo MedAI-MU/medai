@@ -4,6 +4,12 @@ on:
   push:
     branches: ["staging"]
   workflow_dispatch:
+    inputs:
+      run_seed:
+        description: "Run database seed after migrations"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -141,8 +147,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  migrate-database:
-    name: Migrate Database
+  migrate-seed-database:
+    name: Migrate and Seed Database
     needs: [terraform, build-and-push]
     runs-on: ubuntu-latest
     environment: azure-staging
@@ -193,6 +199,19 @@ jobs:
           ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
           node_modules/.bin/typeorm migration:run -d dist/typeorm.data-source.js
 
+      - name: Run database seed
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_seed }}
+        run: |
+          docker run --rm \
+          -e DB_NAME=${{ needs.terraform.outputs.db_name }} \
+          -e DB_USERNAME=${{ needs.terraform.outputs.db_username }} \
+          -e DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }} \
+          -e DB_HOST=${{ needs.terraform.outputs.db_host }} \
+          -e DB_PORT=5432 \
+          -e DB_SSL=true \
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+          node dist/src/database/seeds/seed.js
+
       - name: Remove runner IP from database firewall
         if: always()
         uses: azure/cli@v2
@@ -211,7 +230,7 @@ jobs:
 
   deploy-to-azure:
     name: Deploy to Azure VM
-    needs: [terraform, build-and-push, migrate-database]
+    needs: [terraform, build-and-push, migrate-seed-database]
     runs-on: ubuntu-latest
     environment: azure-staging
 
