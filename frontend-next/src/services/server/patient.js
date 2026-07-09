@@ -1,13 +1,11 @@
 import "server-only";
 
 import { apiServer } from "@/lib/api/apiFetchServer";
-import { getUserFromToken } from "@/lib/session";
-import { redirect } from "next/navigation";
 
-export async function getPatient() {
-  const user = await getUserFromToken();
-  if (!user) redirect("/auth/login");
+export function getAllPatients() {
+  return apiServer.get("api/patients");
+}
 
-  const response = await apiServer.get(`api/patients/${user?.sub}`);
-  return response;
+export function getPatientById(id) {
+  return apiServer.get(`api/patients/${id}`);
 }
