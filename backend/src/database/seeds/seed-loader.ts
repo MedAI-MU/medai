@@ -1,8 +1,8 @@
 import { ISeed } from './seed.interface';
-import { UsersSeed } from './static-data/user-TEST.seed';
+import { StagingSeed } from './static-data/staging.seed';
 
 export class SeedLoader {
   static load(): ISeed[] {
-    return [new UsersSeed()];
+    return [new StagingSeed()];
   }
 }
