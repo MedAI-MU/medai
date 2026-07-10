@@ -25,7 +25,13 @@ variable "existing_acr_resource_group_name" {
 variable "domain_name_label" {
   type        = string
   description = "DNS label for the VM public IP"
-  default     = "medai-prod"
+  default     = "medai-proj-prod"
+}
+
+variable "custom_domain" {
+  type        = string
+  description = "Custom apex domain for the prod VM"
+  default     = "medai-mu.tech"
 }
 
 variable "ssh_public_key" {

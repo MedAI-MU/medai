@@ -1,6 +1,6 @@
 output "vm_fqdn" {
-  value       = azurerm_public_ip.vm_ip.fqdn
-  description = "Full FQDN of the VM public IP"
+  value       = local.vm_hostname
+  description = "Hostname used for nginx/certbot (custom domain if set, otherwise Azure FQDN)"
 }
 
 output "vm_public_ip" {

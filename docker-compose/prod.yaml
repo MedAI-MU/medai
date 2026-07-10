@@ -1,0 +1,18 @@
+services:
+  backend:
+    container_name: prod-medai-backend
+    image: medaigradprojrepo.azurecr.io/medai-prod-backend:latest
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - .env.prod
+    restart: always
+
+  frontend:
+    container_name: prod-medai-frontend
+    image: medaigradprojrepo.azurecr.io/medai-prod-frontend:latest
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env.frontend.prod
+    restart: always

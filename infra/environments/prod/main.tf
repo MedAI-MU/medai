@@ -7,6 +7,7 @@ module "infrastructure" {
   acr_name                         = var.acr_name
   existing_acr_resource_group_name = var.existing_acr_resource_group_name
   domain_name_label                = var.domain_name_label
+  custom_domain                    = var.custom_domain
 
   ssh_public_key    = var.ssh_public_key
   certbot_email     = var.certbot_email
