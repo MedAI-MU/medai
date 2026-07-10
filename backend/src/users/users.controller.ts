@@ -207,6 +207,7 @@ export class UsersController {
 
   @UseInterceptors(FileInterceptor('file'))
   @Post(':id/avatar')
+  @UseGuards(SameIdGuard)
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiConsumes('multipart/form-data')
@@ -233,6 +234,7 @@ export class UsersController {
   }
 
   @Delete(':id/avatar')
+  @UseGuards(SameIdGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiNoContentResponse({ description: 'Avatar removed' })
