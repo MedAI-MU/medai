@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -207,6 +210,7 @@ export class UsersController {
 
   @UseInterceptors(FileInterceptor('file'))
   @Post(':id/avatar')
+  @UseGuards(SameIdGuard)
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiConsumes('multipart/form-data')
@@ -226,13 +230,22 @@ export class UsersController {
   })
   async uploadAvatar(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /image\/(jpeg|png|gif|webp)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ): Promise<{ avatar: string }> {
     const avatar = await this.usersService.updateAvatar(id, file);
     return { avatar };
   }
 
   @Delete(':id/avatar')
+  @UseGuards(SameIdGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiNoContentResponse({ description: 'Avatar removed' })

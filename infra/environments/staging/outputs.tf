@@ -44,3 +44,8 @@ output "pg_admin_password" {
   sensitive   = true
   description = "PostgreSQL administrator password (DB_PASSWORD)"
 }
+
+output "storage_account_name" {
+  value       = module.infrastructure.storage_account_name
+  description = "Name of the storage account"
+}

@@ -4,6 +4,12 @@ on:
   push:
     branches: ["staging"]
   workflow_dispatch:
+    inputs:
+      run_seed:
+        description: "Run database seed after migrations"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -31,6 +37,7 @@ jobs:
       db_username: ${{ steps.tfout.outputs.db_username }}
       db_name: ${{ steps.tfout.outputs.db_name }}
       api_base_url: ${{ steps.tfout.outputs.api_base_url }}
+      storage_account_name: ${{ steps.tfout.outputs.storage_account_name }}
 
     steps:
       - name: Checkout repository
@@ -87,6 +94,7 @@ jobs:
           echo "db_username=$(terraform output -raw pg_admin_login)" >> "$GITHUB_OUTPUT"
           echo "db_name=$(terraform output -raw db_name)" >> "$GITHUB_OUTPUT"
           echo "api_base_url=https://$(terraform output -raw vm_fqdn)" >> "$GITHUB_OUTPUT"
+          echo "storage_account_name=$(terraform output -raw storage_account_name)" >> "$GITHUB_OUTPUT"
 
       - name: Azure logout
         if: always()
@@ -141,8 +149,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  migrate-database:
-    name: Migrate Database
+  migrate-seed-database:
+    name: Migrate and Seed Database
     needs: [terraform, build-and-push]
     runs-on: ubuntu-latest
     environment: azure-staging
@@ -193,6 +201,19 @@ jobs:
           ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
           node_modules/.bin/typeorm migration:run -d dist/typeorm.data-source.js
 
+      - name: Run database seed
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_seed }}
+        run: |
+          docker run --rm \
+          -e DB_NAME=${{ needs.terraform.outputs.db_name }} \
+          -e DB_USERNAME=${{ needs.terraform.outputs.db_username }} \
+          -e DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }} \
+          -e DB_HOST=${{ needs.terraform.outputs.db_host }} \
+          -e DB_PORT=5432 \
+          -e DB_SSL=true \
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+          node dist/src/database/seeds/seed.js
+
       - name: Remove runner IP from database firewall
         if: always()
         uses: azure/cli@v2
@@ -211,21 +232,38 @@ jobs:
 
   deploy-to-azure:
     name: Deploy to Azure VM
-    needs: [terraform, build-and-push, migrate-database]
+    needs: [terraform, build-and-push, migrate-seed-database]
     runs-on: ubuntu-latest
     environment: azure-staging
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get storage connection string
+        id: storage
+        run: |
+          CONN=$(az storage account show-connection-string \
+            --name ${{ needs.terraform.outputs.storage_account_name }} \
+            --resource-group ${{ needs.terraform.outputs.resource_group_name }} \
+            --query connectionString -o tsv)
+          echo "::add-mask::$CONN"
+          echo "conn=$CONN" >> "$GITHUB_OUTPUT"
+
+      - name: Azure logout
+        run: az logout
 
       - name: Create environment files
         run: |
           cat > docker-compose/.env.staging << 'ENVEOF'
           APP_PORT=8000
           NODE_ENV=production
-          AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
-          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_ACCOUNT_NAME=${{ needs.terraform.outputs.storage_account_name }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ steps.storage.outputs.conn }}
           DB_NAME=${{ needs.terraform.outputs.db_name }}
           DB_USERNAME=${{ needs.terraform.outputs.db_username }}
           DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }}

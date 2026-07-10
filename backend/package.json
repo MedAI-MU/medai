@@ -23,7 +23,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./tests/jest-e2e.json",
-    "seed": "ts-node ./src/database/seeds/seed.ts"
+    "seed": "ts-node ./src/database/seeds/seed.ts",
+    "seed:prod": "node dist/src/database/seeds/seed.js"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.33.0",
@@ -41,6 +42,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.1",
     "nodemailer": "^9.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
