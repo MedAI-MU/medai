@@ -30,7 +30,9 @@ import { DiagnosisResponseDto } from './dtos/diagnosis-response.dto';
 import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { PatientResourceAccessGuard } from '../shared/guards/patient-resource-access.guard';
+import { DoctorResourceOwnerGuard } from '../shared/guards/doctor-resource-owner.guard';
 import { PatientResource } from '../shared/decorators/patient-resource.decorator';
+import { DoctorResource } from '../shared/decorators/doctor-resource.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ApprovedGuard } from '../users/guards/approved.guard';
@@ -98,9 +100,13 @@ export class DiagnosisController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findPatientDiagnoses(
+    @CurrentUser() currentUser: TokenUser,
     @Param('id', ParseIntPipe) patientUserId: number,
   ): Promise<DiagnosisResponseDto[]> {
-    const diagnoses = await this.diagnosisService.findByPatient(patientUserId);
+    const diagnoses = await this.diagnosisService.findByPatient(
+      patientUserId,
+      currentUser,
+    );
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 
@@ -128,11 +134,21 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @UseGuards(
+    RolesGuard,
+    DoctorAssignedGuard,
+    DoctorResourceOwnerGuard,
+    PatientResourceAccessGuard,
+  )
   @PatientResource({
     entity: Diagnosis,
     resourceIdParam: 'diagnosisId',
     patientUserId: 'patientUserId',
+  })
+  @DoctorResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    doctorUserId: 'doctorUserId',
   })
   @Roles('doctor')
   @Patch(':id/:diagnosisId')
@@ -154,11 +170,21 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @UseGuards(
+    RolesGuard,
+    DoctorAssignedGuard,
+    DoctorResourceOwnerGuard,
+    PatientResourceAccessGuard,
+  )
   @PatientResource({
     entity: Diagnosis,
     resourceIdParam: 'diagnosisId',
     patientUserId: 'patientUserId',
+  })
+  @DoctorResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    doctorUserId: 'doctorUserId',
   })
   @Roles('doctor')
   @Patch(':id/:diagnosisId/symptoms')
@@ -183,11 +209,21 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @UseGuards(
+    RolesGuard,
+    DoctorAssignedGuard,
+    DoctorResourceOwnerGuard,
+    PatientResourceAccessGuard,
+  )
   @PatientResource({
     entity: Diagnosis,
     resourceIdParam: 'diagnosisId',
     patientUserId: 'patientUserId',
+  })
+  @DoctorResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    doctorUserId: 'doctorUserId',
   })
   @Roles('doctor')
   @Delete(':id/:diagnosisId')

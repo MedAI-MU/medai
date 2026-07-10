@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Diagnosis } from './entities/diagnosis.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { CreateDiagnosisDto } from './dtos/create-diagnosis.dto';
@@ -20,14 +20,6 @@ export class DiagnosisService {
     @InjectRepository(Appointment)
     private readonly appointmentsRepository: Repository<Appointment>,
   ) {}
-
-  private async getDoctorPatientIds(doctorUserId: number): Promise<number[]> {
-    const appointments = await this.appointmentsRepository.find({
-      where: { doctorUserId },
-      select: { patientUserId: true },
-    });
-    return [...new Set(appointments.map((a) => a.patientUserId))];
-  }
 
   async create(
     dto: CreateDiagnosisDto,
@@ -67,23 +59,26 @@ export class DiagnosisService {
   }
 
   async findAll(currentUser: TokenUser): Promise<Diagnosis[]> {
+    const where: Record<string, unknown> = {};
     if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (patientIds.length === 0) return [];
-      return this.diagnosesRepository.find({
-        where: { patientUserId: In(patientIds) },
-        order: { createdAt: 'DESC' },
-      });
+      where.doctorUserId = currentUser.id;
     }
-
     return this.diagnosesRepository.find({
+      where,
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findByPatient(patientUserId: number): Promise<Diagnosis[]> {
+  async findByPatient(
+    patientUserId: number,
+    currentUser?: TokenUser,
+  ): Promise<Diagnosis[]> {
+    const where: Record<string, unknown> = { patientUserId };
+    if (currentUser?.role === 'doctor') {
+      where.doctorUserId = currentUser.id;
+    }
     return this.diagnosesRepository.find({
-      where: { patientUserId },
+      where,
       order: { createdAt: 'DESC' },
     });
   }

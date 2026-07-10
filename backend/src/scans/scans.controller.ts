@@ -237,7 +237,12 @@ export class ScansController {
     return new ReportResponseDto(report);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Report,
+    resourceIdParam: 'reportId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('secretary')
   @Delete('reports/:id/:reportId')
   @HttpCode(HttpStatus.NO_CONTENT)
