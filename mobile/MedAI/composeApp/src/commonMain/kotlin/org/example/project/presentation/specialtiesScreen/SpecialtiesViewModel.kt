@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.mvi.MviScreenModel
+import org.example.project.core.presentation.util.UiText
 import org.example.project.domain.usecase.specialty.GetSpecialtiesUseCase
 
 class SpecialtiesViewModel(
@@ -57,9 +58,13 @@ class SpecialtiesViewModel(
             result.fold(
                 onSuccess = { list ->
                     val uiSpecialties = list.map { specialty ->
+                        val resolvedName = when (val titleRes = specialty.title) {
+                            is UiText.DynamicString -> titleRes.value
+                            is UiText.StringRes -> resourceProvider.getString(titleRes.resId)
+                        }
                         UiSpecialty(
                             origin = specialty,
-                            name = resourceProvider.getString(specialty.title)
+                            name = resolvedName
                         )
                     }
 

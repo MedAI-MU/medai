@@ -36,8 +36,7 @@ class NetworkSpecialtiesRepositoryTest {
         val jsonResponse = """
             [
                 {
-                    "id": "1",
-                    "icon_key": "cardiology",
+                    "id": 1,
                     "name": "Cardiology"
                 }
             ]
@@ -50,7 +49,7 @@ class NetworkSpecialtiesRepositoryTest {
         assertTrue(result.isSuccess)
         val specialties = result.getOrNull()!!
         assertEquals(1, specialties.size)
-        assertEquals("1", specialties[0].id)
-        assertEquals("cardiology", specialties[0].iconName)
+        assertEquals("Cardiology", specialties[0].id)
+        assertEquals("Cardiology", specialties[0].iconName)
     }
 }

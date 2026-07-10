@@ -28,14 +28,15 @@ object IconMapper {
     }
 
     fun getSpecialtyIcon(iconKey: String): ImageVector {
-        return when (iconKey.lowercase()) {
-            "cardiology" -> Icons.Default.Favorite
-            "dermatology" -> Icons.Default.Face
-            "general" -> Icons.Default.Person
-            "gynecology" -> Icons.Default.PregnantWoman
-            "odontology" -> Icons.Default.Face
-            "oncology" -> Icons.Default.Science
-            else -> Icons.Default.Circle
+        val key = iconKey.lowercase().trim()
+        return when {
+            key.contains("cardio") || key.contains("heart") || key.contains("قلب") -> Icons.Default.Favorite
+            key.contains("derm") || key.contains("skin") || key.contains("جلد") -> Icons.Default.Face
+            key.contains("gyn") || key.contains("preg") || key.contains("نساء") || key.contains("توليد") || key.contains("ولادة") -> Icons.Default.PregnantWoman
+            key.contains("odont") || key.contains("dent") || key.contains("أسنان") || key.contains("اسنان") -> Icons.Default.Face
+            key.contains("onco") || key.contains("cancer") || key.contains("أورام") || key.contains("اورام") -> Icons.Default.Science
+            key.contains("general") || key.contains("عام") -> Icons.Default.Person
+            else -> Icons.Default.MedicalServices
         }
     }
 }

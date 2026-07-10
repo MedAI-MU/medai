@@ -18,6 +18,8 @@ import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.home.GetHomeDataUseCase
+
+import org.example.project.core.presentation.util.UiText
 import org.example.project.domain.usecase.profile.GetProfileUseCase
 import org.example.project.domain.repository.appointment.AppointmentRepository
 
@@ -91,9 +93,11 @@ class HomeViewModel(
 
                 if (specialty != null) {
                     screenModelScope.launch {
-                        // Resolve string resource to actual string
-                        val title = resourceProvider.getString(specialty.title)
-                        sendEffect(HomeEffect.NavigateToSpecialty(specialty.iconName, title))
+                        val title = when (val titleRes = specialty.title) {
+                            is UiText.DynamicString -> titleRes.value
+                            is UiText.StringRes -> resourceProvider.getString(titleRes.resId)
+                        }
+                        sendEffect(HomeEffect.NavigateToSpecialty(specialty.id, title))
                     }
                 }
             }
