@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -227,7 +230,15 @@ export class UsersController {
   })
   async uploadAvatar(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /image\/(jpeg|png|gif|webp)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ): Promise<{ avatar: string }> {
     const avatar = await this.usersService.updateAvatar(id, file);
     return { avatar };

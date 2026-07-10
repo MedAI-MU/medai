@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Post,
   Redirect,
@@ -63,7 +66,16 @@ export class ScansController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async create(
-    @UploadedFiles() images: Express.Multer.File[],
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /image\/(jpeg|png|gif|webp)/ }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    images: Express.Multer.File[],
     @Param('id', ParseIntPipe) patientUserId: number,
     @Body('appointmentId') appointmentId?: string,
     @CurrentUser() currentUser?: TokenUser,
@@ -185,7 +197,17 @@ export class ScansController {
   })
   async createReport(
     @Param('scanId', ParseIntPipe) scanId: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+          new FileTypeValidator({
+            fileType: /(image\/(jpeg|png|gif|webp)|application\/pdf)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser?: TokenUser,
   ): Promise<ReportResponseDto> {
