@@ -241,6 +241,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get storage connection string
+        id: storage
+        run: |
+          CONN=$(az storage account show-connection-string \
+            --name ${{ needs.terraform.outputs.storage_account_name }} \
+            --resource-group ${{ needs.terraform.outputs.resource_group_name }} \
+            --query connectionString -o tsv)
+          echo "::add-mask::$CONN"
+          echo "conn=$CONN" >> "$GITHUB_OUTPUT"
+
+      - name: Azure logout
+        run: az logout
 
       - name: Create environment files
         run: |
@@ -248,7 +265,7 @@ jobs:
           APP_PORT=8000
           NODE_ENV=production
           AZURE_STORAGE_ACCOUNT_NAME=${{ needs.terraform.outputs.storage_account_name }}
-          AZURE_STORAGE_CONNECTION_STRING=${{ needs.terraform.outputs.storage_account_connection_string }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ steps.storage.outputs.conn }}
           DB_NAME=${{ needs.terraform.outputs.db_name }}
           DB_USERNAME=${{ needs.terraform.outputs.db_username }}
           DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }}
