@@ -4,7 +4,6 @@ import ManagersList from "@/components/manager/ManagersList";
 
 export default async function ManagersPage() {
   const managers = await getManagers();
-  console.log(managers);
 
   return (
     <div className="space-y-6">

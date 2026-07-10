@@ -108,6 +108,11 @@ const LINKS = {
       icon: Users,
       matchPrefix: true,
     },
+    {
+      text: "patients",
+      href: "/manager/patients",
+      icon: User,
+    },
   ],
 };
 

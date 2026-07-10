@@ -7,7 +7,6 @@ export default async function DoctorsPage() {
     getDoctors(),
     getPendingDoctors(),
   ]);
-  console.log(doctors, pending);
 
   return (
     <div className="space-y-6">
