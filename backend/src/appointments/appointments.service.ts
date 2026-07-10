@@ -78,7 +78,7 @@ export class AppointmentsService {
     return this.appointmentsRepository.find({
       where: { doctorUserId },
       relations: {
-        doctor: { user: true },
+        patient: { user: true },
         scheduleSlot: { schedule: true },
       },
     });

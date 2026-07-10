@@ -34,12 +34,12 @@ import { ApprovedGuard } from '../users/guards/approved.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
 
-@Controller('diagnoses')
+@Controller('diagnosis')
 @UseGuards(ApprovedGuard)
 export class DiagnosisController {
   constructor(private readonly diagnosisService: DiagnosisService) {}
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Roles('doctor')
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
@@ -127,7 +127,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Roles('doctor')
   @Patch(':id/:diagnosisId')
   @HttpCode(HttpStatus.OK)
@@ -153,7 +153,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Roles('doctor')
   @Patch(':id/:diagnosisId/symptoms')
   @HttpCode(HttpStatus.OK)
@@ -179,7 +179,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Roles('doctor')
   @Delete(':id/:diagnosisId')
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -37,11 +37,12 @@ export class AppointmentDto {
   updatedAt: Date;
 
   @ApiProperty()
-  doctor: DoctorResponseDto;
+  doctor?: DoctorResponseDto | null;
 
   scheduleSlot: DocScheduleSlotDto;
 
   constructor(appointment: Appointment) {
+    this.id = appointment.id;
     this.patientUserId = appointment.patientUserId;
     this.doctorUserId = appointment.doctorUserId;
     this.confirmedByUserId = appointment.confirmedByUserId;
@@ -51,7 +52,9 @@ export class AppointmentDto {
     this.review = appointment.review;
     this.createdAt = appointment.createdAt;
     this.updatedAt = appointment.updatedAt;
-    this.doctor = new DoctorResponseDto(appointment.doctor);
+    this.doctor = appointment.doctor
+      ? new DoctorResponseDto(appointment.doctor)
+      : null;
     this.scheduleSlot = appointment.scheduleSlot;
   }
 }

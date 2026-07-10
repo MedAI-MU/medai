@@ -40,10 +40,19 @@ export class DiagnosisService {
     if (!diagnosis) throw new NotFoundException('Diagnosis not found');
 
     if (
-      currentUser.role === 'doctor' &&
-      diagnosis.doctorUserId !== currentUser.id
+      currentUser.role === 'patient' &&
+      diagnosis.patientUserId !== currentUser.id
     ) {
       throw new ForbiddenException('You can only access your own diagnoses');
+    }
+
+    if (currentUser.role === 'doctor') {
+      const patientIds = await this.getDoctorPatientIds(currentUser.id);
+      if (!patientIds.includes(diagnosis.patientUserId)) {
+        throw new ForbiddenException(
+          'You are not assigned to this patient or it is not your diagnosis',
+        );
+      }
     }
 
     return diagnosis;
