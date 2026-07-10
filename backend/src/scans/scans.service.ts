@@ -34,43 +34,16 @@ export class ScansService {
     return [...new Set(appointments.map((a) => a.patientUserId))];
   }
 
-  private async assertCanAccessScan(
-    scanId: number,
-    currentUser: TokenUser,
-  ): Promise<Scan> {
-    const scan = await this.scansRepository.findOne({
-      where: { id: scanId },
-      relations: { images: true, reports: true },
-    });
-    if (!scan) throw new NotFoundException('Scan not found');
-
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(scan.patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-
-    return scan;
-  }
-
-  private async assertCanAccessPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<void> {
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-  }
-
   async create(
     patientUserId: number,
     appointmentId: number | null,
     files: Express.Multer.File[],
+    currentUser?: TokenUser,
   ): Promise<Scan> {
+    if (currentUser?.role === 'patient' && patientUserId !== currentUser.id) {
+      throw new ForbiddenException('You can only create scans for yourself');
+    }
+
     const scan = this.scansRepository.create({
       patientUserId,
       appointmentId: appointmentId ?? null,
@@ -112,17 +85,7 @@ export class ScansService {
     });
   }
 
-  async findByPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Scan[]> {
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-
+  async findByPatient(patientUserId: number): Promise<Scan[]> {
     return this.scansRepository.find({
       where: { patientUserId },
       relations: { images: true },
@@ -130,8 +93,13 @@ export class ScansService {
     });
   }
 
-  async findOne(id: number, currentUser: TokenUser): Promise<Scan> {
-    return this.assertCanAccessScan(id, currentUser);
+  async findOne(id: number): Promise<Scan> {
+    const scan = await this.scansRepository.findOne({
+      where: { id },
+      relations: { images: true, reports: true },
+    });
+    if (!scan) throw new NotFoundException('Scan not found');
+    return scan;
   }
 
   async delete(id: number): Promise<void> {
@@ -152,9 +120,6 @@ export class ScansService {
     patientUserId: number,
     file: Express.Multer.File,
   ): Promise<Report> {
-    const scan = await this.scansRepository.findOne({ where: { id: scanId } });
-    if (!scan) throw new NotFoundException('Scan not found');
-
     const url = await this.fileStorage.saveFile(
       file.buffer,
       file.originalname,
@@ -170,19 +135,16 @@ export class ScansService {
     return this.reportsRepository.save(report);
   }
 
-  async findReports(scanId: number, currentUser: TokenUser): Promise<Report[]> {
-    await this.assertCanAccessScan(scanId, currentUser);
+  async findReports(scanId: number): Promise<Report[]> {
     return this.reportsRepository.find({
       where: { scanId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findReportById(id: number, currentUser: TokenUser): Promise<Report> {
+  async findReportById(id: number): Promise<Report> {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
-
-    await this.assertCanAccessPatient(report.patientUserId, currentUser);
     return report;
   }
 
@@ -196,15 +158,12 @@ export class ScansService {
 
   async getImageFile(
     imageId: number,
-    currentUser: TokenUser,
   ): Promise<{ path: string; originalName: string }> {
     const image = await this.scanImagesRepository.findOne({
       where: { id: imageId },
       relations: { scan: true },
     });
     if (!image) throw new NotFoundException('Image not found');
-
-    await this.assertCanAccessScan(image.scan.id, currentUser);
 
     return {
       path: this.fileStorage.getFullPath(image.path),
@@ -214,14 +173,11 @@ export class ScansService {
 
   async getReportFile(
     reportId: number,
-    currentUser: TokenUser,
   ): Promise<{ path: string; originalName: string }> {
     const report = await this.reportsRepository.findOne({
       where: { id: reportId },
     });
     if (!report) throw new NotFoundException('Report not found');
-
-    await this.assertCanAccessPatient(report.patientUserId, currentUser);
 
     return {
       path: this.fileStorage.getFullPath(report.path),
@@ -229,11 +185,7 @@ export class ScansService {
     };
   }
 
-  async findReportsByPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Report[]> {
-    await this.assertCanAccessPatient(patientUserId, currentUser);
+  async findReportsByPatient(patientUserId: number): Promise<Report[]> {
     return this.reportsRepository.find({
       where: { patientUserId },
       order: { createdAt: 'DESC' },

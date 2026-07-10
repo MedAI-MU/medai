@@ -1,6 +1,6 @@
 output "vm_fqdn" {
-  value       = azurerm_public_ip.vm_ip.fqdn
-  description = "Full FQDN of the VM public IP"
+  value       = local.vm_hostname
+  description = "Hostname used for nginx/certbot (custom domain if set, otherwise Azure FQDN)"
 }
 
 output "vm_public_ip" {
@@ -43,4 +43,9 @@ output "pg_admin_password" {
   value       = var.pg_admin_password
   sensitive   = true
   description = "PostgreSQL administrator password (DB_PASSWORD)"
+}
+
+output "storage_account_name" {
+  value       = azurerm_storage_account.main.name
+  description = "Name of the storage account"
 }

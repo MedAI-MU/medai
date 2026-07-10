@@ -4,7 +4,6 @@ import { NotFoundException } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { Patient } from './entities/patient.entity';
 import { UpdatePatientDto } from './dtos/update_patient.dto';
-import type { BloodType, MaritalStatus } from './types/patient.types';
 import type { GenericPatientRelation } from './interfaces/generic-patient-relation.interface';
 
 describe('PatientsService', () => {

@@ -27,3 +27,19 @@ output "db_name" {
   value       = module.infrastructure.db_name
   description = "Name of the application database"
 }
+
+output "resource_group_name" {
+  value       = module.infrastructure.resource_group_name
+  description = "Name of the resource group"
+}
+
+output "pg_admin_login" {
+  value       = module.infrastructure.pg_admin_login
+  sensitive   = true
+  description = "PostgreSQL administrator login (DB_USERNAME)"
+}
+
+output "storage_account_name" {
+  value       = module.infrastructure.storage_account_name
+  description = "Name of the storage account"
+}

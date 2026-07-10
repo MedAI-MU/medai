@@ -132,7 +132,8 @@ describe('AuthController (e2e)', () => {
         phone: registerDto.phone,
         role: 'patient',
       });
-      expect(response.body.id).toEqual(expect.any(Number));
+      const body = response.body as { id: number };
+      expect(body.id).toEqual(expect.any(Number));
 
       const setCookies = response.headers['set-cookie'] as string | string[];
       expect(setCookies).toBeDefined();
