@@ -12,7 +12,8 @@ class UpdateProfileUseCase(
         phone: String?,
         birthDate: String?,
         gender: String?,
-        bio: String?
+        bio: String?,
+        about: String? = null
     ): Result<User> {
         return repository.updateUserProfile(
             userId = userId,
@@ -20,7 +21,8 @@ class UpdateProfileUseCase(
             phone = phone,
             birthDate = birthDate,
             gender = gender,
-            bio = bio
+            bio = bio,
+            about = about
         )
     }
 }

@@ -11,7 +11,8 @@ interface ProfileRepository {
         phone: String?,
         birthDate: String?,
         gender: String?,
-        bio: String?
+        bio: String?,
+        about: String? = null
     ): Result<User>
 
     suspend fun uploadAvatar(

@@ -43,7 +43,9 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.example.project.core.presentation.image.rememberImagePicker
+import org.example.project.core.presentation.image.rememberFilePicker
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.button.radioButton.MedAIRadioButton
@@ -69,9 +71,25 @@ class EditProfileScreen : Screen {
 
         var showDatePicker by remember { mutableStateOf(false) }
 
+        val scope = rememberCoroutineScope()
+
         // Setup image picker
-        val imagePicker = rememberImagePicker { bytes ->
-            val fileName = "avatar_${state.user?.id ?: "user"}.jpg"
+        val imagePicker = rememberFilePicker(
+            allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp")
+        ) { bytes, fileName ->
+            if (bytes.size > 5 * 1024 * 1024) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Avatar image size must not exceed 5MB")
+                }
+                return@rememberFilePicker
+            }
+            val ext = fileName.substringAfterLast('.', "").lowercase()
+            if (ext != "jpg" && ext != "jpeg" && ext != "png" && ext != "gif" && ext != "webp") {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Only image files are allowed for avatar")
+                }
+                return@rememberFilePicker
+            }
             viewModel.onEvent(EditProfileEvent.AvatarSelected(bytes, fileName))
         }
 
@@ -223,19 +241,14 @@ class EditProfileScreen : Screen {
                                 )
                             }
 
-                            // About details read-only card
+                            // About details card
                             Column(verticalArrangement = Arrangement.spacedBy(dimensions.extraSmall)) {
-                                MedAIText(text = "About (Read-Only)", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                                MedAIText(text = "About", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                                 MedAiTextArea(
                                     value = state.about,
-                                    onValueChange = {},
+                                    onValueChange = { viewModel.onEvent(EditProfileEvent.AboutChanged(it)) },
                                     placeholder = "Detailed doctor biography...",
                                     minLines = 4
-                                )
-                                MedAIText(
-                                    text = "* Detailed professional details editing will be supported in a future backend release.",
-                                    style = MedAITheme.textStyle.body.small,
-                                    color = MedAITheme.colors.text.secondary
                                 )
                             }
                         }
