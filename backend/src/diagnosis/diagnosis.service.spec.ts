@@ -131,34 +131,12 @@ describe('DiagnosisService', () => {
   describe('findByPatient', () => {
     it('should return diagnoses for a patient', async () => {
       diagnosesRepositoryMock.find.mockResolvedValue([buildDiagnosis()]);
-      const result = await service.findByPatient(5, patientUser);
+      const result = await service.findByPatient(5);
       expect(result).toHaveLength(1);
       expect(diagnosesRepositoryMock.find).toHaveBeenCalledWith({
         where: { patientUserId: 5 },
         order: { createdAt: 'DESC' },
       });
-    });
-
-    it('should allow secretary to get any patient diagnoses', async () => {
-      diagnosesRepositoryMock.find.mockResolvedValue([buildDiagnosis()]);
-      const result = await service.findByPatient(5, secretaryUser);
-      expect(result).toHaveLength(1);
-    });
-
-    it('should allow doctor with relation to get patient diagnoses', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([{ patientUserId: 5 }]);
-      diagnosesRepositoryMock.find.mockResolvedValue([buildDiagnosis()]);
-      const result = await service.findByPatient(5, doctorUser);
-      expect(result).toHaveLength(1);
-    });
-
-    it('should throw ForbiddenException for doctor with no relation', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findByPatient(5, doctorUser)).rejects.toThrow(
-        ForbiddenException,
-      );
     });
   });
 

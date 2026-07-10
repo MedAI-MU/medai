@@ -51,29 +51,15 @@ export class ScansService {
       throw new ForbiddenException('You are not related to this scan');
     }
 
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(scan.patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-
     return scan;
   }
 
-  private async assertCanAccessPatient(
+  private assertCanAccessPatient(
     patientUserId: number,
     currentUser: TokenUser,
-  ): Promise<void> {
+  ): void {
     if (currentUser.role === 'patient' && patientUserId !== currentUser.id) {
       throw new ForbiddenException('You can not access other patients data');
-    }
-
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
     }
   }
 
@@ -128,17 +114,7 @@ export class ScansService {
     });
   }
 
-  async findByPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Scan[]> {
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-
+  async findByPatient(patientUserId: number): Promise<Scan[]> {
     return this.scansRepository.find({
       where: { patientUserId },
       relations: { images: true },
@@ -219,7 +195,7 @@ export class ScansService {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
 
-    await this.assertCanAccessPatient(report.patientUserId, currentUser);
+    this.assertCanAccessPatient(report.patientUserId, currentUser);
     return report;
   }
 
@@ -265,7 +241,7 @@ export class ScansService {
     });
     if (!report) throw new NotFoundException('Report not found');
 
-    await this.assertCanAccessPatient(report.patientUserId, currentUser);
+    this.assertCanAccessPatient(report.patientUserId, currentUser);
 
     return {
       path: this.fileStorage.getFullPath(report.path),
@@ -277,7 +253,7 @@ export class ScansService {
     patientUserId: number,
     currentUser: TokenUser,
   ): Promise<Report[]> {
-    await this.assertCanAccessPatient(patientUserId, currentUser);
+    this.assertCanAccessPatient(patientUserId, currentUser);
     return this.reportsRepository.find({
       where: { patientUserId },
       order: { createdAt: 'DESC' },

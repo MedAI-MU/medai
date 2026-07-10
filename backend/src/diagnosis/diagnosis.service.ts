@@ -46,15 +46,6 @@ export class DiagnosisService {
       throw new ForbiddenException('You can only access your own diagnoses');
     }
 
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(diagnosis.patientUserId)) {
-        throw new ForbiddenException(
-          'You are not assigned to this patient or it is not your diagnosis',
-        );
-      }
-    }
-
     return diagnosis;
   }
 
@@ -110,17 +101,7 @@ export class DiagnosisService {
     });
   }
 
-  async findByPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Diagnosis[]> {
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
-    }
-
+  async findByPatient(patientUserId: number): Promise<Diagnosis[]> {
     return this.diagnosesRepository.find({
       where: { patientUserId },
       order: { createdAt: 'DESC' },

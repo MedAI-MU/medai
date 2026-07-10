@@ -27,6 +27,7 @@ import { CreateDiagnosisDto } from './dtos/create-diagnosis.dto';
 import { UpdateDiagnosisDto } from './dtos/update-diagnosis.dto';
 import { UpdateSymptomsDto } from './dtos/update-symptoms.dto';
 import { DiagnosisResponseDto } from './dtos/diagnosis-response.dto';
+import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -39,7 +40,7 @@ import type { TokenUser } from '../auth/interfaces/token-user.interface';
 export class DiagnosisController {
   constructor(private readonly diagnosisService: DiagnosisService) {}
 
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard)
   @Roles('doctor')
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
@@ -82,7 +83,7 @@ export class DiagnosisController {
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -95,16 +96,12 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findPatientDiagnoses(
     @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto[]> {
-    const diagnoses = await this.diagnosisService.findByPatient(
-      patientUserId,
-      currentUser,
-    );
+    const diagnoses = await this.diagnosisService.findByPatient(patientUserId);
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('doctor')
   @Get(':id/:diagnosisId')
   @HttpCode(HttpStatus.OK)
@@ -127,7 +124,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard)
   @Roles('doctor')
   @Patch(':id/:diagnosisId')
   @HttpCode(HttpStatus.OK)
@@ -153,7 +150,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard)
   @Roles('doctor')
   @Patch(':id/:diagnosisId/symptoms')
   @HttpCode(HttpStatus.OK)
@@ -179,7 +176,7 @@ export class DiagnosisController {
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard)
   @Roles('doctor')
   @Delete(':id/:diagnosisId')
   @HttpCode(HttpStatus.NO_CONTENT)

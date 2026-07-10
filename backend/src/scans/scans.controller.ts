@@ -34,6 +34,7 @@ import {
 import { ScansService } from './scans.service';
 import { ScanResponseDto } from './dtos/scan-response.dto';
 import { ReportResponseDto } from './dtos/report-response.dto';
+import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -104,7 +105,7 @@ export class ScansController {
     return scans.map((s) => new ScanResponseDto(s));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('scans/:id')
   @HttpCode(HttpStatus.OK)
@@ -114,16 +115,12 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findPatientScans(
     @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<ScanResponseDto[]> {
-    const scans = await this.scansService.findByPatient(
-      patientUserId,
-      currentUser,
-    );
+    const scans = await this.scansService.findByPatient(patientUserId);
     return scans.map((s) => new ScanResponseDto(s));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('scans/:id/:scanId')
   @HttpCode(HttpStatus.OK)
@@ -156,7 +153,7 @@ export class ScansController {
     await this.scansService.delete(scanId, currentUser);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('scans/:id/:scanId/reports')
   @HttpCode(HttpStatus.OK)
@@ -236,7 +233,7 @@ export class ScansController {
     await this.scansService.deleteReport(reportId, currentUser);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('reports/:id/:reportId')
   @HttpCode(HttpStatus.OK)
@@ -255,7 +252,7 @@ export class ScansController {
     return new ReportResponseDto(report);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('reports/:id')
   @HttpCode(HttpStatus.OK)
@@ -275,7 +272,7 @@ export class ScansController {
     return reports.map((r) => new ReportResponseDto(r));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('scans/images/:id/:imageId/file')
   @HttpCode(HttpStatus.OK)
@@ -297,7 +294,7 @@ export class ScansController {
     return { url: blobUrl, statusCode: 302 };
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @Roles('secretary', 'doctor')
   @Get('reports/:id/:reportId/file')
   @HttpCode(HttpStatus.OK)

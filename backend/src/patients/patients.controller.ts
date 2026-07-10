@@ -19,6 +19,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UpdatePatientDto } from './dtos/update_patient.dto';
 import { AllergyDto } from './dtos/allergy.dto';
 import { UpdateAllergyDto } from './dtos/update-allergy.dto';
+import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
 import { ApprovedGuard } from 'src/users/guards/approved.guard';
 import { Allergy } from './entities/allergy.entity';
@@ -66,7 +67,7 @@ export class PatientsController {
 
   @Get(':id')
   @Roles('secretary', 'doctor')
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard)
   @ApiPatientGeneral()
   @ApiOkResponse({ description: 'Returns a patient', type: PatientResponseDto })
   async getPatient(@Param('id') id: number): Promise<PatientResponseDto> {
