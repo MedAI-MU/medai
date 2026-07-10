@@ -211,6 +211,10 @@ jobs:
           -e DB_HOST=${{ needs.terraform.outputs.db_host }} \
           -e DB_PORT=5432 \
           -e DB_SSL=true \
+          -e SEED_PROFILE=prod \
+          -e PROD_MANAGER_EMAIL=${{ secrets.PROD_MANAGER_EMAIL }} \
+          -e PROD_MANAGER_PASSWORD=${{ secrets.PROD_MANAGER_PASSWORD }} \
+          -e PROD_MANAGER_PHONE=${{ secrets.PROD_MANAGER_PHONE }} \
           ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
           node dist/src/database/seeds/seed.js
 
