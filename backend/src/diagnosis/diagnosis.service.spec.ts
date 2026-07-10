@@ -86,27 +86,29 @@ describe('DiagnosisService', () => {
       const result = await service.findAll(secretaryUser);
       expect(result).toHaveLength(1);
       expect(diagnosesRepositoryMock.find).toHaveBeenCalledWith({
+        where: {},
         order: { createdAt: 'DESC' },
       });
     });
 
-    it('should return diagnoses for doctor related patients', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([{ patientUserId: 5 }]);
+    it('should return only own diagnoses for a doctor', async () => {
       diagnosesRepositoryMock.find.mockResolvedValue([buildDiagnosis()]);
       const result = await service.findAll(doctorUser);
       expect(result).toHaveLength(1);
-      expect(diagnosesRepositoryMock.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          order: { createdAt: 'DESC' },
-        }),
-      );
+      expect(diagnosesRepositoryMock.find).toHaveBeenCalledWith({
+        where: { doctorUserId: 10 },
+        order: { createdAt: 'DESC' },
+      });
     });
 
-    it('should return empty array when doctor has no patients', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([]);
+    it('should return empty array when doctor has no diagnoses', async () => {
+      diagnosesRepositoryMock.find.mockResolvedValue([]);
       const result = await service.findAll(doctorUser);
       expect(result).toEqual([]);
-      expect(diagnosesRepositoryMock.find).not.toHaveBeenCalled();
+      expect(diagnosesRepositoryMock.find).toHaveBeenCalledWith({
+        where: { doctorUserId: 10 },
+        order: { createdAt: 'DESC' },
+      });
     });
   });
 
