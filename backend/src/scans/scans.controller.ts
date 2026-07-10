@@ -66,12 +66,14 @@ export class ScansController {
     @UploadedFiles() images: Express.Multer.File[],
     @Param('id', ParseIntPipe) patientUserId: number,
     @Body('appointmentId') appointmentId?: string,
+    @CurrentUser() currentUser?: TokenUser,
   ): Promise<ScanResponseDto> {
     const aId = appointmentId ? Number(appointmentId) : null;
     const scan = await this.scansService.create(
       patientUserId,
       aId,
       images || [],
+      currentUser,
     );
     return new ScanResponseDto(scan);
   }
@@ -135,8 +137,11 @@ export class ScansController {
   @ApiNoContentResponse({ description: 'Scan deleted' })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async delete(@Param('scanId', ParseIntPipe) scanId: number): Promise<void> {
-    await this.scansService.delete(scanId);
+  async delete(
+    @Param('scanId', ParseIntPipe) scanId: number,
+    @CurrentUser() currentUser?: TokenUser,
+  ): Promise<void> {
+    await this.scansService.delete(scanId, currentUser);
   }
 
   @UseGuards(SameIdGuard)
@@ -182,11 +187,13 @@ export class ScansController {
     @Param('scanId', ParseIntPipe) scanId: number,
     @UploadedFile() file: Express.Multer.File,
     @Param('id', ParseIntPipe) patientUserId: number,
+    @CurrentUser() currentUser?: TokenUser,
   ): Promise<ReportResponseDto> {
     const report = await this.scansService.createReport(
       scanId,
       patientUserId,
       file,
+      currentUser,
     );
     return new ReportResponseDto(report);
   }
@@ -202,8 +209,9 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async deleteReport(
     @Param('reportId', ParseIntPipe) reportId: number,
+    @CurrentUser() currentUser?: TokenUser,
   ): Promise<void> {
-    await this.scansService.deleteReport(reportId);
+    await this.scansService.deleteReport(reportId, currentUser);
   }
 
   @UseGuards(SameIdGuard)
@@ -227,7 +235,7 @@ export class ScansController {
 
   @UseGuards(SameIdGuard)
   @Roles('secretary', 'doctor')
-  @Get('reports/patient/:id')
+  @Get('reports/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Patient ID', type: Number })
   @ApiOkResponse({

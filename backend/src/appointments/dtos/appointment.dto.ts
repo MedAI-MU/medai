@@ -4,7 +4,6 @@ import type { AppointmentStatus } from '../types/appointment-status.type';
 import { Appointment } from '../entities/appointment.entity';
 import { DoctorResponseDto } from 'src/doctors/dtos/doctor-response.dto';
 import { DocScheduleSlotDto } from 'src/schedules/dtos/doc-schedule-slot.dot';
-import { DocScheduleSlot } from 'src/schedules/entities/doc-schedule-slot.entity';
 
 export class AppointmentDto {
   @ApiProperty()
