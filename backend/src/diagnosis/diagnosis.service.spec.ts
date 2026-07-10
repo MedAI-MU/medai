@@ -43,13 +43,6 @@ describe('DiagnosisService', () => {
     status: 'approved',
   };
 
-  const otherDoctorUser: TokenUser = {
-    id: 20,
-    email: 'other-doc@test.com',
-    role: 'doctor',
-    status: 'approved',
-  };
-
   const patientUser: TokenUser = {
     id: 5,
     email: 'pat@test.com',

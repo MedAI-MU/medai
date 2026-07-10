@@ -40,12 +40,13 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
+      const verifyEmailHtml: unknown = expect.stringContaining(
+        'http://localhost:3000/verify-email?token=token123',
+      );
       expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Verify your MedAI account',
-        html: expect.stringContaining(
-          'http://localhost:3000/verify-email?token=token123',
-        ),
+        html: verifyEmailHtml,
       });
 
       process.env.FRONTEND_URL = originalUrl;
@@ -61,12 +62,13 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
+      const verifyEmailHtml: unknown = expect.stringContaining(
+        'http://localhost:3000/verify-email?token=token123',
+      );
       expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Verify your MedAI account',
-        html: expect.stringContaining(
-          'http://localhost:3000/verify-email?token=token123',
-        ),
+        html: verifyEmailHtml,
       });
 
       process.env.FRONTEND_URL = originalUrl;
@@ -84,12 +86,13 @@ describe('AuthMailerService', () => {
         'token123',
       );
 
+      const resetEmailHtml: unknown = expect.stringContaining(
+        'http://localhost:3000/reset-password?token=token123',
+      );
       expect(sendMailMock).toHaveBeenCalledWith({
         to: 'test@test.com',
         subject: 'Reset your MedAI password',
-        html: expect.stringContaining(
-          'http://localhost:3000/reset-password?token=token123',
-        ),
+        html: resetEmailHtml,
       });
 
       process.env.FRONTEND_URL = originalUrl;

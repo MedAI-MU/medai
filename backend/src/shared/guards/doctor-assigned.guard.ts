@@ -25,7 +25,7 @@ export class DoctorAssignedGuard implements CanActivate {
 
     if (user.role !== 'doctor') return true;
 
-    const patientId = parseInt(request.params.id as string, 10);
+    const patientId = parseInt(request.params.id, 10);
     if (!patientId) {
       throw new ForbiddenException('Patient ID is required');
     }
