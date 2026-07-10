@@ -1,0 +1,77 @@
+name: Deploy Prod to Azure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TF_DIR: infra/environments/prod
+
+jobs:
+  terraform:
+    name: Terraform — Phase 1 (Public IP only)
+    runs-on: ubuntu-latest
+    environment: azure-prod
+    env:
+      TF_VAR_ssh_public_key: ${{ secrets.TF_SSH_PUBLIC_KEY }}
+      TF_VAR_certbot_email: ${{ secrets.TF_CERTBOT_EMAIL }}
+      TF_VAR_pg_admin_password: ${{ secrets.TF_PG_ADMIN_PASSWORD }}
+      TF_VAR_client_ip_address: ${{ secrets.TF_CLIENT_IP_ADDRESS }}
+    outputs:
+      vm_host: ${{ steps.tfout.outputs.vm_host }}
+      vm_public_ip: ${{ steps.tfout.outputs.vm_public_ip }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Detect infra changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - "infra/**"
+
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Terraform Format
+        working-directory: infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform validate
+
+      - name: Terraform Apply (targeted — public IP only)
+        if: steps.filter.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform apply -auto-approve -no-color -target=module.infrastructure.azurerm_public_ip.vm_ip
+
+      - name: Export Terraform outputs
+        id: tfout
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          echo "vm_host=$(terraform output -raw vm_fqdn)" >> "$GITHUB_OUTPUT"
+          echo "vm_public_ip=$(terraform output -raw vm_public_ip)" >> "$GITHUB_OUTPUT"
+
+      - name: Azure logout
+        if: always()
+        run: az logout

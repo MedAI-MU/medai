@@ -41,6 +41,12 @@ variable "domain_name_label" {
   description = "DNS label for the public IP — produces <label>.<region>.cloudapp.azure.com"
 }
 
+variable "custom_domain" {
+  type        = string
+  description = "Custom apex domain to use for nginx/certbot instead of the Azure FQDN. Leave empty to use the Azure-generated FQDN."
+  default     = ""
+}
+
 variable "acr_name" {
   type        = string
   description = "Name of the Azure Container Registry (globally unique)"

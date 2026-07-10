@@ -2,6 +2,7 @@ locals {
   prefix = "medai-${var.environment}"
 
   acr_login_server = data.azurerm_container_registry.existing.login_server
+  vm_hostname      = coalesce(var.custom_domain, azurerm_public_ip.vm_ip.fqdn)
 }
 
 resource "azurerm_resource_group" "main" {
@@ -131,7 +132,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml.tpl", {
-    fqdn          = azurerm_public_ip.vm_ip.fqdn
+    fqdn          = local.vm_hostname
     certbot_email = var.certbot_email
   }))
 }
