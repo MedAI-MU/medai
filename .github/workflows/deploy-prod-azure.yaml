@@ -1,7 +1,15 @@
 name: Deploy Prod to Azure
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
+    inputs:
+      run_seed:
+        description: "Run database seed after migrations"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -11,7 +19,7 @@ env:
 
 jobs:
   terraform:
-    name: Terraform — Phase 1 (Public IP only)
+    name: Terraform
     runs-on: ubuntu-latest
     environment: azure-prod
     env:
@@ -22,6 +30,14 @@ jobs:
     outputs:
       vm_host: ${{ steps.tfout.outputs.vm_host }}
       vm_public_ip: ${{ steps.tfout.outputs.vm_public_ip }}
+      acr_login_server: ${{ steps.tfout.outputs.acr_login_server }}
+      db_host: ${{ steps.tfout.outputs.db_host }}
+      db_server_name: ${{ steps.tfout.outputs.db_server_name }}
+      resource_group_name: ${{ steps.tfout.outputs.resource_group_name }}
+      db_username: ${{ steps.tfout.outputs.db_username }}
+      db_name: ${{ steps.tfout.outputs.db_name }}
+      api_base_url: ${{ steps.tfout.outputs.api_base_url }}
+      storage_account_name: ${{ steps.tfout.outputs.storage_account_name }}
 
     steps:
       - name: Checkout repository
@@ -60,10 +76,10 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         run: terraform validate
 
-      - name: Terraform Apply (targeted — public IP only)
+      - name: Terraform Apply
         if: steps.filter.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: ${{ env.TF_DIR }}
-        run: terraform apply -auto-approve -no-color -target=module.infrastructure.azurerm_public_ip.vm_ip
+        run: terraform apply -auto-approve -no-color
 
       - name: Export Terraform outputs
         id: tfout
@@ -71,7 +87,226 @@ jobs:
         run: |
           echo "vm_host=$(terraform output -raw vm_fqdn)" >> "$GITHUB_OUTPUT"
           echo "vm_public_ip=$(terraform output -raw vm_public_ip)" >> "$GITHUB_OUTPUT"
+          echo "acr_login_server=$(terraform output -raw acr_login_server)" >> "$GITHUB_OUTPUT"
+          echo "db_host=$(terraform output -raw pg_server_fqdn)" >> "$GITHUB_OUTPUT"
+          echo "db_server_name=$(terraform output -raw pg_server_name)" >> "$GITHUB_OUTPUT"
+          echo "resource_group_name=$(terraform output -raw resource_group_name)" >> "$GITHUB_OUTPUT"
+          echo "db_username=$(terraform output -raw pg_admin_login)" >> "$GITHUB_OUTPUT"
+          echo "db_name=$(terraform output -raw db_name)" >> "$GITHUB_OUTPUT"
+          echo "api_base_url=https://$(terraform output -raw vm_fqdn)" >> "$GITHUB_OUTPUT"
+          echo "storage_account_name=$(terraform output -raw storage_account_name)" >> "$GITHUB_OUTPUT"
 
       - name: Azure logout
         if: always()
         run: az logout
+
+  build-and-push:
+    name: Build & Push Images to ACR
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: azure-prod
+    env:
+      BACKEND_IMAGE_NAME: ${{ needs.terraform.outputs.acr_login_server }}/medai-prod-backend
+      FRONTEND_IMAGE_NAME: ${{ needs.terraform.outputs.acr_login_server }}/medai-prod-frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ needs.terraform.outputs.acr_login_server }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push Docker backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          file: backend/docker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.BACKEND_IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Docker frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: frontend-next
+          file: frontend-next/docker/Dockerfile
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.FRONTEND_IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  migrate-seed-database:
+    name: Migrate and Seed Database
+    needs: [terraform, build-and-push]
+    runs-on: ubuntu-latest
+    environment: azure-prod
+    env:
+      BACKEND_IMAGE_NAME: ${{ needs.terraform.outputs.acr_login_server }}/medai-prod-backend
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ needs.terraform.outputs.acr_login_server }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Pull image from ACR
+        run: docker pull ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Get GitHub runner public IP
+        id: ip
+        run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+      - name: Allow runner IP on database firewall
+        uses: azure/cli@v2
+        with:
+          azcliversion: 2.85.0
+          inlineScript: |
+            az postgres flexible-server firewall-rule create \
+              --resource-group ${{ needs.terraform.outputs.resource_group_name }} \
+              --name ${{ needs.terraform.outputs.db_server_name }} \
+              --rule-name github-actions-runner \
+              --start-ip-address ${{ steps.ip.outputs.ip }} \
+              --end-ip-address ${{ steps.ip.outputs.ip }}
+
+      - name: Run database migrations
+        run: |
+          docker run --rm \
+          -e DB_NAME=${{ needs.terraform.outputs.db_name }} \
+          -e DB_USERNAME=${{ needs.terraform.outputs.db_username }} \
+          -e DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }} \
+          -e DB_HOST=${{ needs.terraform.outputs.db_host }} \
+          -e DB_PORT=5432 \
+          -e DB_SSL=true \
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+          node_modules/.bin/typeorm migration:run -d dist/typeorm.data-source.js
+
+      - name: Run database seed
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_seed }}
+        run: |
+          docker run --rm \
+          -e DB_NAME=${{ needs.terraform.outputs.db_name }} \
+          -e DB_USERNAME=${{ needs.terraform.outputs.db_username }} \
+          -e DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }} \
+          -e DB_HOST=${{ needs.terraform.outputs.db_host }} \
+          -e DB_PORT=5432 \
+          -e DB_SSL=true \
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ github.sha }} \
+          node dist/src/database/seeds/seed.js
+
+      - name: Remove runner IP from database firewall
+        if: always()
+        uses: azure/cli@v2
+        with:
+          azcliversion: 2.85.0
+          inlineScript: |
+            az postgres flexible-server firewall-rule delete \
+              --resource-group ${{ needs.terraform.outputs.resource_group_name }} \
+              --name ${{ needs.terraform.outputs.db_server_name }} \
+              --rule-name github-actions-runner \
+              --yes
+
+      - name: Azure logout
+        if: always()
+        run: az logout
+
+  deploy-to-azure:
+    name: Deploy to Azure VM
+    needs: [terraform, build-and-push, migrate-seed-database]
+    runs-on: ubuntu-latest
+    environment: azure-prod
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get storage connection string
+        id: storage
+        run: |
+          CONN=$(az storage account show-connection-string \
+            --name ${{ needs.terraform.outputs.storage_account_name }} \
+            --resource-group ${{ needs.terraform.outputs.resource_group_name }} \
+            --query connectionString -o tsv)
+          echo "::add-mask::$CONN"
+          echo "conn=$CONN" >> "$GITHUB_OUTPUT"
+
+      - name: Azure logout
+        run: az logout
+
+      - name: Create environment files
+        run: |
+          cat > docker-compose/.env.prod << 'ENVEOF'
+          APP_PORT=8000
+          NODE_ENV=production
+          AZURE_STORAGE_ACCOUNT_NAME=${{ needs.terraform.outputs.storage_account_name }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ steps.storage.outputs.conn }}
+          DB_NAME=${{ needs.terraform.outputs.db_name }}
+          DB_USERNAME=${{ needs.terraform.outputs.db_username }}
+          DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }}
+          DB_HOST=${{ needs.terraform.outputs.db_host }}
+          DB_PORT=5432
+          DB_SSL=true
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+          REFRESH_TOKEN_EXPIRATION=${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+          BREVO_SMTP_HOST=${{ secrets.BREVO_SMTP_HOST }}
+          BREVO_SMTP_PORT=${{ secrets.BREVO_SMTP_PORT }}
+          BREVO_SMTP_USER=${{ secrets.BREVO_SMTP_USER }}
+          BREVO_SMTP_PASS=${{ secrets.BREVO_SMTP_PASS }}
+          BREVO_DEFAULT_FROM=${{ secrets.BREVO_DEFAULT_FROM }}
+          FRONTEND_URL=${{ needs.terraform.outputs.api_base_url }}
+          ENVEOF
+          cat > docker-compose/.env.frontend.prod << 'ENVEOF'
+          NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
+          ENVEOF
+
+      - name: Copy compose and env files
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ needs.terraform.outputs.vm_host }}
+          username: azureuser
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "docker-compose/prod.yaml,docker-compose/.env.prod,docker-compose/.env.frontend.prod"
+          target: /home/azureuser/medai/
+
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+        with:
+          host: ${{ needs.terraform.outputs.vm_host }}
+          username: azureuser
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          envs: ACR_USERNAME,ACR_PASSWORD
+          script: |
+            cd /home/azureuser/medai
+            docker login ${{ needs.terraform.outputs.acr_login_server }} -u "$ACR_USERNAME" -p "$ACR_PASSWORD"
+            docker compose -f docker-compose/prod.yaml pull
+            docker compose -f docker-compose/prod.yaml up -d
+            docker image prune -f
