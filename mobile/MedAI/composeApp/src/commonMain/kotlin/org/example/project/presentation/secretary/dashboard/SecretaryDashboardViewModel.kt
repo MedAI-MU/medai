@@ -11,16 +11,30 @@ import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
 import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
 import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
+import org.example.project.domain.usecase.profile.GetProfileUseCase
 
 class SecretaryDashboardViewModel(
     private val getDashboardStatsUseCase: GetDashboardStatsUseCase,
     private val getAllQueuesUseCase: GetAllQueuesUseCase,
     private val checkInPatientUseCase: CheckInPatientUseCase,
-    private val createPatientUseCase: CreatePatientUseCase
+    private val createPatientUseCase: CreatePatientUseCase,
+    private val getProfileUseCase: GetProfileUseCase
 ) : MviScreenModel<SecretaryDashboardState, SecretaryDashboardEvent, SecretaryDashboardEffect>(SecretaryDashboardState()) {
 
     init {
         onEvent(SecretaryDashboardEvent.LoadDashboard)
+        loadSecretaryProfile()
+    }
+
+    private fun loadSecretaryProfile() {
+        screenModelScope.launch {
+            getProfileUseCase().fold(
+                onSuccess = { user ->
+                    setState { copy(secretaryName = user.name, avatarUrl = user.avatarUrl) }
+                },
+                onFailure = {}
+            )
+        }
     }
 
     override fun onEvent(event: SecretaryDashboardEvent) {

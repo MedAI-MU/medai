@@ -62,6 +62,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.design_system.component.image.MedAIAsyncImage
 import org.example.project.domain.model.secretary.QueueEntry
 import org.example.project.domain.model.secretary.QueueStatus
 import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
@@ -111,25 +112,36 @@ class SecretaryDashboardScreen : Screen {
                 // Spacer at top
                 item { Spacer(modifier = Modifier.height(dimensions.small)) }
 
-                // 1. Welcome Greeting Header
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
-                            Text(
-                                text = "Good Morning, Secretary",
-                                style = MedAITheme.textStyle.headline.small,
-                                fontWeight = FontWeight.Bold,
-                                color = MedAITheme.colors.text.primary
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(dimensions.medium)
+                        ) {
+                            MedAIAsyncImage(
+                                imageUrl = state.avatarUrl,
+                                nameForInitials = state.secretaryName.ifBlank { "Secretary" },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
                             )
-                            Text(
-                                text = dateString,
-                                style = MedAITheme.textStyle.body.medium,
-                                color = MedAITheme.colors.text.secondary
-                            )
+                            Column {
+                                Text(
+                                    text = "Good Morning, ${state.secretaryName.ifBlank { "Secretary" }}",
+                                    style = MedAITheme.textStyle.headline.small,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MedAITheme.colors.text.primary
+                                )
+                                Text(
+                                    text = dateString,
+                                    style = MedAITheme.textStyle.body.medium,
+                                    color = MedAITheme.colors.text.secondary
+                                )
+                            }
                         }
                         IconButton(
                             onClick = { /* Handle Notifications */ },
