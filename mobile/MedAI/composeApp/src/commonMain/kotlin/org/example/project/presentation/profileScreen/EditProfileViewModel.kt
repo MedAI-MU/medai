@@ -21,6 +21,7 @@ class EditProfileViewModel(
             is EditProfileEvent.BirthDateChanged -> setState { copy(birthDate = event.birthDate) }
             is EditProfileEvent.GenderChanged -> setState { copy(gender = event.gender) }
             is EditProfileEvent.BioChanged -> setState { copy(bio = event.bio) }
+            is EditProfileEvent.AboutChanged -> setState { copy(about = event.about) }
             is EditProfileEvent.AvatarSelected -> uploadAvatar(event.imageBytes, event.fileName)
             EditProfileEvent.SaveClicked -> saveProfile()
             EditProfileEvent.CancelClicked -> sendEffect(EditProfileEffect.NavigateBack)
@@ -60,6 +61,7 @@ class EditProfileViewModel(
         val birthDate = state.value.birthDate.trim()
         val gender = state.value.gender.trim()
         val bio = state.value.bio.trim()
+        val about = state.value.about.trim()
 
         if (name.length < 5 || name.length > 100) {
             sendEffect(EditProfileEffect.ShowError("Name must be between 5 and 100 characters"))
@@ -80,7 +82,8 @@ class EditProfileViewModel(
                 phone = phone,
                 birthDate = birthDate.ifBlank { null },
                 gender = gender.ifBlank { null },
-                bio = bio.ifBlank { null }
+                bio = bio.ifBlank { null },
+                about = about.ifBlank { null }
             ).fold(
                 onSuccess = { updatedUser ->
                     setState { copy(isSaving = false) }

@@ -30,7 +30,8 @@ class MockProfileRepository : ProfileRepository {
         phone: String?,
         birthDate: String?,
         gender: String?,
-        bio: String?
+        bio: String?,
+        about: String?
     ): Result<User> {
         delay(500)
         mockUser = mockUser.copy(
@@ -38,7 +39,8 @@ class MockProfileRepository : ProfileRepository {
             phoneNumber = phone ?: mockUser.phoneNumber,
             birthDate = birthDate ?: mockUser.birthDate,
             gender = gender ?: mockUser.gender,
-            bio = bio ?: mockUser.bio
+            bio = bio ?: mockUser.bio,
+            about = about ?: mockUser.about
         )
         return Result.success(mockUser)
     }

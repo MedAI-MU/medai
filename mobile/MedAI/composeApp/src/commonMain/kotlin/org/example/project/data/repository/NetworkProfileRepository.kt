@@ -82,7 +82,8 @@ class NetworkProfileRepository(
         phone: String?,
         birthDate: String?,
         gender: String?,
-        bio: String?
+        bio: String?,
+        about: String?
     ): Result<User> {
         return try {
             val requestDto = UpdateUserRequestDto(
@@ -99,8 +100,16 @@ class NetworkProfileRepository(
                 setBody(requestDto)
             }.body()
 
+            // If user is a doctor, update the about field via PATCH /doctors/{userId}
+            if (responseDto.role.lowercase() == "doctor" && about != null) {
+                client.patch("doctors/$userId") {
+                    contentType(ContentType.Application.Json)
+                    setBody(mapOf("about" to about))
+                }
+            }
+
             // Fetch updated about details if doctor
-            val about = if (responseDto.role.lowercase() == "doctor") {
+            val updatedAbout = if (responseDto.role.lowercase() == "doctor") {
                 try {
                     val doctorDto: DoctorResponseDto = client.get("doctors/${responseDto.id}").body()
                     doctorDto.about
@@ -112,7 +121,7 @@ class NetworkProfileRepository(
                 null
             }
 
-            val user = responseDto.toDomain(about)
+            val user = responseDto.toDomain(updatedAbout)
 
             // Sync updated details with sessionManager
             val currentToken = sessionManager.getUserToken() ?: ""

@@ -25,6 +25,7 @@ sealed class EditProfileEvent {
     data class BirthDateChanged(val birthDate: String) : EditProfileEvent()
     data class GenderChanged(val gender: String) : EditProfileEvent()
     data class BioChanged(val bio: String) : EditProfileEvent()
+    data class AboutChanged(val about: String) : EditProfileEvent()
     data class AvatarSelected(val imageBytes: ByteArray, val fileName: String) : EditProfileEvent()
     object SaveClicked : EditProfileEvent()
     object CancelClicked : EditProfileEvent()

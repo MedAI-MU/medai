@@ -14,3 +14,19 @@ actual fun rememberImagePicker(onImagePicked: (ByteArray) -> Unit): ImagePickerL
         }
     }
 }
+
+@Composable
+actual fun rememberFilePicker(
+    allowedTypes: List<String>,
+    onFilePicked: (ByteArray, String) -> Unit
+): FilePickerLauncher {
+    return remember {
+        object : FilePickerLauncher {
+            override fun launch() {
+                val isPdf = allowedTypes.contains("application/pdf")
+                val fileName = if (isPdf) "mock_report.pdf" else "mock_scan.png"
+                onFilePicked(ByteArray(1024), fileName)
+            }
+        }
+    }
+}
