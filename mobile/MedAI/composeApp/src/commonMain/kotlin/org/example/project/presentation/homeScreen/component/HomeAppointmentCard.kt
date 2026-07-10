@@ -22,6 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.toLocalDateTime
 import org.example.project.domain.model.appointment.Appointment
 
 @Composable
@@ -86,8 +90,17 @@ fun AppointmentRow(
         Spacer(modifier = Modifier.width(12.dp))
 
         Column {
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val daysDiff = today.daysUntil(appointment.date)
+            val relativeDate = when {
+                daysDiff == 0 -> "Today"
+                daysDiff == 1 -> "Tomorrow"
+                daysDiff > 1 -> "In $daysDiff days"
+                daysDiff == -1 -> "Yesterday"
+                else -> "${-daysDiff} days ago"
+            }
             MedAIText(
-                text = "${appointment.date} - Today",
+                text = "${appointment.date} - $relativeDate",
                 style = MedAITheme.textStyle.label.medium,
                 color = Color.White.copy(alpha = 0.9f)
             )
