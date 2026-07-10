@@ -182,12 +182,12 @@ describe('ScansService', () => {
       );
     });
 
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findOne(1, doctorUser)).rejects.toThrow(
+    it("should throw ForbiddenException when patient tries to access another patient's scan", async () => {
+      scansRepositoryMock.findOne.mockResolvedValue({
+        ...mockScan,
+        patientUserId: 99,
+      });
+      await expect(service.findOne(1, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -316,12 +316,12 @@ describe('ScansService', () => {
       );
     });
 
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      reportsRepositoryMock.findOne.mockResolvedValue(mockReport);
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findReportById(1, doctorUser)).rejects.toThrow(
+    it("should throw ForbiddenException when patient tries to access another patient's report", async () => {
+      reportsRepositoryMock.findOne.mockResolvedValue({
+        ...mockReport,
+        patientUserId: 99,
+      });
+      await expect(service.findReportById(1, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -399,13 +399,10 @@ describe('ScansService', () => {
       expect(result).toEqual([mockReport]);
     });
 
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findReportsByPatient(5, doctorUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+    it("should throw ForbiddenException when patient tries to access another patient's reports", async () => {
+      await expect(
+        service.findReportsByPatient(99, patientUser),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

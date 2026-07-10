@@ -154,9 +154,11 @@ describe('DiagnosisService', () => {
       );
     });
 
-    it('should throw ForbiddenException when doctor does not own the diagnosis', async () => {
-      diagnosesRepositoryMock.findOne.mockResolvedValue(buildDiagnosis());
-      await expect(service.findOne(1, otherDoctorUser)).rejects.toThrow(
+    it("should throw ForbiddenException when patient tries to access another patient's diagnosis", async () => {
+      diagnosesRepositoryMock.findOne.mockResolvedValue(
+        buildDiagnosis({ patientUserId: 99 }),
+      );
+      await expect(service.findOne(1, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
