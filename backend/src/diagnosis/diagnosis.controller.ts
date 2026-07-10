@@ -110,7 +110,17 @@ export class DiagnosisController {
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @UseGuards(
+    SameIdGuard,
+    DoctorAssignedGuard,
+    PatientResourceAccessGuard,
+    DoctorResourceOwnerGuard,
+  )
+  @DoctorResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    doctorUserId: 'doctorUserId',
+  })
   @PatientResource({
     entity: Diagnosis,
     resourceIdParam: 'diagnosisId',
