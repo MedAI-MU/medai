@@ -34,56 +34,6 @@ export class ScansService {
     return [...new Set(appointments.map((a) => a.patientUserId))];
   }
 
-  private async assertCanAccessScan(
-    scanId: number,
-    routePatientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Scan> {
-    const scan = await this.scansRepository.findOne({
-      where: { id: scanId },
-      relations: { images: true, reports: true },
-    });
-    if (!scan) throw new NotFoundException('Scan not found');
-
-    if (
-      currentUser.role === 'patient' &&
-      scan.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You are not related to this scan');
-    }
-
-    if (
-      currentUser.role === 'doctor' &&
-      scan.patientUserId !== routePatientUserId
-    ) {
-      throw new ForbiddenException('This scan does not belong to this patient');
-    }
-
-    return scan;
-  }
-
-  private assertCanAccessPatient(
-    resourcePatientUserId: number,
-    routePatientUserId: number,
-    currentUser: TokenUser,
-  ): void {
-    if (
-      currentUser.role === 'patient' &&
-      resourcePatientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can not access other patients data');
-    }
-
-    if (
-      currentUser.role === 'doctor' &&
-      resourcePatientUserId !== routePatientUserId
-    ) {
-      throw new ForbiddenException(
-        'This resource does not belong to this patient',
-      );
-    }
-  }
-
   async create(
     patientUserId: number,
     appointmentId: number | null,
@@ -143,27 +93,21 @@ export class ScansService {
     });
   }
 
-  async findOne(
-    id: number,
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Scan> {
-    return this.assertCanAccessScan(id, patientUserId, currentUser);
+  async findOne(id: number): Promise<Scan> {
+    const scan = await this.scansRepository.findOne({
+      where: { id },
+      relations: { images: true, reports: true },
+    });
+    if (!scan) throw new NotFoundException('Scan not found');
+    return scan;
   }
 
-  async delete(id: number, currentUser?: TokenUser): Promise<void> {
+  async delete(id: number): Promise<void> {
     const scan = await this.scansRepository.findOne({
       where: { id },
       relations: { images: true },
     });
     if (!scan) throw new NotFoundException('Scan not found');
-
-    if (
-      currentUser?.role === 'patient' &&
-      scan.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only delete your own scans');
-    }
 
     for (const image of scan.images) {
       await this.fileStorage.deleteFile(image.path);
@@ -175,24 +119,7 @@ export class ScansService {
     scanId: number,
     patientUserId: number,
     file: Express.Multer.File,
-    currentUser?: TokenUser,
   ): Promise<Report> {
-    const scan = await this.scansRepository.findOne({ where: { id: scanId } });
-    if (!scan) throw new NotFoundException('Scan not found');
-
-    if (currentUser?.role === 'patient') {
-      if (scan.patientUserId !== currentUser.id) {
-        throw new ForbiddenException(
-          'You can only create reports for your own scans',
-        );
-      }
-      if (patientUserId !== currentUser.id) {
-        throw new ForbiddenException(
-          'You can only create reports for yourself',
-        );
-      }
-    }
-
     const url = await this.fileStorage.saveFile(
       file.buffer,
       file.originalname,
@@ -208,44 +135,22 @@ export class ScansService {
     return this.reportsRepository.save(report);
   }
 
-  async findReports(
-    scanId: number,
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Report[]> {
-    await this.assertCanAccessScan(scanId, patientUserId, currentUser);
+  async findReports(scanId: number): Promise<Report[]> {
     return this.reportsRepository.find({
       where: { scanId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findReportById(
-    id: number,
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Report> {
+  async findReportById(id: number): Promise<Report> {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
-
-    this.assertCanAccessPatient(
-      report.patientUserId,
-      patientUserId,
-      currentUser,
-    );
     return report;
   }
 
-  async deleteReport(id: number, currentUser?: TokenUser): Promise<void> {
+  async deleteReport(id: number): Promise<void> {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
-
-    if (
-      currentUser?.role === 'patient' &&
-      report.patientUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only delete your own reports');
-    }
 
     await this.fileStorage.deleteFile(report.path);
     await this.reportsRepository.remove(report);
@@ -253,16 +158,12 @@ export class ScansService {
 
   async getImageFile(
     imageId: number,
-    patientUserId: number,
-    currentUser: TokenUser,
   ): Promise<{ path: string; originalName: string }> {
     const image = await this.scanImagesRepository.findOne({
       where: { id: imageId },
       relations: { scan: true },
     });
     if (!image) throw new NotFoundException('Image not found');
-
-    await this.assertCanAccessScan(image.scan.id, patientUserId, currentUser);
 
     return {
       path: this.fileStorage.getFullPath(image.path),
@@ -272,19 +173,11 @@ export class ScansService {
 
   async getReportFile(
     reportId: number,
-    patientUserId: number,
-    currentUser: TokenUser,
   ): Promise<{ path: string; originalName: string }> {
     const report = await this.reportsRepository.findOne({
       where: { id: reportId },
     });
     if (!report) throw new NotFoundException('Report not found');
-
-    this.assertCanAccessPatient(
-      report.patientUserId,
-      patientUserId,
-      currentUser,
-    );
 
     return {
       path: this.fileStorage.getFullPath(report.path),
@@ -292,11 +185,7 @@ export class ScansService {
     };
   }
 
-  async findReportsByPatient(
-    patientUserId: number,
-    currentUser: TokenUser,
-  ): Promise<Report[]> {
-    this.assertCanAccessPatient(patientUserId, patientUserId, currentUser);
+  async findReportsByPatient(patientUserId: number): Promise<Report[]> {
     return this.reportsRepository.find({
       where: { patientUserId },
       order: { createdAt: 'DESC' },

@@ -36,11 +36,16 @@ import { ScanResponseDto } from './dtos/scan-response.dto';
 import { ReportResponseDto } from './dtos/report-response.dto';
 import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
+import { PatientResourceAccessGuard } from '../shared/guards/patient-resource-access.guard';
+import { PatientResource } from '../shared/decorators/patient-resource.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ApprovedGuard } from '../users/guards/approved.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
+import { Scan } from './entities/scan.entity';
+import { ScanImage } from './entities/scan-image.entity';
+import { Report } from './entities/report.entity';
 
 @Controller()
 @UseGuards(ApprovedGuard)
@@ -120,7 +125,13 @@ export class ScansController {
     return scans.map((s) => new ScanResponseDto(s));
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Scan,
+    resourceIdParam: 'scanId',
+    patientUserId: 'patientUserId',
+    relations: ['images', 'reports'],
+  })
   @Roles('secretary', 'doctor')
   @Get('scans/:id/:scanId')
   @HttpCode(HttpStatus.OK)
@@ -131,18 +142,18 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(
     @Param('scanId', ParseIntPipe) scanId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<ScanResponseDto> {
-    const scan = await this.scansService.findOne(
-      scanId,
-      patientUserId,
-      currentUser,
-    );
+    const scan = await this.scansService.findOne(scanId);
     return new ScanResponseDto(scan);
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Scan,
+    resourceIdParam: 'scanId',
+    patientUserId: 'patientUserId',
+    relations: ['images'],
+  })
   @Roles('secretary')
   @Delete('scans/:id/:scanId')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -151,14 +162,16 @@ export class ScansController {
   @ApiNoContentResponse({ description: 'Scan deleted' })
   @ApiNotFoundResponse({ description: 'Scan not found' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async delete(
-    @Param('scanId', ParseIntPipe) scanId: number,
-    @CurrentUser() currentUser?: TokenUser,
-  ): Promise<void> {
-    await this.scansService.delete(scanId, currentUser);
+  async delete(@Param('scanId', ParseIntPipe) scanId: number): Promise<void> {
+    await this.scansService.delete(scanId);
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Scan,
+    resourceIdParam: 'scanId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('secretary', 'doctor')
   @Get('scans/:id/:scanId/reports')
   @HttpCode(HttpStatus.OK)
@@ -171,18 +184,17 @@ export class ScansController {
   @ApiNotFoundResponse({ description: 'Scan not found' })
   async findReports(
     @Param('scanId', ParseIntPipe) scanId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto[]> {
-    const reports = await this.scansService.findReports(
-      scanId,
-      patientUserId,
-      currentUser,
-    );
+    const reports = await this.scansService.findReports(scanId);
     return reports.map((r) => new ReportResponseDto(r));
   }
 
-  @UseGuards(SameIdGuard)
+  @UseGuards(SameIdGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Scan,
+    resourceIdParam: 'scanId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('secretary')
   @Post('scans/:id/:scanId/reports')
   @HttpCode(HttpStatus.CREATED)
@@ -216,13 +228,11 @@ export class ScansController {
     )
     file: Express.Multer.File,
     @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser?: TokenUser,
   ): Promise<ReportResponseDto> {
     const report = await this.scansService.createReport(
       scanId,
       patientUserId,
       file,
-      currentUser,
     );
     return new ReportResponseDto(report);
   }
@@ -238,12 +248,16 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async deleteReport(
     @Param('reportId', ParseIntPipe) reportId: number,
-    @CurrentUser() currentUser?: TokenUser,
   ): Promise<void> {
-    await this.scansService.deleteReport(reportId, currentUser);
+    await this.scansService.deleteReport(reportId);
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Report,
+    resourceIdParam: 'reportId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('secretary', 'doctor')
   @Get('reports/:id/:reportId')
   @HttpCode(HttpStatus.OK)
@@ -253,14 +267,8 @@ export class ScansController {
   @ApiNotFoundResponse({ description: 'Report not found' })
   async findReport(
     @Param('reportId', ParseIntPipe) reportId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto> {
-    const report = await this.scansService.findReportById(
-      reportId,
-      patientUserId,
-      currentUser,
-    );
+    const report = await this.scansService.findReportById(reportId);
     return new ReportResponseDto(report);
   }
 
@@ -275,16 +283,18 @@ export class ScansController {
   })
   async findReportsByPatient(
     @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto[]> {
-    const reports = await this.scansService.findReportsByPatient(
-      patientUserId,
-      currentUser,
-    );
+    const reports = await this.scansService.findReportsByPatient(patientUserId);
     return reports.map((r) => new ReportResponseDto(r));
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: ScanImage,
+    resourceIdParam: 'imageId',
+    patientUserId: 'scan.patientUserId',
+    relations: ['scan'],
+  })
   @Roles('secretary', 'doctor')
   @Get('scans/images/:id/:imageId/file')
   @HttpCode(HttpStatus.OK)
@@ -295,20 +305,19 @@ export class ScansController {
   @Redirect()
   async getImageFile(
     @Param('imageId', ParseIntPipe) imageId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ url: string; statusCode: number }> {
-    const { path: blobUrl } = await this.scansService.getImageFile(
-      imageId,
-      patientUserId,
-      currentUser,
-    );
+    const { path: blobUrl } = await this.scansService.getImageFile(imageId);
     res.setHeader('Cache-Control', 'private, max-age=3600');
     return { url: blobUrl, statusCode: 302 };
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Report,
+    resourceIdParam: 'reportId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('secretary', 'doctor')
   @Get('reports/:id/:reportId/file')
   @HttpCode(HttpStatus.OK)
@@ -319,15 +328,9 @@ export class ScansController {
   @Redirect()
   async getReportFile(
     @Param('reportId', ParseIntPipe) reportId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ url: string; statusCode: number }> {
-    const { path: blobUrl } = await this.scansService.getReportFile(
-      reportId,
-      patientUserId,
-      currentUser,
-    );
+    const { path: blobUrl } = await this.scansService.getReportFile(reportId);
     res.setHeader('Cache-Control', 'private, max-age=3600');
     return { url: blobUrl, statusCode: 302 };
   }

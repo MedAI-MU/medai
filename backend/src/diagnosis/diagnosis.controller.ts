@@ -29,11 +29,14 @@ import { UpdateSymptomsDto } from './dtos/update-symptoms.dto';
 import { DiagnosisResponseDto } from './dtos/diagnosis-response.dto';
 import { DoctorAssignedGuard } from '../shared/guards/doctor-assigned.guard';
 import { SameIdGuard } from '../shared/guards/same-id.guard';
+import { PatientResourceAccessGuard } from '../shared/guards/patient-resource-access.guard';
+import { PatientResource } from '../shared/decorators/patient-resource.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ApprovedGuard } from '../users/guards/approved.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { TokenUser } from '../auth/interfaces/token-user.interface';
+import { Diagnosis } from './entities/diagnosis.entity';
 
 @Controller('diagnosis')
 @UseGuards(ApprovedGuard)
@@ -101,7 +104,12 @@ export class DiagnosisController {
     return diagnoses.map((d) => new DiagnosisResponseDto(d));
   }
 
-  @UseGuards(SameIdGuard, DoctorAssignedGuard)
+  @UseGuards(SameIdGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('doctor')
   @Get(':id/:diagnosisId')
   @HttpCode(HttpStatus.OK)
@@ -115,18 +123,17 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
-    const diagnosis = await this.diagnosisService.findOne(
-      diagnosisId,
-      patientUserId,
-      currentUser,
-    );
+    const diagnosis = await this.diagnosisService.findOne(diagnosisId);
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('doctor')
   @Patch(':id/:diagnosisId')
   @HttpCode(HttpStatus.OK)
@@ -141,20 +148,18 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async update(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
     @Body() dto: UpdateDiagnosisDto,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
-    const diagnosis = await this.diagnosisService.update(
-      diagnosisId,
-      dto,
-      patientUserId,
-      currentUser,
-    );
+    const diagnosis = await this.diagnosisService.update(diagnosisId, dto);
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('doctor')
   @Patch(':id/:diagnosisId/symptoms')
   @HttpCode(HttpStatus.OK)
@@ -169,20 +174,21 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async updateSymptoms(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
     @Body() dto: UpdateSymptomsDto,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
     const diagnosis = await this.diagnosisService.updateSymptoms(
       diagnosisId,
       dto,
-      patientUserId,
-      currentUser,
     );
     return new DiagnosisResponseDto(diagnosis);
   }
 
-  @UseGuards(RolesGuard, DoctorAssignedGuard)
+  @UseGuards(RolesGuard, DoctorAssignedGuard, PatientResourceAccessGuard)
+  @PatientResource({
+    entity: Diagnosis,
+    resourceIdParam: 'diagnosisId',
+    patientUserId: 'patientUserId',
+  })
   @Roles('doctor')
   @Delete(':id/:diagnosisId')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -193,9 +199,7 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async delete(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
-    @Param('id', ParseIntPipe) patientUserId: number,
-    @CurrentUser() currentUser: TokenUser,
   ): Promise<void> {
-    await this.diagnosisService.delete(diagnosisId, patientUserId, currentUser);
+    await this.diagnosisService.delete(diagnosisId);
   }
 }
