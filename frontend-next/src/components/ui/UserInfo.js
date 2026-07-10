@@ -23,11 +23,13 @@ async function UserInfo() {
       </div>
 
       {/* Avatar */}
-      <div className="border-surface bg-primary/20 size-9 shrink-0 overflow-hidden rounded-full border-2 md:size-10">
+      <div className="border-surface relative size-9 shrink-0 overflow-hidden border-2 md:size-10">
         <Image
-          alt="User avatar"
-          className="h-full w-full object-cover"
           src={user?.avatar || defaultAvatar}
+          alt="User avatar"
+          className="rounded-full object-cover"
+          fill
+          unoptimized
         />
       </div>
     </div>
