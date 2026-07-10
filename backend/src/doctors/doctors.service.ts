@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Doctor } from './entities/doctor.entity';
 import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Speciality } from './entities/speciality.entity';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorSpeciality } from './entities/doctor-speciality.entity';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
+import { UpdateDoctorDto } from './dtos/update-doctor.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -18,6 +19,15 @@ export class DoctorsService {
     const doctor = this.doctorsRepository.create({
       user: { id: userId },
     });
+    return this.doctorsRepository.save(doctor);
+  }
+
+  async update(userId: number, dto: UpdateDoctorDto): Promise<Doctor | null> {
+    const doctor = await this.findOne(userId);
+    if (!doctor) {
+      return null;
+    }
+    doctor.about = dto.about;
     return this.doctorsRepository.save(doctor);
   }
 
