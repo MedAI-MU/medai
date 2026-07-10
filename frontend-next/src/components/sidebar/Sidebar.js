@@ -95,7 +95,7 @@ const LINKS = {
     },
     {
       text: "scans & reports",
-      href: "/secretary/scans",
+      href: "#",
       icon: Scan,
     },
     { text: "messages", href: "#", icon: MessageCircle },
