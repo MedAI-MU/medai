@@ -43,7 +43,15 @@ class NetworkHomeRepositoryTest {
 
     @Test
     fun testGetSpecialtiesSuccess() = runTest {
-        val client = createMockClient("{}") // Not used as it's hardcoded for now
+        val jsonResponse = """
+            [
+                {
+                    "id": 1,
+                    "name": "Cardiology"
+                }
+            ]
+        """.trimIndent()
+        val client = createMockClient(jsonResponse)
         val repository = NetworkHomeRepository(client)
 
         val result = repository.getSpecialties()
