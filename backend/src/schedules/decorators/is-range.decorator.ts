@@ -17,7 +17,7 @@ export function IsRange(
       options: validationOptions,
       constraints: [min, max],
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: unknown, args: ValidationArguments) {
           if (typeof value !== 'number') return false;
           const [minValue, maxValue] = args.constraints as [number, number];
           return value >= minValue && value <= maxValue;

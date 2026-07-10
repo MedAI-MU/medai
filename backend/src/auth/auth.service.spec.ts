@@ -496,10 +496,12 @@ describe('AuthService', () => {
 
       await authService.sendVerificationEmail('test@test.com');
 
+      const anyString: unknown = expect.any(String);
+      const anyDate: unknown = expect.any(Date);
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          verificationToken: expect.any(String),
-          verificationTokenExpiresAt: expect.any(Date),
+          verificationToken: anyString,
+          verificationTokenExpiresAt: anyDate,
         }),
       );
       expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
@@ -588,10 +590,12 @@ describe('AuthService', () => {
 
       await authService.forgotPassword('test@test.com');
 
+      const anyResetToken: unknown = expect.any(String);
+      const anyResetDate: unknown = expect.any(Date);
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          resetPasswordToken: expect.any(String),
-          resetPasswordExpiresAt: expect.any(Date),
+          resetPasswordToken: anyResetToken,
+          resetPasswordExpiresAt: anyResetDate,
         }),
       );
       expect(authMailerServiceMock.sendPasswordResetEmail).toHaveBeenCalledWith(
@@ -734,17 +738,19 @@ describe('AuthService', () => {
 
       await authService.requestEmailChange(1, 'new@test.com');
 
+      const anyVerificationToken: unknown = expect.any(String);
+      const anyVerificationDate: unknown = expect.any(Date);
       expect(usersRepositoryMock.save).toHaveBeenCalledWith(
         expect.objectContaining({
           pendingEmail: 'new@test.com',
-          verificationToken: expect.any(String),
-          verificationTokenExpiresAt: expect.any(Date),
+          verificationToken: anyVerificationToken,
+          verificationTokenExpiresAt: anyVerificationDate,
         }),
       );
       expect(authMailerServiceMock.sendVerificationEmail).toHaveBeenCalledWith(
         'old@test.com',
         'Test User',
-        expect.any(String),
+        expect.any(String) as unknown,
       );
     });
   });
