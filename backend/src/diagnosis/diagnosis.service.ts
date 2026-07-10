@@ -1,11 +1,10 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Diagnosis } from './entities/diagnosis.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { CreateDiagnosisDto } from './dtos/create-diagnosis.dto';
@@ -21,33 +20,6 @@ export class DiagnosisService {
     @InjectRepository(Appointment)
     private readonly appointmentsRepository: Repository<Appointment>,
   ) {}
-
-  private async getDoctorPatientIds(doctorUserId: number): Promise<number[]> {
-    const appointments = await this.appointmentsRepository.find({
-      where: { doctorUserId },
-      select: { patientUserId: true },
-    });
-    return [...new Set(appointments.map((a) => a.patientUserId))];
-  }
-
-  private async assertOwnsDiagnosis(
-    id: number,
-    currentUser: TokenUser,
-  ): Promise<Diagnosis> {
-    const diagnosis = await this.diagnosesRepository.findOne({
-      where: { id },
-    });
-    if (!diagnosis) throw new NotFoundException('Diagnosis not found');
-
-    if (
-      currentUser.role === 'doctor' &&
-      diagnosis.doctorUserId !== currentUser.id
-    ) {
-      throw new ForbiddenException('You can only access your own diagnoses');
-    }
-
-    return diagnosis;
-  }
 
   async create(
     dto: CreateDiagnosisDto,
@@ -87,64 +59,62 @@ export class DiagnosisService {
   }
 
   async findAll(currentUser: TokenUser): Promise<Diagnosis[]> {
+    const where: Record<string, unknown> = {};
     if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (patientIds.length === 0) return [];
-      return this.diagnosesRepository.find({
-        where: { patientUserId: In(patientIds) },
-        order: { createdAt: 'DESC' },
-      });
+      where.doctorUserId = currentUser.id;
     }
-
     return this.diagnosesRepository.find({
+      where,
       order: { createdAt: 'DESC' },
     });
   }
 
   async findByPatient(
     patientUserId: number,
-    currentUser: TokenUser,
+    currentUser?: TokenUser,
   ): Promise<Diagnosis[]> {
-    if (currentUser.role === 'doctor') {
-      const patientIds = await this.getDoctorPatientIds(currentUser.id);
-      if (!patientIds.includes(patientUserId)) {
-        throw new ForbiddenException('You are not related to this patient');
-      }
+    const where: Record<string, unknown> = { patientUserId };
+    if (currentUser?.role === 'doctor') {
+      where.doctorUserId = currentUser.id;
     }
-
     return this.diagnosesRepository.find({
-      where: { patientUserId },
+      where,
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(id: number, currentUser: TokenUser): Promise<Diagnosis> {
-    return this.assertOwnsDiagnosis(id, currentUser);
+  async findOne(id: number): Promise<Diagnosis> {
+    const diagnosis = await this.diagnosesRepository.findOne({
+      where: { id },
+    });
+    if (!diagnosis) throw new NotFoundException('Diagnosis not found');
+    return diagnosis;
   }
 
-  async update(
-    id: number,
-    dto: UpdateDiagnosisDto,
-    currentUser: TokenUser,
-  ): Promise<Diagnosis> {
-    const diagnosis = await this.assertOwnsDiagnosis(id, currentUser);
+  async update(id: number, dto: UpdateDiagnosisDto): Promise<Diagnosis> {
+    const diagnosis = await this.diagnosesRepository.findOne({
+      where: { id },
+    });
+    if (!diagnosis) throw new NotFoundException('Diagnosis not found');
     diagnosis.symptoms = dto.symptoms;
     diagnosis.summary = dto.summary;
     return this.diagnosesRepository.save(diagnosis);
   }
 
-  async updateSymptoms(
-    id: number,
-    dto: UpdateSymptomsDto,
-    currentUser: TokenUser,
-  ): Promise<Diagnosis> {
-    const diagnosis = await this.assertOwnsDiagnosis(id, currentUser);
+  async updateSymptoms(id: number, dto: UpdateSymptomsDto): Promise<Diagnosis> {
+    const diagnosis = await this.diagnosesRepository.findOne({
+      where: { id },
+    });
+    if (!diagnosis) throw new NotFoundException('Diagnosis not found');
     diagnosis.symptoms = dto.symptoms;
     return this.diagnosesRepository.save(diagnosis);
   }
 
-  async delete(id: number, currentUser: TokenUser): Promise<void> {
-    const diagnosis = await this.assertOwnsDiagnosis(id, currentUser);
+  async delete(id: number): Promise<void> {
+    const diagnosis = await this.diagnosesRepository.findOne({
+      where: { id },
+    });
+    if (!diagnosis) throw new NotFoundException('Diagnosis not found');
     await this.diagnosesRepository.remove(diagnosis);
   }
 }

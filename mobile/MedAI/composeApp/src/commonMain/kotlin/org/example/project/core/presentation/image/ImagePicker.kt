@@ -8,3 +8,13 @@ expect fun rememberImagePicker(onImagePicked: (ByteArray) -> Unit): ImagePickerL
 interface ImagePickerLauncher {
     fun launch()
 }
+
+@Composable
+expect fun rememberFilePicker(
+    allowedTypes: List<String>,
+    onFilePicked: (ByteArray, String) -> Unit
+): FilePickerLauncher
+
+interface FilePickerLauncher {
+    fun launch()
+}

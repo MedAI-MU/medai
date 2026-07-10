@@ -73,6 +73,10 @@ kotlin {
 
             // data store
             implementation("androidx.datastore:datastore-preferences-core:1.1.1")
+
+            // Coil
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

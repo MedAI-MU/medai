@@ -2,6 +2,7 @@ locals {
   prefix = "medai-${var.environment}"
 
   acr_login_server = data.azurerm_container_registry.existing.login_server
+  vm_hostname      = coalesce(var.custom_domain, azurerm_public_ip.vm_ip.fqdn)
 }
 
 resource "azurerm_resource_group" "main" {
@@ -131,7 +132,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml.tpl", {
-    fqdn          = azurerm_public_ip.vm_ip.fqdn
+    fqdn          = local.vm_hostname
     certbot_email = var.certbot_email
   }))
 }
@@ -188,4 +189,15 @@ resource "azurerm_postgresql_flexible_server_configuration" "extensions" {
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.db.id
   value     = "pg_trgm"
+}
+
+resource "azurerm_storage_account" "main" {
+  name                            = "medai${var.environment}sa"
+  resource_group_name             = azurerm_resource_group.main.name
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "GRS"
+  account_kind                    = "StorageV2"
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = true
 }

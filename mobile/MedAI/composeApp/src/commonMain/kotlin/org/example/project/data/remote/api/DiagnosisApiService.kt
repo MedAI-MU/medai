@@ -25,24 +25,24 @@ class KtorDiagnosisApiService(
 ) : DiagnosisApiService {
 
     override suspend fun getDiagnosesForPatient(patientId: String): List<DiagnosisResponseDto> {
-        return client.get("diagnoses/$patientId").body()
+        return client.get("diagnosis/$patientId").body()
     }
 
     override suspend fun createDiagnosis(patientId: String, request: CreateDiagnosisRequestDto): DiagnosisResponseDto {
-        return client.post("diagnoses/$patientId") {
+        return client.post("diagnosis/$patientId") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
 
     override suspend fun updateDiagnosis(patientId: String, diagnosisId: String, request: UpdateDiagnosisRequestDto): DiagnosisResponseDto {
-        return client.patch("diagnoses/$patientId/$diagnosisId") {
+        return client.patch("diagnosis/$patientId/$diagnosisId") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
 
     override suspend fun deleteDiagnosis(patientId: String, diagnosisId: String) {
-        client.delete("diagnoses/$patientId/$diagnosisId")
+        client.delete("diagnosis/$patientId/$diagnosisId")
     }
 }

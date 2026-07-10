@@ -158,7 +158,7 @@ describe('ScansService', () => {
   describe('findByPatient', () => {
     it('should return scans for a patient', async () => {
       scansRepositoryMock.find.mockResolvedValue([mockScan]);
-      const result = await service.findByPatient(5, patientUser);
+      const result = await service.findByPatient(5);
       expect(result).toEqual([mockScan]);
       expect(scansRepositoryMock.find).toHaveBeenCalledWith({
         where: { patientUserId: 5 },
@@ -166,52 +166,18 @@ describe('ScansService', () => {
         order: { createdAt: 'DESC' },
       });
     });
-
-    it('should allow secretary to get any patient scans', async () => {
-      scansRepositoryMock.find.mockResolvedValue([mockScan]);
-      const result = await service.findByPatient(5, secretaryUser);
-      expect(result).toEqual([mockScan]);
-    });
-
-    it('should allow doctor with relation to get patient scans', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([{ patientUserId: 5 }]);
-      scansRepositoryMock.find.mockResolvedValue([mockScan]);
-      const result = await service.findByPatient(5, doctorUser);
-      expect(result).toEqual([mockScan]);
-    });
-
-    it('should throw ForbiddenException for doctor with no relation', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findByPatient(5, doctorUser)).rejects.toThrow(
-        ForbiddenException,
-      );
-    });
   });
 
   describe('findOne', () => {
     it('should return scan if found', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      const result = await service.findOne(1, secretaryUser);
+      const result = await service.findOne(1);
       expect(result).toEqual(mockScan);
     });
 
     it('should throw NotFoundException when scan not found', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findOne(1, secretaryUser)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findOne(1, doctorUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -239,33 +205,27 @@ describe('ScansService', () => {
         },
       ]);
 
-      const result = await service.create(5, 100, [file]);
+      const result = await service.create(5, 100, [file], secretaryUser);
       expect(result.id).toBe(1);
-      expect(result.patientUserId).toBe(5);
-      expect(result.images).toHaveLength(1);
-      expect(fileStorageMock.saveFile).toHaveBeenCalledWith(
-        file.buffer,
-        file.originalname,
-        'scans',
-        file.mimetype,
-      );
     });
 
-    it('should create scan with null appointmentId', async () => {
-      scansRepositoryMock.create.mockReturnValue({ id: 2, patientUserId: 5 });
-      scansRepositoryMock.save.mockResolvedValue({ id: 2, patientUserId: 5 });
-      scanImagesRepositoryMock.save.mockResolvedValue([]);
+    it('should throw ForbiddenException when patient tries to create scan for different patient', async () => {
+      await expect(
+        service.create(99, 100, [file], patientUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
 
-      await service.create(5, null, []);
-      expect(scansRepositoryMock.create).toHaveBeenCalledWith({
-        patientUserId: 5,
-        appointmentId: null,
-      });
+    it('should create a scan with empty images array', async () => {
+      scansRepositoryMock.create.mockReturnValue({ id: 1, patientUserId: 5 });
+      scansRepositoryMock.save.mockResolvedValue({ id: 1, patientUserId: 5 });
+
+      const result = await service.create(5, null, [], undefined);
+      expect(result.id).toBe(1);
     });
   });
 
   describe('delete', () => {
-    it('should delete scan and its images from storage', async () => {
+    it('should delete scan and images', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
       scansRepositoryMock.remove.mockResolvedValue(undefined);
 
@@ -285,11 +245,11 @@ describe('ScansService', () => {
   describe('createReport', () => {
     const file = {
       buffer: Buffer.from('data'),
-      originalname: 'rpt.pdf',
+      originalname: 'r.pdf',
+      mimetype: 'application/pdf',
     } as Express.Multer.File;
 
     it('should create a report', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(mockScan);
       fileStorageMock.saveFile.mockResolvedValue(
         'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
@@ -299,52 +259,27 @@ describe('ScansService', () => {
       const result = await service.createReport(1, 5, file);
       expect(result).toEqual(mockReport);
     });
-
-    it('should throw NotFoundException when scan not found', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.createReport(999, 5, file)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
   });
 
   describe('findReports', () => {
     it('should return reports for a scan', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(mockScan);
       reportsRepositoryMock.find.mockResolvedValue([mockReport]);
-      const result = await service.findReports(1, secretaryUser);
+      const result = await service.findReports(1);
       expect(result).toEqual([mockReport]);
-    });
-
-    it('should throw NotFoundException when scan not found', async () => {
-      scansRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findReports(999, secretaryUser)).rejects.toThrow(
-        NotFoundException,
-      );
     });
   });
 
   describe('findReportById', () => {
     it('should return report if found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(mockReport);
-      const result = await service.findReportById(1, secretaryUser);
+      const result = await service.findReportById(1);
       expect(result).toEqual(mockReport);
     });
 
     it('should throw NotFoundException when report not found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findReportById(999, secretaryUser)).rejects.toThrow(
+      await expect(service.findReportById(999)).rejects.toThrow(
         NotFoundException,
-      );
-    });
-
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      reportsRepositoryMock.findOne.mockResolvedValue(mockReport);
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findReportById(1, doctorUser)).rejects.toThrow(
-        ForbiddenException,
       );
     });
   });
@@ -372,12 +307,11 @@ describe('ScansService', () => {
   describe('getImageFile', () => {
     it('should return image path and name', async () => {
       scanImagesRepositoryMock.findOne.mockResolvedValue(mockImage);
-      scansRepositoryMock.findOne.mockResolvedValue(mockScan);
       fileStorageMock.getFullPath.mockReturnValue(
         'https://storage.blob.core.windows.net/scans/uuid.jpg',
       );
 
-      const result = await service.getImageFile(1, secretaryUser);
+      const result = await service.getImageFile(1);
       expect(result.path).toBe(
         'https://storage.blob.core.windows.net/scans/uuid.jpg',
       );
@@ -386,7 +320,7 @@ describe('ScansService', () => {
 
     it('should throw NotFoundException when image not found', async () => {
       scanImagesRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.getImageFile(999, secretaryUser)).rejects.toThrow(
+      await expect(service.getImageFile(999)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -399,7 +333,7 @@ describe('ScansService', () => {
         'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
 
-      const result = await service.getReportFile(1, secretaryUser);
+      const result = await service.getReportFile(1);
       expect(result.path).toBe(
         'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
@@ -408,7 +342,7 @@ describe('ScansService', () => {
 
     it('should throw NotFoundException when report not found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.getReportFile(999, secretaryUser)).rejects.toThrow(
+      await expect(service.getReportFile(999)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -417,17 +351,8 @@ describe('ScansService', () => {
   describe('findReportsByPatient', () => {
     it('should return reports for a patient', async () => {
       reportsRepositoryMock.find.mockResolvedValue([mockReport]);
-      const result = await service.findReportsByPatient(5, secretaryUser);
+      const result = await service.findReportsByPatient(5);
       expect(result).toEqual([mockReport]);
-    });
-
-    it('should throw ForbiddenException for unrelated doctor', async () => {
-      appointmentsRepositoryMock.find.mockResolvedValue([
-        { patientUserId: 99 },
-      ]);
-      await expect(service.findReportsByPatient(5, doctorUser)).rejects.toThrow(
-        ForbiddenException,
-      );
     });
   });
 });

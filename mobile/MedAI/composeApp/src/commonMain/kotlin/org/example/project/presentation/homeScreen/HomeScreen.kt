@@ -143,6 +143,7 @@ class HomeScreen : Screen {
             topBar = {
                 HomeTopBar(
                     userName = state.userName,
+                    avatarUrl = state.avatarUrl,
                     onNotificationClick = { viewModel.onEvent(HomeEvent.NotificationsClicked) },
                     onSettingsClick = { viewModel.onEvent(HomeEvent.SettingsClicked) },
                     onSearchClick = { viewModel.onEvent(HomeEvent.SearchClicked) }

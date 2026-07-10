@@ -34,6 +34,7 @@ import { DoctorDto } from './dtos/doctor.dto';
 import { DoctorResponseDto } from './dtos/doctor-response.dto';
 import { SpecialityResponseDto } from './dtos/speciality-response.dto';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
+import { UpdateDoctorDto } from './dtos/update-doctor.dto';
 
 @Controller('doctors')
 @UseGuards(ApprovedGuard)
@@ -196,8 +197,30 @@ export class DoctorsController {
     return new DoctorResponseDto(doctor);
   }
 
-  @Roles('secretary')
   @UseGuards(SameIdGuard)
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
+  @ApiBody({ type: UpdateDoctorDto })
+  @ApiOkResponse({
+    description: 'Doctor updated successfully',
+    type: DoctorResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'Doctor not found' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async update(
+    @Param('id') id: number,
+    @Body() dto: UpdateDoctorDto,
+  ): Promise<DoctorResponseDto> {
+    const doctor = await this.doctorsService.update(id, dto);
+    if (!doctor) {
+      throw new NotFoundException(`Doctor not found`);
+    }
+    return new DoctorResponseDto(doctor);
+  }
+
+  @Roles('secretary')
+  @UseGuards(RolesGuard)
   @Post(':id/specialities')
   @HttpCode(HttpStatus.CREATED)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
@@ -235,7 +258,7 @@ export class DoctorsController {
   }
 
   @Roles('secretary')
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Patch(':id/specialities/:specialityId')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })
@@ -274,7 +297,7 @@ export class DoctorsController {
   }
 
   @Roles('secretary')
-  @UseGuards(SameIdGuard)
+  @UseGuards(RolesGuard)
   @Delete(':id/specialities/:specialityId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', description: 'Doctor ID', type: Number })

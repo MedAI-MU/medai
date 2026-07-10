@@ -28,6 +28,7 @@ import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.domain.model.doctor.Doctor
 import org.example.project.domain.model.doctor.Speciality
 import org.example.project.presentation.schedule.ScheduleScreen
+import org.example.project.design_system.component.image.MedAIAvatar
 
 class SecretaryDoctorListScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -246,20 +247,13 @@ private fun DoctorCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Avatar
-                Box(
+                MedAIAvatar(
+                    url = doctor.imageUrl,
+                    name = doctor.name,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(MedAITheme.colors.primary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MedAITheme.colors.primary,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.width(dimensions.small))
 

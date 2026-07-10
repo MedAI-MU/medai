@@ -6,6 +6,8 @@ import org.example.project.domain.model.secretary.QueueEntry
 import org.example.project.domain.model.secretary.QueueStatus
 
 data class SecretaryDashboardState(
+    val secretaryName: String = "",
+    val avatarUrl: String? = null,
     val clinicStats: ClinicStats = ClinicStats(0, 0, 0.0, 0),
     val queues: List<QueueEntry> = emptyList(),
     val isLoading: Boolean = false,

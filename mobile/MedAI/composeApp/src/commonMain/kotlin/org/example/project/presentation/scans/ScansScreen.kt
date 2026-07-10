@@ -33,8 +33,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.Clock
-import org.example.project.core.presentation.image.rememberImagePicker
+import org.example.project.core.presentation.image.rememberFilePicker
 import org.example.project.core.presentation.image.toImageBitmap
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
@@ -76,13 +78,45 @@ class ScansScreen(private val patientUserId: String? = null) : Screen {
         var activeScanIdForReportUpload by remember { mutableStateOf<String?>(null) }
         var scanIdToDelete by remember { mutableStateOf<String?>(null) }
 
-        val scanPicker = rememberImagePicker { bytes ->
+        val scope = rememberCoroutineScope()
+
+        val scanPicker = rememberFilePicker(
+            allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp")
+        ) { bytes, fileName ->
+            if (bytes.size > 10 * 1024 * 1024) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Scan file size must not exceed 10MB")
+                }
+                return@rememberFilePicker
+            }
+            val ext = fileName.substringAfterLast('.', "").lowercase()
+            if (ext != "jpg" && ext != "jpeg" && ext != "png" && ext != "gif" && ext != "webp") {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Only image files are allowed for scans")
+                }
+                return@rememberFilePicker
+            }
             viewModel.onEvent(ScansEvent.UploadScan(targetPatientId, null, listOf(bytes)))
         }
 
-        val reportPicker = rememberImagePicker { bytes ->
+        val reportPicker = rememberFilePicker(
+            allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf")
+        ) { bytes, fileName ->
+            if (bytes.size > 10 * 1024 * 1024) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Report file size must not exceed 10MB")
+                }
+                return@rememberFilePicker
+            }
+            val ext = fileName.substringAfterLast('.', "").lowercase()
+            if (ext != "pdf" && ext != "jpg" && ext != "jpeg" && ext != "png" && ext != "gif" && ext != "webp") {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Only PDF and image files are allowed for reports")
+                }
+                return@rememberFilePicker
+            }
             activeScanIdForReportUpload?.let { scanId ->
-                viewModel.onEvent(ScansEvent.UploadReport(targetPatientId, scanId, bytes, "report_${Clock.System.now().toEpochMilliseconds()}.png"))
+                viewModel.onEvent(ScansEvent.UploadReport(targetPatientId, scanId, bytes, fileName))
             }
         }
 

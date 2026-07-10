@@ -53,6 +53,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.design_system.component.image.MedAIAsyncImage
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import org.example.project.design_system.component.appBar.MedAiAppBar
@@ -77,7 +78,17 @@ class DoctorDashboardScreen : Screen {
                 Column {
                     MedAiAppBar(
                         title = "Doctor Dashboard",
-                        centerTitle = false
+                        centerTitle = false,
+                        actions = {
+                            MedAIAsyncImage(
+                                imageUrl = state.avatarUrl,
+                                nameForInitials = state.doctorName.ifBlank { "Doctor" },
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
                     )
                     // PATIENT AESTHETIC: Tinted background for the calendar block
                     Column(

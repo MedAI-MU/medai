@@ -20,6 +20,7 @@ import org.example.project.domain.model.appointment.AppointmentStatus
 import org.example.project.domain.model.home.Category
 import org.example.project.domain.model.home.CategoryType
 import org.example.project.domain.model.doctor.Doctor
+import org.example.project.core.presentation.util.UiText
 import org.example.project.domain.model.specialty.Specialty
 import org.example.project.domain.repository.home.HomeRepository
 
@@ -98,12 +99,12 @@ class MockHomeRepository : HomeRepository {
         delay(1000)
         return Result.success(
             listOf(
-                Specialty("1", Res.string.spec_cardiology, "cardiology"),
-                Specialty("2", Res.string.spec_dermatology, "dermatology"),
-                Specialty("3", Res.string.spec_general, "general"),
-                Specialty("4", Res.string.spec_gynecology, "gynecology"),
-                Specialty("5", Res.string.spec_odontology, "odontology"),
-                Specialty("6", Res.string.spec_oncology, "oncology"),
+                Specialty("Cardiology", UiText.StringRes(Res.string.spec_cardiology), "cardiology"),
+                Specialty("Dermatology", UiText.StringRes(Res.string.spec_dermatology), "dermatology"),
+                Specialty("General", UiText.StringRes(Res.string.spec_general), "general"),
+                Specialty("Gynecology", UiText.StringRes(Res.string.spec_gynecology), "gynecology"),
+                Specialty("Odontology", UiText.StringRes(Res.string.spec_odontology), "odontology"),
+                Specialty("Oncology", UiText.StringRes(Res.string.spec_oncology), "oncology"),
             )
         )
     }
