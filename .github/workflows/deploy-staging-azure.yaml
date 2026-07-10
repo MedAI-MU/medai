@@ -37,6 +37,8 @@ jobs:
       db_username: ${{ steps.tfout.outputs.db_username }}
       db_name: ${{ steps.tfout.outputs.db_name }}
       api_base_url: ${{ steps.tfout.outputs.api_base_url }}
+      storage_account_name: ${{ steps.tfout.outputs.storage_account_name }}
+      storage_account_connection_string: ${{ steps.tfout.outputs.storage_account_connection_string }}
 
     steps:
       - name: Checkout repository
@@ -93,6 +95,8 @@ jobs:
           echo "db_username=$(terraform output -raw pg_admin_login)" >> "$GITHUB_OUTPUT"
           echo "db_name=$(terraform output -raw db_name)" >> "$GITHUB_OUTPUT"
           echo "api_base_url=https://$(terraform output -raw vm_fqdn)" >> "$GITHUB_OUTPUT"
+          echo "storage_account_name=$(terraform output -raw storage_account_name)" >> "$GITHUB_OUTPUT"
+          echo "storage_account_connection_string=$(terraform output -raw storage_account_connection_string)" >> "$GITHUB_OUTPUT"
 
       - name: Azure logout
         if: always()
@@ -243,8 +247,8 @@ jobs:
           cat > docker-compose/.env.staging << 'ENVEOF'
           APP_PORT=8000
           NODE_ENV=production
-          AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
-          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_ACCOUNT_NAME=${{ needs.terraform.outputs.storage_account_name }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ needs.terraform.outputs.storage_account_connection_string }}
           DB_NAME=${{ needs.terraform.outputs.db_name }}
           DB_USERNAME=${{ needs.terraform.outputs.db_username }}
           DB_PASSWORD=${{ secrets.TF_PG_ADMIN_PASSWORD }}

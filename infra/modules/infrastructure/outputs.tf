@@ -44,3 +44,14 @@ output "pg_admin_password" {
   sensitive   = true
   description = "PostgreSQL administrator password (DB_PASSWORD)"
 }
+
+output "storage_account_name" {
+  value       = azurerm_storage_account.main.name
+  description = "Name of the storage account"
+}
+
+output "storage_account_connection_string" {
+  value       = azurerm_storage_account.main.primary_connection_string
+  sensitive   = true
+  description = "Primary connection string for the storage account"
+}
