@@ -27,11 +27,11 @@ const TABS = [
     component: SurgeriesTab,
   },
   {
-    label: "familyHistories",
+    label: "family histories",
     component: FamilyHistoryTab,
   },
   {
-    label: "emergencyContacts",
+    label: "emergency contacts",
     component: EmergencyContactsTab,
   },
 ];

@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "MedAi",
+  title: "MedAI",
   description:
     "Medical platform helps you find your suitable doctor with some AI help.",
 };

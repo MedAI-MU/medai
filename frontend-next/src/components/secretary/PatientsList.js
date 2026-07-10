@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, UserRound, Stethoscope } from "lucide-react";
+import { Search, UserRound, Stethoscope, Scan } from "lucide-react";
 
 import Table from "@/components/ui/Table";
 import Badge from "@/components/ui/Badge";
@@ -51,14 +51,15 @@ export default function PatientsList({ patients = [] }) {
           }
         />
       ) : (
-        <Table columns="0.5fr 1.5fr 0.7fr 0.7fr 0.7fr 0.5fr">
+        <Table columns="0.5fr 1.5fr 0.7fr 0.7fr 0.7fr 0.6fr 0.6fr">
           <Table.Header>
             <div>ID</div>
             <div>Name</div>
             <div>Blood</div>
             <div>Height</div>
             <div>Weight</div>
-            <div>Actions</div>
+            <div>Medical</div>
+            <div>Scans</div>
           </Table.Header>
           <Table.Body
             data={filtered}
@@ -88,6 +89,16 @@ export default function PatientsList({ patients = [] }) {
                     variation="secondary"
                   >
                     View
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    href={`/secretary/patients/${patient.userId}/scans`}
+                    size="sm"
+                    variation="ghost"
+                  >
+                    <Scan size={14} />
+                    Scans
                   </Button>
                 </div>
               </Table.Row>

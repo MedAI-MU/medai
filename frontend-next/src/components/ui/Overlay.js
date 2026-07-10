@@ -1,9 +1,15 @@
 "use client";
 
-function Overlay({ onClick, className }) {
+import { useSidebar } from "@/contexts/SidebarContext";
+
+function Overlay({ className }) {
+  const { isSidebarOpen, closeSidebar } = useSidebar();
+
+  if (!isSidebarOpen) return null;
+
   return (
     <div
-      onClick={onClick}
+      onClick={closeSidebar}
       className={`fixed inset-0 z-40 bg-black/20 backdrop-blur-sm ${className}`}
     />
   );
