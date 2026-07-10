@@ -33,6 +33,7 @@ import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.doctor.Doctor
+import org.example.project.design_system.component.image.MedAIAvatar
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -52,16 +53,15 @@ fun DoctorCard(
             .padding(dimensions.large)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+
             // 1. Doctor Image
-            Box(
+            MedAIAvatar(
+                url = doctor.imageUrl,
+                name = doctor.name,
                 modifier = Modifier
                     .size(dimensions.spacing64 + dimensions.large)
                     .clip(CircleShape)
-                    .background(MedAITheme.colors.neutral) // Placeholder for AsyncImage
-            ) {
-                // In production, we will use Coil/Kamel here:
-                // AsyncImage(data = doctor.imageUrl, ...)
-            }
+            )
 
             Spacer(modifier = Modifier.width(dimensions.large))
 

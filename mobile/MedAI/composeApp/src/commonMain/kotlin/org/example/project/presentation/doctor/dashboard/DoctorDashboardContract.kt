@@ -4,6 +4,8 @@ import kotlinx.datetime.LocalDate
 import org.example.project.domain.model.appointment.AppointmentDetail
 
 data class DoctorDashboardState(
+    val doctorName: String = "",
+    val avatarUrl: String? = null,
     val uiState: DoctorDashboardUiState = DoctorDashboardUiState.Loading,
     val selectedDate: Long = 0L,
     val displayedMonth: LocalDate? = null,

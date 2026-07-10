@@ -40,7 +40,7 @@ val doctorModule = module {
         DoctorDetailsViewModel(doctorId, get())
     }
 
-    factory { DoctorDashboardViewModel(get(), get()) }
+    factory { DoctorDashboardViewModel(get(), get(), get()) }
     factory { XRayAnalysisViewModel(get()) }
     factory { EPrescriptionViewModel() }
 

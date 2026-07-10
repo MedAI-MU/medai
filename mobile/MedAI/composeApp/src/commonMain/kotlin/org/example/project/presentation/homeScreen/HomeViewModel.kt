@@ -18,11 +18,12 @@ import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.domain.ResourceProvider
 import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.home.GetHomeDataUseCase
-
+import org.example.project.domain.usecase.profile.GetProfileUseCase
 import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class HomeViewModel(
     private val getHomeDataUseCase: GetHomeDataUseCase,
+    private val getProfileUseCase: GetProfileUseCase,
     private val calendarManager: CalendarManager,
     private val resourceProvider: ResourceProvider,
     private val appointmentRepository: AppointmentRepository
@@ -185,6 +186,14 @@ class HomeViewModel(
                     }
                     sendEffect(HomeEffect.ShowError(error.message ?: "Failed to load data"))
                 }
+            )
+
+            // Fetch avatar in background
+            getProfileUseCase().fold(
+                onSuccess = { user ->
+                    _state.update { it.copy(avatarUrl = user.avatarUrl) }
+                },
+                onFailure = {}
             )
         }
     }

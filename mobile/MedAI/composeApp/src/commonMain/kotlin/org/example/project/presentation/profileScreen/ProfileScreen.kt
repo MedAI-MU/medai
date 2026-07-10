@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -46,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -59,10 +59,12 @@ import medai.composeapp.generated.resources.menu_privacy
 import medai.composeapp.generated.resources.menu_profile
 import medai.composeapp.generated.resources.menu_settings
 import medai.composeapp.generated.resources.my_profile_title
+import org.example.project.design_system.component.image.MedAIAsyncImage
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.LocalDimensions
 import org.example.project.design_system.theme.MedAITheme
+import org.example.project.domain.model.auth.UserRole
 import org.example.project.presentation.loginScreen.LoginScreen
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -75,16 +77,27 @@ class ProfileScreen : Screen {
         val state by viewModel.state.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
         val dimensions = LocalDimensions.current
+        val scrollState = rememberScrollState()
+
+        // Reload profile every time the screen is displayed to fetch edited changes
+        LaunchedEffect(Unit) {
+            viewModel.loadProfile()
+        }
 
         LaunchedEffect(viewModel.effect) {
             viewModel.effect.collect { effect ->
-                when(effect) {
+                when (effect) {
                     ProfileEffect.NavigateBack -> navigator.pop()
                     ProfileEffect.NavigateToLogin -> {
                         val rootNavigator = navigator.parent ?: navigator
                         rootNavigator.replaceAll(LoginScreen())
                     }
+                    ProfileEffect.NavigateToEditProfile -> {
+                        val rootNavigator = navigator.parent ?: navigator
+                        rootNavigator.push(EditProfileScreen())
+                    }
                     is ProfileEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    is ProfileEffect.ShowSuccess -> snackbarHostState.showSnackbar(effect.message)
                     is ProfileEffect.NavigateToScreen -> { /* Handle generic nav */ }
                 }
             }
@@ -96,75 +109,91 @@ class ProfileScreen : Screen {
             snackbarHost = { SnackbarHost(snackbarHostState) },
             contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-
-                // 1. Header Profile Info
-                if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxWidth().height(dimensions.spacing64 * 2), contentAlignment = Alignment.Center) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = dimensions.extraExtraLarge)
+            ) {
+                if (state.isLoading && state.user == null) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(250.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = MedAITheme.colors.primary)
                     }
                 } else {
+                    // 1. Header Profile & Avatar
                     ProfileHeader(
+                        avatarUrl = state.user?.avatarUrl,
                         name = state.user?.name ?: "Guest",
                         email = state.user?.email ?: "",
+                        role = state.user?.role?.name ?: "PATIENT",
                         onEditClick = { viewModel.onEvent(ProfileEvent.EditProfileClicked) }
                     )
-                }
 
-                Spacer(modifier = Modifier.height(dimensions.extraLarge))
+                    Spacer(modifier = Modifier.height(dimensions.large))
 
-                // 2. White Menu List
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
-                        .background(MedAITheme.colors.background)
-                        .padding(dimensions.extraLarge)
-                ) {
-                    Column(
+                    // 2. Conditional view of Bio & About for DOCTOR role
+                    if (state.user?.role == UserRole.DOCTOR) {
+                        DoctorSections(
+                            bio = state.user?.bio ?: "No bio available.",
+                            about = state.user?.about ?: "No professional details provided."
+                        )
+                        Spacer(modifier = Modifier.height(dimensions.large))
+                    }
+
+                    // 3. Menu Navigation List UI Card
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(dimensions.extraLarge)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = dimensions.extraExtraLarge, topEnd = dimensions.extraExtraLarge))
+                            .background(MedAITheme.colors.background)
+                            .padding(dimensions.extraLarge)
                     ) {
-                        ProfileMenuItem(
-                            icon = Icons.Default.Person,
-                            title = Res.string.menu_profile,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Profile)) }
-                        )
-                        ProfileMenuItem(
-                            icon = Icons.Default.Favorite,
-                            title = Res.string.menu_favorite,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Favorite)) }
-                        )
-                        ProfileMenuItem(
-                            icon = Icons.Default.Payment,
-                            title = Res.string.menu_payment,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Payment)) }
-                        )
-                        ProfileMenuItem(
-                            icon = Icons.Default.Lock,
-                            title = Res.string.menu_privacy,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Privacy)) }
-                        )
-                        ProfileMenuItem(
-                            icon = Icons.Default.Settings,
-                            title = Res.string.menu_settings,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Settings)) }
-                        )
-                        ProfileMenuItem(
-                            icon = Icons.AutoMirrored.Filled.Help,
-                            title = Res.string.menu_help,
-                            onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Help)) }
-                        )
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(dimensions.extraLarge)
+                        ) {
+                            ProfileMenuItem(
+                                icon = Icons.Default.Person,
+                                title = Res.string.menu_profile,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Profile)) }
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.Default.Favorite,
+                                title = Res.string.menu_favorite,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Favorite)) }
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.Default.Payment,
+                                title = Res.string.menu_payment,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Payment)) }
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.Default.Lock,
+                                title = Res.string.menu_privacy,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Privacy)) }
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.Default.Settings,
+                                title = Res.string.menu_settings,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Settings)) }
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.AutoMirrored.Filled.Help,
+                                title = Res.string.menu_help,
+                                onClick = { viewModel.onEvent(ProfileEvent.MenuItemClicked(ProfileMenuItem.Help)) }
+                            )
 
-                        // Logout
-                        ProfileMenuItem(
-                            icon = Icons.AutoMirrored.Filled.ExitToApp,
-                            title = Res.string.menu_logout,
-                            isDestructive = true,
-                            onClick = { viewModel.onEvent(ProfileEvent.LogoutClicked) }
-                        )
+                            // Logout
+                            ProfileMenuItem(
+                                icon = Icons.AutoMirrored.Filled.ExitToApp,
+                                title = Res.string.menu_logout,
+                                isDestructive = true,
+                                onClick = { viewModel.onEvent(ProfileEvent.LogoutClicked) }
+                            )
+                        }
                     }
                 }
             }
@@ -172,35 +201,46 @@ class ProfileScreen : Screen {
     }
 
     @Composable
-    fun ProfileHeader(name: String, email: String, onEditClick: () -> Unit) {
+    fun ProfileHeader(
+        avatarUrl: String?,
+        name: String,
+        email: String,
+        role: String,
+        onEditClick: () -> Unit
+    ) {
         val dimensions = LocalDimensions.current
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dimensions.extraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(contentAlignment = Alignment.BottomEnd) {
-                // Avatar
-                Box(
-                    modifier = Modifier
-                        .size(dimensions.spacing64 + dimensions.extraExtraLarge) // Approx 96dp
-                        .clip(CircleShape)
-                        .background(MedAITheme.colors.surface) // Placeholder for AsyncImage
+            Box(
+                modifier = Modifier
+                    .size(112.dp)
+                    .clip(CircleShape)
+                    .clickable { onEditClick() },
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                // Async image with cache fallback
+                MedAIAsyncImage(
+                    imageUrl = avatarUrl,
+                    nameForInitials = name,
+                    modifier = Modifier.fillMaxSize().clip(CircleShape)
                 )
 
                 // Edit Pencil Icon
                 Box(
                     modifier = Modifier
-                        .size(dimensions.extraExtraLarge)
-                        .offset(x = dimensions.extraSmall, y = dimensions.extraSmall)
+                        .size(32.dp)
                         .clip(CircleShape)
-                        .background(MedAITheme.colors.background)
-                        .clickable { onEditClick() }
-                        .padding(dimensions.small)
+                        .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
+                        .clickable { onEditClick() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = MedAITheme.colors.primary
+                        contentDescription = "Edit Profile",
+                        tint = MedAITheme.colors.primary,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -218,7 +258,75 @@ class ProfileScreen : Screen {
                 style = MedAITheme.textStyle.body.medium,
                 color = MedAITheme.colors.text.secondary
             )
-            // Phone could go here if available in User model
+
+            Spacer(modifier = Modifier.height(dimensions.extraSmall))
+
+            // Display Role chip
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(MedAITheme.colors.primary.copy(alpha = 0.1f))
+                    .padding(horizontal = dimensions.medium, vertical = dimensions.extraSmall)
+            ) {
+                MedAIText(
+                    text = role,
+                    style = MedAITheme.textStyle.body.small.copy(fontWeight = FontWeight.SemiBold),
+                    color = MedAITheme.colors.primary
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun DoctorSections(bio: String, about: String) {
+        val dimensions = LocalDimensions.current
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensions.extraLarge),
+            verticalArrangement = Arrangement.spacedBy(dimensions.medium)
+        ) {
+            // Bio Card
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MedAITheme.colors.primary.copy(alpha = 0.05f))
+                    .padding(dimensions.large)
+            ) {
+                MedAIText(
+                    text = "Biography",
+                    style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
+                    color = MedAITheme.colors.primary
+                )
+                Spacer(modifier = Modifier.height(dimensions.small))
+                MedAIText(
+                    text = bio,
+                    style = MedAITheme.textStyle.body.medium,
+                    color = MedAITheme.colors.text.primary
+                )
+            }
+
+            // About Card
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MedAITheme.colors.primary.copy(alpha = 0.05f))
+                    .padding(dimensions.large)
+            ) {
+                MedAIText(
+                    text = "Professional Details",
+                    style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
+                    color = MedAITheme.colors.primary
+                )
+                Spacer(modifier = Modifier.height(dimensions.small))
+                MedAIText(
+                    text = about,
+                    style = MedAITheme.textStyle.body.medium,
+                    color = MedAITheme.colors.text.primary
+                )
+            }
         }
     }
 
@@ -231,8 +339,8 @@ class ProfileScreen : Screen {
     ) {
         val dimensions = LocalDimensions.current
         val contentColor = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.text.primary
-        val iconContainerColor = if (isDestructive) MedAITheme.colors.status.errorContainer else MedAITheme.colors.primary.copy(alpha = 0.1f) // Light Cyan
-        val iconTint = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.primary // Brand Cyan
+        val iconContainerColor = if (isDestructive) MedAITheme.colors.status.errorContainer else MedAITheme.colors.primary.copy(alpha = 0.1f)
+        val iconTint = if (isDestructive) MedAITheme.colors.status.error else MedAITheme.colors.primary
 
         Row(
             modifier = Modifier
@@ -241,10 +349,9 @@ class ProfileScreen : Screen {
                 .padding(vertical = dimensions.extraSmall),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon Circle
             Box(
                 modifier = Modifier
-                    .size(dimensions.spacing48)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(iconContainerColor)
                     .padding(dimensions.medium),

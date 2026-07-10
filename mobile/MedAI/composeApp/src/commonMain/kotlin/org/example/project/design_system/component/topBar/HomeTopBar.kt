@@ -28,9 +28,12 @@ import org.jetbrains.compose.resources.stringResource
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.home_greeting
 
+import org.example.project.design_system.component.image.MedAIAsyncImage
+
 @Composable
 fun HomeTopBar(
     userName: String,
+    avatarUrl: String?,
     onNotificationClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSearchClick: () -> Unit
@@ -72,12 +75,13 @@ fun HomeTopBar(
 
         Spacer(modifier = Modifier.width(MedAITheme.dimensions.medium))
 
-        // Profile Pic Placeholder
-        Box(
+        // Profile Pic
+        MedAIAsyncImage(
+            imageUrl = avatarUrl,
+            nameForInitials = userName,
             modifier = Modifier
                 .size(MedAITheme.dimensions.iconExtraLarge)
                 .clip(CircleShape)
-                .background(Color.Gray) // We could replace with MedAITheme.colors.surfaceVariant
         )
     }
 }

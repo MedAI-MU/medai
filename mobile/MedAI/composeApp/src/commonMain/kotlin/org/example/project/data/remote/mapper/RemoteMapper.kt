@@ -22,6 +22,9 @@ import medai.composeapp.generated.resources.spec_oncology
 import org.example.project.data.remote.dto.CategoryDto
 import org.example.project.data.remote.dto.NotificationDto
 import org.example.project.data.remote.dto.doctor.DoctorResponseDto
+import org.example.project.data.remote.dto.user.UserProfileDto
+import org.example.project.domain.model.auth.User
+import org.example.project.domain.model.auth.UserRole
 import org.example.project.data.remote.dto.patient.PatientResponseDto
 import org.example.project.data.remote.dto.patient.AllergyResponseDto
 import org.example.project.data.remote.dto.patient.ChronicDiseaseResponseDto
@@ -149,9 +152,31 @@ fun mapCategoryDtoToDomain(dto: CategoryDto): Category {
         rating = 0.0,
         imageUrl = null,
         bio = "No bio available...",
+        about = this.about,
         reviewCount = 0
     )
  }
+
+fun UserProfileDto.toDomain(about: String? = null): User {
+    return User(
+        id = this.id.toString(),
+        name = this.name,
+        email = this.email,
+        role = when (this.role.lowercase()) {
+            "patient" -> UserRole.PATIENT
+            "doctor" -> UserRole.DOCTOR
+            "secretary" -> UserRole.SECRETARY
+            "manager" -> UserRole.MANAGER
+            else -> UserRole.PATIENT
+        },
+        phoneNumber = this.phone,
+        avatarUrl = this.avatar,
+        bio = this.bio,
+        about = about,
+        gender = this.gender,
+        birthDate = this.birthDate
+    )
+}
 
 
 fun NotificationDto.toDomain(): Notification {

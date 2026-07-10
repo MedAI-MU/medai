@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -37,11 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.example.project.design_system.component.image.MedAIAvatar
 import org.example.project.design_system.component.textFields.MedAiTextField
 import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.patient.Patient
@@ -149,9 +155,19 @@ class PatientManagementScreen : Screen {
                 .padding(dimensions.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            MedAIAvatar(
+                url = null, // Patient model has no avatar URL; triggers initials fallback
+                name = patient.fullName,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(modifier = Modifier.width(dimensions.medium))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = patient.fullName, style = MedAITheme.textStyle.body.large, fontWeight = FontWeight.Bold, color = MedAITheme.colors.text.primary)
-                Text(text = "Age: ${patient.age} •  ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                Text(text = "Age: ${patient.age}    ${patient.gender}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 Text(text = patient.contactNumber, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
             }
         }
