@@ -165,20 +165,11 @@ async function Sidebar() {
               Account
             </p>
           </div>
-          <Link
-            className="text-text-muted hover:bg-surface-overlay flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
-            href="#"
-          >
-            <User size={18} />
-            <span className="text-sm">Profile</span>
-          </Link>
-          <Link
-            className="text-text-muted hover:bg-surface-overlay flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
-            href="#"
-          >
-            <Settings size={18} />
-            <span className="text-sm">Settings</span>
-          </Link>
+          <SidebarNavItem
+            href="/profile"
+            text="profile"
+            icon={<User size={18} />}
+          />
         </nav>
 
         {/* Logout */}
