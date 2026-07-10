@@ -100,6 +100,15 @@ const LINKS = {
     },
     { text: "messages", href: "#", icon: MessageCircle },
   ],
+  manager: [
+    { text: "dashboard", href: "/manager", icon: LayoutDashboard },
+    {
+      text: "users",
+      href: "/manager/users",
+      icon: Users,
+      matchPrefix: true,
+    },
+  ],
 };
 
 async function Sidebar() {

@@ -1,1 +1,1 @@
-export const ROLES = ["patient", "doctor", "secretary"];
+export const ROLES = ["patient", "doctor", "secretary", "manager"];
