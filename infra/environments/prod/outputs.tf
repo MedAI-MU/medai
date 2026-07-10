@@ -27,3 +27,8 @@ output "db_name" {
   value       = module.infrastructure.db_name
   description = "Name of the application database"
 }
+
+output "storage_account_name" {
+  value       = module.infrastructure.storage_account_name
+  description = "Name of the storage account"
+}
