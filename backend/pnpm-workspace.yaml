@@ -9,4 +9,5 @@ allowBuilds:
   '@nestjs/core': true
   '@scarf/scarf': true
   argon2: true
+  msgpackr-extract: true
   unrs-resolver: true
