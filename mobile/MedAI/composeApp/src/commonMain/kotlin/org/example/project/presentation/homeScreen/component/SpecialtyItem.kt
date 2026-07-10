@@ -50,7 +50,7 @@ fun SpecialtyItem(
         )
         Spacer(modifier = Modifier.height(8.dp))
         MedAIText(
-            text = UiText.StringRes(specialty.title).asString(),
+            text = specialty.title.asString(),
             style = MedAITheme.textStyle.label.medium,
             color = Color.White,
             textAlign = TextAlign.Center

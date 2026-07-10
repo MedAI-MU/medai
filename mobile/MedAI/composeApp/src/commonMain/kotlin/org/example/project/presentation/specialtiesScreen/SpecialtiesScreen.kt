@@ -65,7 +65,7 @@ class SpecialtiesScreen : Screen {
                 when(effect) {
                     SpecialtiesEffect.NavigateBack -> navigator.pop()
                     is SpecialtiesEffect.NavigateToDoctorsBySpecialty -> {
-                        val screen = DoctorsScreen(specialtyId = effect.specialtyId.origin.id, effect.specialtyId.name)
+                        val screen = DoctorsScreen(specialtyId = effect.specialtyId.name, specialtyName = effect.specialtyId.name)
                         navigator.parent?.push(screen) ?: navigator.push(screen)
                         println("Navigating to Doctors for: ${effect.specialtyId}")
                     }

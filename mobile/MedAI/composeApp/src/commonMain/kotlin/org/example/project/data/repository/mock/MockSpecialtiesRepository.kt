@@ -8,6 +8,7 @@ import medai.composeapp.generated.resources.spec_general
 import medai.composeapp.generated.resources.spec_gynecology
 import medai.composeapp.generated.resources.spec_odontology
 import medai.composeapp.generated.resources.spec_oncology
+import org.example.project.core.presentation.util.UiText
 import org.example.project.domain.model.specialty.Specialty
 import org.example.project.domain.repository.specialty.SpecialtiesRepository
 
@@ -19,43 +20,43 @@ class MockSpecialtiesRepository : SpecialtiesRepository {
 
         val mockList = listOf(
             Specialty(
-                id = "1",
-                title = Res.string.spec_cardiology,
+                id = "Cardiology",
+                title = UiText.StringRes(Res.string.spec_cardiology),
                 iconName = "cardiology"
             ),
             Specialty(
-                id = "2",
-                title = Res.string.spec_dermatology,
+                id = "Dermatology",
+                title = UiText.StringRes(Res.string.spec_dermatology),
                 iconName = "dermatology"
             ),
             Specialty(
-                id = "3",
-                title = Res.string.spec_general,
+                id = "General",
+                title = UiText.StringRes(Res.string.spec_general),
                 iconName = "general"
             ),
             Specialty(
-                id = "4",
-                title = Res.string.spec_gynecology,
+                id = "Gynecology",
+                title = UiText.StringRes(Res.string.spec_gynecology),
                 iconName = "gynecology"
             ),
             Specialty(
-                id = "5",
-                title = Res.string.spec_odontology,
+                id = "Odontology",
+                title = UiText.StringRes(Res.string.spec_odontology),
                 iconName = "odontology"
             ),
             Specialty(
-                id = "6",
-                title = Res.string.spec_oncology,
+                id = "Oncology",
+                title = UiText.StringRes(Res.string.spec_oncology),
                 iconName = "oncology"
             ),
             Specialty(
-                id = "7",
-                title = Res.string.spec_cardiology,
+                id = "Ophthalmology",
+                title = UiText.StringRes(Res.string.spec_cardiology),
                 iconName = "ophthalmology"
             ),
             Specialty(
-                id = "8",
-                title = Res.string.spec_general,
+                id = "Orthopedics",
+                title = UiText.StringRes(Res.string.spec_general),
                 iconName = "orthopedics"
             )
         )

@@ -31,6 +31,7 @@ class KtorClientFactory(
 ) {
     private val BASE_URL = AppConfig.BASE_URL
     //"http://10.0.2.2:8000/api/"
+ //   private val BASE_URL = "http://10.0.2.2:8000/api/"
 
     fun create(): HttpClient {
         return HttpClient {
@@ -59,6 +60,9 @@ class KtorClientFactory(
 
             defaultRequest {
                 url.takeFrom(AppConfig.BASE_URL)
+                //url.protocol = URLProtocol.HTTP
+                //url.host = "10.0.2.2"
+               // url.port = 8000
                 contentType(ContentType.Application.Json)
             }
         }.apply {
