@@ -14,4 +14,6 @@ interface AppointmentRepository {
     suspend fun cancelAppointment(id: String): Result<Unit>
     suspend fun submitReview(appointmentId: String, rating: Int, review: String?): Result<Unit>
     suspend fun getCancelReasons(): Result<List<CancelReason>>
+    suspend fun getAllAppointments(): Result<List<AppointmentDetail>>
+    suspend fun updateAppointmentStatus(id: String, status: String): Result<Unit>
 }

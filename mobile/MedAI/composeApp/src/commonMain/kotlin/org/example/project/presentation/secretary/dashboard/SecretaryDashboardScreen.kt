@@ -71,6 +71,7 @@ import org.example.project.presentation.secretary.billing.BillingScreen
 import org.example.project.presentation.secretary.doctors.SecretaryDoctorListScreen
 import org.example.project.presentation.secretary.patient.PatientManagementScreen
 import org.example.project.presentation.secretary.queue.QueueManagementScreen
+import org.example.project.presentation.secretary.schedule.DailyScheduleSummaryScreen
 
 class SecretaryDashboardScreen : Screen {
     @Composable
@@ -274,7 +275,14 @@ class SecretaryDashboardScreen : Screen {
                                 modifier = Modifier.weight(1f),
                                 onClick = { navigator.push(SecretaryDoctorListScreen()) }
                             )
-                            Spacer(modifier = Modifier.weight(1f))
+                            ActionCard(
+                                title = "Schedule Summary",
+                                desc = "Daily patient counts",
+                                icon = Icons.Default.CalendarMonth,
+                                color = Color(0xFFE91E63),
+                                modifier = Modifier.weight(1f),
+                                onClick = { navigator.push(DailyScheduleSummaryScreen()) }
+                            )
                         }
                     }
                 }
