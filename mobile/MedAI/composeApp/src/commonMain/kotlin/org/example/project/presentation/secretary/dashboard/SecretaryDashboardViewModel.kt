@@ -1,21 +1,21 @@
 package org.example.project.presentation.secretary.dashboard
 
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.secretary.QueueStatus
 import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.secretary.CreatePatientUseCase
-import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
-import org.example.project.domain.usecase.secretary.GetDashboardStatsUseCase
+import org.example.project.domain.usecase.appointment.GetTodayAppointmentsUseCase
 import org.example.project.domain.usecase.profile.GetProfileUseCase
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.secretary.ClinicStats
+import org.example.project.domain.model.secretary.QueueEntry
 
 class SecretaryDashboardViewModel(
-    private val getDashboardStatsUseCase: GetDashboardStatsUseCase,
-    private val getAllQueuesUseCase: GetAllQueuesUseCase,
+    private val getTodayAppointmentsUseCase: GetTodayAppointmentsUseCase,
     private val checkInPatientUseCase: CheckInPatientUseCase,
     private val createPatientUseCase: CreatePatientUseCase,
     private val getProfileUseCase: GetProfileUseCase
@@ -40,8 +40,7 @@ class SecretaryDashboardViewModel(
     override fun onEvent(event: SecretaryDashboardEvent) {
         when (event) {
             is SecretaryDashboardEvent.LoadDashboard -> {
-                loadStats()
-                loadQueues()
+                loadDashboardData()
             }
             is SecretaryDashboardEvent.UpdateQueueStatus -> {
                 updateQueueStatus(event.entryId, event.status)
@@ -52,26 +51,48 @@ class SecretaryDashboardViewModel(
         }
     }
 
-    private fun loadStats() {
-        getDashboardStatsUseCase()
-            .onEach { stats ->
-                setState { copy(clinicStats = stats) }
-            }
-            .launchIn(screenModelScope)
-    }
+    private fun loadDashboardData() {
+        setState { copy(isLoading = true) }
+        screenModelScope.launch {
+            getTodayAppointmentsUseCase().fold(
+                onSuccess = { appointments ->
+                    val queueEntries = appointments.map { it.toQueueEntry() }
+                    val activeDocCount = appointments.map { it.doctorName }.distinct().size
+                    val pendingCount = appointments.count { it.status == AppointmentDetailStatus.UPCOMING }
 
-    private fun loadQueues() {
-        getAllQueuesUseCase()
-            .onEach { queues ->
-                setState { copy(queues = queues) }
-            }
-            .launchIn(screenModelScope)
+                    setState {
+                        copy(
+                            queues = queueEntries,
+                            clinicStats = ClinicStats(
+                                totalPatientsToday = queueEntries.size,
+                                activeDoctors = activeDocCount,
+                                totalRevenueToday = 150.0, // Mocked revenue today
+                                pendingAppointments = pendingCount
+                            ),
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                },
+                onFailure = { throwable ->
+                    setState { copy(isLoading = false, error = throwable.message) }
+                }
+            )
+        }
     }
 
     private fun updateQueueStatus(entryId: String, status: QueueStatus) {
         screenModelScope.launch {
             if (status == QueueStatus.WAITING) {
-                checkInPatientUseCase(entryId)
+                checkInPatientUseCase(entryId).fold(
+                    onSuccess = {
+                        sendEffect(SecretaryDashboardEffect.ShowSnackbar("Patient checked in successfully"))
+                        loadDashboardData()
+                    },
+                    onFailure = { throwable ->
+                        sendEffect(SecretaryDashboardEffect.ShowSnackbar(throwable.message ?: "Failed to check in patient", isError = true))
+                    }
+                )
             }
         }
     }
@@ -86,5 +107,22 @@ class SecretaryDashboardViewModel(
                 sendEffect(SecretaryDashboardEffect.ShowSnackbar(result.exceptionOrNull()?.message ?: "Failed to create patient", isError = true))
             }
         }
+    }
+
+    private fun AppointmentDetail.toQueueEntry(): QueueEntry {
+        val qStatus = when (this.status) {
+            AppointmentDetailStatus.FINISHED -> QueueStatus.COMPLETED
+            AppointmentDetailStatus.CANCELLED -> QueueStatus.CANCELLED
+            AppointmentDetailStatus.UPCOMING -> QueueStatus.WAITING
+        }
+        return QueueEntry(
+            id = this.id,
+            patientId = this.patientId,
+            patientName = this.patientName,
+            doctorId = "",
+            doctorName = this.doctorName,
+            appointmentTime = this.date.toString(),
+            status = qStatus
+        )
     }
 }

@@ -95,4 +95,15 @@ class MockAppointmentRepository : AppointmentRepository {
             )
         )
     }
+
+    override suspend fun getAllAppointments(): Result<List<AppointmentDetail>> {
+        delay(100)
+        return Result.success(mockAppointments)
+    }
+
+    override suspend fun updateAppointmentStatus(id: String, status: String): Result<Unit> {
+        delay(100)
+        triggerAppointmentsRefresh()
+        return Result.success(Unit)
+    }
 }

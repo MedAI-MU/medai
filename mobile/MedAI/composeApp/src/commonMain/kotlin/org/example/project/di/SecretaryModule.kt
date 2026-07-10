@@ -8,6 +8,7 @@ import org.example.project.presentation.secretary.dashboard.SecretaryDashboardVi
 import org.example.project.presentation.secretary.patient.PatientManagementViewModel
 import org.example.project.presentation.secretary.queue.QueueManagementViewModel
 import org.example.project.presentation.secretary.doctors.SecretaryDoctorListViewModel
+import org.example.project.presentation.secretary.schedule.DailyScheduleSummaryViewModel
 import org.koin.dsl.module
 
 val secretaryModule = module {
@@ -21,7 +22,8 @@ val secretaryModule = module {
     single { GetAllQueuesUseCase(get()) }
     single { GenerateInvoiceUseCase(get()) }
 
-    factory { SecretaryDashboardViewModel(get(), get(), get(), get(), get()) }
+    factory { SecretaryDashboardViewModel(get(), get(), get(), get()) }
+    factory { DailyScheduleSummaryViewModel(get()) }
     factory { SecretaryDoctorListViewModel(get(), get(), get(), get(), get()) }
     factory { PatientManagementViewModel(get(), get()) }
     factory { QueueManagementViewModel(get(), get()) }

@@ -18,6 +18,7 @@ val appointmentModule = module {
     factory { SubmitReviewUseCase(get()) }
     factory { GetCancelReasonsUseCase(get()) }
     factory { GetDoctorAppointmentsUseCase(get()) }
+    factory { GetTodayAppointmentsUseCase(get()) }
 
     factory { AppointmentViewModel(get(), get(), get(), get(), get(), get()) }
     factory { (doctorId: String) ->
