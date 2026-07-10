@@ -131,9 +131,14 @@ export class ScansController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(
     @Param('scanId', ParseIntPipe) scanId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ScanResponseDto> {
-    const scan = await this.scansService.findOne(scanId, currentUser);
+    const scan = await this.scansService.findOne(
+      scanId,
+      patientUserId,
+      currentUser,
+    );
     return new ScanResponseDto(scan);
   }
 
@@ -166,9 +171,14 @@ export class ScansController {
   @ApiNotFoundResponse({ description: 'Scan not found' })
   async findReports(
     @Param('scanId', ParseIntPipe) scanId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto[]> {
-    const reports = await this.scansService.findReports(scanId, currentUser);
+    const reports = await this.scansService.findReports(
+      scanId,
+      patientUserId,
+      currentUser,
+    );
     return reports.map((r) => new ReportResponseDto(r));
   }
 
@@ -243,10 +253,12 @@ export class ScansController {
   @ApiNotFoundResponse({ description: 'Report not found' })
   async findReport(
     @Param('reportId', ParseIntPipe) reportId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<ReportResponseDto> {
     const report = await this.scansService.findReportById(
       reportId,
+      patientUserId,
       currentUser,
     );
     return new ReportResponseDto(report);
@@ -283,11 +295,13 @@ export class ScansController {
   @Redirect()
   async getImageFile(
     @Param('imageId', ParseIntPipe) imageId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ url: string; statusCode: number }> {
     const { path: blobUrl } = await this.scansService.getImageFile(
       imageId,
+      patientUserId,
       currentUser,
     );
     res.setHeader('Cache-Control', 'private, max-age=3600');
@@ -305,11 +319,13 @@ export class ScansController {
   @Redirect()
   async getReportFile(
     @Param('reportId', ParseIntPipe) reportId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ url: string; statusCode: number }> {
     const { path: blobUrl } = await this.scansService.getReportFile(
       reportId,
+      patientUserId,
       currentUser,
     );
     res.setHeader('Cache-Control', 'private, max-age=3600');

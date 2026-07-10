@@ -171,13 +171,13 @@ describe('ScansService', () => {
   describe('findOne', () => {
     it('should return scan if found', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
-      const result = await service.findOne(1, secretaryUser);
+      const result = await service.findOne(1, 5, secretaryUser);
       expect(result).toEqual(mockScan);
     });
 
     it('should throw NotFoundException when scan not found', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findOne(1, secretaryUser)).rejects.toThrow(
+      await expect(service.findOne(1, 5, secretaryUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -187,7 +187,7 @@ describe('ScansService', () => {
         ...mockScan,
         patientUserId: 99,
       });
-      await expect(service.findOne(1, patientUser)).rejects.toThrow(
+      await expect(service.findOne(1, 5, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -290,13 +290,13 @@ describe('ScansService', () => {
     it('should return reports for a scan', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(mockScan);
       reportsRepositoryMock.find.mockResolvedValue([mockReport]);
-      const result = await service.findReports(1, secretaryUser);
+      const result = await service.findReports(1, 5, secretaryUser);
       expect(result).toEqual([mockReport]);
     });
 
     it('should throw NotFoundException when scan not found', async () => {
       scansRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findReports(999, secretaryUser)).rejects.toThrow(
+      await expect(service.findReports(999, 5, secretaryUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -305,15 +305,15 @@ describe('ScansService', () => {
   describe('findReportById', () => {
     it('should return report if found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(mockReport);
-      const result = await service.findReportById(1, secretaryUser);
+      const result = await service.findReportById(1, 5, secretaryUser);
       expect(result).toEqual(mockReport);
     });
 
     it('should throw NotFoundException when report not found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findReportById(999, secretaryUser)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.findReportById(999, 5, secretaryUser),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("should throw ForbiddenException when patient tries to access another patient's report", async () => {
@@ -321,7 +321,7 @@ describe('ScansService', () => {
         ...mockReport,
         patientUserId: 99,
       });
-      await expect(service.findReportById(1, patientUser)).rejects.toThrow(
+      await expect(service.findReportById(1, 5, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -355,7 +355,7 @@ describe('ScansService', () => {
         'https://storage.blob.core.windows.net/scans/uuid.jpg',
       );
 
-      const result = await service.getImageFile(1, secretaryUser);
+      const result = await service.getImageFile(1, 5, secretaryUser);
       expect(result.path).toBe(
         'https://storage.blob.core.windows.net/scans/uuid.jpg',
       );
@@ -364,7 +364,7 @@ describe('ScansService', () => {
 
     it('should throw NotFoundException when image not found', async () => {
       scanImagesRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.getImageFile(999, secretaryUser)).rejects.toThrow(
+      await expect(service.getImageFile(999, 5, secretaryUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -377,7 +377,7 @@ describe('ScansService', () => {
         'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
 
-      const result = await service.getReportFile(1, secretaryUser);
+      const result = await service.getReportFile(1, 5, secretaryUser);
       expect(result.path).toBe(
         'https://storage.blob.core.windows.net/reports/uuid.pdf',
       );
@@ -386,9 +386,9 @@ describe('ScansService', () => {
 
     it('should throw NotFoundException when report not found', async () => {
       reportsRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.getReportFile(999, secretaryUser)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.getReportFile(999, 5, secretaryUser),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

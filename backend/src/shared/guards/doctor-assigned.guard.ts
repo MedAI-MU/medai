@@ -31,13 +31,12 @@ export class DoctorAssignedGuard implements CanActivate {
     }
 
     const appointmentsRepository = this.dataSource.getRepository(Appointment);
-    const appointments = await appointmentsRepository.find({
-      where: { doctorUserId: user.id },
-      select: { patientUserId: true },
+    const appointment = await appointmentsRepository.findOne({
+      where: { doctorUserId: user.id, patientUserId: patientId },
+      select: { id: true },
     });
-    const patientIds = [...new Set(appointments.map((a) => a.patientUserId))];
 
-    if (!patientIds.includes(patientId)) {
+    if (!appointment) {
       throw new ForbiddenException('You are not assigned to this patient');
     }
 

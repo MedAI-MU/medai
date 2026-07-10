@@ -115,10 +115,12 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
     const diagnosis = await this.diagnosisService.findOne(
       diagnosisId,
+      patientUserId,
       currentUser,
     );
     return new DiagnosisResponseDto(diagnosis);
@@ -139,12 +141,14 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async update(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @Body() dto: UpdateDiagnosisDto,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
     const diagnosis = await this.diagnosisService.update(
       diagnosisId,
       dto,
+      patientUserId,
       currentUser,
     );
     return new DiagnosisResponseDto(diagnosis);
@@ -165,12 +169,14 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async updateSymptoms(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @Body() dto: UpdateSymptomsDto,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<DiagnosisResponseDto> {
     const diagnosis = await this.diagnosisService.updateSymptoms(
       diagnosisId,
       dto,
+      patientUserId,
       currentUser,
     );
     return new DiagnosisResponseDto(diagnosis);
@@ -187,8 +193,9 @@ export class DiagnosisController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async delete(
     @Param('diagnosisId', ParseIntPipe) diagnosisId: number,
+    @Param('id', ParseIntPipe) patientUserId: number,
     @CurrentUser() currentUser: TokenUser,
   ): Promise<void> {
-    await this.diagnosisService.delete(diagnosisId, currentUser);
+    await this.diagnosisService.delete(diagnosisId, patientUserId, currentUser);
   }
 }

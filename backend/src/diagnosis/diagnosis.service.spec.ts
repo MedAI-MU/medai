@@ -136,13 +136,13 @@ describe('DiagnosisService', () => {
   describe('findOne', () => {
     it('should return diagnosis if found and owned by doctor', async () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(buildDiagnosis());
-      const result = await service.findOne(1, doctorUser);
+      const result = await service.findOne(1, 5, doctorUser);
       expect(result.id).toBe(1);
     });
 
     it('should throw NotFoundException when diagnosis not found', async () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.findOne(999, doctorUser)).rejects.toThrow(
+      await expect(service.findOne(999, 5, doctorUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -151,7 +151,7 @@ describe('DiagnosisService', () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(
         buildDiagnosis({ patientUserId: 99 }),
       );
-      await expect(service.findOne(1, patientUser)).rejects.toThrow(
+      await expect(service.findOne(1, 5, patientUser)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -213,14 +213,14 @@ describe('DiagnosisService', () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(diag);
       diagnosesRepositoryMock.save.mockResolvedValue(updated);
 
-      const result = await service.update(1, dto, doctorUser);
+      const result = await service.update(1, dto, 5, doctorUser);
       expect(result.symptoms).toBe('fever');
       expect(result.summary).toBe('covid');
     });
 
     it('should throw NotFoundException when diagnosis not found', async () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.update(999, dto, doctorUser)).rejects.toThrow(
+      await expect(service.update(999, dto, 5, doctorUser)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -235,7 +235,7 @@ describe('DiagnosisService', () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(diag);
       diagnosesRepositoryMock.save.mockResolvedValue(updated);
 
-      const result = await service.updateSymptoms(1, dto, doctorUser);
+      const result = await service.updateSymptoms(1, dto, 5, doctorUser);
       expect(result.symptoms).toBe('headache');
       expect(result.summary).toBe('flu');
     });
@@ -243,7 +243,7 @@ describe('DiagnosisService', () => {
     it('should throw NotFoundException when diagnosis not found', async () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(null);
       await expect(
-        service.updateSymptoms(999, dto, doctorUser),
+        service.updateSymptoms(999, dto, 5, doctorUser),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -254,13 +254,13 @@ describe('DiagnosisService', () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(diag);
       diagnosesRepositoryMock.remove.mockResolvedValue(undefined);
 
-      await service.delete(1, doctorUser);
+      await service.delete(1, 5, doctorUser);
       expect(diagnosesRepositoryMock.remove).toHaveBeenCalledWith(diag);
     });
 
     it('should throw NotFoundException when diagnosis not found', async () => {
       diagnosesRepositoryMock.findOne.mockResolvedValue(null);
-      await expect(service.delete(999, doctorUser)).rejects.toThrow(
+      await expect(service.delete(999, 5, doctorUser)).rejects.toThrow(
         NotFoundException,
       );
     });
