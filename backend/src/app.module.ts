@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,10 +14,21 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ScansModule } from './scans/scans.module';
 import { DiagnosisModule } from './diagnosis/diagnosis.module';
 import { MailModule } from './mail/mail.module';
+import { VoiceReportsModule } from './voice-reports/voice-reports.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig, jwtConfig] }),
+    BullModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: parseInt(configService.get<string>('REDIS_PORT', '6379'), 10),
+          password: configService.get<string>('REDIS_PASSWORD') || undefined,
+        },
+      }),
+      inject: [ConfigService],
+    }),
     DatabaseModule,
     MailModule,
     UsersModule,
@@ -28,6 +40,7 @@ import { MailModule } from './mail/mail.module';
     AppointmentsModule,
     ScansModule,
     DiagnosisModule,
+    VoiceReportsModule,
   ],
 })
 export class AppModule {}

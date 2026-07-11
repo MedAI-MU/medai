@@ -4,6 +4,9 @@ import org.example.project.data.local.DATA_STORE_FILE_NAME
 import org.example.project.data.local.createDataStore
 import org.example.project.domain.ai.AndroidXRayClassifier
 import org.example.project.domain.ai.XRayClassifier
+import org.example.project.domain.audio.AudioRecorder
+import org.example.project.domain.audio.AndroidAudioRecorder
+import org.example.project.domain.audio.PermissionHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -17,4 +20,8 @@ actual val platformModule= module {
     }
 
     single<XRayClassifier> { AndroidXRayClassifier(androidContext()) }
+
+    single<AudioRecorder> { AndroidAudioRecorder(androidContext()) }
+
+    single { PermissionHandler(androidContext()) }
 }
