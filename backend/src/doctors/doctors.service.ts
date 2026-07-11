@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Doctor } from './entities/doctor.entity';
 import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorSpeciality } from './entities/doctor-speciality.entity';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 import { UpdateDoctorDto } from './dtos/update-doctor.dto';
+import { DoctorResponseDto } from './dtos/doctor-response.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -35,8 +36,18 @@ export class DoctorsService {
     return this.doctorsRepository.find({
       relations: {
         specialities: { speciality: true },
+        appointments: true,
       },
     });
+  }
+
+  async findTopRated(): Promise<DoctorResponseDto[]> {
+    const doctors = await this.findAll();
+    return doctors
+      .filter((d) => d.appointments?.some((a) => a.rating !== null))
+      .map((d) => new DoctorResponseDto(d))
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 5);
   }
 
   async findOne(userId: number): Promise<Doctor | null> {
@@ -44,6 +55,7 @@ export class DoctorsService {
       where: { userId: userId },
       relations: {
         specialities: { speciality: true },
+        appointments: true,
       },
     });
   }
@@ -53,6 +65,7 @@ export class DoctorsService {
       where: { user: { name: ILike(`%${name}%`) } },
       relations: {
         specialities: { speciality: true },
+        appointments: true,
       },
     });
   }
@@ -62,6 +75,7 @@ export class DoctorsService {
       where: { specialities: { speciality: { name: ILike(`%${name}%`) } } },
       relations: {
         specialities: { speciality: true },
+        appointments: true,
       },
     });
   }

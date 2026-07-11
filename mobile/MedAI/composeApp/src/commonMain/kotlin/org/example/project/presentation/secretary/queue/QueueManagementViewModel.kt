@@ -1,15 +1,17 @@
 package org.example.project.presentation.secretary.queue
 
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
-import org.example.project.domain.usecase.secretary.GetAllQueuesUseCase
+import org.example.project.domain.usecase.appointment.GetTodayAppointmentsUseCase
+import org.example.project.domain.model.appointment.AppointmentDetail
+import org.example.project.domain.model.appointment.AppointmentDetailStatus
+import org.example.project.domain.model.secretary.QueueEntry
+import org.example.project.domain.model.secretary.QueueStatus
 
 class QueueManagementViewModel(
-    private val getAllQueuesUseCase: GetAllQueuesUseCase,
+    private val getTodayAppointmentsUseCase: GetTodayAppointmentsUseCase,
     private val checkInPatientUseCase: CheckInPatientUseCase
 ) : MviScreenModel<QueueManagementState, QueueManagementEvent, QueueManagementEffect>(QueueManagementState()) {
 
@@ -26,21 +28,48 @@ class QueueManagementViewModel(
 
     private fun loadQueues() {
         setState { copy(isLoading = true) }
-        getAllQueuesUseCase()
-            .onEach { queues ->
-                setState { copy(queues = queues, isLoading = false) }
-            }
-            .launchIn(screenModelScope)
+        screenModelScope.launch {
+            getTodayAppointmentsUseCase().fold(
+                onSuccess = { appointments ->
+                    val queues = appointments.map { it.toQueueEntry() }
+                    setState { copy(queues = queues, isLoading = false) }
+                },
+                onFailure = { throwable ->
+                    setState { copy(isLoading = false) }
+                    sendEffect(QueueManagementEffect.ShowSnackbar(throwable.message ?: "Failed to load appointments", isError = true))
+                }
+            )
+        }
     }
 
     private fun checkIn(appointmentId: String) {
         screenModelScope.launch {
-            try {
-                checkInPatientUseCase(appointmentId)
-                sendEffect(QueueManagementEffect.ShowSnackbar("Patient checked in successfully"))
-            } catch (e: Exception) {
-                sendEffect(QueueManagementEffect.ShowSnackbar(e.message ?: "Failed to check in patient", isError = true))
-            }
+            checkInPatientUseCase(appointmentId).fold(
+                onSuccess = {
+                    sendEffect(QueueManagementEffect.ShowSnackbar("Patient checked in successfully"))
+                    loadQueues()
+                },
+                onFailure = { throwable ->
+                    sendEffect(QueueManagementEffect.ShowSnackbar(throwable.message ?: "Failed to check in patient", isError = true))
+                }
+            )
         }
+    }
+
+    private fun AppointmentDetail.toQueueEntry(): QueueEntry {
+        val qStatus = when (this.status) {
+            AppointmentDetailStatus.FINISHED -> QueueStatus.COMPLETED
+            AppointmentDetailStatus.CANCELLED -> QueueStatus.CANCELLED
+            AppointmentDetailStatus.UPCOMING -> QueueStatus.WAITING
+        }
+        return QueueEntry(
+            id = this.id,
+            patientId = this.patientId,
+            patientName = this.patientName,
+            doctorId = "",
+            doctorName = this.doctorName,
+            appointmentTime = this.date.toString(),
+            status = qStatus
+        )
     }
 }

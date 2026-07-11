@@ -33,10 +33,10 @@ class CreatePatientUseCase(
 }
 
 class CheckInPatientUseCase(
-    private val repository: SecretaryRepository
+    private val appointmentRepository: org.example.project.domain.repository.appointment.AppointmentRepository
 ) {
-    suspend operator fun invoke(appointmentId: String) {
-        repository.checkInPatient(appointmentId)
+    suspend operator fun invoke(appointmentId: String): Result<Unit> {
+        return appointmentRepository.updateAppointmentStatus(appointmentId, "confirmed")
     }
 }
 

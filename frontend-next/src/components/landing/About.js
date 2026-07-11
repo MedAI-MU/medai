@@ -2,6 +2,7 @@ import Image from "next/image";
 import Container from "../ui/Container";
 import Logo from "../ui/Logo";
 import Section from "./Section";
+import aboutImg from "@/assets/about-image.png";
 
 function About() {
   return (
@@ -38,7 +39,7 @@ function About() {
 
           <div className="relative aspect-video overflow-hidden rounded-2xl shadow-xl">
             <Image
-              src="/about-image.jfif"
+              src={aboutImg}
               fill
               alt="Healthcare technology"
               className="object-cover"

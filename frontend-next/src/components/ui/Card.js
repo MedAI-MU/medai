@@ -4,7 +4,7 @@ function Card({ className = "", children }) {
   return (
     <div
       className={cn(
-        "group border-border bg-surface relative rounded-xl border p-5 shadow-sm transition-all",
+        "border-border bg-surface relative rounded-xl border p-5 shadow-sm transition-all",
         className,
       )}
     >

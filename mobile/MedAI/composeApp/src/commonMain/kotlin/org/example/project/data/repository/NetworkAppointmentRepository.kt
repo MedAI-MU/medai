@@ -94,6 +94,28 @@ class NetworkAppointmentRepository(
         ))
     }
 
+    override suspend fun getAllAppointments(): Result<List<AppointmentDetail>> {
+        return try {
+            val response: List<AppointmentResponseDto> = client.get("appointments").body()
+            Result.success(response.map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateAppointmentStatus(id: String, status: String): Result<Unit> {
+        return try {
+            client.patch("appointments/$id/status") {
+                contentType(ContentType.Application.Json)
+                setBody(UpdateAppointmentStatusRequestDto(status = status))
+            }
+            triggerAppointmentsRefresh()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun AppointmentResponseDto.toDomain(): AppointmentDetail {
         val apptStatus = when (this.status) {
             "finished" -> AppointmentDetailStatus.FINISHED
@@ -111,15 +133,19 @@ class NetworkAppointmentRepository(
             LocalDateTime(2000, 1, 1, 0, 0)
         }
 
+        val primarySpec = this.doctor?.specialities?.find { it.isPrimary }?.speciality?.name
+            ?: this.doctor?.specialities?.firstOrNull()?.speciality?.name
+            ?: "General"
+
         return AppointmentDetail(
             id = this.id.toString(),
             patientId = this.patientUserId.toString(),
-            doctorName = "Doctor #${this.doctorUserId}",
-            specialty = "General",
+            doctorName = this.doctor?.name ?: "Doctor #${this.doctorUserId}",
+            specialty = primarySpec,
             doctorRating = 0.0,
             date = dateValue,
             status = apptStatus,
-            patientName = "Patient #${this.patientUserId}",
+            patientName = this.patient?.name ?: "Patient #${this.patientUserId}",
             canRebook = apptStatus == AppointmentDetailStatus.CANCELLED || apptStatus == AppointmentDetailStatus.FINISHED,
             canAddReview = apptStatus == AppointmentDetailStatus.FINISHED && this.rating == null,
             rating = this.rating,

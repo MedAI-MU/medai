@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Logo from "../ui/Logo";
 import AuthActions from "./AuthActions";
 import Navbar from "./Navbar";
@@ -21,6 +21,17 @@ const NAV_LINKS = [
 function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <HeaderShell className="sticky top-0">
       <Container>
@@ -38,7 +49,11 @@ function LandingHeader() {
             />
           </div>
           {/* Mobile Menu */}
-          {mobileMenuOpen && <MobileMenu navLinks={NAV_LINKS} />}
+          <MobileMenu
+            navLinks={NAV_LINKS}
+            isOpen={mobileMenuOpen}
+            onClose={() => setMobileMenuOpen(false)}
+          />
         </div>
       </Container>
     </HeaderShell>

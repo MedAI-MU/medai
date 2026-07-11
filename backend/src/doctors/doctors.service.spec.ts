@@ -119,6 +119,7 @@ describe('DoctorsService', () => {
         where: { userId: 1 },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -133,6 +134,7 @@ describe('DoctorsService', () => {
         where: { userId: 999 },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -144,9 +146,10 @@ describe('DoctorsService', () => {
 
       expect(doctorsRepositoryMock.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
-          relations: {
+          relations: expect.objectContaining({
             specialities: { speciality: true },
-          },
+            appointments: true,
+          }),
         }),
       );
     });
@@ -164,6 +167,7 @@ describe('DoctorsService', () => {
         where: { user: { name: ILike('%John%') } },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -186,6 +190,7 @@ describe('DoctorsService', () => {
         where: { user: { name: ILike('%john%') } },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -221,6 +226,7 @@ describe('DoctorsService', () => {
         },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -244,6 +250,7 @@ describe('DoctorsService', () => {
         },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
     });
@@ -372,6 +379,7 @@ describe('DoctorsService', () => {
         where: { userId: 1 },
         relations: {
           specialities: { speciality: true },
+          appointments: true,
         },
       });
       expect(result).toBe(refetchedDoctor);
