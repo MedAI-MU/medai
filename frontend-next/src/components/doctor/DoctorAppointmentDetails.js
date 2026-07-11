@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import {
   User,
   Ruler,
@@ -10,8 +11,10 @@ import {
   Star,
   MessageSquare,
   Clock,
+  ExternalLink,
 } from "lucide-react";
 import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 import StarRating from "../ui/StarRating";
 import { formatTime12h, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { format } from "date-fns";
@@ -36,7 +39,8 @@ function DetailRow({
 }
 
 function DoctorAppointmentDetails({ appointment }) {
-  const { scheduleSlot, patient, status, createdAt, review, rating } =
+  const router = useRouter();
+  const { id, patientUserId, scheduleSlot, patient, status, createdAt, review, rating } =
     appointment || {};
   const patientUser = patient?.user || {};
 
@@ -176,6 +180,19 @@ function DoctorAppointmentDetails({ appointment }) {
           )}
         </Card>
       </div>
+
+      <Button
+        variation="primary"
+        className="w-full"
+        onClick={() =>
+          router.push(
+            `/doctor/appointments/${id}?patientUserId=${patientUserId}`,
+          )
+        }
+      >
+        <ExternalLink size={16} />
+        Full Patient Record
+      </Button>
     </>
   );
 }

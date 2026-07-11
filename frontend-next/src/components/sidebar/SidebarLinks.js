@@ -25,6 +25,7 @@ const LINKS = {
       text: "book appointment",
       href: "/patient/book-appointment",
       icon: CalendarPlus,
+      matchPrefix: true,
     },
     {
       text: "my appointments",
@@ -36,7 +37,6 @@ const LINKS = {
       href: "/patient/medical-records",
       icon: FileText,
     },
-    { text: "messages", href: "#", icon: MessageCircle },
   ],
   doctor: [
     { text: "dashboard", href: "/doctor", icon: LayoutDashboard },
@@ -68,6 +68,7 @@ const LINKS = {
       text: "appointments",
       href: "/secretary/appointments",
       icon: CalendarCheck,
+      matchPrefix: true,
     },
     {
       text: "doctors",
@@ -79,18 +80,14 @@ const LINKS = {
       text: "specialities",
       href: "/secretary/specialities",
       icon: Briefcase,
+      matchPrefix: true,
     },
     {
       text: "patients",
       href: "/secretary/patients",
       icon: Users,
+      matchPrefix: true,
     },
-    {
-      text: "scans & reports",
-      href: "#",
-      icon: Scan,
-    },
-    { text: "messages", href: "#", icon: MessageCircle },
   ],
   manager: [
     { text: "dashboard", href: "/manager", icon: LayoutDashboard },
@@ -104,6 +101,7 @@ const LINKS = {
       text: "patients",
       href: "/manager/patients",
       icon: User,
+      matchPrefix: true,
     },
   ],
 };

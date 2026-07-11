@@ -4,7 +4,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import AddItemDialog from "@/components/ui/AddItemDialog";
 import EmergencyContactCard from "./EmergencyContactCard";
 import EmergencyContactForm from "./EmergencyContactForm";
-function EmergencyContactsTab({ data }) {
+function EmergencyContactsTab({ data, readOnly = false }) {
   const { emergencyContacts = [], userId } = data || {};
 
   const hasContacts = emergencyContacts?.length > 0;
@@ -19,19 +19,25 @@ function EmergencyContactsTab({ data }) {
         hideSubtitleOnMobile
         rowOnMobile
       >
-        <AddItemDialog
-          title="Add emergency contact"
-          description="Enter emergency contact details so medical staff can reach them quickly."
-          form={<EmergencyContactForm patientId={userId} />}
-        >
-          Add Contact
-        </AddItemDialog>
+        {!readOnly && (
+          <AddItemDialog
+            title="Add emergency contact"
+            description="Enter emergency contact details so medical staff can reach them quickly."
+            form={<EmergencyContactForm patientId={userId} />}
+          >
+            Add Contact
+          </AddItemDialog>
+        )}
       </Heading>
 
       {!hasContacts ? (
         <EmptyState
           title="No Emergency Contacts Recorded"
-          description="Adding emergency contacts ensures your loved ones are informed quickly in critical situations."
+          description={
+            readOnly
+              ? "This patient has no emergency contacts recorded."
+              : "Adding emergency contacts ensures your loved ones are informed quickly in critical situations."
+          }
         />
       ) : (
         <Grid cols="two">
@@ -40,6 +46,7 @@ function EmergencyContactsTab({ data }) {
               key={contact.id}
               contact={contact}
               patientId={userId}
+              readOnly={readOnly}
             />
           ))}
         </Grid>

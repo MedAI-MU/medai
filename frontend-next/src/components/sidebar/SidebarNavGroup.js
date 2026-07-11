@@ -27,6 +27,7 @@ function SidebarNavGroup({ icon, text, onClose, items }) {
               href={item.href}
               icon={<item.icon size={16} />}
               onClick={onClose}
+              matchPrefix
             />
           );
         })}
