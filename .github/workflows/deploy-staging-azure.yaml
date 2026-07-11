@@ -286,6 +286,8 @@ jobs:
           AI_SERVER_URL=${{ secrets.AI_SERVER_URL }}
           MEDAI_API_KEY=${{ secrets.MEDAI_API_KEY }}
           AI_SERVER_TIMEOUT_MS=300000
+          LAB_AI_SERVER_URL=${{ secrets.LAB_AI_SERVER_URL }}
+          LAB_AI_SERVER_TIMEOUT_MS=${{ secrets.LAB_AI_SERVER_TIMEOUT_MS }}
           UPLOAD_DIR=uploads
           ENVEOF
           cat > docker-compose/.env.frontend.staging << 'ENVEOF'
