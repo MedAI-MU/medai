@@ -1,0 +1,84 @@
+name: Destroy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment to destroy"
+        required: true
+        type: choice
+        options:
+          - staging
+          - prod
+      destroy_mode:
+        description: "Destroy mode (ignored for staging — staging always runs a full destroy)"
+        required: false
+        type: choice
+        default: full
+        options:
+          - full
+          - preserve-public-ip
+
+permissions:
+  contents: read
+
+jobs:
+  destroy:
+    name: Destroy (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'prod' && 'azure-prod' || 'azure-staging' }}
+    env:
+      TF_DIR: ${{ inputs.environment == 'prod' && 'infra/environments/prod' || 'infra/environments/staging' }}
+      TF_VAR_ssh_public_key: ${{ secrets.TF_SSH_PUBLIC_KEY }}
+      TF_VAR_certbot_email: ${{ secrets.TF_CERTBOT_EMAIL }}
+      TF_VAR_pg_admin_password: ${{ secrets.TF_PG_ADMIN_PASSWORD }}
+      TF_VAR_client_ip_address: ${{ secrets.TF_CLIENT_IP_ADDRESS }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init
+
+      - name: Full destroy
+        if: ${{ inputs.environment == 'staging' || inputs.destroy_mode == 'full' }}
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform destroy -auto-approve -no-color
+
+      - name: Destroy all except public IP and resource group
+        if: ${{ inputs.environment == 'prod' && inputs.destroy_mode == 'preserve-public-ip' }}
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform destroy -auto-approve -no-color \
+            -target=module.infrastructure.azurerm_virtual_network.main \
+            -target=module.infrastructure.azurerm_subnet.main \
+            -target=module.infrastructure.azurerm_network_security_group.vm_nsg \
+            -target=module.infrastructure.azurerm_network_security_rule.allow_ssh \
+            -target=module.infrastructure.azurerm_network_security_rule.allow_http \
+            -target=module.infrastructure.azurerm_network_security_rule.allow_https \
+            -target=module.infrastructure.azurerm_network_interface.vm_nic \
+            -target=module.infrastructure.azurerm_network_interface_security_group_association.vm_nic_nsg \
+            -target=module.infrastructure.azurerm_linux_virtual_machine.vm \
+            -target=module.infrastructure.azurerm_postgresql_flexible_server.db \
+            -target=module.infrastructure.azurerm_postgresql_flexible_server_database.app \
+            -target=module.infrastructure.azurerm_postgresql_flexible_server_firewall_rule.client_ip \
+            -target=module.infrastructure.azurerm_postgresql_flexible_server_firewall_rule.allow_azure_services \
+            -target=module.infrastructure.azurerm_postgresql_flexible_server_configuration.extensions \
+            -target=module.infrastructure.azurerm_storage_account.main
+
+      - name: Azure logout
+        if: always()
+        run: az logout
