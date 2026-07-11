@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -73,7 +74,9 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
+    if (user.role === 'manager') {
+      throw new ForbiddenException('Cannot remove a manager');
+    }
     await this.usersRepository.remove(user);
   }
 
