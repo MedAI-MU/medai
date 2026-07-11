@@ -15,6 +15,7 @@ import { ScansModule } from './scans/scans.module';
 import { DiagnosisModule } from './diagnosis/diagnosis.module';
 import { MailModule } from './mail/mail.module';
 import { VoiceReportsModule } from './voice-reports/voice-reports.module';
+import { ReportAnalysisModule } from './report-analysis/report-analysis.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { VoiceReportsModule } from './voice-reports/voice-reports.module';
     ScansModule,
     DiagnosisModule,
     VoiceReportsModule,
+    ReportAnalysisModule,
   ],
 })
 export class AppModule {}
