@@ -48,7 +48,7 @@ RUN mkdir -p ${APK_CACHE_DIR} \
 
 RUN --mount=type=cache,target=${APK_CACHE_DIR} \
     apk update && apk upgrade \
-    && apk add --no-cache dumb-init postgresql-client \
+    && apk add --no-cache dumb-init postgresql-client ffmpeg \
     && addgroup -S medai \
     && adduser -S -h /medai -G medai medai \
     && chown -R medai:medai /medai
