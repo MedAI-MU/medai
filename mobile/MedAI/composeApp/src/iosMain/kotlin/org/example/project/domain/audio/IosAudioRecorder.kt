@@ -1,6 +1,5 @@
 package org.example.project.domain.audio
 
-import io.ktor.client.request.invoke
 import kotlinx.cinterop.*
 import platform.AVFAudio.AVAudioQualityHigh
 import platform.AVFAudio.AVAudioRecorder
@@ -12,8 +11,9 @@ import platform.AVFAudio.AVNumberOfChannelsKey
 import platform.AVFAudio.AVSampleRateKey
 import platform.AVFAudio.setActive
 import platform.AVFoundation.*
-import platform.CoreAudioTypes.kAudioFormatMPEG4AAC
 import platform.Foundation.*
+import platform.CoreAudio.*
+import platform.CoreAudioTypes.kAudioFormatMPEG4AAC
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
@@ -58,10 +58,11 @@ class IosAudioRecorder : AudioRecorder {
                 AVEncoderAudioQualityKey to AVAudioQualityHigh
             )
 
+            // Instantiate using positional arguments to avoid named parameter mismatches (uRL vs URL)
             val avRecorder = AVAudioRecorder(
-                URL = fileURL,
-                settings = settings,
-                error = errorVar.ptr
+                fileURL,
+                settings,
+                errorVar.ptr
             )
             val err = errorVar.value
             if (err != null) {
