@@ -16,7 +16,7 @@ function Error({ reset }) {
 
   return (
     <ErrorState
-      description="An unexpected error occurred in your dashboard. Please try again."
+      description="An unexpected error occurred in the app. Please try again."
       onRetry={handleRetry}
     />
   );
