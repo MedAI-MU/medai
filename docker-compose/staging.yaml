@@ -7,6 +7,9 @@ services:
     env_file:
       - .env.staging
     restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
 
   frontend:
     container_name: staging-medai-frontend
@@ -16,3 +19,13 @@ services:
     env_file:
       - .env.frontend.staging
     restart: always
+
+  redis:
+    container_name: staging-medai-redis
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

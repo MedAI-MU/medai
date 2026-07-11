@@ -280,6 +280,13 @@ jobs:
           BREVO_SMTP_PASS=${{ secrets.BREVO_SMTP_PASS }}
           BREVO_DEFAULT_FROM=${{ secrets.BREVO_DEFAULT_FROM }}
           FRONTEND_URL=${{ needs.terraform.outputs.api_base_url }}
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          REDIS_PASSWORD=
+          AI_SERVER_URL=${{ secrets.AI_SERVER_URL }}
+          MEDAI_API_KEY=${{ secrets.MEDAI_API_KEY }}
+          AI_SERVER_TIMEOUT_MS=300000
+          UPLOAD_DIR=uploads
           ENVEOF
           cat > docker-compose/.env.frontend.staging << 'ENVEOF'
           NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
