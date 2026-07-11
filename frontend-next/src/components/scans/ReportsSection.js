@@ -13,7 +13,7 @@ import { getScanReports, deleteReport } from "@/services/client/scans";
 import { API_BASE } from "@/lib/constants";
 import Link from "next/link";
 
-function ReportsSection({ scanId, patientId }) {
+function ReportsSection({ scanId, patientId, readOnly = false }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,13 +44,15 @@ function ReportsSection({ scanId, patientId }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Heading Tag="h4" size="sm" title="Reports" />
-        <UploadReportSheet
-          scanId={scanId}
-          patientId={patientId}
-          loadReports={loadReports}
-        >
-          <Button size="sm">Upload Report</Button>
-        </UploadReportSheet>
+        {!readOnly && (
+          <UploadReportSheet
+            scanId={scanId}
+            patientId={patientId}
+            loadReports={loadReports}
+          >
+            <Button size="sm">Upload Report</Button>
+          </UploadReportSheet>
+        )}
       </div>
 
       {reports.length === 0 ? (
@@ -80,20 +82,22 @@ function ReportsSection({ scanId, patientId }) {
                     <span className="truncate text-sm">{fileName}</span>
                   </Link>
 
-                  <DeleteDialog
-                  title="Delete Report"
-                  description="Are you sure you want to delete this report? This action cannot be undone."
-                  onConfirm={async () => {
-                    await deleteReport(patientId, report.id);
-                    loadReports();
-                  }}
-                  successMessage="Report deleted."
-                  failMessage="Failed to delete report."
-                >
-                  <button className="text-text-muted transition-colors hover:text-red-500">
-                    <Trash2 size={16} />
-                  </button>
-                </DeleteDialog>
+                  {!readOnly && (
+                    <DeleteDialog
+                    title="Delete Report"
+                    description="Are you sure you want to delete this report? This action cannot be undone."
+                    onConfirm={async () => {
+                      await deleteReport(patientId, report.id);
+                      loadReports();
+                    }}
+                    successMessage="Report deleted."
+                    failMessage="Failed to delete report."
+                  >
+                    <button className="text-text-muted transition-colors hover:text-red-500">
+                      <Trash2 size={16} />
+                    </button>
+                  </DeleteDialog>
+                  )}
             </div>
             );
           })}
