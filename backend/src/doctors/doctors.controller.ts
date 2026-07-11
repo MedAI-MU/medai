@@ -32,6 +32,7 @@ import { SpecialityService } from './speciality.service';
 import { CreateDoctorSpecialityDto } from './dtos/create-doctor-speciality.dto';
 import { DoctorDto } from './dtos/doctor.dto';
 import { DoctorResponseDto } from './dtos/doctor-response.dto';
+import { AllowAnon } from '../auth/decorators/allow-anon.decorator';
 import { SpecialityResponseDto } from './dtos/speciality-response.dto';
 import { UpdateDoctorSpecialityDto } from './dtos/update-doctor-speciality.dto';
 import { UpdateDoctorDto } from './dtos/update-doctor.dto';
@@ -174,6 +175,17 @@ export class DoctorsController {
   async findAll(): Promise<DoctorResponseDto[]> {
     const doctors = await this.doctorsService.findAll();
     return doctors.map((d) => new DoctorResponseDto(d));
+  }
+
+  @AllowAnon()
+  @Get('top-rated')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Top 5 rated doctors retrieved successfully',
+    type: [DoctorResponseDto],
+  })
+  async findTopRated(): Promise<DoctorResponseDto[]> {
+    return this.doctorsService.findTopRated();
   }
 
   @UseGuards(SameIdGuard)
