@@ -31,12 +31,7 @@ function DoctorCard({ doctor }) {
 
       {/* Rating */}
       <div className="mb-3 flex items-center justify-center gap-1">
-        <StarRating
-          size={16}
-          defualtRate={rating}
-          isReadOnly={true}
-          isLabelHidden
-        />
+        <StarRating size={16} defualtRate={rating} isViewOnly isLabelHidden />
         <span className="text-text-base ml-2 text-sm font-medium">
           {rating}.0 / 5.0
         </span>

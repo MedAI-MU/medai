@@ -10,7 +10,7 @@ import ActionButtons from "@/components/ui/ActionButtons";
 import EditAction from "@/components/ui/EditAction";
 import DeleteAction from "@/components/ui/DeleteAction";
 
-function SurgeriesTab({ data }) {
+function SurgeriesTab({ data, readOnly = false }) {
   const { surgeries = [], userId } = data || {};
   const hasSurgeries = surgeries?.length > 0;
 
@@ -24,18 +24,24 @@ function SurgeriesTab({ data }) {
         hideSubtitleOnMobile
         rowOnMobile
       >
-        <AddItemDialog
-          title="Add surgery"
-          description="Enter the details of surgery to add it to your medical records."
-          form={<SurgeriesForm patientId={userId} />}
-        >
-          Add Surgery
-        </AddItemDialog>
+        {!readOnly && (
+          <AddItemDialog
+            title="Add surgery"
+            description="Enter the details of surgery to add it to your medical records."
+            form={<SurgeriesForm patientId={userId} />}
+          >
+            Add Surgery
+          </AddItemDialog>
+        )}
       </Heading>
       {!hasSurgeries && (
         <EmptyState
           title="No surgeries recorded"
-          description="Adding your surgical history helps doctors understand your medical background and provide better care."
+          description={
+            readOnly
+              ? "This patient has no surgeries recorded."
+              : "Adding your surgical history helps doctors understand your medical background and provide better care."
+          }
         />
       )}
       {hasSurgeries && (
@@ -50,22 +56,24 @@ function SurgeriesTab({ data }) {
                 date={item.date}
                 dateDescription="Performed at"
               >
-                <ActionButtons>
-                  <EditAction
-                    title="Edit Surgery"
-                    description="Update your surgery details to ensure your medical history remains accurate."
-                    form={
-                      <SurgeriesForm patientId={userId} surgeryToEdit={item} />
-                    }
-                  />
-                  <DeleteAction
-                    title="Delete Surgery"
-                    description="This action cannot be undone. This will permanently remove this surgery from your medical records."
-                    onConfirm={() => deleteSurgery(userId, item.id)}
-                    successMessage="Surgery has been deleted successfully"
-                    failMessage="Failed to delete surgery"
-                  />
-                </ActionButtons>
+                {!readOnly && (
+                  <ActionButtons>
+                    <EditAction
+                      title="Edit Surgery"
+                      description="Update your surgery details to ensure your medical history remains accurate."
+                      form={
+                        <SurgeriesForm patientId={userId} surgeryToEdit={item} />
+                      }
+                    />
+                    <DeleteAction
+                      title="Delete Surgery"
+                      description="This action cannot be undone. This will permanently remove this surgery from your medical records."
+                      onConfirm={() => deleteSurgery(userId, item.id)}
+                      successMessage="Surgery has been deleted successfully"
+                      failMessage="Failed to delete surgery"
+                    />
+                  </ActionButtons>
+                )}
               </TimelineCard>
             </TimelineItem>
           )}

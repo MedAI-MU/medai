@@ -18,7 +18,7 @@ function ScanCard({ scan, patientId, onViewDetails }) {
 
   return (
     <Card className="flex flex-col gap-4">
-      <div className="bg-surface-overlay relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg">
+      <div className="bg-surface-overlay relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg">
         {imageSrc ? (
           <Image
             src={imageSrc}

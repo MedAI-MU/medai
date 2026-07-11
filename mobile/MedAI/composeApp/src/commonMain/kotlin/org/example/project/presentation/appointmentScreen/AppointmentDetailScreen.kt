@@ -32,6 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.koinScreenModel
+import org.koin.core.parameter.parametersOf
+import org.example.project.presentation.appointmentScreen.voiceReport.VoiceReportViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
@@ -52,6 +55,7 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<AppointmentViewModel>()
         val state by viewModel.state.collectAsState()
+        val voiceReportViewModel = koinScreenModel<VoiceReportViewModel> { parametersOf(appointmentId) }
 
 
         var showCancelSheet by remember { mutableStateOf(false) }
@@ -121,6 +125,13 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                         SectionTitle("Patient Information")
                         Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
                         InfoRow("Full Name", appointment.patientName)
+
+                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
+
+                        // 4. AI Voice Consultation Report Section
+                        org.example.project.presentation.appointmentScreen.voiceReport.VoiceReportSection(
+                            viewModel = voiceReportViewModel
+                        )
 
                         Spacer(modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))

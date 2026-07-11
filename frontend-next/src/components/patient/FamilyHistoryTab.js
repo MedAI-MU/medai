@@ -5,7 +5,7 @@ import AddItemDialog from "@/components/ui/AddItemDialog";
 import FamilyHistoryCard from "./FamilyHistoryCard";
 import FamilyHistoryForm from "./FamilyHistoryForm";
 
-function FamilyHistoryTab({ data }) {
+function FamilyHistoryTab({ data, readOnly = false }) {
   const { familyHistories = [], userId } = data || {};
 
   const hasHistory = familyHistories?.length > 0;
@@ -20,19 +20,25 @@ function FamilyHistoryTab({ data }) {
         hideSubtitleOnMobile
         rowOnMobile
       >
-        <AddItemDialog
-          title="Add family history"
-          description="Enter details about a family member's health condition."
-          form={<FamilyHistoryForm patientId={userId} />}
-        >
-          Add Family History
-        </AddItemDialog>
+        {!readOnly && (
+          <AddItemDialog
+            title="Add family history"
+            description="Enter details about a family member's health condition."
+            form={<FamilyHistoryForm patientId={userId} />}
+          >
+            Add Family History
+          </AddItemDialog>
+        )}
       </Heading>
 
       {!hasHistory ? (
         <EmptyState
           title="No Family History Recorded"
-          description="Adding family medical history helps doctors assess your genetic risks and provide more personalized care."
+          description={
+            readOnly
+              ? "This patient has no family history recorded."
+              : "Adding family medical history helps doctors assess your genetic risks and provide more personalized care."
+          }
         />
       ) : (
         <Grid cols="two">
@@ -41,6 +47,7 @@ function FamilyHistoryTab({ data }) {
               key={record.id}
               record={record}
               patientId={userId}
+              readOnly={readOnly}
             />
           ))}
         </Grid>

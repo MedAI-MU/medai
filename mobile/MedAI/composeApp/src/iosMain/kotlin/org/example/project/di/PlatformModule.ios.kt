@@ -5,6 +5,9 @@ import org.example.project.data.local.DATA_STORE_FILE_NAME
 import org.example.project.data.local.createDataStore
 import org.example.project.domain.ai.IosXRayClassifier
 import org.example.project.domain.ai.XRayClassifier
+import org.example.project.domain.audio.AudioRecorder
+import org.example.project.domain.audio.IosAudioRecorder
+import org.example.project.domain.audio.PermissionHandler
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
@@ -28,4 +31,8 @@ actual val platformModule= module {
     }
 
     single<XRayClassifier> { IosXRayClassifier() }
+
+    single<AudioRecorder> { IosAudioRecorder() }
+
+    single { PermissionHandler() }
 }

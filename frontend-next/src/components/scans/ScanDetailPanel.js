@@ -12,7 +12,7 @@ import ReportsSection from "./ReportsSection";
 import { deleteScan } from "@/services/client/scans";
 import { API_BASE } from "@/lib/constants";
 
-function ScanDetailPanel({ scan, patientId }) {
+function ScanDetailPanel({ scan, patientId, readOnly = false }) {
   const router = useRouter();
   const [viewingImage, setViewingImage] = useState(null);
   const { id: scanId, images = [] } = scan || {};
@@ -42,22 +42,24 @@ function ScanDetailPanel({ scan, patientId }) {
           })}
         </div>
 
-        <ReportsSection scanId={scanId} patientId={patientId} />
+        <ReportsSection scanId={scanId} patientId={patientId} readOnly={readOnly} />
 
-        <div className="border-border flex justify-end border-t pt-4">
-          <DeleteDialog
-            title="Delete Scan"
-            description="Are you sure you want to delete this scan and all its images? This action cannot be undone."
-            onConfirm={() => deleteScan(patientId, scanId)}
-            successMessage="Scan deleted successfully"
-            failMessage="Failed to delete scan."
-          >
-            <button className="text-text-muted flex items-center gap-2 text-sm transition-colors hover:text-red-500">
-              <Trash2 size={16} />
-              Delete this Scan
-            </button>
-          </DeleteDialog>
-        </div>
+        {!readOnly && (
+          <div className="border-border flex justify-end border-t pt-4">
+            <DeleteDialog
+              title="Delete Scan"
+              description="Are you sure you want to delete this scan and all its images? This action cannot be undone."
+              onConfirm={() => deleteScan(patientId, scanId)}
+              successMessage="Scan deleted successfully"
+              failMessage="Failed to delete scan."
+            >
+              <button className="text-text-muted flex items-center gap-2 text-sm transition-colors hover:text-red-500">
+                <Trash2 size={16} />
+                Delete this Scan
+              </button>
+            </DeleteDialog>
+          </div>
+        )}
       </Card>
 
       {viewingImage && (

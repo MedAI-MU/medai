@@ -1,18 +1,23 @@
 import { notFound } from "next/navigation";
 
 import { getPatientById } from "@/services/server/patient";
+import { getPatientScans } from "@/services/server/scans";
+import { getPatientDiagnoses } from "@/services/server/diagnosis";
 
 import Heading from "@/components/ui/Heading";
 import BackButton from "@/components/ui/BackButton";
-import MedicalStates from "@/components/patient/MedicalStates";
-import PatientReadOnlyView from "@/components/secretary/PatientReadOnlyView";
+import PatientRecordView from "@/components/patient/PatientRecordView";
 
 async function PatientDetailPage({ params }) {
   const { patientId } = await params;
 
-  let patient;
+  let patient, scans, diagnoses;
   try {
-    patient = await getPatientById(patientId);
+    [patient, scans, diagnoses] = await Promise.all([
+      getPatientById(patientId),
+      getPatientScans(patientId),
+      getPatientDiagnoses(patientId),
+    ]);
   } catch (err) {
     if (err.statusCode === 404) notFound();
     throw err;
@@ -25,8 +30,13 @@ async function PatientDetailPage({ params }) {
         title={`${patient?.name || "Patient"}'s Medical Records`}
         subtitle="Manage patient health information."
       />
-      <MedicalStates data={patient} />
-      <PatientReadOnlyView data={patient} />
+      <PatientRecordView
+        patient={patient}
+        scans={scans}
+        diagnoses={diagnoses}
+        role="secretary"
+        patientUserId={Number(patientId)}
+      />
     </div>
   );
 }

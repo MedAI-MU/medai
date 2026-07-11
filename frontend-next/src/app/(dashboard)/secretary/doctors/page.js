@@ -4,9 +4,12 @@ import DoctorsList from "@/components/doctor/DoctorsList";
 import DoctorsListSkeleton from "@/components/doctor/DoctorsListSkeleton";
 import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
+import SpecialityDropdown from "@/components/doctor/SpecialityDropdown";
+import { getSpecialities } from "@/services/server/doctors";
 
 async function AllDoctorsPage({ searchParams }) {
-  const query = (await searchParams)?.search || "";
+  const { search = "", speciality = "" } = await searchParams;
+  const specialities = await getSpecialities();
 
   return (
     <>
@@ -15,13 +18,17 @@ async function AllDoctorsPage({ searchParams }) {
         title="All Doctors"
         subtitle="Manage doctor specialties, schedules, and appointments."
       />
-      <SearchBar
-        queryKey="search"
-        placeholder="Search by name or speciality..."
-      />
-      <Suspense key={query} fallback={<DoctorsListSkeleton />}>
+      <div className="flex flex-wrap items-start gap-4">
+        <SearchBar queryKey="search" placeholder="Search by name..." />
+        <SpecialityDropdown specialities={specialities} />
+      </div>
+      <Suspense
+        key={`${search}-${speciality}`}
+        fallback={<DoctorsListSkeleton />}
+      >
         <DoctorsList
-          query={query}
+          query={search}
+          speciality={speciality}
           actionLabel="Manage"
           basePath="/secretary/doctors"
         />

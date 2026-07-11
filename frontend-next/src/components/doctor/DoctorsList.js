@@ -9,35 +9,38 @@ import EmptyState from "../ui/EmptyState";
 import { UserSearch, UserX } from "lucide-react";
 import AnimateWrapper from "../ui/AnimateWrapper";
 
-async function DoctorsList({ query, ...cardProps }) {
+async function DoctorsList({ query, speciality, ...cardProps }) {
   let hasError = false;
   let doctors = [];
 
-  // 1) Returns all doctors with empty string
-  if (!query) {
+  if (query && speciality) {
+    const q = query.toLowerCase();
     try {
-      doctors = await searchDoctorsByName("");
-    } catch (err) {
+      const bySpeciality = await searchDoctorsBySpeciality(speciality);
+      doctors = bySpeciality.filter((doc) =>
+        doc.name?.toLowerCase().includes(q),
+      );
+    } catch {
       hasError = true;
     }
-  }
-
-  // 2) Returns search results
-  else {
-    const results = await Promise.allSettled([
-      searchDoctorsByName(query),
-      searchDoctorsBySpeciality(query),
-    ]);
-    const merge = [];
-
-    // Merge two results
-    results.forEach((res) => {
-      if (res.status === "fulfilled") merge.push(...res.value);
-      else hasError = true;
-    });
-
-    // Remove duplicates
-    doctors = [...new Map(merge.map((doc) => [doc.userId, doc])).values()];
+  } else if (query) {
+    try {
+      doctors = await searchDoctorsByName(query);
+    } catch {
+      hasError = true;
+    }
+  } else if (speciality) {
+    try {
+      doctors = await searchDoctorsBySpeciality(speciality);
+    } catch {
+      hasError = true;
+    }
+  } else {
+    try {
+      doctors = await searchDoctorsByName("");
+    } catch {
+      hasError = true;
+    }
   }
 
   if (hasError && doctors.length === 0)
@@ -49,16 +52,26 @@ async function DoctorsList({ query, ...cardProps }) {
     );
 
   if (doctors.length === 0) {
-    if (query)
+    if (query || speciality)
       return (
         <EmptyState
           title="No doctors found"
           icon={<UserSearch size={30} />}
           description={
             <>
-              No doctors matched your search for{" "}
-              <strong className="text-text-base">&quot;{query}&quot;</strong>.
-              Try searching for a different name or speciality
+              No doctors matched
+              {query && (
+                <>
+                  {" "}
+                  your search for{" "}
+                  <strong className="text-text-base">
+                    &quot;{query}&quot;
+                  </strong>
+                </>
+              )}
+              {query && speciality && <> and</>}
+              {speciality && <> the selected speciality</>}. Try different
+              search terms or filters.
             </>
           }
         />
