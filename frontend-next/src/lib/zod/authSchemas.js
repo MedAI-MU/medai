@@ -30,3 +30,13 @@ export const loginSchema = z.object({
     .string("Invalid password format")
     .nonempty("Password is required"),
 });
+
+export const profileSchema = z.object({
+  name: z.string().min(5, "Name must be at least 5 characters").max(100),
+  phone: z
+    .string()
+    .regex(/^(010|011|012|015)\d{8}$/, "Invalid Egyptian phone number"),
+  birthDate: z.date().optional().nullable(),
+  gender: z.enum(["male", "female", ""]).optional(),
+  bio: z.string().optional().or(z.literal("")),
+});
