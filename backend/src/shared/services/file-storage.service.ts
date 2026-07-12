@@ -67,6 +67,22 @@ export class FileStorageService {
     }
   }
 
+  async downloadFile(blobUrl: string): Promise<Buffer> {
+    const url = new URL(blobUrl);
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    const containerName = pathParts[0];
+    const blobName = decodeURIComponent(pathParts.slice(1).join('/'));
+
+    const containerClient = this.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const downloadResponse = await blockBlobClient.download(0);
+    const chunks: Buffer[] = [];
+    for await (const chunk of downloadResponse.readableStreamBody!) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  }
+
   getFullPath(relativePath: string): string {
     return relativePath;
   }

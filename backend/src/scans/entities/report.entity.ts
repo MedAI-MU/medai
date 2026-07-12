@@ -8,6 +8,8 @@ import {
 import { TimestampEntity } from '../../shared/entities/timestamp.entity';
 import { Patient } from '../../patients/entities/patient.entity';
 import { Scan } from './scan.entity';
+import { Appointment } from '../../appointments/entities/appointment.entity';
+import { ReportAnalysisStatusEnum } from '../../report-analysis/enums/report-analysis-status.enum';
 
 @Entity()
 export class Report extends TimestampEntity {
@@ -27,6 +29,26 @@ export class Report extends TimestampEntity {
   @Column({ nullable: true })
   scanId: number | null;
 
+  @ManyToOne(() => Appointment, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'appointmentId' })
+  appointment: Appointment | null;
+
+  @Column({ nullable: true })
+  appointmentId: number | null;
+
   @Column()
   path: string;
+
+  @Column({
+    type: 'enum',
+    enum: ReportAnalysisStatusEnum,
+    nullable: true,
+  })
+  analysisStatus: ReportAnalysisStatusEnum | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  analysisResult: Record<string, unknown> | null;
+
+  @Column({ type: 'text', nullable: true })
+  analysisError: string | null;
 }
