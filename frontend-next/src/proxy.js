@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import { decodeToken } from "./lib/utils/decodeToken";
 
+export const config = {
+  matcher: [
+    "/",
+    "/doctor/:path*",
+    "/patient/:path*",
+    "/secretary/:path*",
+    "/manager/:path*",
+    "/auth/:path*",
+    "/reset-password",
+    "/verify-email",
+  ],
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function proxy(request) {
@@ -66,6 +79,37 @@ export async function proxy(request) {
 
   const isAuthenticated = accessToken || refreshedTokensInCookies;
 
+  // 2c) Pending users redirect (skip patients)
+  if (
+    isAuthenticated &&
+    payload?.status === "pending" &&
+    payload?.role !== "patient" &&
+    pathname !== "/auth/pending-approval" &&
+    pathname !== "/reset-password" &&
+    pathname !== "/verify-email"
+  ) {
+    const response = NextResponse.redirect(
+      new URL("/auth/pending-approval", request.url),
+    );
+    if (refreshedTokensInCookies)
+      response.headers.set("set-cookie", refreshedTokensInCookies);
+    return response;
+  }
+
+  // 2d) Approved / patient on pending page → send to dashboard
+  if (
+    isAuthenticated &&
+    (payload?.status === "approved" || payload?.role === "patient") &&
+    pathname === "/auth/pending-approval"
+  ) {
+    const response = NextResponse.redirect(
+      new URL(`/${payload?.role}`, request.url),
+    );
+    if (refreshedTokensInCookies)
+      response.headers.set("set-cookie", refreshedTokensInCookies);
+    return response;
+  }
+
   // 3) Redirecting section
 
   // 3a) Redirect to login if not authenticated and on protected route
@@ -74,7 +118,12 @@ export async function proxy(request) {
   }
 
   // 3b) Redirect to dashboard if authenticated and on (auth or landing) route
-  if (isAuthenticated && (isAuthRoute || pathname === "/")) {
+  // Exclude pending users on the pending-approval page (handled by 2c)
+  if (
+    isAuthenticated &&
+    (isAuthRoute || pathname === "/") &&
+    !(pathname === "/auth/pending-approval")
+  ) {
     const response = NextResponse.redirect(
       new URL(`/${payload?.role}`, request.url),
     );
