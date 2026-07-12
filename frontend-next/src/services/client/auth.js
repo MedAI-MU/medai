@@ -1,3 +1,4 @@
+import { apiClient } from "@/lib/api/apiFetchClient";
 import { validateSchema } from "../../lib/utils/validateSchema";
 import { loginSchema, signupSchema } from "../../lib/zod/authSchemas";
 
@@ -158,4 +159,8 @@ export async function refreshToken() {
   } catch {
     return { success: false };
   }
+}
+
+export function getUser() {
+  return apiClient.get("api/users/me");
 }

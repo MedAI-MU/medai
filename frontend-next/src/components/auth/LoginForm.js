@@ -25,6 +25,7 @@ function LoginForm() {
   async function onSubmit(data) {
     const res = await loginAction(data);
     const { fieldErrors, success, message, user } = res || {};
+    console.log(res);
 
     // 1) Handle fields error came from server
     if (fieldErrors) {
@@ -40,8 +41,13 @@ function LoginForm() {
       return;
     }
 
-    toast.success(message);
-    router.replace(`/${user?.role}`);
+    if (user?.status === "pending" && user?.role !== "patient") {
+      toast.success("Logged in. Your account is pending approval.");
+      router.replace("/auth/pending-approval");
+    } else {
+      toast.success(message);
+      router.replace(`/${user?.role}`);
+    }
   }
 
   return (

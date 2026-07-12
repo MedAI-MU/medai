@@ -15,8 +15,8 @@ export const signupSchema = z.object({
     .string("Invalid phone number format")
     .min(1, "Phone is required")
     .regex(
-      /^(\+2)?(010|011|012|015)\d{8}$/,
-      "Phone must start with 010–015 and be 11 digits.",
+      /^(010|011|012|015)\d{8}$/,
+      "Phone must start with 010–011–012–015 and be 11 digits.",
     ),
   password: z
     .string("Invalid password format")

@@ -50,8 +50,13 @@ function SignupForm() {
       return;
     }
 
-    toast.success(message);
-    router.replace(`/${user?.role}`);
+    if (user?.status === "pending" && user?.role !== "patient") {
+      toast.success("Account created. Your account is pending approval.");
+      router.replace("/auth/pending-approval");
+    } else {
+      toast.success(message);
+      router.replace(`/${user?.role}`);
+    }
   }
 
   return (
