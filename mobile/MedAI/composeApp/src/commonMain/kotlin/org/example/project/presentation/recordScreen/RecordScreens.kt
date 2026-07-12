@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Vaccines
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -196,7 +197,8 @@ class RecordsDashboardScreen : Screen {
                 DashboardItem("Emergency", Icons.Default.ContactPhone, Color(0xFFFFF9C4)) { navigator.push(EmergencyContactsScreen()) },
                 DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) },
                 DashboardItem("Scans", Icons.Default.Science, Color(0xFF80DEEA)) { navigator.push(ScansScreen(state.patientProfile?.id)) },
-                DashboardItem("Diagnoses", Icons.Default.ListAlt, Color(0xFFFFCC80)) { navigator.push(DiagnosisListScreen(state.patientProfile?.id ?: "")) }
+                DashboardItem("Diagnoses", Icons.Default.ListAlt, Color(0xFFFFCC80)) { navigator.push(DiagnosisListScreen(state.patientProfile?.id ?: "")) },
+                DashboardItem("Report AI", Icons.Default.AutoAwesome, Color(0xFFB2DFDB)) { navigator.push(org.example.project.presentation.reportAnalysis.ReportAnalysisScreen(state.patientProfile?.id)) }
             )
 
             LazyVerticalGrid(

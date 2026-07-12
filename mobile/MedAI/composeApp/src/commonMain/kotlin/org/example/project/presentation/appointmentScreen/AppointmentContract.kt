@@ -4,6 +4,8 @@ import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.domain.model.appointment.CancelReason
 
+import org.example.project.domain.model.report_analysis.ReportAnalysis
+
 data class AppointmentState(
     val isLoading: Boolean = false,
     val selectedTab: AppointmentDetailStatus = AppointmentDetailStatus.UPCOMING,
@@ -11,6 +13,7 @@ data class AppointmentState(
     val error: String? = null,
 
     val selectedAppointment: AppointmentDetail? = null,
+    val linkedReports: List<ReportAnalysis> = emptyList(),
 
     val cancelReasons: List<CancelReason> = emptyList(),
     val isCancelling: Boolean = false,

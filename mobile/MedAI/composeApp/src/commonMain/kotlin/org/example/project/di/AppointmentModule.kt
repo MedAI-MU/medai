@@ -20,7 +20,7 @@ val appointmentModule = module {
     factory { GetDoctorAppointmentsUseCase(get()) }
     factory { GetTodayAppointmentsUseCase(get()) }
 
-    factory { AppointmentViewModel(get(), get(), get(), get(), get(), get()) }
+    factory { AppointmentViewModel(get(), get(), get(), get(), get(), get(), get()) }
     factory { (doctorId: String) ->
         BookingViewModel(doctorId, get(), get(), get(), get())
     }

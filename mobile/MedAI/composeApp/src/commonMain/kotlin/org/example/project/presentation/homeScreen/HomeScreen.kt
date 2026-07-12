@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -31,6 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -180,6 +185,14 @@ class HomeScreen : Screen {
                                 onClick = { viewModel.onEvent(HomeEvent.CategoryClicked(category)) }
                             )
                         }
+                        item {
+                            CategoryReportAIItem(
+                                onClick = {
+                                    val rootNavigator = navigator.parent ?: navigator
+                                    rootNavigator.push(org.example.project.presentation.reportAnalysis.ReportAnalysisScreen())
+                                }
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
@@ -313,5 +326,28 @@ class HomeScreen : Screen {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CategoryReportAIItem(
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Icon(
+            imageVector = Icons.Default.AutoAwesome,
+            contentDescription = null,
+            tint = MedAITheme.colors.primary,
+            modifier = Modifier.size(32.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        MedAIText(
+            text = "Report AI",
+            style = MedAITheme.textStyle.label.medium,
+            color = MedAITheme.colors.primary
+        )
     }
 }
