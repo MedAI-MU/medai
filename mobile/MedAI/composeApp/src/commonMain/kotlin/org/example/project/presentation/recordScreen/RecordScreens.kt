@@ -195,7 +195,7 @@ class RecordsDashboardScreen : Screen {
                 DashboardItem("Surgeries", Icons.Default.Vaccines, Color(0xFFC8E6C9)) { navigator.push(SurgeriesScreen()) },
                 DashboardItem("Family", Icons.Default.History, Color(0xFFBBDEFB)) { navigator.push(FamilyHistoryScreen()) },
                 DashboardItem("Emergency", Icons.Default.ContactPhone, Color(0xFFFFF9C4)) { navigator.push(EmergencyContactsScreen()) },
-                DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) },
+                //DashboardItem("Analyses", Icons.Default.ListAlt, Color(0xFFD1C4E9)) { navigator.push(AnalysesScreen()) },
                 DashboardItem("Scans", Icons.Default.Science, Color(0xFF80DEEA)) { navigator.push(ScansScreen(state.patientProfile?.id)) },
                 DashboardItem("Diagnoses", Icons.Default.ListAlt, Color(0xFFFFCC80)) { navigator.push(DiagnosisListScreen(state.patientProfile?.id ?: "")) },
                 DashboardItem("Report AI", Icons.Default.AutoAwesome, Color(0xFFB2DFDB)) { navigator.push(org.example.project.presentation.reportAnalysis.ReportAnalysisScreen(state.patientProfile?.id)) }
