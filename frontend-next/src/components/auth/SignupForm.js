@@ -21,6 +21,7 @@ import Button from "@/components/ui/Button";
 import FormSelect from "@/components/ui/FormSelect";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { useRouter } from "next/navigation";
+import SpinnerMini from "../ui/SpinnerMini";
 
 function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,8 +51,13 @@ function SignupForm() {
       return;
     }
 
-    toast.success(message);
-    router.replace(`/${user?.role}`);
+    if (user?.status === "pending" && user?.role !== "patient") {
+      toast.success("Account created. Your account is pending approval.");
+      router.replace("/auth/pending-approval");
+    } else {
+      toast.success(message);
+      router.replace(`/${user?.role}`);
+    }
   }
 
   return (
@@ -66,6 +72,7 @@ function SignupForm() {
         defaultValue="Select role..."
         {...register("role")}
         error={errors?.role?.message}
+        disabled={isSubmitting}
       />
       <div className="gap-form grid md:grid-cols-2">
         <FormInput
@@ -76,6 +83,7 @@ function SignupForm() {
           startIcon={<IdCard />}
           {...register("name")}
           error={errors?.name?.message}
+          disabled={isSubmitting}
         />
         <FormInput
           type="tel"
@@ -85,6 +93,7 @@ function SignupForm() {
           startIcon={<Phone />}
           {...register("phone")}
           error={errors?.phone?.message}
+          disabled={isSubmitting}
         />
       </div>
       <FormInput
@@ -95,6 +104,7 @@ function SignupForm() {
         startIcon={<Mail />}
         {...register("email")}
         error={errors?.email?.message}
+        disabled={isSubmitting}
       />
       <FormInput
         type={showPassword ? "text" : "password"}
@@ -111,10 +121,11 @@ function SignupForm() {
         }
         {...register("password")}
         error={errors?.password?.message}
+        disabled={isSubmitting}
       />
       <div className="mt-6 text-center">
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          Sign Up
+          {isSubmitting ? <SpinnerMini /> : "Sign up"}
         </Button>
         {errors?.root?.message && (
           <ErrorMessage

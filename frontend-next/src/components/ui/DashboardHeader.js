@@ -5,6 +5,8 @@ import DarkmodeToggler from "./DarkmodeToggler";
 import HeaderShell from "./HeaderShell";
 import Container from "./Container";
 import UserInfo from "./UserInfo";
+import { Suspense } from "react";
+import UserInfoSkeleton from "./UserInfoSkeleton";
 
 function DashboardHeader() {
   return (
@@ -17,17 +19,13 @@ function DashboardHeader() {
           {/* Theme Toggle */}
           <DarkmodeToggler />
 
-          {/* Notifications */}
-          <ButtonIcon className="relative">
-            <Bell size={20} />
-            <span className="border-surface bg-danger absolute top-2 right-2.5 h-2 w-2 rounded-full border-2"></span>
-          </ButtonIcon>
-
           {/* Divider */}
           <div className="bg-border mx-1 hidden h-8 w-px sm:block" />
 
           {/* User Info */}
-          <UserInfo />
+          <Suspense fallback={<UserInfoSkeleton />}>
+            <UserInfo />
+          </Suspense>
         </div>
       </Container>
     </HeaderShell>

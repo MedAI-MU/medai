@@ -1,3 +1,4 @@
+import { apiClient } from "@/lib/api/apiFetchClient";
 import { validateSchema } from "../../lib/utils/validateSchema";
 import { loginSchema, signupSchema } from "../../lib/zod/authSchemas";
 
@@ -158,4 +159,71 @@ export async function refreshToken() {
   } catch {
     return { success: false };
   }
+}
+
+export async function forgotPassword(email) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+      credentials: "include",
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    }
+
+    const data = await res.json();
+    return { success: false, message: data?.message || "Something went wrong" };
+  } catch {
+    return { success: false, message: "Network/server error, try again" };
+  }
+}
+
+export async function resetPassword(token, password) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+      credentials: "include",
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    }
+
+    const data = await res.json();
+    return { success: false, message: data?.message || "Something went wrong" };
+  } catch {
+    return { success: false, message: "Network/server error, try again" };
+  }
+}
+
+export async function verifyEmail(token) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+      credentials: "include",
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    }
+
+    const data = await res.json();
+    return {
+      success: false,
+      message: data?.message || "Verification failed",
+    };
+  } catch {
+    return { success: false, message: "Network/server error, try again" };
+  }
+}
+
+export function getUser() {
+  return apiClient.get("api/users/me");
 }

@@ -28,7 +28,7 @@ function PatientAppointmentCard({ appointment }) {
       isCompleted={status === "finished"}
       infoSection={
         <>
-          <Heading Tag="h3" size="sm" title={`Dr. ${doctor?.user?.name}`} />
+          <Heading Tag="h3" size="sm" title={`Dr. ${doctor?.name}`} />
           {doctor?.specialities?.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {doctor.specialities?.map((spec) => (
@@ -67,7 +67,7 @@ function PatientAppointmentCard({ appointment }) {
               {isCancellable && (
                 <DeleteDialog
                   title="Cancel appointment?"
-                  description={`You are about to cancel your appointment with Dr. ${doctor?.user?.name}. This action cannot be undone.`}
+                  description={`You are about to cancel your appointment with Dr. ${doctor?.name}. This action cannot be undone.`}
                   confirmLabel="Yes, Cancel Appointment"
                   cancelLabel="No, Keep It"
                   successMessage="Appointment cancelled successfully"

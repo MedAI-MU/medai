@@ -15,8 +15,8 @@ export const signupSchema = z.object({
     .string("Invalid phone number format")
     .min(1, "Phone is required")
     .regex(
-      /^(\+2)?(010|011|012|015)\d{8}$/,
-      "Phone must start with 010–015 and be 11 digits.",
+      /^(010|011|012|015)\d{8}$/,
+      "Phone must start with 010–011–012–015 and be 11 digits.",
     ),
   password: z
     .string("Invalid password format")
@@ -30,6 +30,25 @@ export const loginSchema = z.object({
     .string("Invalid password format")
     .nonempty("Password is required"),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.email("Please enter a valid email address"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string("Invalid password format")
+      .min(6, "Password must be at least 6 characters")
+      .max(100, "Password must not exceed 100 characters"),
+    confirmPassword: z
+      .string("Invalid password format")
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const profileSchema = z.object({
   name: z.string().min(5, "Name must be at least 5 characters").max(100),
