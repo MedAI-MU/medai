@@ -1,6 +1,7 @@
 package org.example.project.presentation.appointmentScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -133,6 +142,20 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                             viewModel = voiceReportViewModel
                         )
 
+                        // 5. Linked AI Medical Reports Section
+                        if (state.linkedReports.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
+                            SectionTitle("Linked AI Medical Reports")
+                            Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
+                            Column(verticalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.small)) {
+                                state.linkedReports.forEach { report ->
+                                    LinkedReportItem(report = report) {
+                                        navigator.push(org.example.project.presentation.reportAnalysis.ReportAnalysisResultsScreen(report))
+                                    }
+                                }
+                            }
+                        }
+
                         Spacer(modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))
 
@@ -179,6 +202,52 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
         ) {
             MedAIText(label, color = MedAITheme.colors.text.secondary, style = MedAITheme.textStyle.body.medium)
             MedAIText(value, style = MedAITheme.textStyle.body.medium.copy(fontWeight = FontWeight.SemiBold))
+        }
+    }
+
+    @Composable
+    private fun LinkedReportItem(
+        report: org.example.project.domain.model.report_analysis.ReportAnalysis,
+        onClick: () -> Unit
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() },
+            shape = RoundedCornerShape(MedAITheme.dimensions.radiusMedium),
+            colors = CardDefaults.cardColors(
+                containerColor = MedAITheme.colors.surface
+            ),
+            border = androidx.compose.foundation.BorderStroke(
+                1.dp,
+                MedAITheme.colors.neutral.copy(alpha = 0.08f)
+            )
+        ) {
+            Row(
+                modifier = Modifier.padding(MedAITheme.dimensions.large),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Description,
+                        contentDescription = null,
+                        tint = MedAITheme.colors.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(MedAITheme.dimensions.medium))
+                    Column {
+                        val fileName = report.path.split("/").lastOrNull() ?: "report.pdf"
+                        MedAIText(fileName, style = MedAITheme.textStyle.body.medium.copy(fontWeight = FontWeight.Bold))
+                        MedAIText("Analyzed: ${report.createdAt.take(10)}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
+                    }
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MedAITheme.colors.text.secondary
+                )
+            }
         }
     }
 }

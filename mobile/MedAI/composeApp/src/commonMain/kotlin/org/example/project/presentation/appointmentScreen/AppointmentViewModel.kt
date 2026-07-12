@@ -9,6 +9,7 @@ import org.example.project.domain.usecase.appointment.GetAppointmentDetailsUseCa
 import org.example.project.domain.usecase.appointment.GetAppointmentsUseCase
 import org.example.project.domain.usecase.appointment.GetCancelReasonsUseCase
 import org.example.project.domain.usecase.appointment.SubmitReviewUseCase
+import org.example.project.domain.usecase.report_analysis.GetAllReportsUseCase
 import org.example.project.domain.repository.appointment.AppointmentRepository
 
 class AppointmentViewModel(
@@ -17,7 +18,8 @@ class AppointmentViewModel(
     private val cancelAppointmentUseCase: CancelAppointmentUseCase,
     private val submitReviewUseCase: SubmitReviewUseCase,
     private val getCancelReasonsUseCase: GetCancelReasonsUseCase,
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val getAllReportsUseCase: GetAllReportsUseCase
 ) : MviScreenModel<AppointmentState, AppointmentEvent, AppointmentEffect>(AppointmentState()) {
 
     init {
@@ -83,7 +85,15 @@ class AppointmentViewModel(
             getAppointmentDetailsUseCase().fold(
                 onSuccess = { details ->
                     val detail = details.find { it.id == id }
-                    setState { copy(isLoading = false, selectedAppointment = detail) }
+                    getAllReportsUseCase().fold(
+                        onSuccess = { reports ->
+                            val linked = reports.filter { it.appointmentId == id }
+                            setState { copy(isLoading = false, selectedAppointment = detail, linkedReports = linked) }
+                        },
+                        onFailure = {
+                            setState { copy(isLoading = false, selectedAppointment = detail, linkedReports = emptyList()) }
+                        }
+                    )
                 },
                 onFailure = { err ->
                     setState { copy(isLoading = false) }
