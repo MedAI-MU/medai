@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -31,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -41,6 +46,8 @@ import medai.composeapp.generated.resources.find_your_doctor
 import medai.composeapp.generated.resources.search_placeholder
 import medai.composeapp.generated.resources.sort_by
 import medai.composeapp.generated.resources.specialties
+import medai.composeapp.generated.resources.no_specialties_title
+import medai.composeapp.generated.resources.no_specialties_description
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.component.textFields.MedAISearchBar
@@ -159,6 +166,39 @@ class SpecialtiesScreen : Screen {
                         if (state.isLoading) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 CircularProgressIndicator(color = MedAITheme.colors.primary)
+                            }
+                        } else if (state.filteredSpecialties.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(dimensions.extraLarge),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MedicalServices,
+                                        contentDescription = null,
+                                        tint = MedAITheme.colors.primary.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(dimensions.medium))
+                                    MedAIText(
+                                        text = stringResource(Res.string.no_specialties_title),
+                                        style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
+                                        color = MedAITheme.colors.text.primary,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(dimensions.small))
+                                    MedAIText(
+                                        text = stringResource(Res.string.no_specialties_description),
+                                        style = MedAITheme.textStyle.body.small,
+                                        color = MedAITheme.colors.text.secondary,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         } else {
                             LazyVerticalGrid(
