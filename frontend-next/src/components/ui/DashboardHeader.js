@@ -5,6 +5,8 @@ import DarkmodeToggler from "./DarkmodeToggler";
 import HeaderShell from "./HeaderShell";
 import Container from "./Container";
 import UserInfo from "./UserInfo";
+import { Suspense } from "react";
+import UserInfoSkeleton from "./UserInfoSkeleton";
 
 function DashboardHeader() {
   return (
@@ -21,7 +23,9 @@ function DashboardHeader() {
           <div className="bg-border mx-1 hidden h-8 w-px sm:block" />
 
           {/* User Info */}
-          <UserInfo />
+          <Suspense fallback={<UserInfoSkeleton />}>
+            <UserInfo />
+          </Suspense>
         </div>
       </Container>
     </HeaderShell>

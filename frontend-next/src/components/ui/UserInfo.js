@@ -12,9 +12,9 @@ async function UserInfo() {
   }
 
   return (
-    <div className="group flex cursor-pointer items-center gap-3">
+    <div className="flex items-center gap-3">
       <div className="hidden text-right md:block">
-        <p className="text-text-base group-hover:text-primary text-sm font-semibold transition-colors">
+        <p className="text-text-base text-sm font-semibold transition-colors">
           {user?.name}
         </p>
         <p className="text-text-subtle text-xs">
