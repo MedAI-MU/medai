@@ -1,5 +1,9 @@
 import { apiClient } from "@/lib/api/apiFetchClient";
 
+export function getPatientById(id) {
+  return apiClient.get(`api/patients/${id}`);
+}
+
 export async function updatePatientPersonalInfo(data, patientId) {
   return apiClient.patch(`api/patients/${patientId}`, data);
 }

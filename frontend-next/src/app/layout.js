@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
+import QueryProvider from "@/lib/providers/query-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,7 +24,7 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange
           defaultTheme="system"
         >
-          {children}
+          <QueryProvider>{children}</QueryProvider>
           <Toaster
             toastOptions={{
               className:

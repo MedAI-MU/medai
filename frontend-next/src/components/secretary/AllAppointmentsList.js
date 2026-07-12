@@ -27,9 +27,8 @@ export default function AllAppointmentsList({ appointments }) {
   if (search.trim()) {
     const q = search.toLowerCase();
     filtered = filtered.filter((app) => {
-      const doctorName = app?.doctor?.user?.name?.toLowerCase() || "";
-      const patientName = app?.patient?.user?.name?.toLowerCase() || "";
-      return doctorName.includes(q) || patientName.includes(q);
+      const doctorName = app?.doctor?.name?.toLowerCase() || "";
+      return doctorName.includes(q);
     });
   }
 

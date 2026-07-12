@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import {
   User,
@@ -16,6 +18,8 @@ import {
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import StarRating from "../ui/StarRating";
+import SpinnerMini from "../ui/SpinnerMini";
+import { usePatient } from "@/hooks/patient.js/usePatient";
 import { formatTime12h, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { format } from "date-fns";
 
@@ -40,9 +44,10 @@ function DetailRow({
 
 function DoctorAppointmentDetails({ appointment }) {
   const router = useRouter();
-  const { id, patientUserId, scheduleSlot, patient, status, createdAt, review, rating } =
+  const { id, patientUserId, scheduleSlot, status, createdAt, review, rating } =
     appointment || {};
-  const patientUser = patient?.user || {};
+  const { data: patient, isLoading: patientLoading } =
+    usePatient(patientUserId);
 
   const formatedStartTime = formatTime12h(
     stripSeconds(scheduleSlot?.startTime),
@@ -55,14 +60,8 @@ function DoctorAppointmentDetails({ appointment }) {
     {
       icon: User,
       label: "Full Name",
-      value: patientUser?.name,
+      value: patient?.name,
       iconColor: "text-primary",
-    },
-    {
-      icon: Activity,
-      label: "Gender",
-      value: patientUser?.gender,
-      iconColor: "text-blue-500",
     },
     {
       icon: Droplet,
@@ -90,9 +89,16 @@ function DoctorAppointmentDetails({ appointment }) {
     },
   ];
 
+  if (patientLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <SpinnerMini />
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Patient Information Section */}
       <div className="space-y-3">
         <h4 className="text-text-base border-border border-b pb-1 text-sm font-bold tracking-wider uppercase">
           Patient Profile
@@ -110,7 +116,6 @@ function DoctorAppointmentDetails({ appointment }) {
         </Card>
       </div>
 
-      {/* Appointment Information Section */}
       <div className="space-y-3">
         <h4 className="text-text-base border-border border-b pb-1 text-sm font-bold tracking-wider uppercase">
           Appointment Details

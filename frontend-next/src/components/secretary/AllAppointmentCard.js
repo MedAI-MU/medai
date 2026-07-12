@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { formatTime12h, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { statusColor } from "@/constants/appointments";
 import { updateAppointmentStatus } from "@/services/client/appointment";
+import { usePatient } from "@/hooks/patient.js/usePatient";
 
 import AppointmentCardLayout from "@/components/appointments/AppointmentCardLayout";
 import Badge from "@/components/ui/Badge";
@@ -19,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
+import SkeletonBox from "../ui/SkeletonBox";
 
 function getStatusActions(status) {
   if (status === "pending") return ["confirmed", "cancelled"];
@@ -28,9 +30,15 @@ function getStatusActions(status) {
 
 export default function AllAppointmentCard({ appointment }) {
   const router = useRouter();
-  const { scheduleSlot, doctor, patient, status } = appointment || {};
-  const doctorUser = doctor?.user || {};
-  const patientUser = patient?.user || {};
+  const { scheduleSlot, doctor, patientUserId, status } = appointment || {};
+  const { data: patient, isLoading: patientLoading } =
+    usePatient(patientUserId);
+  const doctorName = doctor?.name || "Unknown Doctor";
+  const patientName = !patientLoading ? (
+    <SkeletonBox className="inline-block h-3 w-14" />
+  ) : (
+    patient?.name || "Unknown Patient"
+  );
 
   const formatedStartTime = formatTime12h(
     stripSeconds(scheduleSlot?.startTime),
@@ -56,9 +64,9 @@ export default function AllAppointmentCard({ appointment }) {
       isCompleted={status === "finished"}
       infoSection={
         <>
-          <Heading Tag="h3" size="sm" title={doctorUser?.name || "Unknown Doctor"} />
+          <Heading Tag="h3" size="sm" title={doctorName} />
           <div className="text-text-muted mt-1 text-xs">
-            Patient: {patientUser?.name || "Unknown Patient"}
+            Patient: {patientName}
           </div>
           <div className="text-text-muted mt-2 flex items-center gap-2 text-sm">
             <Clock size={16} />
@@ -95,7 +103,7 @@ export default function AllAppointmentCard({ appointment }) {
           )}
           <ViewSheet
             title="Patient & Appointment Details"
-            description={`Detailed health profile and appointment info for ${patientUser?.name || "Patient"}`}
+            description={`Detailed health profile and appointment info for ${patientName}`}
             trigger={<Button variation="outline">View Details</Button>}
           >
             <DoctorAppointmentDetails appointment={appointment} />
