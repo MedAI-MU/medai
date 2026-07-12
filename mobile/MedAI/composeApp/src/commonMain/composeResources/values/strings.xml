@@ -57,6 +57,8 @@
     <string name="upcoming_schedule">Upcoming Schedule</string>
     <string name="month">Month</string>
     <string name="specialties">Specialties</string>
+    <string name="no_specialties_title">No Specialties Available</string>
+    <string name="no_specialties_description">We will add new specialties soon. Please check back later.</string>
 
     <!-- Categories -->
     <string name="cat_favorite">Favorite</string>
