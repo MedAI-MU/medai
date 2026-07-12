@@ -9,6 +9,8 @@ export const config = {
     "/secretary/:path*",
     "/manager/:path*",
     "/auth/:path*",
+    "/reset-password",
+    "/verify-email",
   ],
 };
 
@@ -82,7 +84,9 @@ export async function proxy(request) {
     isAuthenticated &&
     payload?.status === "pending" &&
     payload?.role !== "patient" &&
-    pathname !== "/auth/pending-approval"
+    pathname !== "/auth/pending-approval" &&
+    pathname !== "/reset-password" &&
+    pathname !== "/verify-email"
   ) {
     const response = NextResponse.redirect(
       new URL("/auth/pending-approval", request.url),
