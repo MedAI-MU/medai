@@ -151,7 +151,7 @@ fun mapCategoryDtoToDomain(dto: CategoryDto): Category {
         specialty = primarySpec,
         rating = 0.0,
         imageUrl = null,
-        bio = "No bio available...",
+        bio = this.about ?: "No bio available...",
         about = this.about,
         reviewCount = 0
     )
