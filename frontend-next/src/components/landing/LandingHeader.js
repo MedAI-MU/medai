@@ -11,11 +11,12 @@ import DarkmodeToggler from "../ui/DarkmodeToggler";
 import HeaderShell from "../ui/HeaderShell";
 
 const NAV_LINKS = [
-  { text: "Home", to: "#" },
-  { text: "Services", to: "#services" },
-  { text: "Doctors", to: "#doctors" },
-  { text: "About", to: "#about" },
-  { text: "Contact", to: "#contact" },
+  { text: "Home", to: "/#" },
+  { text: "Services", to: "/#services" },
+  { text: "Doctors", to: "/#doctors" },
+  { text: "About", to: "/#about" },
+  { text: "Contact", to: "/#contact" },
+  { text: "Mobile App", to: "/download" },
 ];
 
 function LandingHeader() {
