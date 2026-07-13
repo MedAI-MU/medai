@@ -6,7 +6,11 @@ import org.example.project.domain.model.patient.*
 import org.example.project.domain.repository.patient.PatientRepository
 import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.usecase.medical_record.*
+import org.example.project.domain.usecase.voice_report.GetPatientComplaintsHistoryUseCase
+import org.example.project.domain.usecase.voice_report.GetVoiceReportStatusUseCase
+import org.example.project.domain.usecase.voice_report.DeleteVoiceReportUseCase
 import org.example.project.core.presentation.mvi.MviScreenModel
+import org.example.project.domain.model.voice_report.VoiceReport
 
 class SharedMedicalRecordViewModel(
     private val patientIdArg: String?,
@@ -26,7 +30,10 @@ class SharedMedicalRecordViewModel(
     private val deleteFamilyHistoryUseCase: DeleteFamilyHistoryUseCase,
     private val addEmergencyContactUseCase: AddEmergencyContactUseCase,
     private val updateEmergencyContactUseCase: UpdateEmergencyContactUseCase,
-    private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase
+    private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase,
+    private val getPatientComplaintsHistoryUseCase: GetPatientComplaintsHistoryUseCase,
+    private val getVoiceReportStatusUseCase: GetVoiceReportStatusUseCase,
+    private val deleteVoiceReportUseCase: DeleteVoiceReportUseCase
 ) : MviScreenModel<SharedMedicalRecordState, SharedMedicalRecordEvent, SharedMedicalRecordEffect>(
     initialState = SharedMedicalRecordState()
 ) {
@@ -79,6 +86,50 @@ class SharedMedicalRecordViewModel(
 
             is SharedMedicalRecordEvent.AnalysisClicked -> sendEffect(SharedMedicalRecordEffect.NavigateToAnalysisDetails(event.analysisId))
             SharedMedicalRecordEvent.AddRecordClicked -> sendEffect(SharedMedicalRecordEffect.NavigateToAddRecord)
+            is SharedMedicalRecordEvent.ComplaintClicked -> {
+                screenModelScope.launch {
+                    setState { copy(isLoading = true) }
+                    val apptId = event.report.appointmentId
+                    if (apptId != null) {
+                        getVoiceReportStatusUseCase(apptId, event.report.id).fold(
+                            onSuccess = { fullReport ->
+                                setState { copy(isLoading = false) }
+                                sendEffect(SharedMedicalRecordEffect.ShowComplaintDetails(fullReport))
+                            },
+                            onFailure = { err ->
+                                setState { copy(isLoading = false) }
+                                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to load complaint details: ${err.message}"))
+                            }
+                        )
+                    } else {
+                        setState { copy(isLoading = false) }
+                        sendEffect(SharedMedicalRecordEffect.ShowComplaintDetails(event.report))
+                    }
+                }
+            }
+            is SharedMedicalRecordEvent.DeleteComplaint -> deleteComplaint(event.report)
+        }
+    }
+
+    private fun deleteComplaint(report: VoiceReport) {
+        val apptId = report.appointmentId
+        if (apptId == null) {
+            sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Cannot delete complaint without appointment ID"))
+            return
+        }
+        screenModelScope.launch {
+            setState { copy(isLoading = true) }
+            deleteVoiceReportUseCase(apptId, report.id).fold(
+                onSuccess = {
+                    setState { copy(isLoading = false) }
+                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Complaint deleted successfully"))
+                    loadAllData(silent = true)
+                },
+                onFailure = { err ->
+                    setState { copy(isLoading = false) }
+                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar(err.message ?: "Failed to delete complaint"))
+                }
+            )
         }
     }
 
@@ -87,9 +138,11 @@ class SharedMedicalRecordViewModel(
             if (!silent) setState { copy(isLoading = true, error = null) }
 
             val profileResult = patientRepository.getPatientById(currentPatientId)
+            val consultationsResult = getPatientComplaintsHistoryUseCase(currentPatientId)
 
             if (profileResult.isSuccess) {
                 val patient = profileResult.getOrNull()
+                val reports = consultationsResult.getOrNull() ?: emptyList()
                 setState {
                     copy(
                         isLoading = false,
@@ -97,7 +150,8 @@ class SharedMedicalRecordViewModel(
                         allergies = patient?.allergies ?: emptyList(),
                         analyses = emptyList(), // Populate these from repositories when available
                         vaccinations = emptyList(),
-                        medicalHistory = emptyList()
+                        medicalHistory = emptyList(),
+                        complaintsHistory = reports
                     )
                 }
             } else {
