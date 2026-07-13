@@ -1,10 +1,10 @@
+import PatientDashboardContent from "@/components/patient/PatientDashboardContent";
+
 export const metadata = {
   title: "Dashboard",
   description: "Overview of your health and appointments.",
 };
 
-function PatientDashboard() {
-  return <div>patient dashboard updated</div>;
+export default function PatientDashboard() {
+  return <PatientDashboardContent />;
 }
-
-export default PatientDashboard;

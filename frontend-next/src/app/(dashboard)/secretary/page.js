@@ -1,10 +1,10 @@
+import SecretaryDashboardContent from "@/components/secretary/SecretaryDashboardContent";
+
 export const metadata = {
   title: "Dashboard - Secretary",
   description: "Overview of appointments, doctors, and patients.",
 };
 
-function page() {
-  return <div>dashboard</div>;
+export default function SecretaryDashboard() {
+  return <SecretaryDashboardContent />;
 }
-
-export default page;
