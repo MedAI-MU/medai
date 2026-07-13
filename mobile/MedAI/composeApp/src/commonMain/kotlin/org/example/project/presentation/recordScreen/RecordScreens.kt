@@ -92,6 +92,7 @@ import org.example.project.domain.model.patient.Patient
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
 import org.example.project.domain.model.patient.UpdatePatientParams
+import org.example.project.domain.model.patient.formatRecordDate
 import org.example.project.presentation.shared.records.*
 import org.example.project.presentation.scans.ScansScreen
 import org.example.project.presentation.shared.diagnosis.DiagnosisListScreen
@@ -418,10 +419,16 @@ class AllergiesScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var allergyToDeleteId by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(viewModel) {
             viewModel.effect.collect { effect ->
-                if (effect is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(effect.message)
+                when (effect) {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+                    is SharedMedicalRecordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    else -> {}
+                }
             }
         }
 
@@ -457,7 +464,10 @@ class AllergiesScreen : Screen {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditAllergy(allergy) }) {
                                             Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp))
                                         }
-                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteAllergy(allergy.id)) }) {
+                                        IconButton(onClick = {
+                                            allergyToDeleteId = allergy.id
+                                            showDeleteDialog = true
+                                        }) {
                                             Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp))
                                         }
                                     }
@@ -482,6 +492,41 @@ class AllergiesScreen : Screen {
                     ) {
                         PatientAllergyForm(currentSheet, onDismiss = { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
+                }
+
+                if (showDeleteDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteDialog = false
+                            allergyToDeleteId = null
+                        },
+                        title = { Text("Delete Record?") },
+                        text = { Text("Are you sure you want to delete this? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    allergyToDeleteId?.let { id ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteAllergy(id))
+                                    }
+                                    showDeleteDialog = false
+                                    allergyToDeleteId = null
+                                }
+                            ) {
+                                Text("Delete", color = MedAITheme.colors.secondary)
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+                                    allergyToDeleteId = null
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        },
+                        containerColor = MedAITheme.colors.background
+                    )
                 }
             }
         }
@@ -559,9 +604,17 @@ class DiseasesScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var diseaseToDeleteId by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+                    is SharedMedicalRecordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    else -> {}
+                }
+            }
         }
 
         MedAIScaffold(title = "Chronic Diseases", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -577,11 +630,14 @@ class DiseasesScreen : Screen {
                                     Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
                                         MedAIText(disease.name, style = MedAITheme.textStyle.title.medium)
                                         MedAIText(disease.description.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
-                                        MedAIText("Diagnosed: ${disease.diagnosisDate}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                                        MedAIText("Diagnosed: ${formatRecordDate(disease.diagnosisDate)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditDisease(disease) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteChronicDisease(disease.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = {
+                                            diseaseToDeleteId = disease.id
+                                            showDeleteDialog = true
+                                        }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -599,6 +655,41 @@ class DiseasesScreen : Screen {
                     ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
                         PatientDiseaseForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
+                }
+
+                if (showDeleteDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteDialog = false
+                            diseaseToDeleteId = null
+                        },
+                        title = { Text("Delete Record?") },
+                        text = { Text("Are you sure you want to delete this? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    diseaseToDeleteId?.let { id ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteChronicDisease(id))
+                                    }
+                                    showDeleteDialog = false
+                                    diseaseToDeleteId = null
+                                }
+                            ) {
+                                Text("Delete", color = MedAITheme.colors.secondary)
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+                                    diseaseToDeleteId = null
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        },
+                        containerColor = MedAITheme.colors.background
+                    )
                 }
             }
         }
@@ -651,9 +742,17 @@ class SurgeriesScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var surgeryToDeleteId by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+                    is SharedMedicalRecordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    else -> {}
+                }
+            }
         }
 
         MedAIScaffold(title = "Surgeries", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -669,11 +768,14 @@ class SurgeriesScreen : Screen {
                                     Column(modifier = Modifier.padding(16.dp).padding(end = 80.dp)) {
                                         MedAIText(surgery.name, style = MedAITheme.textStyle.title.medium)
                                         MedAIText(surgery.description.toString(), style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
-                                        MedAIText("Date: ${surgery.date}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                                        MedAIText("Date: ${formatRecordDate(surgery.date)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditSurgery(surgery) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteSurgery(surgery.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = {
+                                            surgeryToDeleteId = surgery.id
+                                            showDeleteDialog = true
+                                        }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -691,6 +793,41 @@ class SurgeriesScreen : Screen {
                     ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
                         PatientSurgeryForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
+                }
+
+                if (showDeleteDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteDialog = false
+                            surgeryToDeleteId = null
+                        },
+                        title = { Text("Delete Record?") },
+                        text = { Text("Are you sure you want to delete this? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    surgeryToDeleteId?.let { id ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteSurgery(id))
+                                    }
+                                    showDeleteDialog = false
+                                    surgeryToDeleteId = null
+                                }
+                            ) {
+                                Text("Delete", color = MedAITheme.colors.secondary)
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+                                    surgeryToDeleteId = null
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        },
+                        containerColor = MedAITheme.colors.background
+                    )
                 }
             }
         }
@@ -743,9 +880,17 @@ class FamilyHistoryScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var historyToDeleteId by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+                    is SharedMedicalRecordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    else -> {}
+                }
+            }
         }
 
         MedAIScaffold(title = "Family History", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -764,7 +909,10 @@ class FamilyHistoryScreen : Screen {
                                     }
                                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                         IconButton(onClick = { currentSheet = PatientSheetType.EditFamily(history) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                        IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteFamilyHistory(history.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                        IconButton(onClick = {
+                                            historyToDeleteId = history.id
+                                            showDeleteDialog = true
+                                        }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                     }
                                 }
                             }
@@ -782,6 +930,41 @@ class FamilyHistoryScreen : Screen {
                     ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
                         PatientFamilyForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
+                }
+
+                if (showDeleteDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteDialog = false
+                            historyToDeleteId = null
+                        },
+                        title = { Text("Delete Record?") },
+                        text = { Text("Are you sure you want to delete this? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    historyToDeleteId?.let { id ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteFamilyHistory(id))
+                                    }
+                                    showDeleteDialog = false
+                                    historyToDeleteId = null
+                                }
+                            ) {
+                                Text("Delete", color = MedAITheme.colors.secondary)
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+                                    historyToDeleteId = null
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        },
+                        containerColor = MedAITheme.colors.background
+                    )
                 }
             }
         }
@@ -854,9 +1037,17 @@ class EmergencyContactsScreen : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<PatientSheetType>(PatientSheetType.None) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var contactToDeleteId by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(viewModel) {
-            viewModel.effect.collect { if (it is SharedMedicalRecordEffect.ShowSnackbar) snackbarHostState.showSnackbar(it.message) }
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is SharedMedicalRecordEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+                    is SharedMedicalRecordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                    else -> {}
+                }
+            }
         }
 
         MedAIScaffold(title = "Emergency Contacts", onBackClick = { navigator.pop() }, snackbarHost = { SnackbarHost(snackbarHostState) }) {
@@ -876,7 +1067,10 @@ class EmergencyContactsScreen : Screen {
                                         }
                                         Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                                             IconButton(onClick = { currentSheet = PatientSheetType.EditEmergency(contact) }) { Icon(Icons.Default.Edit, null, tint = MedAITheme.colors.primary, modifier = Modifier.size(20.dp)) }
-                                            IconButton(onClick = { viewModel.onEvent(SharedMedicalRecordEvent.DeleteEmergencyContact(contact.id)) }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
+                                            IconButton(onClick = {
+                                                contactToDeleteId = contact.id
+                                                showDeleteDialog = true
+                                            }) { Icon(Icons.Default.Delete, null, tint = MedAITheme.colors.secondary, modifier = Modifier.size(20.dp)) }
                                         }
                                     }
                                 }
@@ -895,6 +1089,41 @@ class EmergencyContactsScreen : Screen {
                     ModalBottomSheet(onDismissRequest = { currentSheet = PatientSheetType.None }, sheetState = sheetState, containerColor = MedAITheme.colors.background) {
                         PatientEmergencyForm(currentSheet, { currentSheet = PatientSheetType.None }) { viewModel.onEvent(it) }
                     }
+                }
+
+                if (showDeleteDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteDialog = false
+                            contactToDeleteId = null
+                        },
+                        title = { Text("Delete Record?") },
+                        text = { Text("Are you sure you want to delete this? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    contactToDeleteId?.let { id ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteEmergencyContact(id))
+                                    }
+                                    showDeleteDialog = false
+                                    contactToDeleteId = null
+                                }
+                            ) {
+                                Text("Delete", color = MedAITheme.colors.secondary)
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+                                    contactToDeleteId = null
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        },
+                        containerColor = MedAITheme.colors.background
+                    )
                 }
             }
         }
