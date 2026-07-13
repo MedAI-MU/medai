@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getDoctorById } from "@/services/server/doctors";
 import { getScheduleSlots } from "@/services/server/schedule";
 import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
 import { formatDate } from "@/lib/utils/DateTimeHelpers";
@@ -9,6 +10,19 @@ import ErrorState from "@/components/ui/ErrorState";
 import EmptyState from "@/components/ui/EmptyState";
 import DoctorProfileCard from "@/components/doctor/DoctorProfileCard";
 import DayCarouselWrapper from "@/components/appointments/DayCarouselWrapper";
+
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `Book Appointment - ${doctor?.name || "Doctor"}`,
+      description: "Select a date and time slot for your visit.",
+    };
+  } catch {
+    return { title: "Book Appointment" };
+  }
+}
 
 async function DoctorSlotsPage({ params, searchParams }) {
   const { doctorId } = await params;

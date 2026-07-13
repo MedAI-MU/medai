@@ -7,6 +7,11 @@ import SearchBar from "@/components/ui/SearchBar";
 import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
 import { getUserFromToken } from "@/lib/session";
 
+export const metadata = {
+  title: "Working Hours",
+  description: "Define your recurring weekly patterns to generate bookable slots.",
+};
+
 async function WorkingHoursPage({ searchParams }) {
   const { templateName, pageNo } = (await searchParams) || {};
   const { email, role, sub: doctorId } = await getUserFromToken();

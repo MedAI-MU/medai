@@ -5,6 +5,11 @@ import { getUserFromToken } from "@/lib/session";
 import { redirect } from "next/navigation";
 import MedicalTabs from "@/components/patient/MedicalTabs";
 
+export const metadata = {
+  title: "My Medical Records",
+  description: "Manage and view your comprehensive medical history.",
+};
+
 async function MedicalRecordsPage() {
   const user = await getUserFromToken();
   if (!user) redirect("/auth/login");

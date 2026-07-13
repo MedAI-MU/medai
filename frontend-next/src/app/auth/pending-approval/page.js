@@ -3,6 +3,11 @@ import PendingHero from "@/components/auth/PendingHero";
 import PendingApprovalContent from "@/components/auth/PendingApprovalContent";
 import { getUserFromToken } from "@/lib/session";
 
+export const metadata = {
+  title: "Pending Approval",
+  description: "Your account is pending approval from a manager.",
+};
+
 async function PendingApprovalPage() {
   const user = await getUserFromToken();
 

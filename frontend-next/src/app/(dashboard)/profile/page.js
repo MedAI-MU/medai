@@ -5,6 +5,11 @@ import ProfileView from "@/components/profile/ProfileView";
 import EditProfile from "@/components/profile/EditProfile";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Profile",
+  description: "Your account details.",
+};
+
 export default async function ProfilePage() {
   let user;
   try {

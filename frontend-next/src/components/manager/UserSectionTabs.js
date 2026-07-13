@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { label: "Secretaries", href: "/manager/users/secretaries", slug: "secretaries" },
+  { label: "Secretaries", href: "/manager/users", slug: "secretaries" },
   { label: "Doctors", href: "/manager/users/doctors", slug: "doctors" },
   { label: "Managers", href: "/manager/users/managers", slug: "managers" },
 ];
@@ -15,7 +15,7 @@ export default function UserSectionTabs() {
   return (
     <div className="border-border no-scrollbar flex overflow-x-auto border-b">
       {tabs.map(({ label, href, slug }) => {
-        const isActive = pathname.includes(slug);
+        const isActive = pathname === href;
         return (
           <Link
             key={slug}

@@ -9,7 +9,10 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "MedAI",
+  title: {
+    template: "%s | MedAI",
+    default: "MedAI",
+  },
   description:
     "Medical platform helps you find your suitable doctor with some AI help.",
 };

@@ -6,6 +6,19 @@ import Heading from "@/components/ui/Heading";
 import DoctorAppointmentsManagement from "@/components/doctor/DoctorAppointmentsManagement";
 import EmptyState from "@/components/ui/EmptyState";
 
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `${doctor?.name || "Doctor"}'s Appointments`,
+      description: "View and manage all appointments for this doctor.",
+    };
+  } catch {
+    return { title: "Appointments" };
+  }
+}
+
 async function DoctorAppointmentsPage({ params }) {
   const { doctorId } = await params;
   const numericId = Number(doctorId);

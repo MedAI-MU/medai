@@ -30,7 +30,7 @@ function FormSelect({
             </option>
           )}
           {options.map((option) => (
-            <option key={option} value={option}>
+            <option key={option} value={option} className="text-slate-700">
               {option}
             </option>
           ))}

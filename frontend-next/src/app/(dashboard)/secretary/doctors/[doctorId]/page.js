@@ -8,6 +8,19 @@ import DoctorProfileCard from "@/components/doctor/DoctorProfileCard";
 import DoctorActionCard from "@/components/doctor/DoctorActionCard";
 import Grid from "@/components/ui/Grid";
 
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `${doctor?.name || "Doctor"} - Management`,
+      description: "Manage the doctor's specialities, schedule templates, slots, and appointments.",
+    };
+  } catch {
+    return { title: "Doctor Management" };
+  }
+}
+
 const actions = [
   {
     icon: Stethoscope,

@@ -3,6 +3,11 @@ import FormSection from "@/components/auth/FormSection";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import ForgotPasswordHero from "@/components/auth/ForgotPasswordHero";
 
+export const metadata = {
+  title: "Forgot Password",
+  description: "Enter your email to receive a reset link.",
+};
+
 function ForgotPasswordPage() {
   return (
     <AuthLayout hero={<ForgotPasswordHero />}>

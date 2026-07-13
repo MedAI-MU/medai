@@ -7,6 +7,11 @@ import SearchBar from "@/components/ui/SearchBar";
 import SpecialityDropdown from "@/components/doctor/SpecialityDropdown";
 import { getSpecialities } from "@/services/server/doctors";
 
+export const metadata = {
+  title: "All Doctors",
+  description: "Manage doctor specialties, schedules, and appointments.",
+};
+
 async function AllDoctorsPage({ searchParams }) {
   const { search = "", speciality = "" } = await searchParams;
   const specialities = await getSpecialities();
