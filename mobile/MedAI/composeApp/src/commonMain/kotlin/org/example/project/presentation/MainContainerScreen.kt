@@ -53,7 +53,7 @@ class MainContainerScreen : Screen {
             val navItems = mutableListOf<BottomNavItem>()
 
             navItems.add(BottomNavItem("Home", "home", Icons.Default.Home))
-            navItems.add(BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline))
+            //navItems.add(BottomNavItem("Messages", "messages", Icons.Default.ChatBubbleOutline))
 
             if (role == UserRole.DOCTOR || role == UserRole.SECRETARY) {
                  navItems.add(BottomNavItem("Schedule", "schedule", Icons.Default.CalendarMonth))
@@ -74,7 +74,7 @@ class MainContainerScreen : Screen {
                         onNavigate = { route ->
                             when(route) {
                                 "home" -> tabNavigator.current = HomeTab
-                                "messages" -> tabNavigator.current = MessagesTab
+                                //"messages" -> tabNavigator.current = MessagesTab
                                 "schedule" -> if(role == UserRole.DOCTOR || role == UserRole.SECRETARY) tabNavigator.current = ScheduleTab
                                 "profile" -> tabNavigator.current = ProfileTab
                             }
@@ -89,7 +89,7 @@ class MainContainerScreen : Screen {
     private fun getRouteFromTab(tab: Tab): String {
         return when (tab) {
             HomeTab -> "home"
-            MessagesTab -> "messages"
+            //MessagesTab -> "messages"
             ScheduleTab -> "schedule"
             ProfileTab -> "profile"
             else -> ""

@@ -45,7 +45,7 @@ class KtorReportAnalysisApiService(
                     formData {
                         append("file", fileBytes, Headers.build {
                             append(HttpHeaders.ContentType, mimeType)
-                            append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"$fileName\"")
+                            append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
                         })
                         if (appointmentId != null) {
                             append("appointmentId", appointmentId.toString())
