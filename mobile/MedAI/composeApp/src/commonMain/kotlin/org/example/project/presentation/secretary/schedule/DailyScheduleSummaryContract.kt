@@ -12,6 +12,7 @@ data class DailyScheduleSummaryState(
     val daySummaries: List<DayScheduleSummary> = emptyList(),
     val filteredAppointments: List<AppointmentDetail> = emptyList(),
     val allAppointments: List<AppointmentDetail> = emptyList(),
+    val loadingAppointmentIds: Set<String> = emptySet(),
     val error: String? = null
 )
 
@@ -23,6 +24,8 @@ data class DayScheduleSummary(
 sealed class DailyScheduleSummaryEvent {
     object LoadSummary : DailyScheduleSummaryEvent()
     data class SelectDate(val date: LocalDate) : DailyScheduleSummaryEvent()
+    data class ApproveAppointment(val appointmentId: String) : DailyScheduleSummaryEvent()
+    data class RejectAppointment(val appointmentId: String) : DailyScheduleSummaryEvent()
 }
 
 sealed class DailyScheduleSummaryEffect {

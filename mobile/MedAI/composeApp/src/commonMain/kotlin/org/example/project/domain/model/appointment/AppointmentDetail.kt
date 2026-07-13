@@ -14,7 +14,9 @@ data class AppointmentDetail(
     val canRebook: Boolean,
     val canAddReview: Boolean,
     val rating: Int? = null,
-    val review: String? = null
+    val review: String? = null,
+    val isPast: Boolean = false,
+    val originalStatus: String = ""
 )
 
 enum class AppointmentDetailStatus {

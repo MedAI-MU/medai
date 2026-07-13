@@ -66,6 +66,8 @@ import org.example.project.design_system.theme.MedAITheme
 import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
+import org.example.project.design_system.component.button.MedAIButton
+import org.example.project.design_system.component.button.ButtonVariant
 
 class DailyScheduleSummaryScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -263,6 +265,9 @@ class DailyScheduleSummaryScreen : Screen {
                         items(state.filteredAppointments) { appointment ->
                             AppointmentItemCard(
                                 appointment = appointment,
+                                isLoadingAction = state.loadingAppointmentIds.contains(appointment.id),
+                                onApprove = { viewModel.onEvent(DailyScheduleSummaryEvent.ApproveAppointment(appointment.id)) },
+                                onReject = { viewModel.onEvent(DailyScheduleSummaryEvent.RejectAppointment(appointment.id)) },
                                 onClick = {
                                     navigator.push(DoctorPatientRecordsScreen(appointment.patientId))
                                 }
@@ -360,6 +365,9 @@ class DailyScheduleSummaryScreen : Screen {
     @Composable
     fun AppointmentItemCard(
         appointment: AppointmentDetail,
+        isLoadingAction: Boolean,
+        onApprove: () -> Unit,
+        onReject: () -> Unit,
         onClick: () -> Unit
     ) {
         val dimensions = LocalDimensions.current
@@ -372,66 +380,124 @@ class DailyScheduleSummaryScreen : Screen {
                 .clickable { onClick() }
                 .padding(dimensions.medium)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(42.dp)
-                            .clip(CircleShape)
-                            .background(MedAITheme.colors.primary.copy(alpha = 0.1f)),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text(
-                            text = appointment.patientName.take(1).uppercase(),
-                            style = MedAITheme.textStyle.body.large,
-                            fontWeight = FontWeight.Bold,
-                            color = MedAITheme.colors.primary
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(CircleShape)
+                                .background(MedAITheme.colors.primary.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = appointment.patientName.take(1).uppercase(),
+                                style = MedAITheme.textStyle.body.large,
+                                fontWeight = FontWeight.Bold,
+                                color = MedAITheme.colors.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(dimensions.medium))
+                        Column {
+                            Text(
+                                text = appointment.patientName,
+                                style = MedAITheme.textStyle.body.large,
+                                fontWeight = FontWeight.Bold,
+                                color = MedAITheme.colors.text.primary
+                            )
+                            Text(
+                                text = "Assigned: ${appointment.doctorName}",
+                                style = MedAITheme.textStyle.body.small,
+                                color = MedAITheme.colors.text.secondary
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(dimensions.medium))
-                    Column {
+
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        AppointmentStatusBadge(appointment.status, appointment.originalStatus, appointment.isPast)
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = appointment.patientName,
-                            style = MedAITheme.textStyle.body.large,
-                            fontWeight = FontWeight.Bold,
-                            color = MedAITheme.colors.text.primary
-                        )
-                        Text(
-                            text = "Assigned: ${appointment.doctorName}",
-                            style = MedAITheme.textStyle.body.small,
+                            text = appointment.date.time.toString().take(5),
+                            style = MedAITheme.textStyle.label.small,
                             color = MedAITheme.colors.text.secondary
                         )
                     }
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    AppointmentStatusBadge(appointment.status)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = appointment.date.time.toString().take(5),
-                        style = MedAITheme.textStyle.label.small,
-                        color = MedAITheme.colors.text.secondary
-                    )
+                // If pending, show Approve & Reject buttons
+                val isPending = appointment.status == AppointmentDetailStatus.UPCOMING &&
+                        appointment.originalStatus == "pending" &&
+                        !appointment.isPast
+
+                if (isPending) {
+                    Spacer(modifier = Modifier.height(dimensions.medium))
+                    if (isLoadingAction) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MedAITheme.colors.primary
+                            )
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(dimensions.small)
+                        ) {
+                            MedAIButton(
+                                text = "Approve",
+                                onClick = onApprove,
+                                modifier = Modifier.weight(1f),
+                                variant = ButtonVariant.Primary
+                            )
+                            MedAIButton(
+                                text = "Reject",
+                                onClick = onReject,
+                                modifier = Modifier.weight(1f),
+                                variant = ButtonVariant.Secondary
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun AppointmentStatusBadge(status: AppointmentDetailStatus) {
-        val (color, text) = when (status) {
-            AppointmentDetailStatus.UPCOMING -> MedAITheme.colors.status.warning to "Scheduled"
-            AppointmentDetailStatus.FINISHED -> MedAITheme.colors.status.success to "Finished"
-            AppointmentDetailStatus.CANCELLED -> MedAITheme.colors.status.error to "Cancelled"
+    fun AppointmentStatusBadge(
+        status: AppointmentDetailStatus,
+        originalStatus: String = "",
+        isPast: Boolean = false
+    ) {
+        val (color, text) = if (isPast) {
+            if (originalStatus == "confirmed") {
+                MedAITheme.colors.status.success to "Finished"
+            } else {
+                MedAITheme.colors.status.error to "Expired"
+            }
+        } else {
+            when (status) {
+                AppointmentDetailStatus.UPCOMING -> {
+                    if (originalStatus == "confirmed") {
+                        MedAITheme.colors.status.success to "Approved"
+                    } else {
+                        MedAITheme.colors.status.warning to "Pending"
+                    }
+                }
+                AppointmentDetailStatus.FINISHED -> MedAITheme.colors.status.success to "Finished"
+                AppointmentDetailStatus.CANCELLED -> MedAITheme.colors.status.error to "Rejected"
+            }
         }
 
         Box(

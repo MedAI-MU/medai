@@ -183,8 +183,8 @@ fun DashboardContent(
 ) {
     val navigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
     val total = allAppointments.size
-    val pending = allAppointments.count { it.status == AppointmentDetailStatus.UPCOMING }
-    val finished = allAppointments.count { it.status == AppointmentDetailStatus.FINISHED }
+    val pending = allAppointments.count { it.status == AppointmentDetailStatus.UPCOMING && !it.isPast }
+    val finished = allAppointments.count { it.status == AppointmentDetailStatus.FINISHED || (it.status == AppointmentDetailStatus.UPCOMING && it.isPast && it.originalStatus == "confirmed") }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Quick Actions
@@ -385,10 +385,18 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
                 .size(10.dp)
                 .clip(CircleShape)
                 .background(
-                    when (appointment.status) {
-                        AppointmentDetailStatus.UPCOMING -> MedAITheme.colors.primary
-                        AppointmentDetailStatus.FINISHED -> MedAITheme.colors.status.success // Green
-                        AppointmentDetailStatus.CANCELLED -> MedAITheme.colors.status.error // Red
+                    if (appointment.isPast) {
+                        when (appointment.originalStatus) {
+                            "confirmed" -> MedAITheme.colors.status.success
+                            "pending" -> MedAITheme.colors.status.warning
+                            else -> MedAITheme.colors.status.error
+                        }
+                    } else {
+                        when (appointment.status) {
+                            AppointmentDetailStatus.UPCOMING -> MedAITheme.colors.primary
+                            AppointmentDetailStatus.FINISHED -> MedAITheme.colors.status.success // Green
+                            AppointmentDetailStatus.CANCELLED -> MedAITheme.colors.status.error // Red
+                        }
                     }
                 )
         )
@@ -410,8 +418,17 @@ fun AppointmentCard(appointment: AppointmentDetail, onClick: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
+            val statusText = if (appointment.isPast) {
+                when (appointment.originalStatus) {
+                    "confirmed" -> "Finished"
+                    "pending" -> "Expired"
+                    else -> "Cancelled"
+                }
+            } else {
+                appointment.status.name.lowercase().replaceFirstChar { it.uppercase() }
+            }
             Text(
-                text = "Status: ${appointment.status.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                text = "Status: $statusText",
                 style = MedAITheme.textStyle.label.medium,
                 color = MedAITheme.colors.text.secondary
             )

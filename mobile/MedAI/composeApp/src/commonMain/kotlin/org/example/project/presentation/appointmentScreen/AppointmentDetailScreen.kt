@@ -159,8 +159,8 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                         Spacer(modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraExtraLarge))
 
-                        // Only show Cancel/Reschedule if Upcoming
-                        if (appointment.status == AppointmentDetailStatus.UPCOMING) {
+                        // Only show Cancel/Reschedule if Upcoming and not in the past
+                        if (appointment.status == AppointmentDetailStatus.UPCOMING && !appointment.isPast) {
                             MedAIButton(
                                 text = "Cancel Appointment",
                                 onClick = { showCancelSheet = true },
