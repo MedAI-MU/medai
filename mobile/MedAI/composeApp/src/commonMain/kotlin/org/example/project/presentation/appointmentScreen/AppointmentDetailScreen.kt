@@ -1,6 +1,5 @@
 package org.example.project.presentation.appointmentScreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,8 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -47,15 +43,15 @@ import org.example.project.presentation.appointmentScreen.voiceReport.VoiceRepor
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.collectLatest
-import org.example.project.core.presentation.util.toUiString
 import org.example.project.design_system.component.button.ButtonVariant
 import org.example.project.design_system.component.button.MedAIButton
 import org.example.project.design_system.component.scaffold.MedAIScaffold
 import org.example.project.design_system.component.text.MedAIText
 import org.example.project.design_system.theme.MedAITheme
-import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.presentation.appointmentScreen.sheet.CancelAppointmentSheet
+import org.example.project.presentation.appointmentScreen.component.UnifiedAppointmentHeaderCard
+import org.example.project.presentation.doctor.records.DoctorPatientRecordsScreen
 
 class AppointmentDetailScreen(val appointmentId: String) : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +61,6 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
         val viewModel = getScreenModel<AppointmentViewModel>()
         val state by viewModel.state.collectAsState()
         val voiceReportViewModel = koinScreenModel<VoiceReportViewModel> { parametersOf(appointmentId) }
-
 
         var showCancelSheet by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState()
@@ -83,6 +78,9 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                     }
                     is AppointmentEffect.NavigateBack -> {
                         navigator.pop()
+                    }
+                    is AppointmentEffect.NavigateToPatientRecords -> {
+                        navigator.push(DoctorPatientRecordsScreen(effect.patientId))
                     }
                     else -> {}
                 }
@@ -118,31 +116,22 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
                             .padding(MedAITheme.dimensions.extraLarge)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        // 1. Doctor Profile Card
-                        DoctorProfileSection(appointment)
+                        // Unified Doctor-Patient Header Card
+                        UnifiedAppointmentHeaderCard(
+                            appointment = appointment,
+                            onViewPatientRecords = { patientId ->
+                                viewModel.onEvent(AppointmentEvent.ViewPatientRecords(patientId))
+                            }
+                        )
 
                         Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
 
-                        // 2. Schedule Info
-                        SectionTitle("Scheduled Appointment")
-                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
-                        MedAIText(appointment.date.toUiString(), style = MedAITheme.textStyle.body.large)
-
-                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
-
-                        // 3. Patient Info
-                        SectionTitle("Patient Information")
-                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
-                        InfoRow("Full Name", appointment.patientName)
-
-                        Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
-
-                        // 4. AI Voice Consultation Report Section
+                        // AI Voice Consultation Report Section
                         org.example.project.presentation.appointmentScreen.voiceReport.VoiceReportSection(
                             viewModel = voiceReportViewModel
                         )
 
-                        // 5. Linked AI Medical Reports Section
+                        // Linked AI Medical Reports Section
                         if (state.linkedReports.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(MedAITheme.dimensions.extraLarge))
                             SectionTitle("Linked AI Medical Reports")
@@ -175,34 +164,8 @@ class AppointmentDetailScreen(val appointmentId: String) : Screen {
     }
 
     @Composable
-    fun DoctorProfileSection(appointment: AppointmentDetail) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.size(MedAITheme.dimensions.spacing64).clip(CircleShape).background(Color.LightGray)
-            )
-            Spacer(modifier = Modifier.width(MedAITheme.dimensions.large))
-            Column {
-                MedAIText(appointment.doctorName, style = MedAITheme.textStyle.headline.small.copy(fontWeight = FontWeight.Bold))
-                MedAIText(appointment.specialty, style = MedAITheme.textStyle.body.medium, color = MedAITheme.colors.text.secondary)
-                MedAIText("★ ${appointment.doctorRating}", style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.primary)
-            }
-        }
-    }
-
-    @Composable
     fun SectionTitle(text: String) {
         MedAIText(text, style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold))
-    }
-
-    @Composable
-    fun InfoRow(label: String, value: String) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = MedAITheme.dimensions.extraSmall),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            MedAIText(label, color = MedAITheme.colors.text.secondary, style = MedAITheme.textStyle.body.medium)
-            MedAIText(value, style = MedAITheme.textStyle.body.medium.copy(fontWeight = FontWeight.SemiBold))
-        }
     }
 
     @Composable

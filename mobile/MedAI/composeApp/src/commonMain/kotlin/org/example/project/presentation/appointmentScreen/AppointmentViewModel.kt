@@ -62,6 +62,9 @@ class AppointmentViewModel(
             AppointmentEvent.ClearError -> {
                 setState { copy(error = null) }
             }
+            is AppointmentEvent.ViewPatientRecords -> {
+                sendEffect(AppointmentEffect.NavigateToPatientRecords(event.patientId))
+            }
         }
     }
 
