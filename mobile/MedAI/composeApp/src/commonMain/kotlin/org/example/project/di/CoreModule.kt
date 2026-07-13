@@ -11,6 +11,7 @@ import org.koin.dsl.module
 val coreModule = module {
     single { CalendarManager() }
     single<ResourceProvider> { ResourceProviderImpl() }
-    single { KtorClientFactory(sessionManager = get()).create() }
     single<UserSessionManager> { InMemoryUserSessionManager(get()) }
+    single { org.example.project.data.remote.PersistentCookiesStorage(sessionManager = get()) }
+    single { KtorClientFactory(sessionManager = get(), cookiesStorage = get()).create() }
 }

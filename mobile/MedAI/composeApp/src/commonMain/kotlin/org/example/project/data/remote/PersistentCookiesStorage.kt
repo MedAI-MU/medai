@@ -3,57 +3,38 @@ package org.example.project.data.remote
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
 import io.ktor.http.Url
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import io.ktor.util.date.GMTDate
 import org.example.project.domain.repository.auth.UserSessionManager
 
 class PersistentCookiesStorage(
     private val sessionManager: UserSessionManager
 ) : CookiesStorage {
-    private val mutex = Mutex()
-    private val memCache = mutableListOf<Cookie>()
-    private var isLoaded = false
 
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) {
-        mutex.withLock {
-            ensureLoaded()
-            memCache.removeAll { it.name == cookie.name && it.matches(requestUrl) }
-            memCache.add(cookie.fillDefaults(requestUrl))
-            saveToStorage()
-        }
+        val savedCookies = sessionManager.getCookies()
+        val cookiesList = savedCookies.mapNotNull { parseCookie(it) }.toMutableList()
+
+        // Remove matching old cookies
+        cookiesList.removeAll { it.name == cookie.name && it.matches(requestUrl) }
+
+        // Add new cookie
+        cookiesList.add(cookie.fillDefaults(requestUrl))
+
+        // Save back to storage
+        val cookieStrings = cookiesList.map { renderCookie(it) }.toSet()
+        sessionManager.saveCookies(cookieStrings)
     }
 
     override suspend fun get(requestUrl: Url): List<Cookie> {
-        mutex.withLock {
-            ensureLoaded()
-            return memCache.filter { it.matches(requestUrl) }
-        }
+        val savedCookies = sessionManager.getCookies()
+        val cookiesList = savedCookies.mapNotNull { parseCookie(it) }
+        return cookiesList.filter { it.matches(requestUrl) }
     }
 
     override fun close() {}
 
-    private suspend fun ensureLoaded() {
-        if (!isLoaded) {
-            val savedCookies = sessionManager.getCookies()
-            memCache.addAll(savedCookies.mapNotNull { parseCookie(it) })
-            isLoaded = true
-        }
-    }
-
-    private suspend fun saveToStorage() {
-        // Serialize cookies to simple string format: "name=value; domain=...; path=..."
-        // Or deeper serialization if needed. For Ktor, toString() often gives Set-Cookie format.
-        // But we need to reconstruct them later.
-        val cookieStrings = memCache.map { renderCookie(it) }.toSet()
-        sessionManager.saveCookies(cookieStrings)
-    }
-
     private fun renderCookie(cookie: Cookie): String {
-        // A simple serialization strategy.
-        // Format: Name=Value;Domain=...;Path=...;Expires=...
-        // We can use Ktor's own rendering or build a custom string.
-        // Ideally we store all properties.
-        return "${cookie.name}=${cookie.value};Domain=${cookie.domain ?: ""};Path=${cookie.path ?: ""};Secure=${cookie.secure};HttpOnly=${cookie.httpOnly}"
+        return "${cookie.name}=${cookie.value};Domain=${cookie.domain ?: ""};Path=${cookie.path ?: ""};Secure=${cookie.secure};HttpOnly=${cookie.httpOnly};Expires=${cookie.expires?.timestamp ?: ""}"
     }
 
     private fun parseCookie(cookieString: String): Cookie? {
@@ -69,6 +50,7 @@ class PersistentCookiesStorage(
             var path: String? = null
             var secure = false
             var httpOnly = false
+            var expires: GMTDate? = null
 
             for (i in 1 until parts.size) {
                 val part = parts[i].trim()
@@ -77,10 +59,24 @@ class PersistentCookiesStorage(
                     part.startsWith("Path=") -> path = part.substringAfter("Path=")
                     part == "Secure=true" -> secure = true
                     part == "HttpOnly=true" -> httpOnly = true
+                    part.startsWith("Expires=") -> {
+                        val ts = part.substringAfter("Expires=").toLongOrNull()
+                        if (ts != null) {
+                            expires = GMTDate(ts)
+                        }
+                    }
                 }
             }
 
-            return Cookie(name, value, domain = domain?.takeIf { it.isNotEmpty() }, path = path?.takeIf { it.isNotEmpty() }, secure = secure, httpOnly = httpOnly)
+            return Cookie(
+                name = name,
+                value = value,
+                expires = expires,
+                domain = domain?.takeIf { it.isNotEmpty() },
+                path = path?.takeIf { it.isNotEmpty() },
+                secure = secure,
+                httpOnly = httpOnly
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             return null
@@ -99,8 +95,8 @@ class PersistentCookiesStorage(
 
     private fun Cookie.fillDefaults(requestUrl: Url): Cookie {
         var result = this
-        if (result.path?.startsWith("/") != true) {
-            result = result.copy(path = requestUrl.encodedPath)
+        if (result.path.isNullOrEmpty()) {
+            result = result.copy(path = "/")
         }
         if (result.domain.isNullOrBlank()) {
             result = result.copy(domain = requestUrl.host)

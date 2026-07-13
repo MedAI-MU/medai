@@ -195,13 +195,13 @@ class SecretaryDashboardScreen : Screen {
                                 tintColor = MedAITheme.colors.status.success,
                                 modifier = Modifier.weight(1f)
                             )
-                            PulseCard(
-                                title = "Today's Revenue",
-                                value = "$${state.clinicStats.totalRevenueToday.toInt()}",
-                                icon = Icons.Default.AttachMoney,
-                                tintColor = Color(0xFFFFB300),
-                                modifier = Modifier.weight(1f)
-                            )
+//                            PulseCard(
+//                                title = "Today's Revenue",
+//                                value = "$${state.clinicStats.totalRevenueToday.toInt()}",
+//                                icon = Icons.Default.AttachMoney,
+//                                tintColor = Color(0xFFFFB300),
+//                                modifier = Modifier.weight(1f)
+//                            )
                         }
                     }
                 }
@@ -225,14 +225,24 @@ class SecretaryDashboardScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(dimensions.medium)
                         ) {
+
                             ActionCard(
-                                title = "Register Patient",
-                                desc = "New profile",
-                                icon = Icons.Default.PersonAdd,
-                                color = MedAITheme.colors.primary,
+                                title = "Doctor List",
+                                desc = "Duty schedules",
+                                icon = Icons.Default.CalendarMonth,
+                                color = Color(0xFFFF6D00),
                                 modifier = Modifier.weight(1f),
-                                onClick = { navigator.push(PatientManagementScreen()) }
+                                onClick = { navigator.push(SecretaryDoctorListScreen()) }
                             )
+
+//                            ActionCard(
+//                                title = "Register Patient",
+//                                desc = "New profile",
+//                                icon = Icons.Default.PersonAdd,
+//                                color = MedAITheme.colors.primary,
+//                                modifier = Modifier.weight(1f),
+//                                onClick = { navigator.push(PatientManagementScreen()) }
+//                            )
                             ActionCard(
                                 title = "Patients Database",
                                 desc = "Search directory",
@@ -254,27 +264,16 @@ class SecretaryDashboardScreen : Screen {
                                 modifier = Modifier.weight(1f),
                                 onClick = { navigator.push(QueueManagementScreen()) }
                             )
-                            ActionCard(
-                                title = "Billing & Payments",
-                                desc = "Invoices & logs",
-                                icon = Icons.Default.ReceiptLong,
-                                color = MedAITheme.colors.status.success,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navigator.push(BillingScreen()) }
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(dimensions.medium)
-                        ) {
-                            ActionCard(
-                                title = "Doctor Roster",
-                                desc = "Duty schedules",
-                                icon = Icons.Default.CalendarMonth,
-                                color = Color(0xFFFF6D00),
-                                modifier = Modifier.weight(1f),
-                                onClick = { navigator.push(SecretaryDoctorListScreen()) }
-                            )
+//                            ActionCard(
+//                                title = "Billing & Payments",
+//                                desc = "Invoices & logs",
+//                                icon = Icons.Default.ReceiptLong,
+//                                color = MedAITheme.colors.status.success,
+//                                modifier = Modifier.weight(1f),
+//                                onClick = { navigator.push(BillingScreen()) }
+//                            )
+
+
                             ActionCard(
                                 title = "Schedule Summary",
                                 desc = "Daily patient counts",
@@ -284,6 +283,12 @@ class SecretaryDashboardScreen : Screen {
                                 onClick = { navigator.push(DailyScheduleSummaryScreen()) }
                             )
                         }
+//                        Row(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            horizontalArrangement = Arrangement.spacedBy(dimensions.medium)
+//                        ) {
+//
+//                        }
                     }
                 }
 
