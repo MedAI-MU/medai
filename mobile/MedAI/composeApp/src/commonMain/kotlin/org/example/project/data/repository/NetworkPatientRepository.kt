@@ -2,6 +2,7 @@ package org.example.project.data.repository
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -149,6 +150,12 @@ class NetworkPatientRepository(
         return try {
             call()
             Result.success(true)
+        } catch (e: ResponseException) {
+            if (e.response.status.value == 400) {
+                Result.failure(Exception("An error occurred while saving. Please check your inputs."))
+            } else {
+                Result.failure(e)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -157,6 +164,12 @@ class NetworkPatientRepository(
     private suspend fun <T> safeApiCallResult(call: suspend () -> T): Result<T> {
         return try {
             Result.success(call())
+        } catch (e: ResponseException) {
+            if (e.response.status.value == 400) {
+                Result.failure(Exception("An error occurred while saving. Please check your inputs."))
+            } else {
+                Result.failure(e)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

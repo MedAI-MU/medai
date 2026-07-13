@@ -69,6 +69,7 @@ import org.example.project.domain.model.patient.FamilyHistoryParams
 import org.example.project.domain.model.patient.FamilyRelation
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
+import org.example.project.domain.model.patient.formatRecordDate
 import org.example.project.presentation.shared.records.*
 import org.example.project.presentation.scans.ScansScreen
 import org.example.project.presentation.shared.diagnosis.DiagnosisListContent
@@ -547,7 +548,7 @@ fun PatientDiseases(state: SharedMedicalRecordState, viewModel: SharedMedicalRec
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(disease.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
                 disease.description?.let { Text(it, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary) }
-                Text("Diagnosed: ${disease.diagnosisDate}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                Text("Diagnosed: ${formatRecordDate(disease.diagnosisDate)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
             }
         }
     )
@@ -565,7 +566,7 @@ fun PatientSurgeries(state: SharedMedicalRecordState, viewModel: SharedMedicalRe
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(surgery.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
                 surgery.description?.let { Text(it, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary) }
-                Text("Date: ${surgery.date}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                Text("Date: ${formatRecordDate(surgery.date)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
             }
         }
     )
