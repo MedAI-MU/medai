@@ -40,6 +40,7 @@ class NetworkProfileRepositoryTest {
         override suspend fun updateAccountStatus(status: AccountStatus) {}
         override suspend fun getCookies() = emptySet<String>()
         override suspend fun saveCookies(cookies: Set<String>) {}
+        override suspend fun updateUserToken(token: String) {}
         override suspend fun saveSession(
             userId: String,
             token: String,

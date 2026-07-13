@@ -169,6 +169,7 @@ class FakeUserSessionManager : UserSessionManager {
     override suspend fun saveSession(userId: String, token: String, name: String, email: String, role: UserRole, accountStatus: AccountStatus) {}
     override suspend fun getCookies(): Set<String> = emptySet()
     override suspend fun saveCookies(cookies: Set<String>) {}
+    override suspend fun updateUserToken(token: String) {}
     override suspend fun clearSession() {}
     override val isUserLoggedIn: Flow<Boolean> = emptyFlow()
 }

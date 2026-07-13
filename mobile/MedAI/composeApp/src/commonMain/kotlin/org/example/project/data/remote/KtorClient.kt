@@ -23,12 +23,14 @@ import io.ktor.http.encodedPath
 import io.ktor.http.takeFrom
 import io.ktor.http.Url
 import org.example.project.AppConfig
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 class KtorClientFactory(
-    private val sessionManager: UserSessionManager
+    private val sessionManager: UserSessionManager,
+    private val cookiesStorage: PersistentCookiesStorage
 ) {
     private val BASE_URL = AppConfig.BASE_URL
- //   private val BASE_URL = "http://10.0.2.2:8000/api/"
     private val backendHost = try {
         Url(AppConfig.BASE_URL).host
     } catch (e: Exception) {
@@ -45,7 +47,7 @@ class KtorClientFactory(
                 })
             }
             install(HttpCookies) {
-                storage = PersistentCookiesStorage(sessionManager)
+                storage = cookiesStorage
             }
             install(Logging) {
                 logger = object : Logger {
@@ -88,7 +90,7 @@ class KtorClientFactory(
             }
 
             install(HttpCookies) {
-                storage = PersistentCookiesStorage(sessionManager)
+                storage = cookiesStorage
             }
 
             install(Logging) {
@@ -104,13 +106,9 @@ class KtorClientFactory(
                 bearer {
                     loadTokens {
                         val accessToken = sessionManager.getUserToken()
-                        val cookies = sessionManager.getCookies()
-                        val refreshToken = cookies.mapNotNull { parseCookie(it) }
-                            .find { it.name == "Refresh" }?.value
-
-                        println("Auth-Bearer: loadTokens called. AccessToken exists: ${!accessToken.isNullOrBlank()}, RefreshToken exists: ${!refreshToken.isNullOrBlank()}")
+                        println("Auth-Bearer: loadTokens called. AccessToken exists: ${!accessToken.isNullOrBlank()}")
                         if (accessToken != null) {
-                            BearerTokens(accessToken, refreshToken ?: "")
+                            BearerTokens(accessToken, "")
                         } else {
                             null
                         }
@@ -134,18 +132,24 @@ class KtorClientFactory(
                                     sessionManager.updateUserToken(newAccessToken)
                                     BearerTokens(newAccessToken, newRefreshToken ?: "")
                                 } else {
-                                    println("Auth-Bearer: Refresh succeeded but new access token not found in cookies.")
-                                    sessionManager.clearSession()
+                                    println("Auth-Bearer: Refresh succeeded but new access token not found in cookies. Clearing session.")
+                                    withContext(NonCancellable) {
+                                        sessionManager.clearSession()
+                                    }
                                     null
                                 }
                             } else {
                                 println("Auth-Bearer: Silent token refresh request failed with status: ${refreshResponse.status}. Clearing session.")
-                                sessionManager.clearSession()
+                                withContext(NonCancellable) {
+                                    sessionManager.clearSession()
+                                }
                                 null
                             }
                         } catch (e: Exception) {
                             println("Auth-Bearer: Silent token refresh failed with exception: ${e.message}. Clearing session.")
-                            sessionManager.clearSession()
+                            withContext(NonCancellable) {
+                                sessionManager.clearSession()
+                            }
                             null
                         }
                     }
