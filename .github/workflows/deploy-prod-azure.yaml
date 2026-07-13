@@ -142,6 +142,7 @@ jobs:
           file: frontend-next/docker/Dockerfile
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
+            MOBILE_APP_URL=${{ secrets.MOBILE_APP_URL }}
           push: true
           tags: |
             ${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
@@ -296,6 +297,7 @@ jobs:
           ENVEOF
           cat > docker-compose/.env.frontend.prod << 'ENVEOF'
           NEXT_PUBLIC_API_BASE_URL=${{ needs.terraform.outputs.api_base_url }}
+          MOBILE_APP_URL=${{ secrets.MOBILE_APP_URL }}
           ENVEOF
 
       - name: Copy compose and env files
