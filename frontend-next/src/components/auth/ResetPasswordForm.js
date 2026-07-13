@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -12,10 +12,8 @@ import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 
-function ResetPasswordForm() {
+function ResetPasswordForm({ token }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
   const [showPassword, setShowPassword] = useState(false);
   const [done, setDone] = useState(false);
   const {

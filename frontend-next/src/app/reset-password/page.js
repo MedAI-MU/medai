@@ -8,7 +8,9 @@ export const metadata = {
   description: "Enter your new password below.",
 };
 
-function ResetPasswordPage() {
+async function ResetPasswordPage({ searchParams }) {
+  const { token } = await searchParams;
+
   return (
     <AuthLayout hero={<ResetPasswordHero />}>
       <FormSection
