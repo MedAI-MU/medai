@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.auth)
 
             implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta02")
             implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta02")

@@ -34,17 +34,32 @@ import org.example.project.domain.model.auth.UserRole
 import org.example.project.presentation.doctor.dashboard.DoctorDashboardScreen
 import org.example.project.presentation.secretary.dashboard.SecretaryDashboardScreen
 import org.example.project.presentation.manager.dashboard.ManagerDashboardScreen
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import org.example.project.presentation.welcomeScreen.WelcomeScreen
 import org.koin.compose.koinInject
 
 class MainContainerScreen : Screen {
     @Composable
     override fun Content() {
+        val rootNavigator = LocalNavigator.currentOrThrow
+        val userSessionManager = koinInject<UserSessionManager>()
+        val isLoggedIn by userSessionManager.isUserLoggedIn.collectAsState(initial = true)
+
+        LaunchedEffect(isLoggedIn) {
+            if (!isLoggedIn) {
+                rootNavigator.replaceAll(WelcomeScreen())
+            }
+        }
+
         TabNavigator(HomeTab) {
 
             val tabNavigator = LocalTabNavigator.current
 
             // Map the Voyager Tabs to our Navigation Item data class
-            val userSessionManager = koinInject<UserSessionManager>()
             val role = androidx.compose.runtime.produceState<UserRole?>(initialValue = null) {
                 value = userSessionManager.getUserRole()
             }.value
