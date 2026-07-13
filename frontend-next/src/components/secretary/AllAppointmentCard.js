@@ -34,7 +34,7 @@ export default function AllAppointmentCard({ appointment }) {
   const { data: patient, isLoading: patientLoading } =
     usePatient(patientUserId);
   const doctorName = doctor?.name || "Unknown Doctor";
-  const patientName = !patientLoading ? (
+  const patientName = patientLoading ? (
     <SkeletonBox className="inline-block h-3 w-14" />
   ) : (
     patient?.name || "Unknown Patient"

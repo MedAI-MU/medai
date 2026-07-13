@@ -19,6 +19,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import StarRating from "../ui/StarRating";
 import SpinnerMini from "../ui/SpinnerMini";
+import { useAuth } from "@/contexts/AuthContext";
 import { usePatient } from "@/hooks/patient.js/usePatient";
 import { formatTime12h, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { format } from "date-fns";
@@ -43,7 +44,7 @@ function DetailRow({
 }
 
 function DoctorAppointmentDetails({ appointment }) {
-  const router = useRouter();
+  const { user } = useAuth();
   const { id, patientUserId, scheduleSlot, status, createdAt, review, rating } =
     appointment || {};
   const { data: patient, isLoading: patientLoading } =
@@ -189,10 +190,10 @@ function DoctorAppointmentDetails({ appointment }) {
       <Button
         variation="primary"
         className="w-full"
-        onClick={() =>
-          router.push(
-            `/doctor/appointments/${id}?patientUserId=${patientUserId}`,
-          )
+        href={
+          user?.role === "secretary"
+            ? `/secretary/appointments/${id}?patientUserId=${patientUserId}`
+            : `/doctor/appointments/${id}?patientUserId=${patientUserId}`
         }
       >
         <ExternalLink size={16} />

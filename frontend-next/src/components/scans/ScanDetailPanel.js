@@ -13,7 +13,6 @@ import { deleteScan } from "@/services/client/scans";
 import { API_BASE } from "@/lib/constants";
 
 function ScanDetailPanel({ scan, patientId, readOnly = false }) {
-  const router = useRouter();
   const [viewingImage, setViewingImage] = useState(null);
   const { id: scanId, images = [] } = scan || {};
 
@@ -42,7 +41,11 @@ function ScanDetailPanel({ scan, patientId, readOnly = false }) {
           })}
         </div>
 
-        <ReportsSection scanId={scanId} patientId={patientId} readOnly={readOnly} />
+        <ReportsSection
+          scanId={scanId}
+          patientId={patientId}
+          readOnly={readOnly}
+        />
 
         {!readOnly && (
           <div className="border-border flex justify-end border-t pt-4">

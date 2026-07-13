@@ -10,7 +10,7 @@ import ScanCard from "./ScanCard";
 import ScanDetailPanel from "./ScanDetailPanel";
 import UploadScanSheet from "./UploadScanSheet";
 
-function ScansSection({ patientId, scans = [], readOnly = false }) {
+function ScansSection({ patientId, scans = [], readOnly = false, appointmentId }) {
   const [expandedScanId, setExpandedScanId] = useState(null);
 
   const expandedScan = expandedScanId
@@ -42,7 +42,7 @@ function ScansSection({ patientId, scans = [], readOnly = false }) {
     <div className="space-y-6">
       {!readOnly && (
         <div className="flex items-center justify-end">
-          <UploadScanSheet patientId={patientId}>
+          <UploadScanSheet patientId={patientId} appointmentId={appointmentId}>
             <Button>Upload New Scan</Button>
           </UploadScanSheet>
         </div>
