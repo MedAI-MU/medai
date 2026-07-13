@@ -9,8 +9,12 @@ import { useVoiceReports } from "@/hooks/voice-reports/useVoiceReports";
 import VoiceReportCard from "./VoiceReportCard";
 
 function VoiceReportList({ appointmentId }) {
-  const { data: reports, isLoading, isError, refetch } =
-    useVoiceReports(appointmentId);
+  const {
+    data: reports,
+    isLoading,
+    isError,
+    refetch,
+  } = useVoiceReports(appointmentId);
 
   if (isLoading)
     return (
@@ -45,7 +49,7 @@ function VoiceReportList({ appointmentId }) {
         subtitle="Recorded audio transcribed and analyzed by AI"
       />
       <div className="mt-3 space-y-3">
-        {reports.map((report) => (
+        {reports?.map((report) => (
           <VoiceReportCard
             key={report.id}
             report={report}

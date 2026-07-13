@@ -18,6 +18,7 @@ import { useVoiceReport } from "@/hooks/voice-reports/useVoiceReport";
 import { useDeleteVoice } from "@/hooks/voice-reports/useDeleteVoice";
 import CustomAudioPlayer from "@/components/ui/CustomAudioPlayer";
 import ErrorMessage from "../ui/ErrorMessage";
+import { AnimatePresence, motion } from "framer-motion";
 
 const statusMeta = {
   queued: {
@@ -125,7 +126,7 @@ function VoiceReportCard({ report, appointmentId }) {
 
   return (
     <Card
-      className={`border-l-[3px] ${meta.border} transition-shadow hover:shadow-md`}
+      className={`border-l-[3px] ${meta.border} transition-all hover:shadow-md`}
     >
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
         <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -202,29 +203,53 @@ function VoiceReportCard({ report, appointmentId }) {
         />
       )}
 
-      {expanded && detail && (
-        <div className="border-border mt-4 space-y-5 border-t pt-4">
-          {detail?.transcription && (
-            <section>
-              <h5 className="text-text-muted mb-2 text-[11px] font-bold tracking-widest uppercase">
-                Transcription
-              </h5>
-              <div className="border-border/50 bg-surface-overlay/30 rounded-lg border p-3.5 text-sm leading-relaxed">
-                {detail?.transcription}
-              </div>
-            </section>
-          )}
+      <AnimatePresence initial={false}>
+        {expanded && detail && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut",
+            }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              initial={{ y: -8, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -8, opacity: 0 }}
+              transition={{
+                duration: 0.2,
+                delay: 0.05,
+              }}
+              className="border-border mt-4 space-y-5 border-t pt-4"
+            >
+              {detail?.transcription && (
+                <section>
+                  <h5 className="text-text-muted mb-2 text-[11px] font-bold tracking-widest uppercase">
+                    Transcription
+                  </h5>
 
-          {detail?.clinicalReport && (
-            <section>
-              <h5 className="text-text-muted mb-2 text-[11px] font-bold tracking-widest uppercase">
-                Clinical Report
-              </h5>
-              <ClinicalReportJson data={detail?.clinicalReport} />
-            </section>
-          )}
-        </div>
-      )}
+                  <div className="border-border/50 bg-surface-overlay/30 rounded-lg border p-3.5 text-sm leading-relaxed">
+                    {detail.transcription}
+                  </div>
+                </section>
+              )}
+
+              {detail?.clinicalReport && (
+                <section>
+                  <h5 className="text-text-muted mb-2 text-[11px] font-bold tracking-widest uppercase">
+                    Clinical Report
+                  </h5>
+
+                  <ClinicalReportJson data={detail.clinicalReport} />
+                </section>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 }

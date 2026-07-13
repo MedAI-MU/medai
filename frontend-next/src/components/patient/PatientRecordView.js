@@ -95,7 +95,9 @@ function PatientRecordView({
       )}
       {activeTab === "voiceReports" && appointmentId && (
         <div className="space-y-6">
-          <VoiceReportUploader appointmentId={appointmentId} />
+          {role === "doctor" && (
+            <VoiceReportUploader appointmentId={appointmentId} />
+          )}
           <VoiceReportList appointmentId={appointmentId} />
         </div>
       )}
