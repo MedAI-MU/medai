@@ -23,9 +23,9 @@ val secretaryModule = module {
     single { GenerateInvoiceUseCase(get()) }
 
     factory { SecretaryDashboardViewModel(get(), get(), get(), get()) }
-    factory { DailyScheduleSummaryViewModel(get()) }
+    factory { DailyScheduleSummaryViewModel(get(), get(), get()) }
     factory { SecretaryDoctorListViewModel(get(), get(), get(), get(), get()) }
     factory { PatientManagementViewModel(get(), get()) }
-    factory { QueueManagementViewModel(get(), get()) }
+    factory { QueueManagementViewModel(get(), get(), get()) }
     factory { BillingViewModel(get()) }
 }

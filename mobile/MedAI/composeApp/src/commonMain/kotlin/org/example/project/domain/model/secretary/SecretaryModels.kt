@@ -19,7 +19,8 @@ data class QueueEntry(
     val doctorName: String,
     val appointmentTime: String, // ISO String
     val status: QueueStatus,
-    val checkInTime: String? = null
+    val checkInTime: String? = null,
+    val isPast: Boolean = false
 )
 
 @Serializable

@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
 import org.example.project.domain.usecase.appointment.GetTodayAppointmentsUseCase
+import org.example.project.domain.usecase.appointment.CancelAppointmentUseCase
 import org.example.project.domain.model.appointment.AppointmentDetail
 import org.example.project.domain.model.appointment.AppointmentDetailStatus
 import org.example.project.domain.model.secretary.QueueEntry
@@ -12,7 +13,8 @@ import org.example.project.domain.model.secretary.QueueStatus
 
 class QueueManagementViewModel(
     private val getTodayAppointmentsUseCase: GetTodayAppointmentsUseCase,
-    private val checkInPatientUseCase: CheckInPatientUseCase
+    private val checkInPatientUseCase: CheckInPatientUseCase,
+    private val cancelAppointmentUseCase: CancelAppointmentUseCase
 ) : MviScreenModel<QueueManagementState, QueueManagementEvent, QueueManagementEffect>(QueueManagementState()) {
 
     init {
@@ -23,6 +25,7 @@ class QueueManagementViewModel(
         when (event) {
             is QueueManagementEvent.LoadQueues -> loadQueues()
             is QueueManagementEvent.CheckIn -> checkIn(event.appointmentId)
+            is QueueManagementEvent.Cancel -> cancel(event.appointmentId)
         }
     }
 
@@ -56,6 +59,20 @@ class QueueManagementViewModel(
         }
     }
 
+    private fun cancel(appointmentId: String) {
+        screenModelScope.launch {
+            cancelAppointmentUseCase(appointmentId).fold(
+                onSuccess = {
+                    sendEffect(QueueManagementEffect.ShowSnackbar("Appointment rejected/cancelled successfully"))
+                    loadQueues()
+                },
+                onFailure = { throwable ->
+                    sendEffect(QueueManagementEffect.ShowSnackbar(throwable.message ?: "Failed to reject appointment", isError = true))
+                }
+            )
+        }
+    }
+
     private fun AppointmentDetail.toQueueEntry(): QueueEntry {
         val qStatus = when (this.status) {
             AppointmentDetailStatus.FINISHED -> QueueStatus.COMPLETED
@@ -69,7 +86,8 @@ class QueueManagementViewModel(
             doctorId = "",
             doctorName = this.doctorName,
             appointmentTime = this.date.toString(),
-            status = qStatus
+            status = qStatus,
+            isPast = this.isPast
         )
     }
 }

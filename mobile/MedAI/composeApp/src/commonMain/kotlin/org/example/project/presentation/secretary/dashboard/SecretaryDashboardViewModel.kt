@@ -113,7 +113,13 @@ class SecretaryDashboardViewModel(
         val qStatus = when (this.status) {
             AppointmentDetailStatus.FINISHED -> QueueStatus.COMPLETED
             AppointmentDetailStatus.CANCELLED -> QueueStatus.CANCELLED
-            AppointmentDetailStatus.UPCOMING -> QueueStatus.WAITING
+            AppointmentDetailStatus.UPCOMING -> {
+                if (this.originalStatus == "confirmed") {
+                    QueueStatus.IN_PROGRESS
+                } else {
+                    QueueStatus.WAITING
+                }
+            }
         }
         return QueueEntry(
             id = this.id,
@@ -122,7 +128,8 @@ class SecretaryDashboardViewModel(
             doctorId = "",
             doctorName = this.doctorName,
             appointmentTime = this.date.toString(),
-            status = qStatus
+            status = qStatus,
+            isPast = this.isPast
         )
     }
 }
