@@ -192,10 +192,16 @@ fun DashboardContent(
         Spacer(modifier = Modifier.height(8.dp))
         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                ActionButton(
+//                    text = "Consultations",
+//                    icon = Icons.Default.Chat,
+//                    onClick = { navigator.push(org.example.project.presentation.doctor.chat.DoctorChatListScreen()) },
+//                    modifier = Modifier.weight(1f)
+//                )
                 ActionButton(
-                    text = "Consultations",
-                    icon = Icons.Default.Chat,
-                    onClick = { navigator.push(org.example.project.presentation.doctor.chat.DoctorChatListScreen()) },
+                    text = "Services",
+                    icon = Icons.Default.MedicalServices,
+                    onClick = { navigator.push(org.example.project.presentation.doctor.services.DoctorServicesScreen()) },
                     modifier = Modifier.weight(1f)
                 )
                 ActionButton(
@@ -205,20 +211,15 @@ fun DashboardContent(
                     modifier = Modifier.weight(1f)
                 )
             }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ActionButton(
-                    text = "Patients",
-                    icon = Icons.Default.Person,
-                    onClick = { navigator.push(org.example.project.presentation.patientDirectory.PatientsDirectoryScreen()) },
-                    modifier = Modifier.weight(1f)
-                )
-                ActionButton(
-                    text = "Services",
-                    icon = Icons.Default.MedicalServices,
-                    onClick = { navigator.push(org.example.project.presentation.doctor.services.DoctorServicesScreen()) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+//            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+////                ActionButton(
+////                    text = "Patients",
+////                    icon = Icons.Default.Person,
+////                    onClick = { navigator.push(org.example.project.presentation.patientDirectory.PatientsDirectoryScreen()) },
+////                    modifier = Modifier.weight(1f)
+////                )
+//
+//            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

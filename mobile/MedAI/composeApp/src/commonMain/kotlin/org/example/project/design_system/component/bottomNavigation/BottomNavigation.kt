@@ -109,7 +109,7 @@ fun MedAIBottomNavigationPreview(){
                     items = listOf(
                         BottomNavItem("Home", "home", Icons.Default.Home),
                         BottomNavItem("Calendar", "calendar", Icons.Default.CalendarMonth),
-                        BottomNavItem("Chat", "chat", Icons.Default.ChatBubbleOutline)
+                        //BottomNavItem("Chat", "chat", Icons.Default.ChatBubbleOutline)
                     ),
                     modifier = Modifier
                 )
