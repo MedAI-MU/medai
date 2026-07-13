@@ -4,6 +4,7 @@ import org.example.project.domain.model.patient.*
 import org.example.project.domain.model.medical_record.AnalysisEntity
 import org.example.project.domain.model.medical_record.VaccinationEntity
 import org.example.project.domain.model.medical_record.MedicalHistoryEntity
+import org.example.project.domain.model.voice_report.VoiceReport
 
 data class SharedMedicalRecordState(
     val isLoading: Boolean = false,
@@ -12,6 +13,7 @@ data class SharedMedicalRecordState(
     val analyses: List<AnalysisEntity> = emptyList(),
     val vaccinations: List<VaccinationEntity> = emptyList(),
     val medicalHistory: List<MedicalHistoryEntity> = emptyList(),
+    val complaintsHistory: List<VoiceReport> = emptyList(),
     val error: String? = null,
 
     // Individual loading states
@@ -58,6 +60,8 @@ sealed class SharedMedicalRecordEvent {
     // Navigation Intents
     data class AnalysisClicked(val analysisId: String) : SharedMedicalRecordEvent()
     object AddRecordClicked : SharedMedicalRecordEvent()
+    data class ComplaintClicked(val report: VoiceReport) : SharedMedicalRecordEvent()
+    data class DeleteComplaint(val report: VoiceReport) : SharedMedicalRecordEvent()
 }
 
 sealed class SharedMedicalRecordEffect {
@@ -65,4 +69,5 @@ sealed class SharedMedicalRecordEffect {
     data class ShowError(val message: String) : SharedMedicalRecordEffect()
     data class NavigateToAnalysisDetails(val analysisId: String) : SharedMedicalRecordEffect()
     object NavigateToAddRecord : SharedMedicalRecordEffect()
+    data class ShowComplaintDetails(val report: VoiceReport) : SharedMedicalRecordEffect()
 }
