@@ -87,6 +87,7 @@ class BookingScreen(val doctorId: String) : Screen {
                     BookingEffect.NavigateToSuccess -> { navigator.push(BookingSuccessScreen()) }
                     is BookingEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                     is BookingEffect.ShowSuccessMessage -> snackbarHostState.showSnackbar(effect.message)
+                    is BookingEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
@@ -213,7 +214,11 @@ class BookingScreen(val doctorId: String) : Screen {
                         Spacer(modifier = Modifier.height(dimensions.medium))
                         MedAIText(stringResource(Res.string.full_name_label), style = MedAITheme.textStyle.label.medium, color = MedAITheme.colors.text.secondary)
                         Spacer(modifier = Modifier.height(dimensions.small))
-                        MedAiTextField(value = state.patientName, onValueChange = { viewModel.onEvent(BookingEvent.PatientNameChanges(it))}, placeholder = "Ahmed Gouda")
+                        MedAiTextField(
+                            value = state.patientName,
+                            onValueChange = { viewModel.onEvent(BookingEvent.PatientNameChanges(it)) },
+                            placeholder = "John Doe"
+                        )
 
                         Spacer(modifier = Modifier.height(dimensions.extraExtraLarge))
 
@@ -224,8 +229,7 @@ class BookingScreen(val doctorId: String) : Screen {
                                 text = stringResource(Res.string.book_appointment_button),
                                 onClick = { viewModel.onEvent(BookingEvent.BookClicked) },
                                 variant = ButtonVariant.Primary,
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = state.selectedSlotId != null
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
 
