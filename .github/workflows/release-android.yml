@@ -6,10 +6,7 @@ on:
       - dev
     tags:
       - 'v*'
-    pull_request:
-      branches:
-        - dev
-        - staging
+  pull_request:
   workflow_dispatch:
 
 permissions:
