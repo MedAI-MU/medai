@@ -2,6 +2,11 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import VerifyEmailHero from "@/components/auth/VerifyEmailHero";
 import VerifyEmailContent from "@/components/auth/VerifyEmailContent";
 
+export const metadata = {
+  title: "Verify Email",
+  description: "Verify your email address to activate your account.",
+};
+
 function VerifyEmailPage() {
   return (
     <AuthLayout hero={<VerifyEmailHero />}>

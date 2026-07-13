@@ -4,6 +4,11 @@ import Heading from "@/components/ui/Heading";
 import AddSpeciality from "@/components/doctor/AddSpeciality";
 import SpecialitiesTable from "@/components/doctor/SpecialitiesTable";
 
+export const metadata = {
+  title: "Specialities",
+  description: "Manage medical specialities for the system.",
+};
+
 export default async function SpecialitiesPage() {
   const specialities = await getSpecialities();
 

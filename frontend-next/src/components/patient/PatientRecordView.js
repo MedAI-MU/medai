@@ -11,17 +11,27 @@ import EmergencyContactsTab from "@/components/patient/EmergencyContactsTab";
 import ScansSection from "@/components/scans/ScansSection";
 import PersonalInfoView from "./PersonalInfoView";
 import DiagnosesSection from "../diagnosis/DiagnosisSection";
+import VoiceReportUploader from "@/components/voice-reports/VoiceReportUploader";
+import VoiceReportList from "@/components/voice-reports/VoiceReportList";
 
-const SECTIONS = [
-  { label: "personal info", key: "info" },
-  { label: "allergies", key: "allergies" },
-  { label: "chronic diseases", key: "chronicDiseases" },
-  { label: "surgeries", key: "surgeries" },
-  { label: "family history", key: "familyHistories" },
-  { label: "emergency contacts", key: "emergencyContacts" },
-  { label: "scans", key: "scans" },
-  { label: "diagnoses", key: "diagnoses" },
-];
+function getSections(appointmentId) {
+  const base = [
+    { label: "personal info", key: "info" },
+    { label: "allergies", key: "allergies" },
+    { label: "chronic diseases", key: "chronicDiseases" },
+    { label: "surgeries", key: "surgeries" },
+    { label: "family history", key: "familyHistories" },
+    { label: "emergency contacts", key: "emergencyContacts" },
+    { label: "scans", key: "scans" },
+    { label: "diagnoses", key: "diagnoses" },
+  ];
+
+  if (appointmentId) {
+    base.push({ label: "voice reports", key: "voiceReports" });
+  }
+
+  return base;
+}
 
 function PatientRecordView({
   patient,
@@ -31,20 +41,23 @@ function PatientRecordView({
   appointmentId,
   patientUserId,
 }) {
-  const [activeTab, setActiveTab] = useState(SECTIONS[0].key);
+  const sections = getSections(appointmentId);
+  const [activeTab, setActiveTab] = useState(sections[0].key);
 
-  const tabsArray = SECTIONS.map((s) => s.label);
+  const tabsArray = sections.map((s) => s.label);
 
   const isReadOnly = role !== "patient";
+
+  function handleTabChange(label) {
+    const section = sections.find((s) => s.label === label);
+    if (section) setActiveTab(section.key);
+  }
 
   return (
     <div className="space-y-6">
       <Tabs
         tabsArray={tabsArray}
-        onSetActive={(label) => {
-          const section = SECTIONS.find((s) => s.label === label);
-          if (section) setActiveTab(section.key);
-        }}
+        onSetActive={handleTabChange}
         defaultValue={tabsArray[0]}
       />
 
@@ -69,6 +82,7 @@ function PatientRecordView({
           patientId={patientUserId || patient?.userId}
           scans={scans}
           readOnly={role !== "secretary"}
+          appointmentId={appointmentId}
         />
       )}
       {activeTab === "diagnoses" && (
@@ -78,6 +92,14 @@ function PatientRecordView({
           appointmentId={appointmentId}
           canCreate={role === "doctor"}
         />
+      )}
+      {activeTab === "voiceReports" && appointmentId && (
+        <div className="space-y-6">
+          {role === "doctor" && (
+            <VoiceReportUploader appointmentId={appointmentId} />
+          )}
+          <VoiceReportList appointmentId={appointmentId} />
+        </div>
       )}
     </div>
   );

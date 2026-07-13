@@ -10,6 +10,19 @@ import Heading from "@/components/ui/Heading";
 import SearchBar from "@/components/ui/SearchBar";
 import BackButton from "@/components/ui/BackButton";
 
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `${doctor?.name || "Doctor"}'s Working Hours`,
+      description: "Manage recurring weekly patterns to generate bookable slots.",
+    };
+  } catch {
+    return { title: "Working Hours" };
+  }
+}
+
 async function WorkingHoursPage({ searchParams, params }) {
   const { templateName, pageNo } = (await searchParams) || {};
   const doctorId = Number((await params)?.doctorId);

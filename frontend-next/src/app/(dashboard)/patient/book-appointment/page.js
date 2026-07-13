@@ -6,6 +6,11 @@ import SearchBar from "@/components/ui/SearchBar";
 import { getSpecialities } from "@/services/server/doctors";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "All Doctors",
+  description: "Explore our network of doctors and book an appointment with ease.",
+};
+
 async function BookAppointmentPage({ searchParams }) {
   const { search = "", speciality = "" } = await searchParams;
   const specialities = await getSpecialities();

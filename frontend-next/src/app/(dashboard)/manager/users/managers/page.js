@@ -2,6 +2,11 @@ import { getManagers } from "@/services/server/manager";
 import Heading from "@/components/ui/Heading";
 import ManagersList from "@/components/manager/ManagersList";
 
+export const metadata = {
+  title: "Managers",
+  description: "View all manager accounts in the system.",
+};
+
 export default async function ManagersPage() {
   const managers = await getManagers();
 

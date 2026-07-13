@@ -11,7 +11,7 @@ import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { createScan } from "@/services/client/scans";
 
-function UploadScanForm({ patientId, closeSheet }) {
+function UploadScanForm({ patientId, closeSheet, appointmentId }) {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
@@ -37,6 +37,7 @@ function UploadScanForm({ patientId, closeSheet }) {
     setIsUploading(true);
     const formData = new FormData();
     files.forEach((file) => formData.append("images", file));
+    if (appointmentId) formData.append("appointmentId", appointmentId);
 
     try {
       await createScan(patientId, formData);

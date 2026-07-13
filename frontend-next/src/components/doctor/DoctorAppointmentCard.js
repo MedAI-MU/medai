@@ -3,6 +3,7 @@
 import { Clock, ChevronDown } from "lucide-react";
 import { formatTime12h, stripSeconds } from "@/lib/utils/DateTimeHelpers";
 import { statusColor } from "@/constants/appointments";
+import { usePatient } from "@/hooks/patient.js/usePatient";
 
 import AppointmentCardLayout from "@/components/appointments/AppointmentCardLayout";
 import Badge from "@/components/ui/Badge";
@@ -16,12 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
+import SkeletonBox from "../ui/SkeletonBox";
 
 const STATUS_OPTIONS = ["pending", "confirmed", "cancelled", "finished"];
 
-function DoctorAppointmentCard({ appointment, onStatusChange, onDelete }) {
-  const { scheduleSlot, patient, status } = appointment || {};
-  const patientUser = patient?.user || {};
+function DoctorAppointmentCard({ appointment, onStatusChange }) {
+  const { scheduleSlot, patientUserId, status } = appointment || {};
+  const { data: patient, isLoading: patientLoading } =
+    usePatient(patientUserId);
 
   const formatedStartTime = formatTime12h(
     stripSeconds(scheduleSlot?.startTime),
@@ -40,12 +43,15 @@ function DoctorAppointmentCard({ appointment, onStatusChange, onDelete }) {
           <Heading
             Tag="h3"
             size="sm"
-            title={patientUser?.name || "Unknown Patient"}
+            title={
+              patientLoading ? (
+                <SkeletonBox className="h-3 w-14" />
+              ) : (
+                patient?.name || "Unknown Patient"
+              )
+            }
           />
           <div className="text-text-muted mt-1 flex flex-wrap gap-2 text-xs">
-            {patientUser?.gender && (
-              <Badge text={patientUser.gender} color="blue" isRounded />
-            )}
             {patient?.bloodType && (
               <Badge
                 text={`Blood: ${patient.bloodType}`}
@@ -97,7 +103,7 @@ function DoctorAppointmentCard({ appointment, onStatusChange, onDelete }) {
           <div className="flex items-center gap-2">
             <ViewSheet
               title="Patient & Appointment Details"
-              description={`Detailed health profile and schedule info for ${patientUser?.name || "Patient"}`}
+              description={`Detailed health profile and schedule info for ${patient?.name || "Patient"}`}
               trigger={<Button variation="outline">View Details</Button>}
             >
               <DoctorAppointmentDetails appointment={appointment} />

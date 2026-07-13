@@ -7,6 +7,19 @@ import DoctorSpecialitiesTable from "@/components/doctor/DoctorSpecialitiesTable
 import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
 
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `${doctor?.name || "Doctor"} - Specialities`,
+      description: `Manage specialities for ${doctor?.name || "the doctor"}.`,
+    };
+  } catch {
+    return { title: "Doctor Specialities" };
+  }
+}
+
 export default async function DoctorSpecialitiesPage({ params }) {
   const { doctorId } = await params;
 

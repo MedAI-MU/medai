@@ -7,6 +7,20 @@ import Heading from "@/components/ui/Heading";
 import BackButton from "@/components/ui/BackButton";
 import PatientRecordView from "@/components/patient/PatientRecordView";
 
+export async function generateMetadata({ searchParams }) {
+  const { patientUserId } = await searchParams;
+  if (!patientUserId) return { title: "Patient Record" };
+  try {
+    const patient = await getPatientById(patientUserId);
+    return {
+      title: `${patient?.name || "Patient"}'s Medical Record`,
+      description: "Review patient information, scans, and diagnoses.",
+    };
+  } catch {
+    return { title: "Patient Record" };
+  }
+}
+
 async function DoctorPatientRecordPage({ params, searchParams }) {
   const { appointmentId } = await params;
   const { patientUserId } = await searchParams;

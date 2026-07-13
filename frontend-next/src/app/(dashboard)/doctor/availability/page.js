@@ -8,6 +8,11 @@ import ScheduleSlots from "@/components/schedule/ScheduleSlots";
 import ScheduleGridSkeleton from "@/components/schedule/ScheduleGridSkeleton";
 import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
 
+export const metadata = {
+  title: "Schedule",
+  description: "Manage your weekly appointments and availability.",
+};
+
 async function AvailabilityPage({ searchParams }) {
   const { sub: doctorId, email } = (await getUserFromToken()) || {};
   const { startDate } = (await searchParams) || {};

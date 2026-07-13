@@ -5,6 +5,11 @@ import {
 import Heading from "@/components/ui/Heading";
 import SecretariesManager from "@/components/manager/SecretariesManager";
 
+export const metadata = {
+  title: "Secretaries",
+  description: "Manage all secretary accounts in the system.",
+};
+
 export default async function SecretariesPage() {
   const [secretaries, pending] = await Promise.all([
     getSecretaries(),

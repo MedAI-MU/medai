@@ -3,6 +3,11 @@ import FormSection from "@/components/auth/FormSection";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import ResetPasswordHero from "@/components/auth/ResetPasswordHero";
 
+export const metadata = {
+  title: "Reset Password",
+  description: "Enter your new password below.",
+};
+
 function ResetPasswordPage() {
   return (
     <AuthLayout hero={<ResetPasswordHero />}>

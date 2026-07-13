@@ -2,6 +2,11 @@ import { getDoctors, getPendingDoctors } from "@/services/server/manager";
 import Heading from "@/components/ui/Heading";
 import DoctorsManager from "@/components/manager/DoctorsManager";
 
+export const metadata = {
+  title: "Doctors",
+  description: "Manage all doctor accounts in the system.",
+};
+
 export default async function DoctorsPage() {
   const [doctors, pending] = await Promise.all([
     getDoctors(),

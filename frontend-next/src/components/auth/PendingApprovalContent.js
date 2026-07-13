@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Hourglass, LogOut, RefreshCw } from "lucide-react";
+import { Hourglass, RefreshCw } from "lucide-react";
 import { getUser } from "@/services/client/auth";
-import { logoutAction } from "@/lib/actions";
 import DarkmodeToggler from "@/components/ui/DarkmodeToggler";
 import Button from "@/components/ui/Button";
-import SpinnerMini from "../ui/SpinnerMini";
 import LogoutButton from "../ui/LogoutButton";
 
 function PendingApprovalContent({ user }) {

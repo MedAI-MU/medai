@@ -13,6 +13,11 @@ import IconBadge from "@/components/ui/IconBadge";
 import Heading from "@/components/ui/Heading";
 import Grid from "@/components/ui/Grid";
 
+export const metadata = {
+  title: "Manager Dashboard",
+  description: "Overview of the entire system.",
+};
+
 const statCards = [
   {
     key: "doctors",

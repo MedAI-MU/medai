@@ -10,6 +10,19 @@ import ScheduleSlots from "@/components/schedule/ScheduleSlots";
 import ScheduleGridSkeleton from "@/components/schedule/ScheduleGridSkeleton";
 import { DoctorInfoProvider } from "@/contexts/DoctorInfoContext";
 
+export async function generateMetadata({ params }) {
+  const { doctorId } = await params;
+  try {
+    const doctor = await getDoctorById(doctorId);
+    return {
+      title: `${doctor?.name || "Doctor"}'s Schedule`,
+      description: "Manage weekly appointments and available time slots.",
+    };
+  } catch {
+    return { title: "Schedule" };
+  }
+}
+
 async function ScheduleSlotsPage({ searchParams, params }) {
   const { startDate } = (await searchParams) || {};
   const doctorId = Number((await params)?.doctorId);

@@ -3,6 +3,11 @@ import EmptyState from "@/components/ui/EmptyState";
 import Heading from "@/components/ui/Heading";
 import { getUserAppointments } from "@/services/server/appointments";
 
+export const metadata = {
+  title: "My Appointments",
+  description: "Track and manage your scheduled healthcare visits.",
+};
+
 async function PatientAppointmentsPage() {
   const data = await getUserAppointments();
 

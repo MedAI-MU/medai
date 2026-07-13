@@ -3,6 +3,11 @@ import Heading from "@/components/ui/Heading";
 import EmptyState from "@/components/ui/EmptyState";
 import AllAppointmentsList from "@/components/secretary/AllAppointmentsList";
 
+export const metadata = {
+  title: "Appointments",
+  description: "View all appointments across all doctors.",
+};
+
 export default async function SecretaryAppointmentsPage() {
   const appointments = await getAllAppointments();
 

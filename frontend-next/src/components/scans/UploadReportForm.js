@@ -5,16 +5,14 @@ import { SheetBody, SheetFooter } from "../shadcn/sheet";
 import SheetForm from "../ui/SheetForm";
 import SpinnerMini from "../ui/SpinnerMini";
 import Button from "../ui/Button";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { createReport } from "@/services/client/scans";
+import { useScanReports } from "@/hooks/scans/useScanReports";
 
-function UploadReportForm({ patientId, scanId, loadReports, closeSheet }) {
-  const router = useRouter();
+function UploadReportForm({ patientId, scanId, closeSheet }) {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { createReport, isCreating } = useScanReports(patientId, scanId);
 
   function handleFileSelect(e) {
     const selected = e.target.files?.[0];
@@ -22,29 +20,25 @@ function UploadReportForm({ patientId, scanId, loadReports, closeSheet }) {
     e.target.value = "";
   }
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     if (!file) {
       toast.error("Please select a file.");
       return;
     }
 
-    setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-
-    try {
-      await createReport(scanId, patientId, formData);
-      toast.success("Report uploaded successfully.");
-      setFile(null);
-      loadReports?.();
-      closeSheet?.();
-      router.refresh();
-    } catch (err) {
-      toast.error(err.message || "Failed to upload report.");
-    } finally {
-      setIsUploading(false);
-    }
+    createReport(formData, {
+      onSuccess: () => {
+        toast.success("Report uploaded successfully.");
+        setFile(null);
+        closeSheet?.();
+      },
+      onError: (err) => {
+        toast.error(err?.message || "Failed to upload report.");
+      },
+    });
   }
 
   return (
@@ -87,8 +81,8 @@ function UploadReportForm({ patientId, scanId, loadReports, closeSheet }) {
       </SheetBody>
 
       <SheetFooter>
-        <Button type="submit" disabled={isUploading || !file}>
-          {isUploading ? <SpinnerMini /> : "Upload"}
+        <Button type="submit" disabled={isCreating || !file}>
+          {isCreating ? <SpinnerMini /> : "Upload"}
         </Button>
       </SheetFooter>
     </SheetForm>

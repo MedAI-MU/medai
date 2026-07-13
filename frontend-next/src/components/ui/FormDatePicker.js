@@ -38,7 +38,7 @@ function FormDatePicker({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className={`border-border bg-surface disabled:bg-surface-overlay disabled:text-text-subtle flex w-full justify-start rounded-lg border px-4 py-3 transition-all outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${
+                className={`border-border bg-surface-overlay disabled:text-text-subtle flex w-full justify-start rounded-lg border px-4 py-3 transition-all outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-75 ${
                   !field.value ? "text-text-subtle" : "text-text-base"
                 } ${fieldState.error ? "ring-danger border-danger ring-2" : "focus:ring-primary/90"}`}
                 disabled={disabled}

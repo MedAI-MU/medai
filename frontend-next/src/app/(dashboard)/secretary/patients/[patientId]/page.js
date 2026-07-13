@@ -8,6 +8,19 @@ import Heading from "@/components/ui/Heading";
 import BackButton from "@/components/ui/BackButton";
 import PatientRecordView from "@/components/patient/PatientRecordView";
 
+export async function generateMetadata({ params }) {
+  const { patientId } = await params;
+  try {
+    const patient = await getPatientById(patientId);
+    return {
+      title: `${patient?.name || "Patient"}'s Medical Records`,
+      description: "Manage patient health information.",
+    };
+  } catch {
+    return { title: "Patient Medical Records" };
+  }
+}
+
 async function PatientDetailPage({ params }) {
   const { patientId } = await params;
 
