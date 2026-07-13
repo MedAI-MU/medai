@@ -8,7 +8,7 @@ import org.example.project.presentation.bookingScreen.BookingViewModel
 import org.koin.dsl.module
 
 val appointmentModule = module {
-    single<AppointmentRepository> { NetworkAppointmentRepository(get()) }
+    single<AppointmentRepository> { NetworkAppointmentRepository(get(), get(), get()) }
 
     factory { BookAppointmentUseCase(get(), get()) }
     factory { GetAvailableSlotsUseCase(get()) }

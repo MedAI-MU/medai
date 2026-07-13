@@ -11,6 +11,7 @@ data class QueueManagementState(
 sealed class QueueManagementEvent {
     object LoadQueues : QueueManagementEvent()
     data class CheckIn(val appointmentId: String) : QueueManagementEvent()
+    data class Cancel(val appointmentId: String) : QueueManagementEvent()
 }
 
 sealed class QueueManagementEffect {

@@ -10,9 +10,13 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.presentation.mvi.MviScreenModel
 import org.example.project.domain.repository.appointment.AppointmentRepository
+import org.example.project.domain.usecase.secretary.CheckInPatientUseCase
+import org.example.project.domain.usecase.appointment.CancelAppointmentUseCase
 
 class DailyScheduleSummaryViewModel(
-    private val appointmentRepository: AppointmentRepository
+    private val appointmentRepository: AppointmentRepository,
+    private val checkInPatientUseCase: CheckInPatientUseCase,
+    private val cancelAppointmentUseCase: CancelAppointmentUseCase
 ) : MviScreenModel<DailyScheduleSummaryState, DailyScheduleSummaryEvent, DailyScheduleSummaryEffect>(DailyScheduleSummaryState()) {
 
     init {
@@ -23,6 +27,8 @@ class DailyScheduleSummaryViewModel(
         when (event) {
             is DailyScheduleSummaryEvent.LoadSummary -> loadSummaryData()
             is DailyScheduleSummaryEvent.SelectDate -> selectDate(event.date)
+            is DailyScheduleSummaryEvent.ApproveAppointment -> approveAppointment(event.appointmentId)
+            is DailyScheduleSummaryEvent.RejectAppointment -> rejectAppointment(event.appointmentId)
         }
     }
 
@@ -70,6 +76,40 @@ class DailyScheduleSummaryViewModel(
             copy(
                 selectedDate = date,
                 filteredAppointments = filtered
+            )
+        }
+    }
+
+    private fun approveAppointment(appointmentId: String) {
+        setState { copy(loadingAppointmentIds = loadingAppointmentIds + appointmentId) }
+        screenModelScope.launch {
+            checkInPatientUseCase(appointmentId).fold(
+                onSuccess = {
+                    setState { copy(loadingAppointmentIds = loadingAppointmentIds - appointmentId) }
+                    sendEffect(DailyScheduleSummaryEffect.ShowSnackbar("Appointment approved successfully"))
+                    loadSummaryData()
+                },
+                onFailure = { throwable ->
+                    setState { copy(loadingAppointmentIds = loadingAppointmentIds - appointmentId) }
+                    sendEffect(DailyScheduleSummaryEffect.ShowSnackbar(throwable.message ?: "Failed to approve appointment", isError = true))
+                }
+            )
+        }
+    }
+
+    private fun rejectAppointment(appointmentId: String) {
+        setState { copy(loadingAppointmentIds = loadingAppointmentIds + appointmentId) }
+        screenModelScope.launch {
+            cancelAppointmentUseCase(appointmentId).fold(
+                onSuccess = {
+                    setState { copy(loadingAppointmentIds = loadingAppointmentIds - appointmentId) }
+                    sendEffect(DailyScheduleSummaryEffect.ShowSnackbar("Appointment rejected successfully"))
+                    loadSummaryData()
+                },
+                onFailure = { throwable ->
+                    setState { copy(loadingAppointmentIds = loadingAppointmentIds - appointmentId) }
+                    sendEffect(DailyScheduleSummaryEffect.ShowSnackbar(throwable.message ?: "Failed to reject appointment", isError = true))
+                }
             )
         }
     }

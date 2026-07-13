@@ -129,12 +129,12 @@ class QueueManagementScreen : Screen {
                     Text(text = "Time: ${entry.appointmentTime.takeLast(8)}", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                 }
 
-                SecretaryDashboardScreen().QueueStatusBadge(entry.status)
+                SecretaryDashboardScreen().QueueStatusBadge(entry.status, entry.isPast)
             }
 
             Spacer(modifier = Modifier.height(dimensions.small))
 
-            if (entry.status == QueueStatus.WAITING || entry.status == QueueStatus.CANCELLED) { // Simplified logic
+            if (entry.status == QueueStatus.WAITING || entry.status == QueueStatus.CANCELLED) {
                  MedAIButton(
                     text = "Check In",
                     onClick = onCheckIn,
