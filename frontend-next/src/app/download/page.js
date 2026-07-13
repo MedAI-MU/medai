@@ -4,8 +4,7 @@ import Button from "@/components/ui/Button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import Footer from "@/components/landing/Footer";
 
-const APP_URL =
-  "https://appdistribution.firebase.google.com/testerapps/1:976222752571:android:de784892832bdbccdb711e/releases/0srvlkec7goig";
+const APP_URL = process.env.MOBILE_APP_URL;
 
 const features = [
   {
