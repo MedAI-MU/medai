@@ -8,6 +8,7 @@ import org.example.project.core.presentation.util.CalendarManager
 import org.example.project.domain.usecase.appointment.BookAppointmentUseCase
 import org.example.project.domain.usecase.appointment.GetAvailableSlotsUseCase
 import org.example.project.domain.usecase.doctor.GetDoctorDetailsUseCase
+import org.example.project.domain.usecase.profile.GetProfileUseCase
 import org.example.project.presentation.homeScreen.CalendarUiModel
 
 class BookingViewModel(
@@ -15,12 +16,14 @@ class BookingViewModel(
     private val getDoctorDetailsUseCase: GetDoctorDetailsUseCase,
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase,
     private val bookAppointmentUseCase: BookAppointmentUseCase,
-    private val calendarManager: CalendarManager
+    private val calendarManager: CalendarManager,
+    private val getProfileUseCase: GetProfileUseCase
 ) : MviScreenModel<BookingState, BookingEvent, BookingEffect>(BookingState()) {
 
     init {
         loadDoctor()
         initCalendar()
+        loadPatientProfile()
     }
 
     private fun loadDoctor() {
@@ -31,6 +34,24 @@ class BookingViewModel(
                 onFailure = { err ->
                     setState { copy(isLoadingDoctor = false) }
                     sendEffect(BookingEffect.ShowError(err.message ?: "Failed to load doctor profile"))
+                }
+            )
+        }
+    }
+
+    private fun loadPatientProfile() {
+        screenModelScope.launch {
+            getProfileUseCase().fold(
+                onSuccess = { user ->
+                    setState {
+                        copy(
+                            loggedInPatientName = user.name,
+                            patientName = if (bookingForSelf) user.name else patientName
+                        )
+                    }
+                },
+                onFailure = { err ->
+                    sendEffect(BookingEffect.ShowError(err.message ?: "Failed to load patient profile"))
                 }
             )
         }
@@ -97,12 +118,19 @@ class BookingViewModel(
                 setState { copy(selectedSlotId = event.slotId) }
             }
             is BookingEvent.PatientTypeChanged -> {
-                setState { copy(bookingForSelf = event.isSelf) }
+                setState {
+                    copy(
+                        bookingForSelf = event.isSelf,
+                        patientName = if (event.isSelf) loggedInPatientName else ""
+                    )
+                }
             }
             BookingEvent.BookClicked -> {
                 performBooking()
             }
-            is BookingEvent.PatientNameChanges -> { setState { copy(patientName = event.name) } }
+            is BookingEvent.PatientNameChanges -> {
+                setState { copy(patientName = event.name) }
+            }
             BookingEvent.NextMonthClicked -> {
                 val current = state.value.displayedMonth ?: return
                 val newMonth = calendarManager.getNextMonth(current)
@@ -120,18 +148,23 @@ class BookingViewModel(
         val currentState = state.value
 
         if (currentState.selectedSlotId == null) {
-            sendEffect(BookingEffect.ShowError("Please select a time slot"))
+            sendEffect(BookingEffect.ShowSnackbar("Please select a time slot"))
             return
         }
 
         val selectedDate = currentState.selectedDate
         if (selectedDate == null) {
-            sendEffect(BookingEffect.ShowError("Please select a date"))
+            sendEffect(BookingEffect.ShowSnackbar("Please select a date"))
             return
         }
         val today = calendarManager.getToday()
         if (selectedDate < today) {
-            sendEffect(BookingEffect.ShowError("Cannot book an appointment in the past"))
+            sendEffect(BookingEffect.ShowSnackbar("Cannot book an appointment in the past"))
+            return
+        }
+
+        if (currentState.patientName.isBlank()) {
+            sendEffect(BookingEffect.ShowSnackbar("Please enter patient name"))
             return
         }
 
