@@ -52,7 +52,7 @@ class NetworkAppointmentRepositoryTest {
                     "doctorUserId": 20,
                     "scheduleSlotId": 5,
                     "status": "pending",
-                    "createdAt": "2023-10-01T10:00:00"
+                    "createdAt": "2030-10-01T10:00:00"
                 },
                 {
                     "id": 2,
@@ -91,7 +91,7 @@ class NetworkAppointmentRepositoryTest {
                     "doctorUserId": 20,
                     "scheduleSlotId": 5,
                     "status": "pending",
-                    "createdAt": "2023-10-01T10:00:00"
+                    "createdAt": "2030-10-01T10:00:00"
                 }
             ]
         """.trimIndent()
