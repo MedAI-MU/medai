@@ -29,8 +29,9 @@ RUN --mount=type=cache,id=npm,target=${NPM_CACHE_DIR} \
 COPY --chown=root:root . .
 
 ARG NEXT_PUBLIC_API_BASE_URL
+ARG MOBILE_APP_URL
 
-RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL npm run build
+RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL MOBILE_APP_URL=$MOBILE_APP_URL npm run build
 
 FROM node:24-alpine AS final
 
