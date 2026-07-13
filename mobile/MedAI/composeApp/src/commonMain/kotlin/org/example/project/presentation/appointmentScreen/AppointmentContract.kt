@@ -35,6 +35,7 @@ sealed interface AppointmentEvent {
 
     object Refresh : AppointmentEvent
     object ClearError : AppointmentEvent
+    data class ViewPatientRecords(val patientId: String) : AppointmentEvent
 }
 
 sealed interface AppointmentEffect {
@@ -42,4 +43,5 @@ sealed interface AppointmentEffect {
     object NavigateBack : AppointmentEffect
     data class ShowToast(val message: String) : AppointmentEffect
     object CloseSheet : AppointmentEffect
+    data class NavigateToPatientRecords(val patientId: String) : AppointmentEffect
 }
