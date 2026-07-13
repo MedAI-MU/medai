@@ -60,7 +60,7 @@
   .dark {
     --color-surface: #0f172a; /* sidebar, header in dark */
     --color-surface-bg: #111821; /* main content bg in dark */
-    --color-surface-overlay: #334155; /* input bg, hover bg in dark */
+    --color-surface-overlay: #3341555c; /* input bg, hover bg in dark */
     --color-border: #334155;
     --color-text-base: #f1f5f9;
     --color-text-muted: #94a3b8;
