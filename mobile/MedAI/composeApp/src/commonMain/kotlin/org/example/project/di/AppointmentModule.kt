@@ -22,6 +22,6 @@ val appointmentModule = module {
 
     factory { AppointmentViewModel(get(), get(), get(), get(), get(), get(), get()) }
     factory { (doctorId: String) ->
-        BookingViewModel(doctorId, get(), get(), get(), get())
+        BookingViewModel(doctorId, get(), get(), get(), get(), get())
     }
 }
