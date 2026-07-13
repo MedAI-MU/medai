@@ -33,6 +33,8 @@ interface UserSessionManager {
 
     suspend fun saveCookies(cookies: Set<String>)
 
+    suspend fun updateUserToken(token: String)
+
     suspend fun clearSession()
 
     val isUserLoggedIn: Flow<Boolean>

@@ -107,6 +107,12 @@ class InMemoryUserSessionManager(
         }
     }
 
+    override suspend fun updateUserToken(token: String) {
+        dataStore.edit { prefs ->
+            prefs[KEY_TOKEN] = token
+        }
+    }
+
     override suspend fun clearSession() {
         dataStore.edit { prefs ->
             prefs.clear()
