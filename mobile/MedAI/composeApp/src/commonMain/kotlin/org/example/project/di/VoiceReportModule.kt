@@ -14,6 +14,7 @@ val voiceReportModule = module {
     factory { GetVoiceReportStatusUseCase(get()) }
     factory { DeleteVoiceReportUseCase(get()) }
     factory { PollVoiceReportStatusUseCase(get()) }
+    factory { GetPatientComplaintsHistoryUseCase(get(), get(), get()) }
 
     factory { (appointmentId: String) ->
         VoiceReportViewModel(

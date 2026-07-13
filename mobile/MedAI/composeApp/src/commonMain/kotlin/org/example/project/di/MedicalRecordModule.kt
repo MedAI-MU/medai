@@ -81,7 +81,10 @@ val medicalRecordModule = module {
             addEmergencyContactUseCase = get(),
             updateEmergencyContactUseCase = get(),
             deleteEmergencyContactUseCase = get(),
-            sessionManager = get()
+            sessionManager = get(),
+            getPatientComplaintsHistoryUseCase = get(),
+            getVoiceReportStatusUseCase = get(),
+            deleteVoiceReportUseCase = get()
         )
     }
 
