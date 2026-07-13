@@ -18,6 +18,7 @@ import { useVoiceReport } from "@/hooks/voice-reports/useVoiceReport";
 import { useDeleteVoice } from "@/hooks/voice-reports/useDeleteVoice";
 import CustomAudioPlayer from "@/components/ui/CustomAudioPlayer";
 import ErrorMessage from "../ui/ErrorMessage";
+import Table from "@/components/ui/Table";
 import { AnimatePresence, motion } from "framer-motion";
 
 const statusMeta = {
@@ -62,33 +63,75 @@ function formatKey(key) {
     .trim();
 }
 
-function ClinicalReportJson({ data }) {
+function ClinicalTable({ data }) {
+  const rows = Array.isArray(data) ? data : [];
+  if (!rows.length) return null;
+
+  return (
+    <Table columns="1fr 1fr">
+      <Table.Header>
+        <div>Clinical Term</div>
+        <div>التوصيف</div>
+      </Table.Header>
+      <Table.Body
+        data={rows}
+        render={(item, i) => (
+          <Table.Row key={i}>
+            <div className="text-sm font-medium capitalize">
+              {item.clinical_term}
+            </div>
+            <div className="text-sm">{item.description_ar}</div>
+          </Table.Row>
+        )}
+      />
+    </Table>
+  );
+}
+
+function ClinicalReportView({ data }) {
   const entries =
     data && typeof data === "object" ? Object.entries(data) : null;
 
   if (!entries) return null;
 
   return (
-    <div className="space-y-2">
-      {entries.map(([key, value]) => (
-        <div
-          key={key}
-          className="border-border/50 overflow-hidden rounded-lg border"
-        >
-          <div className="border-border/50 bg-surface-overlay/50 text-text-muted border-b px-3 py-1.5 text-[11px] font-semibold tracking-wider uppercase">
-            {formatKey(key)}
+    <div className="space-y-4">
+      {entries.map(([key, value]) => {
+        if (
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value[0]?.clinical_term
+        ) {
+          return (
+            <div key={key}>
+              <h6 className="text-text-muted mb-2 text-[11px] font-semibold tracking-wider uppercase">
+                {formatKey(key)}
+              </h6>
+              <ClinicalTable data={value} />
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={key}
+            className="border-border/50 overflow-hidden rounded-lg border"
+          >
+            <div className="border-border/50 bg-surface-overlay/50 text-text-muted border-b px-3 py-1.5 text-[11px] font-semibold tracking-wider uppercase">
+              {formatKey(key)}
+            </div>
+            <div className="bg-surface px-3 py-2 text-sm leading-relaxed">
+              {typeof value === "object" && value !== null ? (
+                <pre className="font-mono text-xs leading-relaxed">
+                  {JSON.stringify(value, null, 2)}
+                </pre>
+              ) : (
+                String(value)
+              )}
+            </div>
           </div>
-          <div className="bg-surface px-3 py-2 text-sm leading-relaxed">
-            {typeof value === "object" && value !== null ? (
-              <pre className="font-mono text-xs leading-relaxed">
-                {JSON.stringify(value, null, 2)}
-              </pre>
-            ) : (
-              String(value)
-            )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -243,7 +286,7 @@ function VoiceReportCard({ report, appointmentId }) {
                     Clinical Report
                   </h5>
 
-                  <ClinicalReportJson data={detail.clinicalReport} />
+                  <ClinicalReportView data={detail.clinicalReport} />
                 </section>
               )}
             </motion.div>
