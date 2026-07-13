@@ -276,7 +276,7 @@ class ReportAnalysisResultsScreen(private val report: ReportAnalysis) : Screen {
                     Column(horizontalAlignment = Alignment.End) {
                         MedAIText("Reference Range", style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary)
                         MedAIText(
-                            text = finding.referenceRange,
+                            text = finding.referenceRange ?: "N/A",
                             style = MedAITheme.textStyle.title.small.copy(fontWeight = FontWeight.Bold),
                             color = MedAITheme.colors.text.primary
                         )

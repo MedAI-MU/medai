@@ -529,7 +529,7 @@ class SecretaryDashboardScreen : Screen {
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
-                    QueueStatusBadgeCard(entry.status)
+                    QueueStatusBadgeCard(entry.status, entry.isPast)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = entry.appointmentTime.split("T").lastOrNull()?.take(5) ?: "",
@@ -542,13 +542,19 @@ class SecretaryDashboardScreen : Screen {
     }
 
     @Composable
-    fun QueueStatusBadgeCard(status: QueueStatus) {
+    fun QueueStatusBadgeCard(status: QueueStatus, isPast: Boolean = false) {
         val dimensions = LocalDimensions.current
         val (color, text) = when (status) {
-            QueueStatus.WAITING -> MedAITheme.colors.status.warning to "Waiting"
-            QueueStatus.IN_PROGRESS -> MedAITheme.colors.primary to "In Progress"
+            QueueStatus.WAITING -> {
+                if (isPast) {
+                    MedAITheme.colors.status.error to "Overdue"
+                } else {
+                    MedAITheme.colors.status.warning to "Pending Approval"
+                }
+            }
+            QueueStatus.IN_PROGRESS -> MedAITheme.colors.primary to "Approved"
             QueueStatus.COMPLETED -> MedAITheme.colors.status.success to "Completed"
-            QueueStatus.CANCELLED -> MedAITheme.colors.status.error to "Cancelled"
+            QueueStatus.CANCELLED -> MedAITheme.colors.status.error to "Rejected"
         }
 
         Box(
@@ -566,7 +572,7 @@ class SecretaryDashboardScreen : Screen {
     }
 
     @Composable
-    fun QueueStatusBadge(status: QueueStatus) {
-        QueueStatusBadgeCard(status)
+    fun QueueStatusBadge(status: QueueStatus, isPast: Boolean = false) {
+        QueueStatusBadgeCard(status, isPast)
     }
 }

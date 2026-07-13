@@ -20,7 +20,7 @@ data class KeyFinding(
     val testName: String,
     val measuredValue: String,
     val unit: String,
-    val referenceRange: String,
+    val referenceRange: String?,
     val statusAr: String,
     val patientExplanationAr: String
 )

@@ -36,7 +36,7 @@ data class KeyFindingDto(
     val test_name: String,
     val measured_value: String,
     val unit: String,
-    val reference_range: String,
+    val reference_range: String? = null,
     val status_ar: String,
     val patient_explanation_ar: String
 )

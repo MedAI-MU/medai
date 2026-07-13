@@ -69,10 +69,15 @@ import org.example.project.domain.model.patient.FamilyHistoryParams
 import org.example.project.domain.model.patient.FamilyRelation
 import org.example.project.domain.model.patient.SurgeryEntity
 import org.example.project.domain.model.patient.SurgeryParams
+import org.example.project.domain.model.patient.formatRecordDate
 import org.example.project.presentation.shared.records.*
 import org.example.project.presentation.scans.ScansScreen
 import org.example.project.presentation.shared.diagnosis.DiagnosisListContent
 import org.example.project.presentation.shared.diagnosis.DiagnosisViewModel
+import org.example.project.domain.model.voice_report.VoiceReport
+import org.example.project.domain.model.voice_report.VoiceReportStatus
+import org.example.project.presentation.recordScreen.ComplaintsHistoryTimeline
+import org.example.project.presentation.appointmentScreen.voiceReport.sheet.VoiceReportDetailsSheet
 
 sealed class SheetType {
     object None : SheetType()
@@ -110,6 +115,7 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
         val snackbarHostState = remember { SnackbarHostState() }
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var currentSheet by remember { mutableStateOf<SheetType>(SheetType.None) }
+        var selectedReport by remember { mutableStateOf<VoiceReport?>(null) }
 
         LaunchedEffect(viewModel) {
             viewModel.effect.collect { effect ->
@@ -117,13 +123,18 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                     is SharedMedicalRecordEffect.ShowSnackbar -> {
                         snackbarHostState.showSnackbar(effect.message)
                     }
+                    is SharedMedicalRecordEffect.ShowComplaintDetails -> {
+                        selectedReport = effect.report
+                    }
                     else -> {}
                 }
             }
         }
 
         var selectedTabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency", "Scans & Reports", "Diagnoses")
+        var showDeleteConsultationDialog by remember { mutableStateOf(false) }
+        var consultationToDelete by remember { mutableStateOf<VoiceReport?>(null) }
+        val tabs = listOf("Basic Info", "Allergies", "Diseases", "Surgeries", "Family", "Emergency", "Scans & Reports", "Diagnoses", "Complaints")
 
         MedAIScaffold(
             title = "Patient Records",
@@ -196,6 +207,18 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                                     val diagnosisViewModel = koinScreenModel<DiagnosisViewModel> { parametersOf(patientId) }
                                     DiagnosisListContent(viewModel = diagnosisViewModel, patientId = patientId)
                                 }
+                                8 -> {
+                                    ComplaintsHistoryTimeline(
+                                        reports = state.complaintsHistory,
+                                        onReportClick = { report ->
+                                            viewModel.onEvent(SharedMedicalRecordEvent.ComplaintClicked(report))
+                                        },
+                                        onDeleteClick = { report ->
+                                            consultationToDelete = report
+                                            showDeleteConsultationDialog = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -215,6 +238,43 @@ data class DoctorPatientRecordsScreen(val patientId: String) : Screen {
                             onEvent = { viewModel.onEvent(it) }
                         )
                     }
+                }
+
+                if (selectedReport != null) {
+                    VoiceReportDetailsSheet(
+                        report = selectedReport!!,
+                        onDismiss = { selectedReport = null }
+                    )
+                }
+
+                if (showDeleteConsultationDialog) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = {
+                            showDeleteConsultationDialog = false
+                            consultationToDelete = null
+                        },
+                        title = { Text("Delete Complaint?") },
+                        text = { Text("Are you sure you want to delete this complaint report? This action cannot be undone.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    consultationToDelete?.let { report ->
+                                        viewModel.onEvent(SharedMedicalRecordEvent.DeleteComplaint(report))
+                                    }
+                                    showDeleteConsultationDialog = false
+                                    consultationToDelete = null
+                                }
+                            ) { Text("Delete", color = MedAITheme.colors.status.error) }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    showDeleteConsultationDialog = false
+                                    consultationToDelete = null
+                                }
+                            ) { Text("Cancel") }
+                        }
+                    )
                 }
             }
         }
@@ -547,7 +607,7 @@ fun PatientDiseases(state: SharedMedicalRecordState, viewModel: SharedMedicalRec
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(disease.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
                 disease.description?.let { Text(it, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary) }
-                Text("Diagnosed: ${disease.diagnosisDate}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                Text("Diagnosed: ${formatRecordDate(disease.diagnosisDate)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
             }
         }
     )
@@ -565,7 +625,7 @@ fun PatientSurgeries(state: SharedMedicalRecordState, viewModel: SharedMedicalRe
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(surgery.name, style = MedAITheme.textStyle.title.medium, fontWeight = FontWeight.Bold)
                 surgery.description?.let { Text(it, style = MedAITheme.textStyle.body.small, color = MedAITheme.colors.text.secondary) }
-                Text("Date: ${surgery.date}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
+                Text("Date: ${formatRecordDate(surgery.date)}", style = MedAITheme.textStyle.label.small, color = MedAITheme.colors.primary)
             }
         }
     )

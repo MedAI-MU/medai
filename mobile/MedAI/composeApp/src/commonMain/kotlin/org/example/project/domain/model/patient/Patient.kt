@@ -155,3 +155,12 @@ enum class FamilyRelation(val label: String) {
     @SerialName("other") Other("Other"),
     @SerialName("unknown") Unknown("Unknown")
 }
+
+fun formatRecordDate(dateStr: String?): String {
+    if (dateStr.isNullOrBlank()) return ""
+    val clean = dateStr.filter { it.isDigit() }
+    if (clean.length == 8) {
+        return "${clean.substring(0, 2)}/${clean.substring(2, 4)}/${clean.substring(4)}"
+    }
+    return dateStr
+}

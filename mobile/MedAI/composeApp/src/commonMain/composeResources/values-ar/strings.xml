@@ -57,6 +57,8 @@
     <string name="upcoming_schedule">المواعيد القادمة</string>
     <string name="month">الشهر</string>
     <string name="specialties">التخصصات</string>
+    <string name="no_specialties_title">لا توجد تخصصات متاحة</string>
+    <string name="no_specialties_description">سنضيف تخصصات جديدة قريباً. يرجى التحقق لاحقاً.</string>
 
     <!-- Categories -->
     <string name="cat_favorite">المفضلة</string>

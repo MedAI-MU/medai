@@ -6,7 +6,11 @@ import org.example.project.domain.model.patient.*
 import org.example.project.domain.repository.patient.PatientRepository
 import org.example.project.domain.repository.auth.UserSessionManager
 import org.example.project.domain.usecase.medical_record.*
+import org.example.project.domain.usecase.voice_report.GetPatientComplaintsHistoryUseCase
+import org.example.project.domain.usecase.voice_report.GetVoiceReportStatusUseCase
+import org.example.project.domain.usecase.voice_report.DeleteVoiceReportUseCase
 import org.example.project.core.presentation.mvi.MviScreenModel
+import org.example.project.domain.model.voice_report.VoiceReport
 
 class SharedMedicalRecordViewModel(
     private val patientIdArg: String?,
@@ -26,7 +30,10 @@ class SharedMedicalRecordViewModel(
     private val deleteFamilyHistoryUseCase: DeleteFamilyHistoryUseCase,
     private val addEmergencyContactUseCase: AddEmergencyContactUseCase,
     private val updateEmergencyContactUseCase: UpdateEmergencyContactUseCase,
-    private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase
+    private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase,
+    private val getPatientComplaintsHistoryUseCase: GetPatientComplaintsHistoryUseCase,
+    private val getVoiceReportStatusUseCase: GetVoiceReportStatusUseCase,
+    private val deleteVoiceReportUseCase: DeleteVoiceReportUseCase
 ) : MviScreenModel<SharedMedicalRecordState, SharedMedicalRecordEvent, SharedMedicalRecordEffect>(
     initialState = SharedMedicalRecordState()
 ) {
@@ -79,6 +86,50 @@ class SharedMedicalRecordViewModel(
 
             is SharedMedicalRecordEvent.AnalysisClicked -> sendEffect(SharedMedicalRecordEffect.NavigateToAnalysisDetails(event.analysisId))
             SharedMedicalRecordEvent.AddRecordClicked -> sendEffect(SharedMedicalRecordEffect.NavigateToAddRecord)
+            is SharedMedicalRecordEvent.ComplaintClicked -> {
+                screenModelScope.launch {
+                    setState { copy(isLoading = true) }
+                    val apptId = event.report.appointmentId
+                    if (apptId != null) {
+                        getVoiceReportStatusUseCase(apptId, event.report.id).fold(
+                            onSuccess = { fullReport ->
+                                setState { copy(isLoading = false) }
+                                sendEffect(SharedMedicalRecordEffect.ShowComplaintDetails(fullReport))
+                            },
+                            onFailure = { err ->
+                                setState { copy(isLoading = false) }
+                                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to load complaint details: ${err.message}"))
+                            }
+                        )
+                    } else {
+                        setState { copy(isLoading = false) }
+                        sendEffect(SharedMedicalRecordEffect.ShowComplaintDetails(event.report))
+                    }
+                }
+            }
+            is SharedMedicalRecordEvent.DeleteComplaint -> deleteComplaint(event.report)
+        }
+    }
+
+    private fun deleteComplaint(report: VoiceReport) {
+        val apptId = report.appointmentId
+        if (apptId == null) {
+            sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Cannot delete complaint without appointment ID"))
+            return
+        }
+        screenModelScope.launch {
+            setState { copy(isLoading = true) }
+            deleteVoiceReportUseCase(apptId, report.id).fold(
+                onSuccess = {
+                    setState { copy(isLoading = false) }
+                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Complaint deleted successfully"))
+                    loadAllData(silent = true)
+                },
+                onFailure = { err ->
+                    setState { copy(isLoading = false) }
+                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar(err.message ?: "Failed to delete complaint"))
+                }
+            )
         }
     }
 
@@ -87,9 +138,11 @@ class SharedMedicalRecordViewModel(
             if (!silent) setState { copy(isLoading = true, error = null) }
 
             val profileResult = patientRepository.getPatientById(currentPatientId)
+            val consultationsResult = getPatientComplaintsHistoryUseCase(currentPatientId)
 
             if (profileResult.isSuccess) {
                 val patient = profileResult.getOrNull()
+                val reports = consultationsResult.getOrNull() ?: emptyList()
                 setState {
                     copy(
                         isLoading = false,
@@ -97,7 +150,8 @@ class SharedMedicalRecordViewModel(
                         allergies = patient?.allergies ?: emptyList(),
                         analyses = emptyList(), // Populate these from repositories when available
                         vaccinations = emptyList(),
-                        medicalHistory = emptyList()
+                        medicalHistory = emptyList(),
+                        complaintsHistory = reports
                     )
                 }
             } else {
@@ -110,7 +164,29 @@ class SharedMedicalRecordViewModel(
         }
     }
 
+    private fun getFriendlyErrorMessage(error: Throwable, fallback: String): String {
+        val msg = error.message ?: ""
+        return if (msg.contains("400") || msg.contains("BadRequest") || msg.contains("check your inputs", ignoreCase = true)) {
+            "An error occurred while saving. Please check your inputs."
+        } else {
+            fallback
+        }
+    }
+
     private fun updatePatientInfo(params: UpdatePatientParams) {
+        if (params.height != null && params.height <= 0.0) {
+            sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Please enter a valid height"))
+            return
+        }
+        if (params.weight != null && params.weight <= 0.0) {
+            sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Please enter a valid weight"))
+            return
+        }
+        if (params.bloodType != null && params.bloodType == BloodType.UNKNOWN) {
+            sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Blood type is required"))
+            return
+        }
+
         screenModelScope.launch {
             setState { copy(isUpdatingBasicInfo = true) }
             patientRepository.updatePatient(currentPatientId, params).fold(
@@ -121,7 +197,8 @@ class SharedMedicalRecordViewModel(
                 },
                 onFailure = { error ->
                     setState { copy(isUpdatingBasicInfo = false) }
-                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update: ${error.message}"))
+                    val message = getFriendlyErrorMessage(error, "Failed to update profile: ${error.message}")
+                    sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
                 }
             )
         }
@@ -136,9 +213,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Allergy added"))
                 setState { copy(isProcessingAllergy = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingAllergy = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to add allergy"))
+                val message = getFriendlyErrorMessage(error, "Failed to add allergy")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -150,9 +228,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Allergy updated"))
                 setState { copy(isProcessingAllergy = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingAllergy = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update allergy"))
+                val message = getFriendlyErrorMessage(error, "Failed to update allergy")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -164,9 +243,9 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Allergy deleted"))
                 setState { copy(isProcessingAllergy = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingAllergy = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete allergy"))
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete allergy: ${error.message}"))
             }
         }
     }
@@ -178,9 +257,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Chronic disease added"))
                 setState { copy(isProcessingDisease = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingDisease = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to add chronic disease"))
+                val message = getFriendlyErrorMessage(error, "Failed to add chronic disease")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -192,9 +272,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Chronic disease updated"))
                 setState { copy(isProcessingDisease = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingDisease = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update chronic disease"))
+                val message = getFriendlyErrorMessage(error, "Failed to update chronic disease")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -206,9 +287,9 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Chronic disease deleted"))
                 setState { copy(isProcessingDisease = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingDisease = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete chronic disease"))
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete chronic disease: ${error.message}"))
             }
         }
     }
@@ -220,9 +301,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Surgery added"))
                 setState { copy(isProcessingSurgery = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingSurgery = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to add surgery"))
+                val message = getFriendlyErrorMessage(error, "Failed to add surgery")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -234,9 +316,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Surgery updated"))
                 setState { copy(isProcessingSurgery = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingSurgery = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update surgery"))
+                val message = getFriendlyErrorMessage(error, "Failed to update surgery")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -248,9 +331,9 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Surgery deleted"))
                 setState { copy(isProcessingSurgery = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingSurgery = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete surgery"))
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete surgery: ${error.message}"))
             }
         }
     }
@@ -262,9 +345,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Family history added"))
                 setState { copy(isProcessingFamilyHistory = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingFamilyHistory = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to add family history"))
+                val message = getFriendlyErrorMessage(error, "Failed to add family history")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -276,9 +360,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Family history updated"))
                 setState { copy(isProcessingFamilyHistory = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingFamilyHistory = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update family history"))
+                val message = getFriendlyErrorMessage(error, "Failed to update family history")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -290,9 +375,9 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Family history deleted"))
                 setState { copy(isProcessingFamilyHistory = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingFamilyHistory = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete family history"))
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete family history: ${error.message}"))
             }
         }
     }
@@ -304,9 +389,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Emergency contact added"))
                 setState { copy(isProcessingEmergencyContact = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingEmergencyContact = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to add emergency contact"))
+                val message = getFriendlyErrorMessage(error, "Failed to add emergency contact")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -318,9 +404,10 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Emergency contact updated"))
                 setState { copy(isProcessingEmergencyContact = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingEmergencyContact = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to update emergency contact"))
+                val message = getFriendlyErrorMessage(error, "Failed to update emergency contact")
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar(message))
             }
         }
     }
@@ -332,9 +419,9 @@ class SharedMedicalRecordViewModel(
                 loadAllData(silent = true)
                 sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Emergency contact deleted"))
                 setState { copy(isProcessingEmergencyContact = false) }
-            }.onFailure {
+            }.onFailure { error ->
                 setState { copy(isProcessingEmergencyContact = false) }
-                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete emergency contact"))
+                sendEffect(SharedMedicalRecordEffect.ShowSnackbar("Failed to delete emergency contact: ${error.message}"))
             }
         }
     }

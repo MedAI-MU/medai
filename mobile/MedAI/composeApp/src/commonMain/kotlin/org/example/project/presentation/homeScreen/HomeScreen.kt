@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -55,6 +57,8 @@ import kotlinx.coroutines.flow.collectLatest
 import medai.composeapp.generated.resources.Res
 import medai.composeapp.generated.resources.categories
 import medai.composeapp.generated.resources.specialties
+import medai.composeapp.generated.resources.no_specialties_title
+import medai.composeapp.generated.resources.no_specialties_description
 import medai.composeapp.generated.resources.upcoming_schedule
 import org.example.project.design_system.component.dayPicker.MedAIDateCard
 import org.example.project.design_system.component.scaffold.MedAIScaffold
@@ -300,27 +304,64 @@ class HomeScreen : Screen {
                         onSeeAllClick = { viewModel.onEvent(HomeEvent.SeeAllSpecialtiesClicked) }
                     )
 
-
-                    Column(modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge)) {
-                        val chunks = state.specialties.chunked(3)
-                        chunks.forEach { rowItems ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.large)
+                    if (state.specialties.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MedAITheme.dimensions.extraLarge)
+                                .clip(RoundedCornerShape(MedAITheme.dimensions.radiusExtraLarge))
+                                .background(MedAITheme.colors.surface)
+                                .padding(vertical = MedAITheme.dimensions.extraExtraLarge, horizontal = MedAITheme.dimensions.extraLarge),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                rowItems.forEach { specialty ->
-                                    SpecialtyItem(
-                                        specialty = specialty,
-                                        onClick = { viewModel.onEvent(HomeEvent.SpecialtyClicked(specialty.id)) },
-                                        modifier = Modifier.weight(1f).height(120.dp)
-                                    )
-                                }
-                                // Fill empty space if row is incomplete
-                                if (rowItems.size < 3) {
-                                    Spacer(modifier = Modifier.weight((3 - rowItems.size).toFloat()))
-                                }
+                                Icon(
+                                    imageVector = Icons.Default.MedicalServices,
+                                    contentDescription = null,
+                                    tint = MedAITheme.colors.primary.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(MedAITheme.dimensions.medium))
+                                MedAIText(
+                                    text = stringResource(Res.string.no_specialties_title),
+                                    style = MedAITheme.textStyle.title.medium.copy(fontWeight = FontWeight.Bold),
+                                    color = MedAITheme.colors.text.primary,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(MedAITheme.dimensions.small))
+                                MedAIText(
+                                    text = stringResource(Res.string.no_specialties_description),
+                                    style = MedAITheme.textStyle.body.small,
+                                    color = MedAITheme.colors.text.secondary,
+                                    textAlign = TextAlign.Center
+                                )
                             }
-                            Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
+                        }
+                    } else {
+                        Column(modifier = Modifier.padding(horizontal = MedAITheme.dimensions.extraLarge)) {
+                            val chunks = state.specialties.chunked(3)
+                            chunks.forEach { rowItems ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(MedAITheme.dimensions.large)
+                                ) {
+                                    rowItems.forEach { specialty ->
+                                        SpecialtyItem(
+                                            specialty = specialty,
+                                            onClick = { viewModel.onEvent(HomeEvent.SpecialtyClicked(specialty.id)) },
+                                            modifier = Modifier.weight(1f).height(120.dp)
+                                        )
+                                    }
+                                    // Fill empty space if row is incomplete
+                                    if (rowItems.size < 3) {
+                                        Spacer(modifier = Modifier.weight((3 - rowItems.size).toFloat()))
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(MedAITheme.dimensions.large))
+                            }
                         }
                     }
                 }

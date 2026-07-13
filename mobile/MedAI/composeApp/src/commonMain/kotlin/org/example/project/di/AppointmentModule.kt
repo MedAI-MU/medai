@@ -8,7 +8,7 @@ import org.example.project.presentation.bookingScreen.BookingViewModel
 import org.koin.dsl.module
 
 val appointmentModule = module {
-    single<AppointmentRepository> { NetworkAppointmentRepository(get()) }
+    single<AppointmentRepository> { NetworkAppointmentRepository(get(), get(), get()) }
 
     factory { BookAppointmentUseCase(get(), get()) }
     factory { GetAvailableSlotsUseCase(get()) }
@@ -22,6 +22,6 @@ val appointmentModule = module {
 
     factory { AppointmentViewModel(get(), get(), get(), get(), get(), get(), get()) }
     factory { (doctorId: String) ->
-        BookingViewModel(doctorId, get(), get(), get(), get())
+        BookingViewModel(doctorId, get(), get(), get(), get(), get())
     }
 }

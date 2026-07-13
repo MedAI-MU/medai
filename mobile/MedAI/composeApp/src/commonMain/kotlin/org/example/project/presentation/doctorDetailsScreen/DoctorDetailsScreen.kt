@@ -192,8 +192,9 @@ class DoctorDetailsScreen(val doctorId: String) : Screen {
                         MedAIText(text = stringResource(Res.string.about_doctor), style = MedAITheme.textStyle.title.large.copy(fontWeight = FontWeight.Bold))
                         Spacer(modifier = Modifier.height(dimensions.small))
                         state.doctor?.let {
+                            val bioText = it.about?.takeIf { it.isNotBlank() } ?: "No bio available"
                             MedAIText(
-                                text = it.bio,
+                                text = bioText,
                                 style = MedAITheme.textStyle.body.medium,
                                 color = MedAITheme.colors.text.secondary,
                                 textAlign = TextAlign.Justify

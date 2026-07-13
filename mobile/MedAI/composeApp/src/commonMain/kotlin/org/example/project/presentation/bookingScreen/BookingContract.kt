@@ -22,6 +22,7 @@ data class BookingState(
     // Form
     val bookingForSelf: Boolean = true,
     val patientName: String = "", // Default
+    val loggedInPatientName: String = "",
 
     val isBooking: Boolean = false,
     val error: String? = null
@@ -49,4 +50,5 @@ sealed class BookingEffect {
     object NavigateToSuccess : BookingEffect()
     data class ShowError(val message: String) : BookingEffect()
     data class ShowSuccessMessage(val message: String) : BookingEffect()
+    data class ShowSnackbar(val message: String) : BookingEffect()
 }
