@@ -7,6 +7,11 @@ on:
     tags:
       - 'v*'
   pull_request:
+    branches:
+      - dev
+      - staging
+    paths:
+      - 'mobile/**'
   workflow_dispatch:
 
 permissions:
@@ -108,3 +113,20 @@ jobs:
 
           echo "Staging Link: ${STAGING_URL}"
           echo "Production Link: ${PROD_URL}"
+
+      # ----------------- Update GitHub Repository Variables -----------------
+      - name: Update GitHub Repository Variables
+        env:
+          GH_TOKEN: ${{ secrets.VAR_UPDATE_TOKEN }}
+        run: |
+          if [ -n "$GH_TOKEN" ]; then
+            TAG_NAME="${{ github.ref_type == 'tag' && github.ref_name || 'latest-android' }}"
+            STAGING_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/medai-staging.apk"
+            PROD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/medai-production.apk"
+
+            gh variable set ANDROID_STAGING_DOWNLOAD_URL --body "$STAGING_URL"
+            gh variable set ANDROID_PROD_DOWNLOAD_URL --body "$PROD_URL"
+            echo "Successfully updated repository variables ANDROID_STAGING_DOWNLOAD_URL and ANDROID_PROD_DOWNLOAD_URL!"
+          else
+            echo "Warning: VAR_UPDATE_TOKEN secret is not set. Skipping repository variable update."
+          fi
