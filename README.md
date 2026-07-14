@@ -1,88 +1,331 @@
-# 🎓 MedAI Graduation Project
+# MedAI
 
-## 🌟 Vision
-
-* 🧠 AI medical app that accepts medical scans and generates reports.
-* 🩺 Users can book appointments with doctors:
-
-  * 📋 Follows hospital workflow for appointments.
-  * 📅 Patient selects from available time slots.
-  * 🔔 Assistant receives notification for new appointments.
-  * ⏳ Appointment remains pending until approved or rejected by manager/assistant.
-
-    * ✅ Manager can **accept** or ❌ **cancel** the appointment.
-  * 🚫 Blacklist feature for problematic users.
-* 📤 Automatically sends reports to doctors.
-* 📷 Doctors can upload scans via website (file upload) or mobile app (camera).
-* 🗂️ Patient medical history is maintained.
-* 💬 Doctors can input and send diagnoses (optionally) to patients.
-* 💊 Should app suggest medications based on reports/diagnosis?
-* ⚠️ Should app warn about possible serious or alternative diseases?
-* ⚡ Reports delivered to doctors **instantly** (real-time).
-* 👥 Role-based views: separate dashboards for patients, doctors, and managers.
-* 🔗 Integration with external apps (e.g., WhatsApp):
-
-  * 📲 Notifications from the app can also be sent through WhatsApp.
+> Graduation project — Mansoura University  
+> AI-powered medical platform connecting patients, doctors, secretaries, and managers.
 
 ---
 
-## 🧰 Tech Stack
+## Overview
 
-* 💻 **Frontend**: Next.js
-* 🐍 **Backend**: Python Django
-* 📱 **Mobile**: Native (Android/iOS)
-* 🔌 **API Structure**: REST
-
-  * 📸 Handles mostly image data — REST preferred over GraphQL.
-* 🐳 **Dockerization**:
-
-  * Backend: Dockerized both locally and in production.
-  * Frontend: Dockerized in production (local is optional).
+MedAI is a full-stack medical platform that streamlines hospital workflows. It enables AI-driven medical scan analysis, voice-to-clinical-report transcription (Egyptian Arabic), appointment booking with hospital-grade approval workflows, and comprehensive patient medical records management — all behind role-based dashboards.
 
 ---
 
-## ⚙️ GitHub Actions (CI/CD)
+## Tech Stack
 
-* 🔁 Every track should implement **tests** in GitHub CI/CD for pull requests.
-* ✅ PRs should **only be merged** if all tests pass.
-* 🧪 I can assist with test setup for your track.
-
----
-
-## 🗂️ Main Workflow
-
-* 📆 **Weekly Reports**:
-
-  * Each **track leader** posts a report in the board channel every week:
-
-    * What was done ✅
-    * What’s planned for next week 📌
-* 🛡️ **Security**:
-
-  * Open GitHub issues for vulnerabilities found.
-  * Use proper labels (e.g., `backend`, `frontend`).
-  * Summarize open issues in weekly reports and notify affected tracks.
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 16 (React 19), Tailwind CSS v4, Radix UI, TanStack Query v5, react-hook-form + Zod v4, framer-motion, date-fns |
+| **Backend** | NestJS 11 (Node.js), TypeScript, TypeORM, PostgreSQL 16 |
+| **Auth** | Passport.js (Local + JWT), Argon2 hashing, httpOnly cookies, email verification |
+| **Queue** | BullMQ v5 (Redis-backed async job processing) |
+| **File Storage** | Azure Blob Storage (avatars, scan images, reports, audio) |
+| **Email** | Brevo SMTP via Nodemailer |
+| **AI** | Fine-tuned Whisper Large-V3 + Llama-3 8B (4-bit) for Egyptian Arabic medical voice-to-report |
+| **Mobile** | Kotlin Multiplatform (Compose) — Android + iOS |
+| **Infra** | Docker Compose (local/staging/prod), Terraform, GitHub Actions CI/CD |
 
 ---
 
-### 🔄 Track Collaboration
+## Architecture
 
-* 👥 Work proceeds concurrently by **tracks**.
-
-  * AI team works independently (no blockers).
-  * Security team waits if no new changes exist.
-  * Backend can **delay AI integration** until finalized.
-  * Frontend/mobile should flag any **backend dependency blockers** in board channel.
-* ⚠️ To reduce blockers:
-
-  * Keep PRs small and merge them quickly.
-  * Optimize the review and merge timeframe.
+```
+┌─────────────┐     ┌──────────────────────────────────────┐     ┌───────────┐
+│  Next.js 16 │────▶│          NestJS 11 API               │────▶│ PostgreSQL│
+│  (Frontend) │     │  ┌─────┐ ┌──────┐ ┌──────────────┐  │     └───────────┘
+└─────────────┘     │  │Auth │ │Users│ │  Patients    │  │     ┌───────────┐
+                    │  ├─────┤ ├──────┤ ├──────────────┤  │────▶│   Redis   │
+┌─────────────┐     │  │Docs │ │Sched │ │Appointments  │  │     └───────────┘
+│ Kotlin App  │────▶│  ├─────┤ ├──────┤ ├──────────────┤  │     ┌───────────┐
+│  (Mobile)   │     │  │Scans│ │Report│ │Voice Reports │  │────▶│Azure Blob │
+└─────────────┘     │  ├─────┤ └──────┘ └──────────────┘  │     └───────────┘
+                    │  │Diagnosis │  BullMQ Workers        │     ┌───────────┐
+                    │  │ (AI Pipe)│ ◀──────────────────────│────▶│  AI Server│
+                    └──────────────────────────────────────┘     └───────────┘
+```
 
 ---
 
-## 🗓️ Monthly Board Meeting
+## Features
 
-* 📣 At the end of each month:
+### 🔐 Authentication & User Management
+- Email/password registration with role selection (patient, doctor, secretary, manager)
+- JWT authentication (access + refresh tokens as httpOnly cookies, auto-rotation)
+- Email verification (token-based, Brevo SMTP)
+- Forgot/reset password flow
+- Email change with confirmation
+- Profile management: name, phone, avatar upload (Azure Blob), bio, gender, birth date
 
-  * Hold a **board meeting** to wrap up and plan the next month.
-  * 🧑‍🤝‍🧑 Other team members can join optionally.
+### 👥 Role-Based Access Control
+Four roles with separate dashboards and permissions:
+
+| Role | Capabilities |
+|------|-------------|
+| **Patient** | Book appointments, view medical records, upload scans, view diagnoses |
+| **Doctor** | Manage schedules, accept appointments, view patient scans, write diagnoses, record voice reports |
+| **Secretary** | Manage appointments (approve/reject), manage patients & medical records, upload scans, manage doctor schedules & specialities |
+| **Manager** | Approve/reject doctor & secretary registrations, manage all users, view patients |
+
+### 📅 Appointment Booking System
+- Hospital-grade workflow: `pending → confirmed/cancelled → completed`
+- Patients browse doctors by name or speciality
+- View real-time available time slots for selected date
+- Book an appointment from an available slot
+- Secretaries/managers approve or reject pending appointments
+- Patients can rate and review completed appointments
+- Blacklist support for problematic users
+
+### 🩺 Doctor Schedule Management
+- **Schedule Templates**: Define recurring weekly patterns (e.g., Mon–Wed 9:00–17:00)
+- **Apply Template**: Generate concrete date slots from a template for a date range
+- **Schedule Slots**: CRUD for individual date/time slots (e.g., 2026-07-14 09:00–09:30)
+- Slots visible to patients for booking
+
+### 📋 Patient Medical Records
+Complete medical history management:
+- Allergies (name, description)
+- Chronic diseases (name, description, diagnosis date)
+- Family history (relation, condition, notes)
+- Surgeries (name, date, description)
+- Emergency contacts (name, relation, phone, email, address)
+- Patient vitals: height, weight, blood type, marital status
+
+### 🖼️ Medical Scans & Reports
+- Upload scan images (linked to patient & optional appointment)
+- Upload medical reports (PDF/images)
+- View scan images directly in browser (served from Azure Blob)
+- All files stored securely in Azure Blob Storage
+- Role-based access: patients see their own, doctors see assigned patients, secretaries see all
+
+### 🤖 AI-Powered Report Analysis
+- Upload a medical report (image/PDF)
+- Async analysis via BullMQ queue → external AI server
+- Poll for analysis status (processing, completed, failed)
+- Analysis results stored as JSONB on the report
+
+### 🎙️ Voice-to-Clinical Report (Egyptian Arabic)
+- Doctors record spoken notes after an appointment
+- Audio uploaded → BullMQ job triggers pipeline:
+  1. FFmpeg converts to 16kHz mono WAV
+  2. Uploads to Azure Blob
+  3. Sends to AI server (fine-tuned Whisper Large-V3 + Llama-3 8B)
+- Results: transcription + structured clinical JSON
+- Supports Egyptian Arabic medical dialect
+
+### 🩻 Doctor Diagnoses
+- Doctors write diagnoses linked to patient & appointment
+- Structured fields: symptoms + summary
+- Viewable in patient medical records
+- Editable (symptoms and full diagnosis)
+
+### 📊 Role-Based Dashboards
+- **Patient Dashboard**: Upcoming appointments, book appointment, medical records
+- **Doctor Dashboard**: Appointment list with details, working hours management, availability viewer
+- **Secretary Dashboard**: All appointments overview, doctor & patient management, specialities CRUD
+- **Manager Dashboard**: User approval workflow, patient list, user role management
+
+### 🌐 Additional
+- Light/dark theme (next-themes)
+- Responsive design (Tailwind CSS)
+- Swagger/OpenAPI docs at `GET /api/docs`
+- Mobile app (Kotlin Multiplatform — Android + iOS)
+
+---
+
+## Project Structure
+
+```
+MedAI/
+├── backend/                  # NestJS API server
+│   ├── src/
+│   │   ├── auth/             # Authentication module
+│   │   ├── users/            # User management module
+│   │   ├── patients/         # Patient medical records module
+│   │   ├── doctors/          # Doctor profiles & specialities module
+│   │   ├── schedules/        # Schedule templates & slots module
+│   │   ├── appointments/     # Appointment booking module
+│   │   ├── scans/            # Medical scan & report uploads module
+│   │   ├── diagnosis/        # Doctor diagnosis module
+│   │   ├── voice-reports/    # Voice report + async AI pipeline module
+│   │   ├── report-analysis/  # Lab report AI analysis module
+│   │   ├── mail/             # Brevo SMTP email module
+│   │   ├── database/         # TypeORM config, migrations (25+), seeds
+│   │   └── shared/           # Shared entities, guards, decorators, services
+│   ├── tests/                # E2E tests
+│   └── docker/               # Dockerfiles (dev, test, prod)
+│
+├── frontend-next/            # Next.js 16 frontend
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.js                          # Landing page
+│   │   │   ├── auth/                            # Login, signup, forgot-password
+│   │   │   ├── (dashboard)/
+│   │   │   │   ├── patient/     # Patient dashboard pages
+│   │   │   │   ├── doctor/      # Doctor dashboard pages
+│   │   │   │   ├── secretary/   # Secretary dashboard pages
+│   │   │   │   ├── manager/     # Manager dashboard pages
+│   │   │   │   └── profile/     # User profile page
+│   │   │   ├── reset-password/
+│   │   │   └── download/
+│   │   ├── components/
+│   │   │   ├── ui/              # 60+ shadcn-inspired UI components
+│   │   │   ├── landing/         # Landing page sections
+│   │   │   ├── auth/            # Authentication components
+│   │   │   ├── doctor/          # Doctor-related components (18)
+│   │   │   ├── patient/         # Patient-related components (25)
+│   │   │   ├── secretary/       # Secretary components
+│   │   │   ├── manager/         # Manager components
+│   │   │   ├── schedule/        # Schedule management components (22)
+│   │   │   ├── appointments/    # Appointment components
+│   │   │   ├── scans/           # Scan/report components
+│   │   │   ├── diagnosis/       # Diagnosis components
+│   │   │   └── voice-reports/   # Voice report components
+│   │   ├── contexts/            # Auth, Sidebar, DoctorInfo contexts
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── services/            # API client services (server + client)
+│   │   └── lib/                 # Utilities, Zod schemas, API fetch helpers
+│   ├── public/
+│   └── docker/
+│
+├── ai/                         # AI pipeline (Python)
+│   └── egyptian-voice-medical-analyzer/
+│       ├── Llama3_Egyptian_Medic_Final/  # Fine-tuned model
+│       ├── models/                       # Model weights
+│       ├── main_test.py                  # Inference runner
+│       └── requirements.txt
+│
+├── mobile/                     # Kotlin Multiplatform app
+│   └── MedAI/
+│       ├── composeApp/         # Shared Compose UI + platform code
+│       └── iosApp/             # iOS entry point
+│
+├── infra/                      # Terraform (prod/staging environments)
+├── docker-compose/             # Docker Compose (local/staging/prod)
+├── .github/                    # GitHub Actions CI/CD workflows
+└── Makefile                    # Dev commands
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Docker & Docker Compose (with BuildKit enabled)
+- Node.js 22+ (for running migrations/seeders locally)
+- pnpm
+
+### Local Development
+
+```bash
+# 1. Clone and enter the repo
+git clone <repo-url> && cd MedAI
+
+# 2. Configure environment
+cp backend/.env.example backend/.env
+# Edit backend/.env with your values (JWT secrets, Azure keys, Brevo SMTP, etc.)
+
+# 3. Start all services
+make run
+```
+
+This starts: NestJS API (port 8000), Next.js frontend (port 3000), PostgreSQL (5432), Redis (6379), runs migrations and seeds.
+
+### Individual Commands
+
+```bash
+make run              # Full local environment
+make stop             # Stop all containers
+make migrate          # Run pending TypeORM migrations
+make generate-migration MIGRATION_NAME=name   # Generate migration from entities
+make seed             # Run database seeders
+make lint             # Lint both frontend and backend
+make test-backend     # Run backend tests with coverage
+make format           # Format all code with Prettier
+make clean-db         # Wipe PostgreSQL data volume
+```
+
+### Environment Variables
+
+Key variables (see `backend/.env.example` for full list):
+
+| Variable | Description |
+|----------|-------------|
+| `JWT_SECRET` / `REFRESH_TOKEN_SECRET` | Token signing secrets |
+| `BREVO_SMTP_*` | Brevo email credentials (verification, password reset) |
+| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob Storage (avatars, scans, reports) |
+| `REDIS_HOST` / `REDIS_PORT` | Redis for BullMQ queues |
+| `AI_SERVER_URL` | AI voice-to-report pipeline endpoint |
+| `LAB_AI_SERVER_URL` | Lab report analysis AI endpoint |
+
+---
+
+## API
+
+The NestJS backend exposes a REST API at `/api/*`. Full Swagger documentation is available at `/api/docs` when the server is running.
+
+### Key Endpoints
+
+**Auth**: `POST /api/auth/login`, `POST /api/auth/refresh-token`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `POST /api/auth/change-email`
+
+**Users**: `POST /api/users` (register), `GET /api/users/me`, `PATCH /api/users/:id`, `POST /api/users/:id/avatar`
+
+**Patients**: `GET /api/patients`, `GET /api/patients/:id`, CRUD for allergies, chronic diseases, family history, surgeries, emergency contacts
+
+**Doctors**: `GET /api/doctors`, `POST /api/doctors/search/speciality`, `POST /api/doctors/search/name`, `GET /api/doctors/top-rated`, CRUD specialities
+
+**Schedules**: CRUD schedule-templates, schedule-slots, `POST apply-template` (per doctor)
+
+**Appointments**: `POST /api/appointments`, `GET /api/appointments/me`, `PATCH /api/appointments/:id/status`, `PATCH /api/appointments/:id/review`
+
+**Voice Reports**: `POST /api/appointments/:id/voice-reports`, `GET /api/appointments/:id/voice-reports/:reportId`
+
+**Scans & Reports**: `POST /api/scans/:id`, `POST /api/scans/:id/:scanId/reports`, `GET /api/scans/images/:id/:imageId/file`
+
+**Diagnoses**: `POST /api/diagnosis/:id`, `PATCH /api/diagnosis/:id/:diagnosisId`
+
+---
+
+## AI Pipeline
+
+### Voice-to-Clinical Report
+1. Doctor records audio on the frontend
+2. Audio uploaded to backend → stored in Azure Blob → BullMQ job queued
+3. FFmpeg converts to 16kHz mono WAV
+4. Sent to AI server running fine-tuned **Whisper Large-V3** (Egyptian Arabic STT)
+5. Transcription fed into fine-tuned **Llama-3 8B** (4-bit quantized) for medical NLU
+6. Structured clinical JSON returned and stored
+
+### Medical Report Analysis
+1. Secretary uploads report (image/PDF) for a patient
+2. BullMQ job triggers analysis on `LAB_AI_SERVER_URL`
+3. Frontend polls for status until complete
+
+---
+
+## Testing
+
+```bash
+# Backend unit + integration tests
+make test-backend
+
+# E2E tests
+pnpm --prefix backend run test:e2e
+
+# Linting
+make lint
+```
+
+---
+
+## Deployment
+
+Three Docker Compose environments:
+
+| File | Purpose |
+|------|---------|
+| `docker-compose/local.yaml` | Local development (hot-reload, debug) |
+| `docker-compose/staging.yaml` | Staging environment |
+| `docker-compose/prod.yaml` | Production (standalone Next.js build) |
+
+Terraform configurations under `infra/` for cloud infrastructure provisioning.
