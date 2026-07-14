@@ -3,7 +3,7 @@ module "infrastructure" {
 
   environment                      = "prod"
   location                         = var.location
-  vm_size                          = var.vm_size
+  vm_size                          = "Standard_D2s_v3"
   acr_name                         = var.acr_name
   existing_acr_resource_group_name = var.existing_acr_resource_group_name
   domain_name_label                = var.domain_name_label
