@@ -1,6 +1,6 @@
 # MedAI
 
-> Graduation project — Mansoura University  
+> Graduation project — Mansoura University
 > AI-powered medical platform connecting patients, doctors, secretaries, and managers.
 
 ---
