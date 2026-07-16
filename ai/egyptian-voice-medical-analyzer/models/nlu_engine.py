@@ -36,6 +36,10 @@ class MedicalAnalyzer:
         self.model = PeftModel.from_pretrained(model, adapter_path)
         self.model.eval()
 
+        # FORCE CONFIG OVERWRITE HERE:
+        self.model.generation_config.max_length = None
+        self.model.generation_config.max_new_tokens = 256
+
         # Define the Alpaca prompt template used during the Colab training phase
         self.alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
@@ -50,33 +54,19 @@ Extract medical symptoms from Egyptian Arabic slang.
         print("✅ Medical Brain Loaded Successfully!")
 
     def analyze(self, patient_text):
-        """
-        Converts raw Egyptian slang text into a structured Clinical JSON report.
-        """
-        # Prepare inputs for the model
-        inputs = self.tokenizer(
-            self.alpaca_prompt.format(patient_text),
-            return_tensors="pt"
-        ).to("cuda")
+        prompt_text = self.alpaca_prompt.format(patient_text)
+        inputs = self.tokenizer(prompt_text, return_tensors="pt").to("cuda")
 
-        # Generate the clinical response
         with torch.no_grad():
             outputs = self.model.generate(
-                **inputs,
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
                 max_new_tokens=256,
                 pad_token_id=self.tokenizer.eos_token_id,
-                temperature=0.1,    # Set low for high deterministic accuracy
-                do_sample=True
+                eos_token_id=self.tokenizer.eos_token_id,
+                use_cache=True
             )
 
-        # Decode and extract only the Response section
-        decoded = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        if "### Response:" in decoded:
-            response_json = decoded.split("### Response:")[1].strip()
-            # Clean up the output by removing the end-of-text token if present
-            if "<|end_of_text|>" in response_json:
-                response_json = response_json.split("<|end_of_text|>")[0].strip()
-            return response_json
-
-        return decoded
+        generated_tokens = outputs[0][len(inputs["input_ids"][0]):]
+        decoded_response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+        return decoded_response
