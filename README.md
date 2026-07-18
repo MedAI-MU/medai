@@ -1,13 +1,23 @@
 # MedAI
 
-> Graduation project — Mansoura University
-> AI-powered medical platform connecting patients, doctors, secretaries, and managers.
+> **Graduation Project — Mansoura University**
+> An AI-powered healthcare ecosystem seamlessly connecting patients, doctors, secretaries, and hospital managers.
+
+[![Platform Support](https://img.shields.io/badge/Platform-Web%20%7C%20Mobile%20%7C%20AI-blue?style=for-the-badge&logo=android)](https://github.com/)
+[![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform-purple?style=for-the-badge&logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-teal?style=for-the-badge&logo=jetpackcompose)](https://github.com/JetBrains/compose-multiplatform)
+[![Backend](https://img.shields.io/badge/NestJS-11-red?style=for-the-badge&logo=nestjs)](https://nestjs.com/)
+[![Frontend](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 
 ---
 
 ## Overview
 
-MedAI is a full-stack medical platform that streamlines hospital workflows. It enables AI-driven medical scan analysis, voice-to-clinical-report transcription (Egyptian Arabic), appointment booking with hospital-grade approval workflows, and comprehensive patient medical records management — all behind role-based dashboards.
+**medAI** is a comprehensive, production-grade medical platform designed to streamline clinical and administrative hospital workflows. The system integrates advanced AI capabilities, including:
+1. **Egyptian Arabic Medical Voice-to-Report Transcription**: Tailored pipeline utilizing fine-tuned Whisper and Llama-3 models.
+2. **AI Lab Report Analysis**: Document text parsing, OCR, and medical summarization.
+3. **Cross-Platform Mobile App**: A dedicated Kotlin Multiplatform (Compose Multiplatform) client targeting Android & iOS for patients and doctors.
+4. **Role-Based Web Dashboard**: Dashboards for patients, doctors, secretaries, and managers built with Next.js.hboards.
 
 ---
 
