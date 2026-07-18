@@ -13,7 +13,7 @@
 
 ## Technical Overview
 
-The **medAI Mobile Client** is a state-of-the-art mobile application built using **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. It shares 95%+ of its codebase between Android and iOS, including UI layouts, state management, business logic, networking, and data storage. 
+The **medAI Mobile Client** is a state-of-the-art mobile application built using **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. It shares 95%+ of its codebase between Android and iOS, including UI layouts, state management, business logic, networking, and data storage.
 
 Designed for all four organizational roles—**Patients, Doctors, Secretaries, and Managers**—the application features dynamic role-based dashboards with secure workflows:
 
