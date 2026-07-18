@@ -1,20 +1,30 @@
 # MedAI
 
-> Graduation project — Mansoura University
-> AI-powered medical platform connecting patients, doctors, secretaries, and managers.
+> **Graduation Project — Mansoura University**
+> An AI-powered healthcare ecosystem seamlessly connecting patients, doctors, secretaries, and hospital managers.
+
+[![Platform Support](https://img.shields.io/badge/Platform-Web%20%7C%20Mobile%20%7C%20AI-blue?style=for-the-badge&logo=android)](https://github.com/)
+[![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform-purple?style=for-the-badge&logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-teal?style=for-the-badge&logo=jetpackcompose)](https://github.com/JetBrains/compose-multiplatform)
+[![Backend](https://img.shields.io/badge/NestJS-11-red?style=for-the-badge&logo=nestjs)](https://nestjs.com/)
+[![Frontend](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 
 ---
 
 ## Overview
 
-MedAI is a full-stack medical platform that streamlines hospital workflows. It enables AI-driven medical scan analysis, voice-to-clinical-report transcription (Egyptian Arabic), appointment booking with hospital-grade approval workflows, and comprehensive patient medical records management — all behind role-based dashboards.
+**medAI** is a comprehensive, production-grade medical platform designed to streamline clinical and administrative hospital workflows. The system integrates advanced AI capabilities, including:
+1. **Egyptian Arabic Medical Voice-to-Report Transcription**: Tailored pipeline utilizing fine-tuned Whisper and Llama-3 models.
+2. **AI Lab Report Analysis**: Document text parsing, OCR, and medical summarization.
+3. **Cross-Platform Mobile App**: A dedicated Kotlin Multiplatform (Compose Multiplatform) client targeting Android & iOS for patients and doctors.
+4. **Role-Based Web Dashboard**: Dashboards for patients, doctors, secretaries, and managers built with Next.js.hboards.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
 | **Frontend** | Next.js 16 (React 19), Tailwind CSS v4, Radix UI, TanStack Query v5, react-hook-form + Zod v4, framer-motion, date-fns |
 | **Backend** | NestJS 11 (Node.js), TypeScript, TypeORM, PostgreSQL 16 |
 | **Auth** | Passport.js (Local + JWT), Argon2 hashing, httpOnly cookies, email verification |
@@ -22,7 +32,7 @@ MedAI is a full-stack medical platform that streamlines hospital workflows. It e
 | **File Storage** | Azure Blob Storage (avatars, scan images, reports, audio) |
 | **Email** | Brevo SMTP via Nodemailer |
 | **AI** | Fine-tuned Whisper Large-V3 + Llama-3 8B (4-bit) for Egyptian Arabic medical voice-to-report |
-| **Mobile** | Kotlin Multiplatform (Compose) — Android + iOS |
+| **Mobile** | Kotlin Multiplatform (Compose Multiplatform) — Android + iOS |
 | **Infra** | Docker Compose (local/staging/prod), Terraform, GitHub Actions CI/CD |
 
 ---
@@ -33,13 +43,13 @@ MedAI is a full-stack medical platform that streamlines hospital workflows. It e
 ┌─────────────┐     ┌──────────────────────────────────────┐     ┌───────────┐
 │  Next.js 16 │────▶│          NestJS 11 API               │────▶│ PostgreSQL│
 │  (Frontend) │     │  ┌─────┐ ┌──────┐ ┌──────────────┐  │     └───────────┘
-└─────────────┘     │  │Auth │ │Users│ │  Patients    │  │     ┌───────────┐
-                    │  ├─────┤ ├──────┤ ├──────────────┤  │────▶│   Redis   │
-┌─────────────┐     │  │Docs │ │Sched │ │Appointments  │  │     └───────────┘
-│ Kotlin App  │────▶│  ├─────┤ ├──────┤ ├──────────────┤  │     ┌───────────┐
-│  (Mobile)   │     │  │Scans│ │Report│ │Voice Reports │  │────▶│Azure Blob │
-└─────────────┘     │  ├─────┤ └──────┘ └──────────────┘  │     └───────────┘
-                    │  │Diagnosis │  BullMQ Workers        │     ┌───────────┐
+└─────────────┘     │  │Auth │ │Users│ │  Patients    │  │
+                    │  ├─────┤ ├──────┤ ├──────────────┤  │     ┌───────────┐
+┌─────────────┐     │  │Docs │ │Sched │ │Appointments  │  │────▶│   Redis   │
+│ Kotlin App  │────▶│  ├─────┤ ├──────┤ ├──────────────┤  │     └───────────┘
+│  (Mobile)   │     │  │Scans│ │Report│ │Voice Reports │  │     ┌───────────┐
+└─────────────┘     │  ├─────┤ └──────┘ └──────────────┘  │────▶│Azure Blob │
+                    │  │Diagnosis │  BullMQ Workers        │     └───────────┘
                     │  │ (AI Pipe)│ ◀──────────────────────│────▶│  AI Server│
                     └──────────────────────────────────────┘     └───────────┘
 ```
@@ -61,7 +71,7 @@ Four roles with separate dashboards and permissions:
 
 | Role | Capabilities |
 |------|-------------|
-| **Patient** | Book appointments, view medical records, upload scans, view diagnoses |
+| **Patient** | Book appointments, view medical records, upload scans, view diagnoses, track AI reports |
 | **Doctor** | Manage schedules, accept appointments, view patient scans, write diagnoses, record voice reports |
 | **Secretary** | Manage appointments (approve/reject), manage patients & medical records, upload scans, manage doctor schedules & specialities |
 | **Manager** | Approve/reject doctor & secretary registrations, manage all users, view patients |
@@ -124,11 +134,14 @@ Complete medical history management:
 - **Secretary Dashboard**: All appointments overview, doctor & patient management, specialities CRUD
 - **Manager Dashboard**: User approval workflow, patient list, user role management
 
-### 🌐 Additional
-- Light/dark theme (next-themes)
-- Responsive design (Tailwind CSS)
-- Swagger/OpenAPI docs at `GET /api/docs`
-- Mobile app (Kotlin Multiplatform — Android + iOS)
+### 📱 Kotlin Multiplatform Mobile App (Android & iOS)
+- **Shared Compose UI**: Declarative layouts shared between Android and iOS.
+- **Unified Presentation**: Unidirectional MVI architecture using Voyager ScreenModels.
+- **Native Dictation**: Low-latency recording (MPEG-4 AAC) via platform hardware APIs.
+- **Silent Token Rotation**: Ktor client auth interceptor providing automated session refresh.
+- **Lab Analysis Telemetry**: Cold Flow-based background status polling with real-time UI feedback.
+- **Upload Guards**: Client-side multipart upload validation restricted to 10MB limits.
+- **Custom Design System**: Consistent colors, custom forms, and widgets across platform views.
 
 ---
 
@@ -194,14 +207,19 @@ MedAI/
 │       ├── main_test.py                  # Inference runner
 │       └── requirements.txt
 │
-├── mobile/                     # Kotlin Multiplatform app
-│   └── MedAI/
+├── mobile/                     # Mobile Application
+│   └── MedAI/                  # Kotlin Multiplatform Project
 │       ├── composeApp/         # Shared Compose UI + platform code
-│       └── iosApp/             # iOS entry point
+│       │   └── src/commonMain/kotlin/org/example/project/
+│       │       ├── core/       # Base MVI framework classes
+│       │       ├── data/       # Remote Ktor client, DTOs & repositories
+│       │       ├── domain/     # Domain models, use cases & native audio contracts
+│       │       ├── presentation/# View layer: screens (Voyager) & viewmodels (MVI)
+│       │       └── design_system/# Palette, typography, spacing and forms
+│       └── iosApp/             # iOS Xcode entry point and app delegate
 │
 ├── infra/                      # Terraform (prod/staging environments)
 ├── docker-compose/             # Docker Compose (local/staging/prod)
-├── .github/                    # GitHub Actions CI/CD workflows
 └── Makefile                    # Dev commands
 ```
 
@@ -214,8 +232,10 @@ MedAI/
 - Docker & Docker Compose (with BuildKit enabled)
 - Node.js 22+ (for running migrations/seeders locally)
 - pnpm
+- Java Development Kit (JDK) 17+ (for compiling the Mobile app)
+- Android Studio / Xcode (for Android / iOS simulator builds)
 
-### Local Development
+### Local Development (Backend & Web)
 
 ```bash
 # 1. Clone and enter the repo
@@ -257,6 +277,43 @@ Key variables (see `backend/.env.example` for full list):
 | `REDIS_HOST` / `REDIS_PORT` | Redis for BullMQ queues |
 | `AI_SERVER_URL` | AI voice-to-report pipeline endpoint |
 | `LAB_AI_SERVER_URL` | Lab report analysis AI endpoint |
+
+---
+
+### Compiling & Running the Mobile Client
+
+The mobile app codebase is located at `mobile/MedAI/`.
+
+#### 1. Set Backend Base Endpoint
+Create/edit `local.properties` in `mobile/MedAI/` and add the backend base URL:
+```properties
+# Android Emulator loopback pointing to host machine localhost
+medai.base_url=http://10.0.2.2:8000/api/
+
+# For iOS Simulator (localhost works directly)
+# medai.base_url=http://localhost:8000/api/
+```
+
+#### 2. Run Android Application
+Ensure you have an Android virtual device running or a physical device connected:
+* **macOS / Linux**:
+  ```shell
+  cd mobile/MedAI
+  ./gradlew :composeApp:installDebug
+  ```
+* **Windows**:
+  ```shell
+  cd mobile\MedAI
+  .\gradlew.bat :composeApp:installDebug
+  ```
+
+#### 3. Run iOS Application (macOS required)
+Open the Xcode workspace inside `mobile/MedAI/iosApp`:
+```bash
+cd mobile/MedAI/iosApp
+open iosApp.xcodeproj
+```
+Select your target simulator (e.g. iPhone 15) and click **Run** (Cmd + R) inside Xcode.
 
 ---
 
@@ -314,6 +371,10 @@ pnpm --prefix backend run test:e2e
 
 # Linting
 make lint
+
+# Run Mobile KMP shared tests
+cd mobile/MedAI
+./gradlew :composeApp:testDebugUnitTest
 ```
 
 ---

@@ -73,20 +73,20 @@ async def full_voice_to_clinical_pipeline(
     temp_path = f"temp_{audio_file.filename}"
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(audio_file.file, buffer)
-        
+
     try:
         print("\n⏱️  --- STARTING PROFILING ---")
-        
+
         # 1. قياس وقت الـ STT (Whisper)
         start_stt = time.time()
         transcription = stt_engine.transcribe(temp_path)
         end_stt = time.time()
         stt_duration = end_stt - start_stt
         print(f"🔊 STT (Whisper) Took: {stt_duration:.2f} seconds")
-        
+
         if transcription.startswith("Error:"):
             raise HTTPException(status_code=500, detail=f"STT Failed: {transcription}")
-            
+
         # 2. قياس وقت الـ NLU (Llama-3)
         start_nlu = time.time()
         raw_nlu_output = nlu_engine.analyze(transcription)
@@ -94,16 +94,16 @@ async def full_voice_to_clinical_pipeline(
         end_nlu = time.time()
         nlu_duration = end_nlu - start_nlu
         print(f"🧠 NLU (Llama-3) Took: {nlu_duration:.2f} seconds")
-        
+
         print(f" Total Pipeline Execution Time: {stt_duration + nlu_duration:.2f} seconds")
         print("⏱️  --- END OF PROFILING ---\n")
-        
+
         return {
             "status": "success",
             "transcription": transcription,
             "clinical_report": structured_json
         }
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -120,7 +120,7 @@ async def speech_to_text_only(
     temp_path = f"temp_{audio_file.filename}"
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(audio_file.file, buffer)
-        
+
     try:
         transcription = stt_engine.transcribe(temp_path)
         return {
@@ -142,11 +142,11 @@ async def text_to_clinical_only(
 ):
     if not payload.text.strip():
         raise HTTPException(status_code=400, detail="Input text cannot be empty.")
-        
+
     try:
         raw_output = nlu_engine.analyze(payload.text)
         structured_json = extract_clean_json(raw_output)
-        
+
         return {
             "status": "success",
             "clinical_report": structured_json
