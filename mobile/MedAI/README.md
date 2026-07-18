@@ -13,7 +13,7 @@
 
 ## Technical Overview
 
-The **medAI Mobile Client** is a state-of-the-art mobile application built using **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. It shares 95%+ of its codebase between Android and iOS, including UI layouts, state management, business logic, networking, and data storage.
+The **medAI Mobile Client** is a state-of-the-art mobile application built using **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. It shares 95%+ of its codebase between Android and iOS, including UI layouts, state management, business logic, networking, and data storage. 
 
 Designed for all four organizational roles—**Patients, Doctors, Secretaries, and Managers**—the application features dynamic role-based dashboards with secure workflows:
 
@@ -119,26 +119,26 @@ The network layer implements automated token rotation via the Ktor `Auth` plugin
 
 ```kotlin
 install(Auth) {
-  bearer {
-    loadTokens {
-      val accessToken = sessionManager.getUserToken()
-      if (accessToken != null) BearerTokens(accessToken, "") else null
+    bearer {
+        loadTokens {
+            val accessToken = sessionManager.getUserToken()
+            if (accessToken != null) BearerTokens(accessToken, "") else null
+        }
+        refreshTokens {
+            // Triggered automatically on 401 Unauthorized
+            val refreshResponse = refreshClient.post("auth/refresh-token")
+            if (refreshResponse.status == HttpStatusCode.OK) {
+                val newAccessToken = sessionManager.parseAccessTokenFromCookies()
+                if (newAccessToken != null) {
+                    sessionManager.updateUserToken(newAccessToken)
+                    BearerTokens(newAccessToken, "")
+                } else null
+            } else {
+                sessionManager.clearSession() // Session expired, force logout
+                null
+            }
+        }
     }
-    refreshTokens {
-      // Triggered automatically on 401 Unauthorized
-      val refreshResponse = refreshClient.post("auth/refresh-token")
-      if (refreshResponse.status == HttpStatusCode.OK) {
-        val newAccessToken = sessionManager.parseAccessTokenFromCookies()
-        if (newAccessToken != null) {
-          sessionManager.updateUserToken(newAccessToken)
-          BearerTokens(newAccessToken, "")
-        } else null
-      } else {
-        sessionManager.clearSession() // Session expired, force logout
-        null
-      }
-    }
-  }
 }
 ```
 
@@ -162,18 +162,18 @@ Because AI transcribing and medical scan analysis are computationally heavy, the
 
 ```kotlin
 fun startPolling(reportId: String) {
-  pollingJob?.cancel()
-  pollingJob = screenModelScope.launch {
-    pollAnalysisStatusUseCase(reportId)
-      .collectLatest { result ->
-        result.onSuccess { report ->
-          setState { copy(pollingReport = report) }
-          if (report.analysisStatus == Status.COMPLETED || report.analysisStatus == Status.FAILED) {
-            pollingJob?.cancel()
-          }
-        }
-      }
-  }
+    pollingJob?.cancel()
+    pollingJob = screenModelScope.launch {
+        pollAnalysisStatusUseCase(reportId)
+            .collectLatest { result ->
+                result.onSuccess { report ->
+                    setState { copy(pollingReport = report) }
+                    if (report.analysisStatus == Status.COMPLETED || report.analysisStatus == Status.FAILED) {
+                        pollingJob?.cancel()
+                    }
+                }
+            }
+    }
 }
 ```
 
@@ -225,7 +225,7 @@ Below are the layout flow and design blueprints:
 | Voice Recorder UI | AI Audio Processing Status |
 | :---: | :---: |
 | <img src="https://github.com/user-attachments/assets/a4cdeb00-3ba5-4095-bac2-92096f84a2f2" width="250" /> | <img src="https://github.com/user-attachments/assets/221d9825-adcc-427e-bfa6-90f4d0aeee66" width="250" /> |
-| <img src="https://github.com/user-attachments/assets/bcc3976e-2cf6-4d12-a8ae-2035724fbae9" width="250" /> | |
+| <img src="https://github.com/user-attachments/assets/f06248d4-01eb-4475-a60c-67a9470992a2" width="250" /> | |
 
 ---
 
