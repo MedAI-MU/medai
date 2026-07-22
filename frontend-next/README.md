@@ -138,45 +138,41 @@ _Screenshots to be added._
 
 ### 1. Authentication & Onboarding
 
-|     Login      |     Signup     | Forgot Password |
-| :------------: | :------------: | :-------------: |
-| `[screenshot]` | `[screenshot]` | `[screenshot]`  |
+|     Signup      | Appoval Pending |
+| :------------: | :------------: |
+| <img width="1920" height="1080" alt="auth" src="https://github.com/user-attachments/assets/32b62c32-bc9a-43af-ad60-9ea95eb0c229" /> | <img width="1920" height="1080" alt="needs-approval" src="https://github.com/user-attachments/assets/53771a43-1ae2-4d52-969e-e257a71cca4a" />|
 
 ### 2. Patient Workflow
 
-| Browse Doctors & Book Appointment | Medical Records | Scans & Reports |
-| :-------------------------------: | :-------------: | :-------------: |
-|          `[screenshot]`           | `[screenshot]`  | `[screenshot]`  |
+| Browse Doctors & Book Appointment | Medical Records |
+| :-------------------------------: | :-------------: |
+|         <img width="1920" height="1080" alt="book-app" src="https://github.com/user-attachments/assets/bf6aaeda-890a-47d5-84ff-960dfab1071c" /> | <img width="1906" height="877" alt="medical-records" src="https://github.com/user-attachments/assets/5b88f890-7600-4830-b129-7df43c0d4a95" /> |
 
 | Appointments List |    Profile     |
 | :---------------: | :------------: |
-|  `[screenshot]`   | `[screenshot]` |
+|  <img width="1920" height="1080" alt="appointments" src="https://github.com/user-attachments/assets/de0912f3-3a64-4e97-8fba-1776a7827bdd" /> | <img width="1920" height="1080" alt="profile" src="https://github.com/user-attachments/assets/332db263-b885-40e8-a487-e811fdbdd002" /> |
 
 ### 3. Doctor Workflow
 
-| Dashboard & Queue | Appointment Details | Voice Reports  |
-| :---------------: | :-----------------: | :------------: |
-|  `[screenshot]`   |   `[screenshot]`    | `[screenshot]` |
-
 | Schedule Management | Working Hours  |
 | :-----------------: | :------------: |
-|   `[screenshot]`    | `[screenshot]` |
+|  <img width="1920" height="1080" alt="slots" src="https://github.com/user-attachments/assets/0073e8db-30b9-4375-ab93-ffc2e763b0be" /> | <img width="1920" height="1080" alt="templates" src="https://github.com/user-attachments/assets/310c0c61-86e2-454e-9849-f829bb8bbdf3" /> |
+
+ | Voice Reports  |
+ | :------------: |
+ | <img width="1901" height="868" alt="recording" src="https://github.com/user-attachments/assets/c28905f0-c07a-4143-b350-0845099ef3f7" /> |
 
 ### 4. Secretary Workflow
 
 |   Dashboard    | Schedule Templates | Slot Management |
 | :------------: | :----------------: | :-------------: |
-| `[screenshot]` |   `[screenshot]`   | `[screenshot]`  |
-
-| Appointments Queue | Patient Registration |
-| :----------------: | :------------------: |
-|   `[screenshot]`   |    `[screenshot]`    |
+| <img width="1920" height="1080" alt="secretary" src="https://github.com/user-attachments/assets/e31fa4e1-f3f5-41b1-b8e3-b82aeec60bd5" /> |   <img width="1920" height="1080" alt="templates" src="https://github.com/user-attachments/assets/5900fbeb-dd5c-432f-9463-a57272a08a59" /> | <img width="1920" height="1080" alt="slots" src="https://github.com/user-attachments/assets/44d8bdb6-7574-4224-9fb9-ef97d7276f36" /> |
 
 ### 5. Manager Workflow
 
-|   Dashboard    | User Approvals | User Management |
-| :------------: | :------------: | :-------------: |
-| `[screenshot]` | `[screenshot]` | `[screenshot]`  |
+|   Dashboard    | User Approvals |
+| :------------: | :------------: |
+| <img width="1920" height="1080" alt="manager-dash" src="https://github.com/user-attachments/assets/2ceec2e7-235e-4a23-a552-18ace5572392" /> | <img width="1920" height="1080" alt="dashboard-pending" src="https://github.com/user-attachments/assets/83c87c8a-0821-45fa-8fc7-8ced5208fa0c" /> |
 
 ---
 
