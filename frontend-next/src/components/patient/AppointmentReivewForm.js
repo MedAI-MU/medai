@@ -55,7 +55,7 @@ function AppointmentReivewForm({ appointment, closeModal }) {
             className="shadow-sm"
           />
           <div className="flex-1">
-            <Heading Tag="h3" size="xs" title={`Dr. ${doctor?.user?.name}`} />
+            <Heading Tag="h3" size="xs" title={`Dr. ${doctor?.name}`} />
             <div className="text-text-muted mt-1 flex items-center gap-2 text-sm">
               <CalendarDays size={16} />
               <span>

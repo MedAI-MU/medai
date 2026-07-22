@@ -32,7 +32,12 @@ function PatientAppointmentCard({ appointment }) {
           {doctor?.specialities?.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {doctor.specialities?.map((spec) => (
-                <Badge key={spec} text={spec} color="purple" isRounded />
+                <Badge
+                  key={spec?.id}
+                  text={spec?.speciality?.name}
+                  color="purple"
+                  isRounded
+                />
               ))}
             </div>
           ) : (
