@@ -77,7 +77,7 @@ jobs:
 
       # ----------------- Upload to GitHub Release -----------------
       - name: Create Release and Upload APKs
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'latest-android' }}
           name: ${{ github.ref_type == 'tag' && github.ref_name || 'Latest Android Build' }}
