@@ -46,7 +46,7 @@ jobs:
           fetch-depth: 2
 
       - name: Detect infra changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
