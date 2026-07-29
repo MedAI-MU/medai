@@ -66,10 +66,10 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.auth)
 
-            implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta02")
-            implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta02")
-            implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta02")
-            implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta02")
+            implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta03")
+            implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta03")
+            implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
+            implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta03")
             implementation(libs.voyager.koin)
 
             // data store
