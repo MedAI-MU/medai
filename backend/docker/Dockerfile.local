@@ -1,4 +1,4 @@
-FROM node:24-alpine AS builder
+FROM node:25-alpine AS builder
 
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
@@ -30,7 +30,7 @@ COPY --chmod=444 --chown=root:root package.json pnpm-lock.yaml pnpm-workspace.ya
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
-FROM node:24-alpine
+FROM node:25-alpine
 SHELL ["/bin/sh", "-c", "-o", "pipefail"]
 
 ENV APK_CACHE_DIR="/medai/.cache/apk-backend" \
